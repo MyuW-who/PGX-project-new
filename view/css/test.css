@@ -1,0 +1,225 @@
+/* === Global === */
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: #f5f7fb;
+  color: #333;
+}
+.dashboard {
+  display: flex;
+  height: 100vh;
+}
+
+/* === Sidebar === */
+.sidebar {
+  width: 230px;
+  background: #8a5ae6;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+.logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar li {
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.sidebar li.active,
+.sidebar li:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* === Main Content === */
+.main-content {
+  flex: 1;
+  padding: 20px 30px;
+  display: flex;
+  flex-direction: column;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+.icon-btn, .lang-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  background: #e9eef6;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.icon-btn:hover, .lang-btn:hover {
+  background: #dce3ef;
+}
+
+/* === Toolbar === */
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 15px 0;
+}
+#searchInput {
+  padding: 8px 12px;
+  width: 260px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+#addBtn {
+  background: #8a5ae6;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+#addBtn:hover {
+  background: #7242cc;
+}
+
+/* === Table === */
+.table-section {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 20px;
+  overflow-y: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  text-align: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+.inspect-btn {
+  background: #4594d8;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.inspect-btn:hover {
+  background: #317ab8;
+}
+
+/* === Popup (Overlay) === */
+.popup-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.popup-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  text-align: left;
+}
+.large-form {
+  width: 75%;
+  max-width: 950px;
+}
+
+/* === Form Layout === */
+.large-form h3 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 600;
+  color: #333;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 25px;
+}
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+}
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+.form-group select {
+  background-color: #fff;
+}
+
+/* === Buttons === */
+.form-actions {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.save-btn, .cancel-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  min-width: 100px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.save-btn {
+  background: #2c5ea8;
+  color: #fff;
+}
+.save-btn:hover {
+  background: #1e4d8c;
+}
+.cancel-btn {
+  background: #ccc;
+  color: #333;
+}
+.cancel-btn:hover {
+  background: #b5b5b5;
+}
+
+/* === Dark Mode === */
+body.dark {
+  background: #1e1e2f;
+  color: #ecf0f1;
+}
+body.dark .sidebar {
+  background: #5c3ca4;
+}
+body.dark .table-section {
+  background: #2f2f40;
+}
+body.dark .popup-box {
+  background: #2b2b3c;
+  color: #fff;
+}
