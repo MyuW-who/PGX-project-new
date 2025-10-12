@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="./css/dashboard.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h2 id="logo">แดชบอร์ด</h2>
+      <ul class="menu">
+        <li data-key="home" class="active"></li>
+        <li data-key="report"></li>
+        <li data-key="settings"></li>
+        <li data-key="profile"></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <header>
+        <h1 id="welcome"></h1>
+        <div>
+          <button id="themeToggle">เปลี่ยนธีม</button>
+          <button id="langToggle">EN</button>
+          <button id="logout">ออกจากระบบ</button>
+        </div>
+      </header>
+
+      <section class="content">
+        <h2 id="overview"></h2>
+
+        <div class="cards">
+          <div class="card">
+            <h3 id="sales"></h3>
+            <p>฿ 25,300</p>
+          </div>
+          <div class="card">
+            <h3 id="users"></h3>
+            <p>1,204</p>
+          </div>
+          <div class="card">
+            <h3 id="tasks"></h3>
+            <p>8</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./js/dashboard.js"></script>
+</body>
+</html>

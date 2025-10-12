@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Page</title>
+  <link rel="stylesheet" href="./css/login.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="language-toggle">
+      <button id="lang-en" class="active">EN</button>
+      <button id="lang-th">TH</button>
+    </div>
+
+    <div class="login-box">
+      <img id="logo" src="./png/Srinakharinwirot_Logo_EN_Color.png" alt="Logo" class="logo" />
+      <form>
+        <label for="username" id="label-username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username" />
+
+        <label for="password" id="label-password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" />
+
+        <button type="submit" id="btn-login">Login</button>
+      </form>
+      <div id="popup" class="hidden">Please enter username and password</div>
+    </div>
+  </div>
+
+  <script src="./js/login.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #8866e1, #5e72e4);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  width: 350px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  padding: 25px;
+  text-align: center;
+}
+
+.language-toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.language-toggle button {
+  border: none;
+  background: transparent;
+  font-weight: bold;
+  margin-left: 5px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+
+.language-toggle button.active {
+  background: #8866e1;
+  color: white;
+}
+
+.login-box h2 {
+  margin-bottom: 20px;
+  color: #2d3436;
+}
+
+.login-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-box input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #b2bec3;
+  outline: none;
+}
+#popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 20px 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  z-index: 9999;
+}
+.hidden {
+  display: none;
+}
+
+.login-box button {
+  background: #8866e1;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.login-box button:hover {
+  background: #8866e1;
+}
+
+.login-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: flex-start; /* 🔹 ให้ label ชิดซ้าย */
+  text-align: left;        /* 🔹 จัดข้อความทั้งหมดชิดซ้าย */
+}
+
+.login-box label {
+  font-weight: 500;
+  margin-bottom: 3px;
+}
+
+.login-box input {
+  width: 100%;             /* 🔹 ให้ช่องกรอกเต็มความกว้าง box */
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #b2bec3;
+  outline: none;
+}
+
+.logo {
+  width: 80px;          /* ขนาดโลโก้ */
+  height: auto;
+  margin-bottom: 20px;  /* เว้นระยะจากฟอร์ม */
+}
