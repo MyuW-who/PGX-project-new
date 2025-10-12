@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ข้อมูลผู้ป่วย</title>
+  <link rel="stylesheet" href="./css/patient.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>เมนู</h2>
+      <ul>
+        <li><a href="#" class="active">🏠 หน้าแรก</a></li>
+        <li><a href="#">📊 รายงาน</a></li>
+        <li><a href="#">⚙️ ตั้งค่า</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main content -->
+    <main class="content">
+      <nav class="navbar">
+        <div class="left">
+          <h1 id="pageTitle">ระบบจัดการข้อมูลผู้ป่วย</h1>
+        </div>
+        <div class="right">
+          <button id="themeToggle">🌓 เปลี่ยนธีม</button>
+          <button id="langToggle"> EN</button>
+          <div class="account">👤 <span id="accountName">Admin</span></div>
+        </div>
+      </nav>
+
+      <div class="toolbar">
+        <input type="text" id="search" placeholder="🔍 ค้นหาผู้ป่วย...">
+        <button id="addBtn">➕ เพิ่มข้อมูลผู้ป่วย</button>
+      </div>
+
+      <table id="patientTable">
+        <thead>
+          <tr>
+            <th>ชื่อ-สกุล</th>
+            <th>อายุ</th>
+            <th>โรงพยาบาล</th>
+            <th>ประเภท DNA</th>
+            <th>วันที่ส่งตรวจ</th>
+            <th>วันที่ผลออก</th>
+            <th>การจัดการ</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </main>
+  </div>
+
+  <!-- Popup Form -->
+  <div id="popupForm" class="modal">
+    <div class="modal-content-large">
+      <h2 id="formTitle">เพิ่มข้อมูลผู้ป่วย</h2>
+      <form id="patientForm">
+        <div class="form-grid">
+          <label>ชื่อ-สกุล: <input type="text" id="fullname" required></label>
+          <label>อายุ: <input type="number" id="age" required></label>
+          <label>หน่วยงานที่ส่งตรวจ: <input type="text" id="department"></label>
+          <label>วันที่ส่งตรวจ: <input type="date" id="sentDate"></label>
+          <label>วันที่ผลออก: <input type="date" id="resultDate"></label>
+          <label>ประเภท DNA:
+            <select id="dnaType">
+              <option value="">--เลือก--</option>
+              <option>mtDNA</option>
+              <option>Y-STR</option>
+              <option>Autosomal</option>
+            </select>
+          </label>
+          <label>เบอร์โทร: <input type="tel" id="phone"></label>
+          <label>เชื้อชาติ: <input type="text" id="nationality"></label>
+          <label>โรงพยาบาล: <input type="text" id="hospital"></label>
+          <label>บัตรประชาชน: <input type="text" id="idcard" maxlength="13"></label>
+        </div>
+
+        <div class="buttons">
+          <button type="submit">💾 บันทึก</button>
+          <button type="button" id="cancelBtn">ยกเลิก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="./js/patient.js"></script>
+</body>
+</html>
