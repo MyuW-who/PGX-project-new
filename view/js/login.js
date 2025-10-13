@@ -76,9 +76,9 @@ btn.addEventListener('click', async (e) => {
   const role = result.role;
   localStorage.setItem('userRole', role);
 
-  if (role === 'pharmacist') {
+  if (role === 'medtech') {
     window.electronAPI.navigate('dashboard1'); 
-  } else if (role === 'medtech') {
+  } else if (role === 'pharmacist') {
     window.electronAPI.navigate('dashboard2'); 
   } else {
     
