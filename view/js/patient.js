@@ -1,17 +1,9 @@
-/* ============================================================
-   🩺 PATIENT DASHBOARD SCRIPT
-   Description:
-   - Theme Switcher (Dark / Light)
-   - Language Toggle (TH / EN)
-   - Add Patient Popup
-   - Table Search
-   - Inspect Popup
-   - User Dropdown Menu
-============================================================ */
-
+/* ============================================
+   🧬 PATIENT MANAGEMENT SCRIPT (Electron Bridge)
+   ============================================ */
 
 /* --------------------------------------------
-   ✅ ดึงข้อมูลทั้งหมดเมื่อหน้าโหลด
+   ✅ โหลดข้อมูลผู้ป่วยเมื่อหน้าเปิดขึ้น
 -------------------------------------------- */
 window.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -28,8 +20,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 -------------------------------------------- */
 document.getElementById('addForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
-
-  
 
   const patientData = {
     patient_id: parseInt(document.getElementById('patient_id').value),
@@ -55,7 +45,6 @@ document.getElementById('addForm')?.addEventListener('submit', async (e) => {
   }
 });
 
-
 /* --------------------------------------------
    🔍 ระบบค้นหาผู้ป่วยด้วย patient_id
 -------------------------------------------- */
@@ -72,7 +61,7 @@ document.getElementById('searchInput')?.addEventListener('input', async (e) => {
 });
 
 /* --------------------------------------------
-   📋 แสดงข้อมูลในตาราง
+   📋 ฟังก์ชันแสดงข้อมูลในตาราง
 -------------------------------------------- */
 function renderPatients(data) {
   const tbody = document.querySelector('#patientTable tbody');
@@ -83,10 +72,10 @@ function renderPatients(data) {
     return;
   }
 
-  data.forEach((p) => {
+  data.forEach((p, index) => {
     const row = `
       <tr>
-        <td>${p.patient_id}</td>
+        <td>${index + 1}</td>
         <td>${p.first_name ?? ''} ${p.last_name ?? ''}</td>
         <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
         <td>${p.hospital_id ?? '-'}</td>
@@ -94,93 +83,78 @@ function renderPatients(data) {
       </tr>`;
     tbody.insertAdjacentHTML('beforeend', row);
   });
+
+  // 🔗 เพิ่ม Event ให้ทุกปุ่ม Inspect
+  attachInspectButtons();
 }
 
-/* ============================================================
-   1️⃣ THEME SWITCHER (โหมดสว่าง / โหมดมืด)
-   ------------------------------------------------------------
-   ▶️ เปลี่ยนธีมของหน้าเว็บทั้งหมดระหว่าง Light ↔ Dark
-============================================================ */
-const themeBtn = document.getElementById("themeToggle");
-themeBtn?.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
+/* --------------------------------------------
+   🪟 Popup Add Patient
+-------------------------------------------- */
+const popupAdd = document.getElementById('popupAdd');
+const addBtn = document.getElementById('addBtn');
+const closeAdd = document.getElementById('closeAdd');
+
+addBtn?.addEventListener('click', () => {
+  popupAdd.style.display = 'flex';
 });
 
+closeAdd?.addEventListener('click', closePopup);
 
-/* ============================================================
-   2️⃣ LANGUAGE TOGGLE (สลับภาษา TH / EN)
-   ------------------------------------------------------------
-   ▶️ ปุ่มเปลี่ยนข้อความใน UI ระหว่างภาษาไทย ↔ อังกฤษ
-============================================================ */
-const langBtn = document.getElementById("langToggle");
-langBtn?.addEventListener("click", () => {
-  langBtn.textContent = langBtn.textContent === "TH" ? "EN" : "TH";
+function closePopup() {
+  popupAdd.style.display = 'none';
+}
+
+/* --------------------------------------------
+   🌙 Toggle Theme
+-------------------------------------------- */
+const themeBtn = document.getElementById('themeToggle');
+themeBtn?.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
 });
 
-
-/* ============================================================
-   3️⃣ POPUP: ADD PATIENT (เพิ่มข้อมูลผู้ป่วย)
-   ------------------------------------------------------------
-   ▶️ เปิดฟอร์มเพิ่มข้อมูลผู้ป่วย
-============================================================ */
-const addBtn = document.getElementById("addBtn");
-const popupAdd = document.getElementById("popupAdd");
-const closeAdd = document.getElementById("closeAdd");
-
-
-// 🔹 เปิด popup เมื่อกด “เพิ่มข้อมูลผู้ป่วย”
-addBtn?.addEventListener("click", () => {
-  popupAdd.style.display = "flex";
+/* --------------------------------------------
+   🌐 Toggle Language
+-------------------------------------------- */
+const langBtn = document.getElementById('langToggle');
+langBtn?.addEventListener('click', () => {
+  langBtn.textContent = langBtn.textContent === 'TH' ? 'EN' : 'TH';
 });
 
-// 🔹 ปิด popup เมื่อกด “ยกเลิก”
-closeAdd?.addEventListener("click", () => {
-  popupAdd.style.display = "none";
-  addForm.reset();
-});
-
-
-
-/* ============================================================
-   6️⃣ USER DROPDOWN MENU (เมนูผู้ใช้)
-   ------------------------------------------------------------
-   ▶️ เปิด/ปิดเมนูผู้ใช้ (Profile / Setting / Logout)
-============================================================ */
+/* --------------------------------------------
+   👤 Dropdown Menu (Settings / Logout)
+-------------------------------------------- */
 const dropdownBtn = document.getElementById("dropdownBtn");
 const dropdownMenu = document.getElementById("dropdownMenu");
 
-// 🔹 เปิด/ปิด dropdown เมื่อกดปุ่ม
 dropdownBtn?.addEventListener("click", (e) => {
-  e.stopPropagation(); // ป้องกัน event ปิด dropdown ซ้อนกัน
+  e.stopPropagation();
   dropdownMenu.classList.toggle("show");
 });
 
-// 🔹 ปิด dropdown เมื่อคลิกนอกพื้นที่
 window.addEventListener("click", (e) => {
   if (!e.target.closest(".dropdown")) {
     dropdownMenu?.classList.remove("show");
   }
 });
 
-window.addEventListener('DOMContentLoaded', () => {
-  const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-  if (currentUser) {
-    document.getElementById('userNameDisplay').textContent = currentUser.username;
-  }
-});
+/* --------------------------------------------
+   🧭 Navigation Buttons
+-------------------------------------------- */
 
-// -------- Logout ------------
-document.getElementById('logout').addEventListener('click', (e) => {
-  e.preventDefault();
-  window.electronAPI.navigate('login');
-});
-
-
-
-
-
-const dashboard_btn = document.getElementById('dashboard-btn');
-
-dashboard_btn.addEventListener('click', () => {
+// ▶️ ปุ่มไปหน้า Dashboard
+const dashboardBtn = document.getElementById('dashboard-btn');
+dashboardBtn?.addEventListener('click', () => {
+  console.log("🔄 Navigate to dashboard1");
   window.electronAPI.navigate('dashboard1');
 });
+
+// ▶️ ปุ่ม Inspect (ทุกปุ่ม)
+function attachInspectButtons() {
+  document.querySelectorAll('.inspect-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      console.log("🧾 Navigate to verify_step1");
+      window.electronAPI.navigate('verify_step1');
+    });
+  });
+}
