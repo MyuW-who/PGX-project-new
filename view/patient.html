@@ -22,7 +22,7 @@
     <aside class="sidebar">
       <h2 class="logo">Logo</h2>
       <ul>
-        <li>Dashboard</li>
+        <li id="dashboard-btn">Dashboard</li>
         <li class="active">ข้อมูลผู้ป่วย</li>
         <li>ตรวจสอบข้อมูล</li>
       </ul>
@@ -47,9 +47,8 @@
               <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
             </button>
             <div id="dropdownMenu" class="dropdown-content">
-              <a href="#">Home</a>
-              <a href="#">About</a>
-              <a href="#">Contact</a>
+              <a href="#">settings</a>
+              <a href="#" id="logout">Logout</a>
             </div>
           </div>
         </div>
@@ -170,7 +169,6 @@
       </form>
     </div>
   </div>
-
   <!-- Script -->
   <script src="./js/patient.js"></script>
   

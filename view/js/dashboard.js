@@ -1,68 +1,56 @@
-// -------- ภาษา UI --------
-const uiLang = {
-  th: {
-    logo: "แดชบอร์ด",
-    home: "หน้าหลัก",
-    report: "รายงาน",
-    settings: "การตั้งค่า",
-    profile: "โปรไฟล์",
-    welcome: "สวัสดี, ผู้ใช้",
-    overview: "ข้อมูลภาพรวม",
-    sales: "ยอดขาย",
-    users: "ผู้ใช้งาน",
-    tasks: "งานที่ค้าง",
-    theme: "เปลี่ยนธีม"
-  },
-  en: {
-    logo: "Dashboard",
-    home: "Home",
-    report: "Reports",
-    settings: "Settings",
-    profile: "Profile",
-    welcome: "Welcome, User",
-    overview: "Overview",
-    sales: "Sales",
-    users: "Users",
-    tasks: "Pending Tasks",
-    theme: "Theme"
-  },
-};
-
-let currentLang = "th";
-
-// ฟังก์ชันเปลี่ยนภาษาเฉพาะ UI
-function switchLanguage(lang) {
-  currentLang = lang;
-  const texts = uiLang[lang];
-
-  for (const key in texts) {
-    const el = document.querySelector(`[data-key="${key}"]`) || document.getElementById(key);
-    if (el) el.textContent = texts[key];
-  }
-
-  document.getElementById("themeToggle").textContent = texts.theme;
-  document.getElementById("langToggle").textContent = lang === "th" ? "EN" : "TH";
-}
-
-// -------- ปุ่มธีม --------
-const btnTheme = document.getElementById("themeToggle");
-btnTheme.addEventListener("click", () => {
+/* ============================================================
+   1️⃣ THEME SWITCHER (โหมดสว่าง / โหมดมืด)
+   ------------------------------------------------------------
+   ▶️ เปลี่ยนธีมของหน้าเว็บทั้งหมดระหว่าง Light ↔ Dark
+============================================================ */
+const themeBtn = document.getElementById("themeToggle");
+themeBtn?.addEventListener("click", () => {
   document.body.classList.toggle("dark");
 });
 
-// -------- ปุ่มสลับภาษา --------
-const btnLang = document.getElementById("langToggle");
-btnLang.addEventListener("click", () => {
-  const newLang = currentLang === "th" ? "en" : "th";
-  switchLanguage(newLang);
+
+/* ============================================================
+   2️⃣ LANGUAGE TOGGLE (สลับภาษา TH / EN)
+   ------------------------------------------------------------
+   ▶️ ปุ่มเปลี่ยนข้อความใน UI ระหว่างภาษาไทย ↔ อังกฤษ
+============================================================ */
+const langBtn = document.getElementById("langToggle");
+langBtn?.addEventListener("click", () => {
+  langBtn.textContent = langBtn.textContent === "TH" ? "EN" : "TH";
 });
 
+/* ============================================================
+   6️⃣ USER DROPDOWN MENU (เมนูผู้ใช้)
+   ------------------------------------------------------------
+   ▶️ เปิด/ปิดเมนูผู้ใช้ (Profile / Setting / Logout)
+============================================================ */
+const dropdownBtn = document.getElementById("dropdownBtn");
+const dropdownMenu = document.getElementById("dropdownMenu");
+
+// 🔹 เปิด/ปิด dropdown เมื่อกดปุ่ม
+dropdownBtn?.addEventListener("click", (e) => {
+  e.stopPropagation(); // ป้องกัน event ปิด dropdown ซ้อนกัน
+  dropdownMenu.classList.toggle("show");
+});
+
+// 🔹 ปิด dropdown เมื่อคลิกนอกพื้นที่
+window.addEventListener("click", (e) => {
+  if (!e.target.closest(".dropdown")) {
+    dropdownMenu?.classList.remove("show");
+  }
+});
+
+
+// -------- Logout ------------
 document.getElementById('logout').addEventListener('click', (e) => {
   e.preventDefault();
   window.electronAPI.navigate('login');
 });
 
 
-// โหลดครั้งแรก
-switchLanguage("th");
+const dashboard_btn = document.getElementById('patient-btn');
+
+dashboard_btn.addEventListener('click', () => {
+  window.electronAPI.navigate('patient');
+});
 
