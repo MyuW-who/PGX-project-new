@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ทดสอบสร้างรายงาน Pharmacogenomics</title>
+  <link rel="stylesheet" href="./css/pdftest.css">
+</head>
+<body>
+  <div class="container">
+    <h2>สร้างรายงาน Pharmacogenomics</h2>
+
+    <form id="reportForm">
+      <label>ชื่อ-สกุล: <input type="text" id="name" required></label>
+      <label>อายุ: <input type="number" id="age" required></label>
+      <label>เพศ:
+        <select id="gender">
+          <option>ชาย</option>
+          <option>หญิง</option>
+        </select>
+      </label>
+      <label>HN: <input type="text" id="hn"></label>
+      <label>โรงพยาบาล: <input type="text" id="hospital" value="รพ. รามาธิบดีจักรีนฤบดินทร์"></label>
+    </form>
+
+    <button id="generateBtn">สร้างรายงาน PDF</button>
+    <div id="status"></div>
+
+    <div class="pdf-preview" id="pdfPreviewContainer" style="display: none;">
+      <h3>🔍 ตัวอย่างรายงาน PDF</h3>
+      <iframe id="pdfFrame" width="100%" height="500px"></iframe>
+    </div>
+  </div>
+
+  <script src="./js/pdftest.js"></script>
+</body>
+</html>
