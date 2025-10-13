@@ -6,7 +6,7 @@
   <title>Patient Dashboard</title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="./css/test.css" />
+  <link rel="stylesheet" href="./css/add_patient.css" />
 
   <!-- Font Awesome -->
   <link
@@ -68,10 +68,10 @@
         <table id="patientTable">
           <thead>
             <tr>
-              <th>ลำดับ</th>
+              <th>เลขประจำตัวผู้ป่วย</th>
               <th>ชื่อ</th>
               <th>วันที่ส่งตรวจ</th>
-              <th>หน่วยงาน</th>
+              <th>โรงพยาบาล</th>
               <th>ตรวจสอบ</th>
             </tr>
           </thead>
@@ -102,77 +102,76 @@
       <h3>เพิ่มข้อมูลผู้ป่วย</h3>
 
       <form id="addForm">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>ชื่อ-สกุล:</label>
-            <input type="text" id="fullname" required />
-          </div>
+  <div class="form-grid">
+    <div class="form-group">
+      <label>เลขประจำตัวผู้ป่วย:</label>
+      <input type="number" id="patient_id" required />
+    </div>
 
-          <div class="form-group">
-            <label>อายุ:</label>
-            <input type="number" id="age" required />
-          </div>
+    <div class="form-group">
+      <label>ชื่อ:</label>
+      <input type="text" id="first_name" required />
+    </div>
 
-          <div class="form-group">
-            <label>หน่วยงาน:</label>
-            <select id="department" required>
-              <option value="">--เลือก--</option>
-              <option>A</option>
-              <option>B</option>
-              <option>C</option>
-              <option>D</option>
-            </select>
-          </div>
+    <div class="form-group">
+      <label>นามสกุล:</label>
+      <input type="text" id="last_name" required />
+    </div>
 
-          <div class="form-group">
-            <label>วันที่ส่งตรวจ:</label>
-            <input type="date" id="sentDate" required />
-          </div>
+    <div class="form-group">
+      <label>อายุ:</label>
+      <input type="number" id="age" required />
+    </div>
 
-          <div class="form-group">
-            <label>กรุ๊ปเลือด (Blood type):</label>
-            <select id="bloodType" required>
-              <option value="">--เลือก--</option>
-              <option>A</option>
-              <option>B</option>
-              <option>AB</option>
-              <option>O</option>
-            </select>
-          </div>
+    <div class="form-group">
+      <label>เพศ:</label>
+      <select id="gender" required>
+        <option value="">--เลือก--</option>
+        <option value="ชาย">ชาย</option>
+        <option value="หญิง">หญิง</option>
+      </select>
+    </div>
 
-          <div class="form-group">
-            <label>เบอร์โทร:</label>
-            <input type="tel" id="phone" />
-          </div>
+    <div class="form-group">
+      <label>เชื้อชาติ:</label>
+      <input type="text" id="ethnicity" />
+    </div>
 
-          <div class="form-group">
-            <label>เชื้อชาติ:</label>
-            <input type="text" id="nationality" />
-          </div>
+    <div class="form-group">
+      <label>กรุ๊ปเลือด:</label>
+      <select id="blood_type">
+        <option value="">--เลือก--</option>
+        <option>A</option>
+        <option>B</option>
+        <option>AB</option>
+        <option>O</option>
+      </select>
+    </div>
 
-          <div class="form-group">
-            <label>โรงพยาบาล:</label>
-            <input type="text" id="hospital" />
-          </div>
+    <div class="form-group">
+      <label>โรงพยาบาล:</label>
+      <input type="text" id="hospital" />
+    </div>
 
-          <div class="form-group">
-            <label>บัตรประชาชน:</label>
-            <input type="text" id="idcard" />
-          </div>
-        </div>
+    <div class="form-group">
+      <label>เบอร์โทร:</label>
+      <input type="tel" id="phone" />
+    </div>
+  </div>
 
-        <div class="form-actions">
-          <button type="submit" class="save-btn">
-            <i class="fa fa-save"></i> บันทึก
-          </button>
-          <button type="button" id="closeAdd" class="cancel-btn">ยกเลิก</button>
-        </div>
-      </form>
+  <div class="form-actions">
+    <button type="submit" class="save-btn">
+      <i class="fa fa-save"></i> บันทึก
+    </button>
+    <button type="button" id="closeAdd" class="cancel-btn">ยกเลิก</button>
+  </div>
+</form>
+
     </div>
   </div>
 
   <!-- Script -->
-  <script src="./js/test.js"></script>
+  <script src="./js/add_patient.js"></script>
   
 </body>
 </html>
