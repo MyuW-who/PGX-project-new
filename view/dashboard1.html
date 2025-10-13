@@ -4,51 +4,64 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="./css/dashboard.css" />
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
 </head>
 <body>
-  <div class="dashboard">
+  <!-- Container หลัก -->
+  <div class="container">
+    
+    <!-- Sidebar -->
     <aside class="sidebar">
-      <h2 id="logo">แดชบอร์ด</h2>
-      <ul class="menu">
-        <li data-key="home" class="active"></li>
-        <li data-key="report"></li>
-        <li data-key="settings"></li>
-        <li data-key="profile"></li>
+      <h2 class="logo">Logo</h2>
+      <ul>
+        <li class="active">Dashboard</li>
+        <li>ข้อมูลผู้ป่วย</li>
+        <li>ตรวจสอบข้อมูล</li>
       </ul>
     </aside>
 
+    <!-- Main Content -->
     <main class="main-content">
-      <header>
-        <h1 id="welcome"></h1>
-        <div>
-          <button id="themeToggle">เปลี่ยนธีม</button>
-          <button id="langToggle">EN</button>
-          <button id="logout">ออกจากระบบ</button>
+      
+      <!-- Header Section -->
+      <header class="page-header">
+        <h2>Dashboard</h2>
+
+        <div class="header-buttons">
+          <button id="themeToggle" class="icon-btn">
+            <i class="fa fa-moon"></i>
+          </button>
+          <button id="langToggle" class="lang-btn">TH</button>
+
+          <!-- Dropdown -->
+          <div class="dropdown">
+            <button class="dropbtn" id="dropdownBtn">
+              <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
+            </button>
+            <div id="dropdownMenu" class="dropdown-content">
+              <a href="#">settings</a>
+              <a href="#" id="logout">Logout</a>
+            </div>
+          </div>
         </div>
       </header>
 
-      <section class="content">
-        <h2 id="overview"></h2>
-
-        <div class="cards">
-          <div class="card">
-            <h3 id="sales"></h3>
-            <p>฿ 10000</p>
-          </div>
-          <div class="card">
-            <h3 id="users"></h3>
-            <p>1,204</p>
-          </div>
-          <div class="card">
-            <h3 id="tasks"></h3>
-            <p>8</p>
-          </div>
-        </div>
-      </section>
+      
     </main>
   </div>
 
+  
+
+  <!-- Script -->
   <script src="./js/dashboard.js"></script>
+  
 </body>
 </html>

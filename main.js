@@ -19,7 +19,7 @@ function createWindow() {
   });
 
   // เริ่มต้นที่หน้า login
-  mainWindow.loadFile(path.join(__dirname, 'view', 'patient.html'));
+  mainWindow.loadFile(path.join(__dirname, 'view', 'login.html'));
 }
 
 // 📩 ฟัง event จาก renderer เพื่อเปลี่ยนหน้า
