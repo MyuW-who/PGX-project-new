@@ -5,6 +5,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   navigate: (page) => ipcRenderer.send('navigate', page),
   checkLogin: (username, password) => ipcRenderer.invoke('check-login', { username, password }),
   invoke: (channel, data) => ipcRenderer.invoke(channel, data),
+  getPatients: () => ipcRenderer.invoke('get-patients'),
+  addPatient: (data) => ipcRenderer.invoke('add-patient', data),
+  searchPatient: (id) => ipcRenderer.invoke('search-patient', id),
 });
 
 
