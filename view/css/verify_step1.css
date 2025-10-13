@@ -1,0 +1,209 @@
+body {
+  font-family: "Noto Sans Thai", sans-serif;
+  background-color: #f5f5f5;
+  color: #222;
+  margin: 0;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background-color: #1e1e1e;
+  color: #eee;
+}
+
+/* Navbar (สวยงาม + icon เรียงดี) */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg,#8866e1, #5e72e4);
+  color: #fff;
+  padding: 0.7rem 1.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.nav-left h2 {
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.nav-right button,
+.nav-right .user-icon {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#langToggle {
+  width: 50px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.25);
+  font-weight: 600;
+}
+
+.nav-right button:hover,
+.nav-right .user-icon:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Step bar */
+.steps {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5rem 0;
+}
+.step {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  background: white;
+  color: #8866e1
+}
+.step.active {
+  background: #8866e1;
+  color: white;
+}
+.line {
+  width: 50px;
+  height: 2px;
+  background: #a78ee6;
+}
+
+/* Main content */
+.container {
+  width: 700px;
+  margin: auto;
+  border-radius: 10px;
+  padding: 2rem;
+  background: white;
+}
+
+/* ข้อมูลผู้ป่วย */
+/* กล่องข้อมูลผู้ป่วย */
+.patient-box {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #fafafa;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1.2rem; /* เพิ่มช่องว่างด้านล่าง เพื่อให้เว้นห่าง dropdown */
+}
+
+.patient-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.patient-box td {
+  padding: 8px 5px;
+  vertical-align: top;
+}
+
+.patient-box td.label {
+  font-weight: 600;
+  color: #000000;
+  width: 35%;
+}
+
+/* DNA Type Section */
+.dna-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 0.5rem; /* เพิ่มช่องว่างระหว่างกล่องข้อมูลผู้ป่วย */
+}
+
+.dna-section label {
+  font-weight: 600;
+  color: #000000;
+  font-size: 0.95rem; /* ลดขนาดตัวอักษรลงเล็กน้อย */
+}
+
+/* Dropdown */
+.dna-section select {
+  padding: 0.45rem 0.9rem;   /* ลด padding */
+  border-radius: 5px;
+  border: 1.5px solid #c7c7c7;
+  font-size: 0.95rem;         /* ลดขนาดตัวอักษร */
+  background-color: #fff;
+  color: #333;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  outline: none;
+  min-width: 180px;           /* ลดความกว้าง */
+}
+
+/* hover & focus effect */
+.dna-section select:hover {
+  border-color: #0077b6;
+  box-shadow: 0 0 3px rgba(0, 119, 182, 0.2);
+}
+.dna-section select:focus {
+  border-color: #0077b6;
+  box-shadow: 0 0 5px rgba(0, 119, 182, 0.35);
+}
+
+/* ลูกศร dropdown */
+.dna-section select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%230077b6' height='18' viewBox='0 0 24 24' width='18' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 0.9rem;
+}
+
+/* Dark Mode */
+body.dark .dna-section label {
+  color: #90e0ef;
+}
+body.dark .dna-section select {
+  background-color: #2a2a2a;
+  color: #eee;
+  border-color: #555;
+}
+body.dark .dna-section select:focus {
+  border-color: #48cae4;
+  box-shadow: 0 0 5px rgba(72, 202, 228, 0.3);
+}
+
+.btn-area {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.next-btn {
+  background: #0077b6;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.next-btn:hover {
+  background: #005f8a;
+}
