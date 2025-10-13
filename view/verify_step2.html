@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ยืนยันการตรวจ - ขั้นตอนที่ 2</title>
+  <link rel="stylesheet" href="./css/verify_step2.css" />
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <h2>ยืนยันการตรวจ</h2>
+    </div>
+    <div class="nav-right">
+      <button id="themeToggle" title="เปลี่ยนธีม">🌙</button>
+      <button id="langToggle" title="สลับภาษา">TH</button>
+      <div class="user-icon" title="บัญชีผู้ใช้">👤</div>
+    </div>
+  </nav>
+
+  <!-- Step progress -->
+  <section class="steps">
+    <div class="step done">1</div>
+    <div class="line"></div>
+    <div class="step active">2</div>
+    <div class="line"></div>
+    <div class="step">3</div>
+  </section>
+
+  <!-- Content -->
+  <main class="container">
+    <h3>รายละเอียดการตรวจ DNA</h3>
+
+    <div class="dna-box">
+      <div class="info">
+        <p><strong>ชื่อผู้ป่วย:</strong> <span id="patientName">-</span></p>
+        <p><strong>DNA Type:</strong> <span id="dnaType">-</span></p>
+      </div>
+      <hr />
+
+      <!-- พื้นที่สร้าง dropdown อัตโนมัติ -->
+      <div class="select-area" id="selectArea"></div>
+    </div>
+
+    <div class="btn-area">
+      <button class="back-btn">← Back</button>
+      <button class="confirm-btn">Confirm →</button>
+    </div>
+  </main>
+
+  <script src="./js/verify_step2.js"></script>
+</body>
+</html>

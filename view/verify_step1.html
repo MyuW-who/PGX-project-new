@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ยืนยันการตรวจ - ขั้นตอนที่ 1</title>
+  <link rel="stylesheet" href="./css/verify_step1.css" />
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <h2>ยืนยันการตรวจ</h2>
+    </div>
+    <div class="nav-right">
+      <button id="themeToggle" title="เปลี่ยนธีม">🌙</button>
+      <button id="langToggle" title="สลับภาษา">TH</button>
+      <div class="user-icon" title="บัญชีผู้ใช้">👤</div>
+    </div>
+  </nav>
+
+  <!-- Progress bar -->
+  <section class="steps">
+    <div class="step active">1</div>
+    <div class="line"></div>
+    <div class="step">2</div>
+    <div class="line"></div>
+    <div class="step">3</div>
+  </section>
+
+  <!-- Content -->
+  <main class="container">
+    <h3>ประเภทที่จะตรวจ</h3>
+
+    <div class="patient-box" id="patient-info">
+      <!-- จะถูกเติมข้อมูลผู้ป่วยจาก JS -->
+    </div>
+
+    <div class="dna-section">
+      <label for="dnaType">DNA Type:</label>
+      <select id="dnaType">
+        <option value="" disabled selected>เลือกประเภท DNA</option>
+        <option value="CYP2D6">CYP2D6</option>
+        <option value="CYP2C9">CYP2C9</option>
+        <option value="CYP2C19">CYP2C19</option>
+        <option value="VKORC1">VKORC1</option>
+        <option value="TPMP">TPMP</option>
+        <option value="3A5">CYP3A5</option>
+      </select>
+    </div>
+
+   <div class="btn-area">
+       <button class="next-btn">Next</button>
+   </div>
+
+  </main>
+
+  <script src="./js/verify_step1.js"></script>
+</body>
+</html>
