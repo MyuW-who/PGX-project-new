@@ -48,6 +48,9 @@ document.getElementById('logout').addEventListener('click', (e) => {
 });
 
 
-// โหลดครั้งแรก
-switchLanguage("th");
+const dashboard_btn = document.getElementById('patient-btn');
+
+dashboard_btn.addEventListener('click', () => {
+  window.electronAPI.navigate('patient');
+});
 

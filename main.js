@@ -3,6 +3,7 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const supabase = require('./supabase');
 const { handleLogin } = require('./controllers/loginController');
+const { generatePDF } = require('./controllers/pdfController');
 
 let mainWindow;
 
@@ -30,6 +31,10 @@ ipcMain.on('navigate', (event, page) => {
 
 // 🔑 ฟังก์ชันตรวจสอบ Login (เรียกจาก controller)
 ipcMain.handle('check-login', handleLogin);
+// 📄 ฟังก์ชันสร้าง PDF (เรียกจาก controller)
+ipcMain.handle('generate-pdf', async (event, reportData) => {
+  return await generatePDF(reportData);
+});
 
 // 🚀 เริ่มต้น
 app.whenReady().then(createWindow);
