@@ -1,33 +1,27 @@
-// controllers/loginController.js
+// loginController.js
 const bcrypt = require('bcryptjs');
 const supabase = require('../supabase');
 
-async function handleLogin(event, { username, password }) {
-  try {
-    const u = (username || '').trim();
-    const p = (password || '').trim().normalize('NFKC');
+async function handleLogin(username, password) {
+  const { data, error } = await supabase
+    .from('system_users')
+    .select('*')
+    .eq('username', username)
+    .single();
 
-    const { data, error } = await supabase
-      .from('system_users')
-      .select('username, password_hash, role')
-      .eq('username', u)
-      .maybeSingle();
+  if (error || !data) return { success: false, message: 'User not found' };
 
-    if (error || !data) {
-      return { success: false, message: 'ไม่พบบัญชีผู้ใช้' };
-    }
+  const valid = await bcrypt.compare(password, data.password);
+  if (!valid) return { success: false, message: 'Invalid password' };
 
-    const ok = await bcrypt.compare(p, String(data.password_hash || '').trim());
-    if (!ok) {
-      return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
-    }
-
-    // ✅ เพิ่ม role กลับไปใน response
-    return { success: true, role: data.role };
-  } catch (err) {
-    console.error('Login error:', err);
-    return { success: false, message: 'เกิดข้อผิดพลาดระหว่างตรวจสอบ' };
-  }
+  return {
+    success: true,
+    user: {
+      username: data.username,
+      role: data.role,
+      hospital_id: data.hospital_id,
+    },
+  };
 }
 
 module.exports = { handleLogin };
