@@ -1,370 +1,390 @@
+/* ============================================
+   🌐 GLOBAL LAYOUT & BASE STYLE
+   ============================================ */
 body {
-  font-family: "Prompt", sans-serif;
   margin: 0;
-  padding: 0;
-  background-color: #f6f8fa;
+  font-family: "Poppins", sans-serif;
+  background: #f5f7fb;
   color: #333;
 }
 
-/* Layout หลัก */
 .container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
 }
 
-/* Sidebar */
+
+/* ============================================
+   🧭 SIDEBAR NAVIGATION
+   ============================================ */
 .sidebar {
-  width: 220px;
-  background-color: #2b5797;
+  width: 230px;
+  background: #8a5ae6;
   color: white;
-  padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: start;
+  padding: 20px;
 }
 
-.sidebar h2 {
-  margin-bottom: 20px;
+.logo {
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .sidebar ul {
   list-style: none;
   padding: 0;
-  width: 100%;
+  margin: 0;
 }
 
-.sidebar ul li {
-  margin-bottom: 10px;
-}
-
-.sidebar ul li a {
-  display: block;
+.sidebar li {
   padding: 10px 15px;
-  border-radius: 6px;
-  color: white;
-  text-decoration: none;
-  transition: background 0.2s;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-.sidebar ul li a:hover,
-.sidebar ul li a.active {
-  background: #1d3f73;
+.sidebar li.active,
+.sidebar li:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Content */
-.content {
+
+/* ============================================
+   🧩 MAIN CONTENT AREA
+   ============================================ */
+.main-content {
   flex: 1;
-  padding: 0;
+  padding: 20px 30px;
   display: flex;
   flex-direction: column;
 }
 
-/* Navbar ด้านบน */
-.navbar {
-  background: white;
+
+/* ============================================
+   🧱 HEADER SECTION (Title, Buttons, Dropdown)
+   ============================================ */
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
 }
 
-.navbar .right {
+.header-buttons {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.navbar button {
-  background-color: #2b5797;
-  color: white;
+/* 🔘 ปุ่มทั่วไป (Theme, Lang, Dropdown) */
+.icon-btn,
+.lang-btn,
+.dropbtn {
   border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
+  border-radius: 6px;
+  padding: 8px 12px;
+  background: #e9eef6;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.3s;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.navbar button:hover {
-  background-color: #1d3f73;
+.icon-btn:hover,
+.lang-btn:hover,
+.dropbtn:hover {
+  background: #dce3ef;
 }
 
-.account {
-  background: #eee;
-  padding: 6px 10px;
-  border-radius: 20px;
+
+/* ============================================
+   📂 DROPDOWN MENU
+   ============================================ */
+.dropdown { 
+  position: relative; 
+  z-index: 50; /* ให้ dropdown อยู่ชั้นบน */
 }
 
-/* Toolbar */
+.dropbtn {
+  background: #8a5ae6;
+  color: white;
+}
+
+.dropbtn:hover {
+  background: #7242cc;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background-color: #ffffff;
+  min-width: 160px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.dropdown-content a {
+  color: #333;
+  padding: 10px 14px;
+  text-decoration: none;
+  display: block;
+  transition: background 0.3s;
+}
+
+.dropdown-content a:hover {
+  background: #f3f3fa;
+}
+
+/* เปิดเมนูเมื่อมี class .show */
+.show {
+  display: block;
+}
+
+
+/* ============================================
+   🔍 TOOLBAR (Search + Add Button)
+   ============================================ */
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
+  margin: 15px 0;
 }
 
-#search {
-  width: 250px;
-  padding: 6px 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-button {
-  background-color: #2b5797;
-  color: white;
-  border: none;
-  padding: 7px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-button:hover {
-  background-color: #1d3f73;
-}
-
-/* ตาราง */
-table {
-  width: calc(100% - 40px);
-  margin: 0 20px 20px;
-  border-collapse: collapse;
-  background: white;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
-
-th {
-  background: #eee;
-}
-
-/* 🌓 ธีมมืด */
-body.dark {
-  background: #1e1e1e;
-  color: #f0f0f0;
-}
-
-body.dark .navbar {
-  background: #2b2b2b;
-  border-color: #444;
-}
-
-body.dark table {
-  background: #2a2a2a;
-  color: #f0f0f0;
-}
-
-body.dark th {
-  background: #333;
-}
-
-body.dark button {
-  background-color: #444;
-}
-
-/* ===== Modal Popup ===== */
-.modal {
-  display: none; /* ซ่อนไว้ก่อน */
-  position: fixed;
-  z-index: 999;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.45);
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: #fff;
-  width: 420px;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 25px 30px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-  animation: slideDown 0.25s ease;
-}
-
-@keyframes slideDown {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-content h2 {
-  color: #2b5797;
-  margin-bottom: 10px;
-}
-
-.modal-content label {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
-  font-weight: 600;
-  color: #333;
-}
-
-.modal-content input,
-.modal-content select {
-  margin-top: 5px;
-  padding: 8px;
+#searchInput {
+  padding: 8px 12px;
+  width: 260px;
   border: 1px solid #ccc;
   border-radius: 6px;
 }
 
-.modal-content input:focus,
-.modal-content select:focus {
-  outline: none;
-  border-color: #2b5797;
-  box-shadow: 0 0 0 3px rgba(43, 87, 151, 0.15);
-}
-
-/* ปุ่มในฟอร์ม */
-.modal-content .buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-}
-
-.modal-content .buttons button {
-  flex: 1;
-  margin: 0 5px;
-  padding: 10px 0;
-  font-size: 1rem;
+#addBtn {
+  background: #8a5ae6;
+  color: #fff;
   border: none;
-  border-radius: 8px;
+  padding: 8px 14px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.3s;
 }
 
-.modal-content .buttons button[type="submit"] {
-  background-color: #2b5797;
-  color: white;
+#addBtn:hover {
+  background: #7242cc;
 }
 
-.modal-content .buttons button[type="submit"]:hover {
-  background-color: #1d3f73;
-}
 
-.modal-content #cancelBtn {
-  background-color: #ccc;
-}
-
-.modal-content #cancelBtn:hover {
-  background-color: #999;
-}
-
-/* ===== Popup Modal (1200x1200 กลางจอ) ===== */
-.modal {
-  display: none; /* ซ่อนก่อนเปิด */
-  position: fixed;
-  z-index: 1000;
-  inset: 0; /* top right bottom left = 0 */
-  background-color: rgba(0, 0, 0, 0.45);
-  justify-content: center;
-  align-items: center;
-  backdrop-filter: blur(3px);
-}
-
-/* ตัวกล่อง Popup */
-.modal-content-large {
+/* ============================================
+   📋 TABLE SECTION (Patient List)
+   ============================================ */
+.table-section {
   background: #fff;
-  width: 1200px;
-  height: 800px;
-  border-radius: 16px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-  padding: 30px 40px;
-  display: flex;
-  flex-direction: column;
-  animation: fadeIn 0.3s ease;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 20px;
   overflow-y: auto;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.modal-content-large h2 {
-  color: #2b5797;
+th,
+td {
   text-align: center;
-  margin-bottom: 20px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
 }
 
-/* กริดของช่องกรอก */
+tbody tr:hover {
+  background: #f9f9ff;
+}
+
+/* ปุ่มตรวจสอบ */
+.inspect-btn {
+  background: #4594d8;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.inspect-btn:hover {
+  background: #317ab8;
+}
+
+
+/* ============================================
+   🪟 POPUP FORM (Overlay)
+   ============================================ */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  text-align: left;
+}
+
+.large-form {
+  width: 75%;
+  max-width: 950px;
+}
+
+
+/* ============================================
+   🧾 FORM DESIGN (Input, Label)
+   ============================================ */
+.large-form h3 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 600;
+  color: #333;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px 25px;
+  gap: 20px 25px;
 }
 
-.form-grid label {
-  display: flex;
-  flex-direction: column;
+.form-group label {
+  display: block;
   font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.form-group select {
+  background-color: #fff;
+}
+
+
+/* ============================================
+   💾 FORM BUTTONS (Save / Cancel)
+   ============================================ */
+.form-actions {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.save-btn,
+.cancel-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  min-width: 100px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.save-btn {
+  background: #2c5ea8;
+  color: #fff;
+}
+
+.save-btn:hover {
+  background: #1e4d8c;
+}
+
+.cancel-btn {
+  background: #ccc;
   color: #333;
 }
 
-.form-grid input,
-.form-grid select {
-  margin-top: 5px;
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  transition: all 0.2s;
+.cancel-btn:hover {
+  background: #b5b5b5;
 }
 
-.form-grid input:focus,
-.form-grid select:focus {
-  border-color: #2b5797;
-  box-shadow: 0 0 0 3px rgba(43, 87, 151, 0.15);
+
+/* ============================================
+   🌙 DARK MODE THEME
+   ============================================ */
+body.dark {
+  background: #1e1e2f;
+  color: #ecf0f1;
 }
 
-/* ปุ่มบันทึก/ยกเลิก */
-.buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  margin-top: 30px;
+body.dark .sidebar {
+  background: #5c3ca4;
 }
 
-.buttons button {
-  padding: 10px 18px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
+body.dark .table-section {
+  background: #2f2f40;
 }
 
-.buttons button[type="submit"] {
-  background-color: #2b5797;
-  color: white;
+body.dark .popup-box {
+  background: #2b2b3c;
+  color: #fff;
 }
 
-.buttons button[type="submit"]:hover {
-  background-color: #1d3f73;
+/* Dropdown (Dark Mode) */
+body.dark .dropdown-content {
+  background: #2f2f40;
 }
 
-#cancelBtn {
-  background-color: #ccc;
+body.dark .dropdown-content a {
+  color: #fff;
 }
 
-#cancelBtn:hover {
-  background-color: #999;
+body.dark .dropdown-content a:hover {
+  background: #3b3b4a;
 }
 
-/* สำหรับหน้าจอเล็ก */
-@media (max-width: 1300px) {
-  .modal-content-large {
-    width: 95%;
-    height: 95%;
+
+/* ============================================
+   📱 RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    height: auto;
+  }
+
+  .main-content {
+    padding: 15px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }
-

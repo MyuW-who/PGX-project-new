@@ -1,16 +1,22 @@
-/* === Global === */
+/* ============================================
+   🌐 GLOBAL LAYOUT & BASE STYLE
+   ============================================ */
 body {
   margin: 0;
   font-family: "Poppins", sans-serif;
   background: #f5f7fb;
   color: #333;
 }
-.dashboard {
+
+.container {
   display: flex;
   height: 100vh;
 }
 
-/* === Sidebar === */
+
+/* ============================================
+   🧭 SIDEBAR NAVIGATION
+   ============================================ */
 .sidebar {
   width: 230px;
   background: #8a5ae6;
@@ -19,15 +25,18 @@ body {
   flex-direction: column;
   padding: 20px;
 }
+
 .logo {
   text-align: center;
   margin-bottom: 2rem;
 }
+
 .sidebar ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
+
 .sidebar li {
   padding: 10px 15px;
   border-radius: 8px;
@@ -35,52 +44,127 @@ body {
   cursor: pointer;
   transition: background 0.3s;
 }
+
 .sidebar li.active,
 .sidebar li:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* === Main Content === */
+
+/* ============================================
+   🧩 MAIN CONTENT AREA
+   ============================================ */
 .main-content {
   flex: 1;
   padding: 20px 30px;
   display: flex;
   flex-direction: column;
 }
+
+
+/* ============================================
+   🧱 HEADER SECTION (Title, Buttons, Dropdown)
+   ============================================ */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .header-buttons {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
-.icon-btn, .lang-btn {
+
+/* 🔘 ปุ่มทั่วไป (Theme, Lang, Dropdown) */
+.icon-btn,
+.lang-btn,
+.dropbtn {
   border: none;
   border-radius: 6px;
   padding: 8px 12px;
   background: #e9eef6;
   cursor: pointer;
   transition: background 0.3s;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.icon-btn:hover, .lang-btn:hover {
+
+.icon-btn:hover,
+.lang-btn:hover,
+.dropbtn:hover {
   background: #dce3ef;
 }
 
-/* === Toolbar === */
+
+/* ============================================
+   📂 DROPDOWN MENU
+   ============================================ */
+.dropdown { 
+  position: relative; 
+  z-index: 50; /* ให้ dropdown อยู่ชั้นบน */
+}
+
+.dropbtn {
+  background: #8a5ae6;
+  color: white;
+}
+
+.dropbtn:hover {
+  background: #7242cc;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background-color: #ffffff;
+  min-width: 160px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.dropdown-content a {
+  color: #333;
+  padding: 10px 14px;
+  text-decoration: none;
+  display: block;
+  transition: background 0.3s;
+}
+
+.dropdown-content a:hover {
+  background: #f3f3fa;
+}
+
+/* เปิดเมนูเมื่อมี class .show */
+.show {
+  display: block;
+}
+
+
+/* ============================================
+   🔍 TOOLBAR (Search + Add Button)
+   ============================================ */
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 15px 0;
 }
+
 #searchInput {
   padding: 8px 12px;
   width: 260px;
   border: 1px solid #ccc;
   border-radius: 6px;
 }
+
 #addBtn {
   background: #8a5ae6;
   color: #fff;
@@ -90,27 +174,40 @@ header {
   cursor: pointer;
   transition: background 0.3s;
 }
+
 #addBtn:hover {
   background: #7242cc;
 }
 
-/* === Table === */
+
+/* ============================================
+   📋 TABLE SECTION (Patient List)
+   ============================================ */
 .table-section {
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   padding: 20px;
   overflow-y: auto;
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
 }
-th, td {
+
+th,
+td {
   text-align: center;
   padding: 10px;
   border-bottom: 1px solid #eee;
 }
+
+tbody tr:hover {
+  background: #f9f9ff;
+}
+
+/* ปุ่มตรวจสอบ */
 .inspect-btn {
   background: #4594d8;
   color: #fff;
@@ -120,51 +217,65 @@ th, td {
   cursor: pointer;
   transition: background 0.3s;
 }
+
 .inspect-btn:hover {
   background: #317ab8;
 }
 
-/* === Popup (Overlay) === */
+
+/* ============================================
+   🪟 POPUP FORM (Overlay)
+   ============================================ */
 .popup-overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.4);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
   display: none;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
+
 .popup-box {
   background: #fff;
   border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   text-align: left;
 }
+
 .large-form {
   width: 75%;
   max-width: 950px;
 }
 
-/* === Form Layout === */
+
+/* ============================================
+   🧾 FORM DESIGN (Input, Label)
+   ============================================ */
 .large-form h3 {
   text-align: center;
   margin-bottom: 25px;
   font-weight: 600;
   color: #333;
 }
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px 25px;
 }
+
 .form-group label {
   display: block;
   font-weight: 600;
   color: #444;
   margin-bottom: 6px;
 }
+
 .form-group input,
 .form-group select {
   width: 100%;
@@ -174,18 +285,24 @@ th, td {
   font-size: 0.95rem;
   box-sizing: border-box;
 }
+
 .form-group select {
   background-color: #fff;
 }
 
-/* === Buttons === */
+
+/* ============================================
+   💾 FORM BUTTONS (Save / Cancel)
+   ============================================ */
 .form-actions {
   margin-top: 25px;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
-.save-btn, .cancel-btn {
+
+.save-btn,
+.cancel-btn {
   padding: 8px 14px;
   border: none;
   border-radius: 6px;
@@ -193,33 +310,81 @@ th, td {
   cursor: pointer;
   font-size: 0.95rem;
 }
+
 .save-btn {
   background: #2c5ea8;
   color: #fff;
 }
+
 .save-btn:hover {
   background: #1e4d8c;
 }
+
 .cancel-btn {
   background: #ccc;
   color: #333;
 }
+
 .cancel-btn:hover {
   background: #b5b5b5;
 }
 
-/* === Dark Mode === */
+
+/* ============================================
+   🌙 DARK MODE THEME
+   ============================================ */
 body.dark {
   background: #1e1e2f;
   color: #ecf0f1;
 }
+
 body.dark .sidebar {
   background: #5c3ca4;
 }
+
 body.dark .table-section {
   background: #2f2f40;
 }
+
 body.dark .popup-box {
   background: #2b2b3c;
   color: #fff;
+}
+
+/* Dropdown (Dark Mode) */
+body.dark .dropdown-content {
+  background: #2f2f40;
+}
+
+body.dark .dropdown-content a {
+  color: #fff;
+}
+
+body.dark .dropdown-content a:hover {
+  background: #3b3b4a;
+}
+
+
+/* ============================================
+   📱 RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    height: auto;
+  }
+
+  .main-content {
+    padding: 15px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }

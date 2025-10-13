@@ -1,142 +1,145 @@
+/* ============================================================
+   🩺 PATIENT DASHBOARD SCRIPT
+   Description:
+   - Theme Switcher (Dark / Light)
+   - Language Toggle (TH / EN)
+   - Add Patient Popup
+   - Table Search
+   - Inspect Popup
+   - User Dropdown Menu
+============================================================ */
+
+
+/* ============================================================
+   1️⃣ THEME SWITCHER (โหมดสว่าง / โหมดมืด)
+   ------------------------------------------------------------
+   ▶️ เปลี่ยนธีมของหน้าเว็บทั้งหมดระหว่าง Light ↔ Dark
+============================================================ */
+const themeBtn = document.getElementById("themeToggle");
+themeBtn?.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+});
+
+
+/* ============================================================
+   2️⃣ LANGUAGE TOGGLE (สลับภาษา TH / EN)
+   ------------------------------------------------------------
+   ▶️ ปุ่มเปลี่ยนข้อความใน UI ระหว่างภาษาไทย ↔ อังกฤษ
+============================================================ */
+const langBtn = document.getElementById("langToggle");
+langBtn?.addEventListener("click", () => {
+  langBtn.textContent = langBtn.textContent === "TH" ? "EN" : "TH";
+});
+
+
+/* ============================================================
+   3️⃣ POPUP: ADD PATIENT (เพิ่มข้อมูลผู้ป่วย)
+   ------------------------------------------------------------
+   ▶️ เปิดฟอร์มเพิ่มข้อมูลผู้ป่วย
+   ▶️ เมื่อกดบันทึก → เพิ่มแถวใหม่ในตาราง
+============================================================ */
 const addBtn = document.getElementById("addBtn");
-const popupForm = document.getElementById("popupForm");
-const cancelBtn = document.getElementById("cancelBtn");
-const form = document.getElementById("patientForm");
-const tbody = document.querySelector("#patientTable tbody");
+const popupAdd = document.getElementById("popupAdd");
+const closeAdd = document.getElementById("closeAdd");
+const addForm = document.getElementById("addForm");
+const tableBody = document.querySelector("#patientTable tbody");
 
-let patients = JSON.parse(localStorage.getItem("patients")) || [];
-let editIndex = null;
-
-// แสดง popup
-addBtn.addEventListener("click", () => {
-  editIndex = null;
-  form.reset();
-  document.getElementById("formTitle").textContent = "เพิ่มข้อมูลผู้ป่วย";
-  popupForm.style.display = "flex";
+// 🔹 เปิด popup เมื่อกด “เพิ่มข้อมูลผู้ป่วย”
+addBtn?.addEventListener("click", () => {
+  popupAdd.style.display = "flex";
 });
 
-// ปิด popup
-cancelBtn.addEventListener("click", () => {
-  popupForm.style.display = "none";
+// 🔹 ปิด popup เมื่อกด “ยกเลิก”
+closeAdd?.addEventListener("click", () => {
+  popupAdd.style.display = "none";
+  addForm.reset();
 });
 
-// ปิด popup เมื่อคลิกนอกกรอบ
-window.addEventListener("click", (e) => {
-  if (e.target === popupForm) popupForm.style.display = "none";
+// 🔹 เมื่อกด “บันทึก” ในฟอร์ม
+addForm?.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("fullname").value;
+  const dept = document.getElementById("department").value;
+  const sentDate = document.getElementById("sentDate").value;
+
+  // ✅ เพิ่มข้อมูลใหม่ในตาราง
+  const newRow = document.createElement("tr");
+  newRow.innerHTML = `
+    <td>${tableBody.children.length + 1}</td>
+    <td>${name}</td>
+    <td>${sentDate}</td>
+    <td>${dept}</td>
+    <td><button class="inspect-btn">Inspect</button></td>
+  `;
+  tableBody.appendChild(newRow);
+
+  // ✅ ปิด popup และเคลียร์ฟอร์ม
+  popupAdd.style.display = "none";
+  addForm.reset();
 });
 
-// แสดงข้อมูลในตาราง
-function renderTable() {
-  tbody.innerHTML = "";
-  patients.forEach((p, i) => {
-    const row = `
-      <tr>
-        <td>${p.fullname}</td>
-        <td>${p.age}</td>
-        <td>${p.hospital}</td>
-        <td>${p.dnaType}</td>
-        <td>${p.sentDate}</td>
-        <td>${p.resultDate}</td>
-        <td>
-          <button onclick="editPatient(${i})">แก้ไข</button>
-          <button onclick="deletePatient(${i})">ลบ</button>
-        </td>
-      </tr>`;
-    tbody.insertAdjacentHTML("beforeend", row);
+
+/* ============================================================
+   4️⃣ SEARCH FUNCTION (ค้นหาผู้ป่วยในตาราง)
+   ------------------------------------------------------------
+   ▶️ กรองชื่อผู้ป่วยตามข้อความที่พิมพ์ในช่องค้นหา
+============================================================ */
+const searchInput = document.getElementById("searchInput");
+searchInput?.addEventListener("keyup", () => {
+  const keyword = searchInput.value.toLowerCase();
+  const rows = tableBody.querySelectorAll("tr");
+
+  rows.forEach(row => {
+    const name = row.children[1].textContent.toLowerCase();
+    row.style.display = name.includes(keyword) ? "" : "none";
+  });
+});
+
+
+/* ============================================================
+   5️⃣ POPUP: INSPECT DATA (ตรวจสอบข้อมูลผู้ป่วย)
+   ------------------------------------------------------------
+   ▶️ เมื่อคลิก “Inspect” จะเปิด popup รายละเอียด
+============================================================ */
+const popupInspect = document.getElementById("popupInspect");
+if (popupInspect) {
+  const popupInfo = document.getElementById("popup-info");
+  const closeInspect = document.getElementById("closeInspect");
+
+  // 🔹 เปิด popup เมื่อกดปุ่ม Inspect
+  document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("inspect-btn")) {
+      const name = e.target.closest("tr").children[1].textContent;
+      popupInfo.textContent = "คุณกำลังตรวจสอบข้อมูลของ " + name;
+      popupInspect.style.display = "flex";
+    }
+  });
+
+  // 🔹 ปิด popup ตรวจสอบ
+  closeInspect.addEventListener("click", () => {
+    popupInspect.style.display = "none";
   });
 }
 
-// เพิ่มหรือแก้ไขข้อมูล
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const data = {
-    fullname: fullname.value,
-    age: age.value,
-    department: department.value,
-    sentDate: sentDate.value,
-    resultDate: resultDate.value,
-    dnaType: dnaType.value,
-    phone: phone.value,
-    nationality: nationality.value,
-    hospital: hospital.value,
-    idcard: idcard.value
-  };
 
-  if (editIndex !== null) {
-    patients[editIndex] = data;
-  } else {
-    patients.push(data);
-  }
+/* ============================================================
+   6️⃣ USER DROPDOWN MENU (เมนูผู้ใช้)
+   ------------------------------------------------------------
+   ▶️ เปิด/ปิดเมนูผู้ใช้ (Profile / Setting / Logout)
+============================================================ */
+const dropdownBtn = document.getElementById("dropdownBtn");
+const dropdownMenu = document.getElementById("dropdownMenu");
 
-  localStorage.setItem("patients", JSON.stringify(patients));
-  renderTable();
-  popupForm.style.display = "none";
+// 🔹 เปิด/ปิด dropdown เมื่อกดปุ่ม
+dropdownBtn?.addEventListener("click", (e) => {
+  e.stopPropagation(); // ป้องกัน event ปิด dropdown ซ้อนกัน
+  dropdownMenu.classList.toggle("show");
 });
 
-// ฟังก์ชันแก้ไข
-window.editPatient = (i) => {
-  const p = patients[i];
-  editIndex = i;
-  document.getElementById("formTitle").textContent = "แก้ไขข้อมูลผู้ป่วย";
-  for (const key in p) {
-    if (document.getElementById(key)) document.getElementById(key).value = p[key];
+// 🔹 ปิด dropdown เมื่อคลิกนอกพื้นที่
+window.addEventListener("click", (e) => {
+  if (!e.target.closest(".dropdown")) {
+    dropdownMenu?.classList.remove("show");
   }
-  popupForm.style.display = "flex";
-};
-
-// ลบข้อมูล
-window.deletePatient = (i) => {
-  if (confirm("ต้องการลบข้อมูลนี้หรือไม่?")) {
-    patients.splice(i, 1);
-    localStorage.setItem("patients", JSON.stringify(patients));
-    renderTable();
-  }
-};
-
-renderTable();
-
-const themeToggle = document.getElementById("themeToggle");
-const langToggle = document.getElementById("langToggle");
-const pageTitle = document.getElementById("pageTitle");
-
-// สลับธีม Light/Dark
-themeToggle.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  const isDark = document.body.classList.contains("dark");
-  themeToggle.textContent = isDark ? "🌞 โหมดสว่าง" : "🌓 เปลี่ยนธีม";
 });
-
-// สลับภาษา UI ไทย ↔ อังกฤษ
-let lang = "th";
-langToggle.addEventListener("click", () => {
-  lang = lang === "th" ? "en" : "th";
-  updateLanguage();
-});
-
-function updateLanguage() {
-  if (lang === "en") {
-    langToggle.textContent = "TH";
-    pageTitle.textContent = "Patient Management System";
-    document.getElementById("search").placeholder = "Search patient...";
-    document.getElementById("addBtn").textContent = "+ Add Patient";
-    document.querySelector("th:nth-child(1)").textContent = "Full Name";
-    document.querySelector("th:nth-child(2)").textContent = "Age";
-    document.querySelector("th:nth-child(3)").textContent = "Hospital";
-    document.querySelector("th:nth-child(4)").textContent = "DNA Type";
-    document.querySelector("th:nth-child(5)").textContent = "Sent Date";
-    document.querySelector("th:nth-child(6)").textContent = "Result Date";
-    document.querySelector("th:nth-child(7)").textContent = "Action";
-  } else {
-    langToggle.textContent = "EN";
-    pageTitle.textContent = "ระบบจัดการข้อมูลผู้ป่วย";
-    document.getElementById("search").placeholder = "ค้นหาผู้ป่วย...";
-    document.getElementById("addBtn").textContent = "+ เพิ่มข้อมูลผู้ป่วย";
-    document.querySelector("th:nth-child(1)").textContent = "ชื่อ-สกุล";
-    document.querySelector("th:nth-child(2)").textContent = "อายุ";
-    document.querySelector("th:nth-child(3)").textContent = "โรงพยาบาล";
-    document.querySelector("th:nth-child(4)").textContent = "ประเภท DNA";
-    document.querySelector("th:nth-child(5)").textContent = "วันที่ส่งตรวจ";
-    document.querySelector("th:nth-child(6)").textContent = "วันที่ผลออก";
-    document.querySelector("th:nth-child(7)").textContent = "การจัดการ";
-  }
-}
