@@ -22,7 +22,6 @@ async function handleLogin(event, { username, password }) {
       return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
     }
 
-    // ✅ เพิ่ม role กลับไปใน response
     return { success: true, role: data.role };
   } catch (err) {
     console.error('Login error:', err);
