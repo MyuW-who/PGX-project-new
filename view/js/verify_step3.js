@@ -12,8 +12,8 @@ langToggle.addEventListener("click", () => {
 /* ========================
    ดึงข้อมูลจาก localStorage
 ======================== */
-const dnaType = localStorage.getItem("dnaType") || "-";
-const patientName = localStorage.getItem("patientName") || "-";
+const dnaType = sessionStorage.getItem("selectedDnaType") || "-";
+const patientName = sessionStorage.getItem("patientName") || "-";
 const genotype = localStorage.getItem("genotype") || "-";
 
 document.getElementById("patientName").textContent = patientName;
@@ -64,12 +64,12 @@ document.getElementById("phenotype").textContent = predictPhenotype(genotype);
    ปุ่มต่าง ๆ
 ======================== */
 document.querySelector(".back-btn").addEventListener("click", () => {
-  window.location.href = "verify_step2.html";
+  window.electronAPI.navigate('verify_step2');
 });
 
 document.querySelector(".confirm-btn").addEventListener("click", () => {
   alert("✅ ยืนยันข้อมูลเรียบร้อยแล้ว!");
-  window.location.href = "patient_dashboard.html";
+  window.electronAPI.navigate('patient');
 });
 
 document.querySelector(".print-btn").addEventListener("click", () => {

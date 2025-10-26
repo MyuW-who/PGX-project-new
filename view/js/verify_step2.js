@@ -13,8 +13,8 @@ langToggle.addEventListener("click", () => {
 /* ========================
    🧬 ดึงข้อมูลจาก Step 1
 ======================== */
-const patientName = localStorage.getItem("patientName") || "สมชาย ใจดี";
-const dnaType = localStorage.getItem("dnaType") || "-";
+const patientName = sessionStorage.getItem("patientName") || "-";
+const dnaType = sessionStorage.getItem("selectedDnaType") || "-";
 document.getElementById("patientName").textContent = patientName;
 document.getElementById("dnaType").textContent = dnaType;
 
@@ -157,7 +157,7 @@ renderDNAForm(dnaType);
    🔙 ปุ่ม Back / ✅ Confirm
 ======================== */
 document.querySelector(".back-btn").addEventListener("click", () => {
-  window.location.href = "verify_step1.html";
+  window.electronAPI.navigate('verify_step1');
 });
 
 document.querySelector(".confirm-btn").addEventListener("click", () => {
@@ -168,5 +168,5 @@ document.querySelector(".confirm-btn").addEventListener("click", () => {
   });
 
   // ไปหน้า Step 3
-  window.location.href = "verify_step3.html";
+  window.electronAPI.navigate('verify_step3');
 });
