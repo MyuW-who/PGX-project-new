@@ -39,29 +39,60 @@ patientBox.innerHTML = `
   </table>
 `;
 
-// ปุ่ม Next
-document.querySelector(".next-btn").addEventListener("click", () => {
-  const dnaType = document.getElementById("dnaType").value;
-  if (!dnaType) {
-    alert("กรุณาเลือกประเภท DNA ก่อนดำเนินการต่อ");
-    return;
+// Fetch patient name using patient ID from sessionStorage
+const patientId = sessionStorage.getItem('selectedPatientId');
+
+async function fetchPatientName(patientId) {
+  try {
+    const patients = await window.electronAPI.searchPatient(patientId);
+    if (patients && patients.length > 0) {
+      return `${patients[0].first_name} ${patients[0].last_name}`;
+    }
+    return 'ไม่พบข้อมูลผู้ป่วย'; // Patient not found
+  } catch (err) {
+    console.error('❌ Error fetching patient name:', err);
+    return 'เกิดข้อผิดพลาด'; // Error occurred
   }
-  alert(`ข้อมูลถูกต้อง → ไปยังขั้นตอนถัดไป (DNA Type: ${dnaType})`);
-  // ภายหลังจะใช้ window.location.href = "verify_step2.html";
+}
+
+// Display patient name
+(async () => {
+  const patientName = await fetchPatientName(patientId);
+  const patientBox = document.getElementById('patient-info');
+  patientBox.innerHTML = `
+    <table>
+      <tr><td class="label">ชื่อ-สกุล:</td><td>${patientName}</td></tr>
+      <tr><td class="label">อายุ:</td><td>${patientData.age} ปี</td></tr>
+      <tr><td class="label">หน่วยงานที่ส่งตรวจ:</td><td>${patientData.department}</td></tr>
+      <tr><td class="label">วันที่ส่งตรวจ:</td><td>${patientData.sentDate}</td></tr>
+      <tr><td class="label">วันที่ผลออก:</td><td>${patientData.resultDate}</td></tr>
+      <tr><td class="label">เบอร์โทร:</td><td>${patientData.phone}</td></tr>
+      <tr><td class="label">เชื้อชาติ:</td><td>${patientData.race}</td></tr>
+      <tr><td class="label">โรงพยาบาล:</td><td>${patientData.hospital}</td></tr>
+      <tr><td class="label">บัตรประชาชน:</td><td>${patientData.citizenId}</td></tr>
+    </table>
+  `;
+})(); 
+
+
+// Back Button
+const backBtn = document.querySelector(".back-btn");
+backBtn.addEventListener("click", () => {
+  window.electronAPI.navigate('patient'); // Navigate back to the patient page
 });
 
-// ปุ่ม Next
-document.querySelector(".next-btn").addEventListener("click", () => {
+// Next Button
+const nextBtn = document.querySelector(".next-btn");
+nextBtn.addEventListener("click", () => {
   const dnaType = document.getElementById("dnaType").value;
   if (!dnaType) {
     alert("กรุณาเลือกประเภท DNA ก่อนดำเนินการต่อ");
     return;
   }
 
-  // เก็บค่าที่เลือกไว้
-  localStorage.setItem("dnaType", dnaType);
-  localStorage.setItem("patientName", "สมชาย ใจดี"); // ตัวอย่างชื่อผู้ป่วย
+  // Store selected DNA type in sessionStorage
+  sessionStorage.setItem("selectedDnaType", dnaType);
 
-  // ไปยังหน้า step2
-  window.location.href = "verify_step2.html";
+  // Navigate to the next step
+  window.electronAPI.navigate('verify_step2');
 });
