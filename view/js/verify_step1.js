@@ -50,13 +50,13 @@ document.querySelector(".next-btn").addEventListener("click", () => {
   // ภายหลังจะใช้ window.location.href = "verify_step2.html";
 });
 
-// ปุ่ม Next
 document.querySelector(".next-btn").addEventListener("click", () => {
   const dnaType = document.getElementById("dnaType").value;
   if (!dnaType) {
     alert("กรุณาเลือกประเภท DNA ก่อนดำเนินการต่อ");
     return;
   }
+
 
   // เก็บค่าที่เลือกไว้
   localStorage.setItem("dnaType", dnaType);
@@ -65,3 +65,8 @@ document.querySelector(".next-btn").addEventListener("click", () => {
   // ไปยังหน้า step2
   window.location.href = "verify_step2.html";
 });
+
+// ปุ่ม Back
+document.querySelector(".back-btn").addEventListener("click", () => {
+  window.location.href = "index.html";
+}); 
