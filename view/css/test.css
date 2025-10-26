@@ -351,14 +351,6 @@ body.dark .popup-box {
   color: #fff;
 }
 
-body.dark .popup-box label{
-  color: #fff;
-}
-
-body.dark .popup-box input{
-  border-style: solid;
-}
-
 /* Dropdown (Dark Mode) */
 body.dark .dropdown-content {
   background: #2f2f40;
