@@ -208,7 +208,21 @@ tbody tr:hover {
 }
 
 /* ปุ่มตรวจสอบ */
-.inspect-btn {
+.Edit-btn {
+  background: #ffffff;
+  color: #4594d8;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.Edit-btn:hover {
+  background: #317ab8;
+}
+
+.Edit-btn {
   background: #4594d8;
   color: #fff;
   border: none;
@@ -218,7 +232,7 @@ tbody tr:hover {
   transition: background 0.3s;
 }
 
-.inspect-btn:hover {
+.Edit-btn:hover {
   background: #317ab8;
 }
 
