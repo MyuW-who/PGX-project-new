@@ -167,3 +167,4 @@ function showPage(pageName, patientId) {
   sessionStorage.setItem('selectedPatientId', patientId);
   window.electronAPI.navigate(pageName); // Navigate to the specified page
 }
+
