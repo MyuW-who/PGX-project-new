@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Dashboard</title>
+  <link rel="stylesheet" href="./css/information.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2 class="logo">Logo</h2>
+      <ul>
+        <li id="dashboard-btn">Dashboard</li>
+        <li class="active">ข้อมูลผู้ป่วย</li>
+        <li>ตรวจสอบข้อมูล</li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <h2>Case Management</h2>
+        <div class="header-buttons">
+          <button id="themeToggle" class="icon-btn" title="เปลี่ยนธีม">
+            <i class="fa fa-moon"></i>
+          </button>
+          <button id="langToggle" class="lang-btn" title="สลับภาษา">TH</button>
+          <div class="dropdown">
+            <button class="dropbtn" id="dropdownBtn">
+              <i class="fa fa-user-circle"></i>
+              Admin
+              <i class="fa fa-caret-down"></i>
+            </button>
+            <div id="dropdownMenu" class="dropdown-content">
+              <a href="#">Home</a>
+              <a href="#">About</a>
+              <a href="#" id="logout">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input type="text" id="searchInput" placeholder="🔍 ค้นหาผู้ป่วย, HN หรือเลขเคส..." />
+        </div>
+        <div class="toolbar-right">
+          <select id="tatFilter">
+            <option value="all">TAT ทั้งหมด</option>
+            <option value="pre-analytic">Pre-analytic</option>
+            <option value="analytic">Analytic</option>
+            <option value="post-analytic">Post-analytic</option>
+          </select>
+          <button id="scanBarcodeBtn" class="btn primary">
+            <i class="fa fa-barcode"></i>
+            สแกนบาร์โค้ด
+          </button>
+          <button id="addBtn" class="btn primary">
+            <i class="fa fa-plus"></i>
+            เพิ่มข้อมูลผู้ป่วย
+          </button>
+        </div>
+      </div>
+
+      <section class="case-summary">
+        <article class="summary-card">
+          <div>
+            <h4>ทั้งหมด</h4>
+            <p class="summary-count" id="countTotal">0</p>
+          </div>
+          <i class="fa fa-users"></i>
+        </article>
+        <article class="summary-card status-pre-analytic">
+          <div>
+            <h4>Pre-analytic</h4>
+            <p class="summary-count" id="countPre">0</p>
+          </div>
+          <i class="fa fa-vials"></i>
+        </article>
+        <article class="summary-card status-analytic">
+          <div>
+            <h4>Analytic</h4>
+            <p class="summary-count" id="countAnalytic">0</p>
+          </div>
+          <i class="fa fa-dna"></i>
+        </article>
+        <article class="summary-card status-post-analytic">
+          <div>
+            <h4>Post-analytic</h4>
+            <p class="summary-count" id="countPost">0</p>
+          </div>
+          <i class="fa fa-clipboard-check"></i>
+        </article>
+      </section>
+
+      <section class="case-table">
+        <div class="table-wrapper">
+          <table id="caseTable">
+            <thead>
+              <tr>
+                <th>เลขเคส / HN</th>
+                <th>ชื่อ - นามสกุล / การวินิจฉัย</th>
+                <th>วันที่รับสิ่งส่งตรวจ</th>
+                <th>อัปเดตล่าสุด</th>
+                <th>สถานะ TAT</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="caseTableBody"></tbody>
+          </table>
+          <div class="table-empty hidden" id="caseTableEmpty">
+            ไม่พบข้อมูลที่ตรงกับการค้นหา
+          </div>
+        </div>
+      </section>
+
+      <section id="patientDetail" class="detail hidden">
+        <div class="detail-header">
+          <div>
+            <h3 id="detailName">รายละเอียดผู้ป่วย</h3>
+            <p id="detailMeta"></p>
+          </div>
+          <div class="detail-actions">
+            <button class="btn outline" id="printLabelBtn">
+              <i class="fa fa-print"></i>
+              พิมพ์ฉลากบาร์โค้ด / QR
+            </button>
+            <button class="btn outline" id="generateReportBtn">
+              <i class="fa fa-file-pdf"></i>
+              สร้างรายงาน (PDF)
+            </button>
+            <button class="icon-btn close-detail" id="closeDetailBtn" aria-label="ปิดรายละเอียด">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="detail-grid">
+          <article class="card">
+            <h4>ข้อมูลผู้ป่วย</h4>
+            <ul id="patientBasicInfo" class="info-list"></ul>
+            <div class="info-notes">
+              <h5>หมายเหตุ</h5>
+              <p id="detailNotes">เลือกผู้ป่วยเพื่อดูรายละเอียด</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h4>Timeline TAT</h4>
+            <ul id="tatTimeline" class="timeline"></ul>
+          </article>
+        </div>
+
+        <article class="card">
+          <h4>ผลการตรวจพันธุกรรม (Genotype)</h4>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Gene</th>
+                  <th>Allele</th>
+                  <th>Phenotype</th>
+                </tr>
+              </thead>
+              <tbody id="genotypeRows"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card">
+          <h4>โมดูลแปลผล (CDS) และคำแนะนำ</h4>
+          <div id="cdsContent" class="cds-content"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <h4>โมดูลติดตาม TDM</h4>
+            <button class="btn ghost" id="addTdmBtn">
+              <i class="fa fa-plus"></i>
+              บันทึกผล TDM
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>ยา</th>
+                  <th>วันที่</th>
+                  <th>ผล</th>
+                  <th>ช่วงเป้าหมาย</th>
+                  <th>การดำเนินการ</th>
+                </tr>
+              </thead>
+              <tbody id="tdmRows"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <h4>รายงานผล</h4>
+            <div class="card-actions">
+              <button class="btn ghost" id="createReportBtn">
+                <i class="fa fa-file-medical"></i>
+                สร้างรายงานใหม่
+              </button>
+              <button class="btn ghost" id="viewHtmlReportBtn">
+                <i class="fa fa-eye"></i>
+                ดูรายงาน HTML
+              </button>
+            </div>
+          </div>
+          <ul id="reportList" class="item-list"></ul>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <h4>การจัดการ e-Consent</h4>
+            <button class="btn ghost" id="addConsentBtn">
+              <i class="fa fa-upload"></i>
+              อัปโหลด e-Consent
+            </button>
+          </div>
+          <ul id="consentList" class="item-list"></ul>
+        </article>
+
+        <article class="card">
+          <h4>Log การเข้าถึง/แก้ไขข้อมูลผู้ป่วย</h4>
+          <ul id="auditLog" class="log-list"></ul>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-overlay hidden" id="patientModal" aria-hidden="true">
+    <div class="modal">
+      <header class="modal-header">
+        <h3>เพิ่มข้อมูลผู้ป่วย</h3>
+        <button class="icon-btn" id="closePatientModal" aria-label="ปิดหน้าต่าง">
+          <i class="fa fa-times"></i>
+        </button>
+      </header>
+      <form id="patientForm" class="modal-body">
+        <div class="form-grid">
+          <label>
+            เลขเคส (อัตโนมัติ)
+            <input type="text" value="จะถูกสร้างอัตโนมัติ" disabled />
+          </label>
+          <label>
+            HN *
+            <input type="text" name="hn" required />
+          </label>
+          <label>
+            ชื่อ *
+            <input type="text" name="firstName" required />
+          </label>
+          <label>
+            นามสกุล *
+            <input type="text" name="lastName" required />
+          </label>
+          <label>
+            เพศ *
+            <select name="gender" required>
+              <option value="">เลือกเพศ</option>
+              <option value="หญิง">หญิง</option>
+              <option value="ชาย">ชาย</option>
+              <option value="อื่น ๆ">อื่น ๆ</option>
+            </select>
+          </label>
+          <label>
+            วันเกิด *
+            <input type="date" name="dob" required />
+          </label>
+          <label>
+            เบอร์โทรศัพท์
+            <input type="tel" name="phone" />
+          </label>
+          <label>
+            แพทย์ผู้ดูแล *
+            <input type="text" name="doctor" required />
+          </label>
+          <label>
+            การวินิจฉัยหลัก
+            <input type="text" name="diagnosis" />
+          </label>
+          <label>
+            ประเภทสิ่งส่งตรวจ *
+            <input type="text" name="sampleType" placeholder="เช่น เลือด, น้ำไขสันหลัง" required />
+          </label>
+          <label>
+            วันที่รับสิ่งส่งตรวจ *
+            <input type="date" name="collectedAt" required />
+          </label>
+          <label>
+            สถานะ TAT เริ่มต้น *
+            <select name="tatStatus" required>
+              <option value="">เลือกสถานะ</option>
+              <option value="pre-analytic">Pre-analytic</option>
+              <option value="analytic">Analytic</option>
+              <option value="post-analytic">Post-analytic</option>
+            </select>
+          </label>
+          <label class="full-width">
+            หมายเหตุ
+            <textarea name="notes" rows="3" placeholder="ข้อมูลเพิ่มเติมหรือข้อควรระวัง"></textarea>
+          </label>
+        </div>
+        <small class="form-hint">* จำเป็นต้องกรอก</small>
+        <footer class="modal-footer">
+          <button type="button" class="btn ghost" id="cancelPatientModal">ยกเลิก</button>
+          <button type="button" class="btn outline" id="saveAndPrintBtn">
+            <i class="fa fa-print"></i>
+            บันทึกและพิมพ์ใบสั่งตรวจ (PDF)
+          </button>
+          <button type="submit" class="btn primary">
+            <i class="fa fa-save"></i>
+            บันทึก
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="scannerOverlay" aria-hidden="true">
+    <div class="modal scanner-modal">
+      <header class="modal-header">
+        <h3>สแกนบาร์โค้ด</h3>
+        <button class="icon-btn" id="closeScannerBtn" aria-label="ปิดหน้าต่าง">
+          <i class="fa fa-times"></i>
+        </button>
+      </header>
+      <div class="scanner-body">
+        <video id="scannerPreview" autoplay muted playsinline></video>
+        <p class="muted">จัดบาร์โค้ดให้อยู่ในกรอบเพื่อสแกน</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+  <script src="./js/information.js"></script>
+</body>
+</html>
