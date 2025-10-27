@@ -52,7 +52,7 @@ document.getElementById('searchInput')?.addEventListener('input', async (e) => {
   const keyword = e.target.value.trim();
   try {
     const patients = keyword
-      ? await window.electronAPI.searchPatient(parseInt(keyword))
+      ? await window.electronAPI.searchPatient(keyword)
       : await window.electronAPI.getPatients();
     renderPatients(patients);
   } catch (err) {
@@ -74,12 +74,13 @@ function renderPatients(data) {
 
   data.forEach((p, index) => {
     const row = `
-      <tr>
-        <td>${index + 1}</td>
+      <tr onclick="showPage('verify_step1', '${p.patient_id}')">
+        <td>${p.patient_id ?? '-'}</td>
         <td>${p.first_name ?? ''} ${p.last_name ?? ''}</td>
         <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
         <td>${p.hospital_id ?? '-'}</td>
-        <td><button class="inspect-btn">Inspect</button></td>
+        <td><button class="Edit-btn">Edit</button></td>
+        <td><button class="delete-btn">Delete</button></td>
       </tr>`;
     tbody.insertAdjacentHTML('beforeend', row);
   });
@@ -145,7 +146,6 @@ window.addEventListener("click", (e) => {
 // ▶️ ปุ่มไปหน้า Dashboard
 const dashboardBtn = document.getElementById('dashboard-btn');
 dashboardBtn?.addEventListener('click', () => {
-  console.log("🔄 Navigate to dashboard1");
   window.electronAPI.navigate('dashboard1');
 });
 
@@ -153,8 +153,19 @@ dashboardBtn?.addEventListener('click', () => {
 function attachInspectButtons() {
   document.querySelectorAll('.inspect-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      console.log("🧾 Navigate to verify_step1");
       window.electronAPI.navigate('verify_step1');
     });
   });
 }
+
+document.getElementById('logout').addEventListener('click', (e) => {
+  e.preventDefault();
+  window.electronAPI.navigate('login');
+});
+
+function showPage(pageName, patientId) {
+  // Store patientId in sessionStorage for use in verify_step1.html
+  sessionStorage.setItem('selectedPatientId', patientId);
+  window.electronAPI.navigate(pageName); // Navigate to the specified page
+}
+

@@ -26,7 +26,10 @@ async function addPatient(patientData) {
 
 // ค้นหาผู้ป่วย
 async function searchPatientById(patientId) {
-  const { data, error } = await supabase.from('patient').select('*').eq('patient_id', patientId);
+  const { data, error } = await supabase
+    .from('patient')
+    .select('*')
+    .like('patient_id', `%${patientId}%`); // Use 'like' for partial matching
   if (error) console.error('❌ Search Error:', error.message);
   return data;
 }

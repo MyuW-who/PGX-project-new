@@ -207,3 +207,23 @@ body.dark .dna-section select:focus {
 .next-btn:hover {
   background: #005f8a;
 }
+
+.next-btn:disabled {
+  background: #a0a0a0;
+  cursor: not-allowed;
+}
+.next-btn:disabled:hover {
+  background: #a0a0a0;
+}
+.back-btn {
+  background: #ccc;
+  color: #333;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.back-btn:hover {
+  background: #aaa;
+}
