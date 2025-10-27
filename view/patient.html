@@ -34,7 +34,6 @@
       <!-- Header Section -->
       <header class="page-header">
         <h2>Information</h2>
-
         <div class="header-buttons">
           <button id="themeToggle" class="icon-btn">
             <i class="fa fa-moon"></i>
@@ -57,28 +56,48 @@
 
       <!-- Toolbar -->
       <div class="toolbar">
-        <input type="text" id="searchInput" placeholder="🔍 ค้นหาผู้ป่วย..." />
-        <button id="addBtn">
-          <i class="fa fa-plus"></i> เพิ่มข้อมูลผู้ป่วย
-        </button>
+        <div class="toolbar-left">
+          <input type="text" id="searchInput" placeholder="ค้นหาผู้ป่วย 🔍 " />
+        </div>
+        <div class="toolbar-right">
+          <select id="tatFilter">
+            <option value="all">TAT ทั้งหมด</option>
+            <option value="pre-analytic">Pre-analytic</option>
+            <option value="analytic">Analytic</option>
+            <option value="post-analytic">Post-analytic</option>
+          </select>
+          <button id="scanBarcodeBtn" class="btn primary">
+            <i class="fa fa-barcode"></i>
+            สแกนบาร์โค้ด
+          </button>
+          <button id="addBtn" class="btn primary">
+            <i class="fa fa-plus"></i>
+            เพิ่มข้อมูลผู้ป่วย
+          </button>
+        </div>
       </div>
 
+     
+
       <!-- Table Section -->
-      <section class="table-section">
-        <table id="patientTable">
-          <thead>
-            <tr>
-              <th>เลขประจำตัวผู้ป่วย</th>
-              <th>ชื่อ</th>
-              <th>วันที่ส่งตรวจ</th>
-              <th>โรงพยาบาล</th>
-              <th>ตรวจสอบ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- ข้อมูลผู้ป่วยจะถูกเพิ่มที่นี่โดย JavaScript -->
-          </tbody>
-        </table>
+      <section class="case-table">
+        <div class="table-wrapper">
+          <table id="patientTable">
+            <thead>
+              <tr>
+                <th>เลขประจำตัวผู้ป่วย</th>
+                <th>ชื่อ</th>
+                <th>วันที่ส่งตรวจ</th>
+                <th>โรงพยาบาล</th>
+                <th>ตรวจสอบ</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- ข้อมูลผู้ป่วยจะถูกเพิ่มที่นี่โดย JavaScript -->
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
   </div>

@@ -80,7 +80,7 @@ function renderPatients(data) {
         <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
         <td>${p.hospital_id ?? '-'}</td>
         <td><button class="Edit-btn">Edit</button></td>
-        <td><button class="delect-btn">Delect</button></td>
+        <td><button class="delete-btn">Delete</button></td>
       </tr>`;
     tbody.insertAdjacentHTML('beforeend', row);
   });
