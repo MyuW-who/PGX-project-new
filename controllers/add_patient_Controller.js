@@ -12,7 +12,6 @@ async function fetchPatients() {
     console.error('❌ Supabase Fetch Error:', error.message);
     return [];
   }
-
   //console.log('✅ Supabase Fetch Data:', data);
   return data;
 }
@@ -64,6 +63,8 @@ async function updatePatient(patientId, updatedData) {
   }
   return data;
 }
+
+
 
 // ลบข้อมูลผู้ป่วย
 async function deletePatient(patientId) {
