@@ -4,15 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
+
   <!-- CSS -->
   <link rel="stylesheet" href="./css/dashboard.css" />
+
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
+
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+  <!-- Container หลัก -->
   <div class="container">
+    
     <!-- Sidebar -->
     <aside class="sidebar">
       <h2 class="logo">Logo</h2>
@@ -23,25 +31,32 @@
       </ul>
     </aside>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <main class="main-content">
-      <!-- Header -->
+      
+      <!-- Header Section -->
       <header class="page-header">
         <h2>Dashboard</h2>
         <div class="header-buttons">
-          <button id="themeToggle" class="icon-btn"><i class="fa fa-moon"></i></button>
+          <button id="themeToggle" class="icon-btn">
+            <i class="fa fa-moon"></i>
+          </button>
           <button id="langToggle" class="lang-btn">TH</button>
+
+          <!-- Dropdown -->
           <div class="dropdown">
             <button class="dropbtn" id="dropdownBtn">
               <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
             </button>
             <div id="dropdownMenu" class="dropdown-content">
-              <a href="#">settings</a>
-              <a href="#" id="logout">Logout</a>
+              <a href="#">Home</a>
+              <a href="#">About</a>
+              <a href="#" id="logout">logout</a>
             </div>
           </div>
         </div>
       </header>
+
 
       <!-- Top metrics -->
       <section class="metrics-row">
