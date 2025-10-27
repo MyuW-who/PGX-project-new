@@ -1,6 +1,8 @@
 const userForm = document.getElementById("user-form");
 const userTableBody = document.querySelector("#user-table tbody");
 const formMessage = document.getElementById("form-message");
+const logoutBtn = document.getElementById("logout-btn");
+const togglePasswordButtons = document.querySelectorAll(".toggle-password");
 
 let users = [];
 let isEditing = false;
@@ -193,6 +195,32 @@ userTableBody.addEventListener("click", async (event) => {
         showMessage('เกิดข้อผิดพลาดในการลบข้อมูล', 'error');
       }
     }
+  }
+});
+
+togglePasswordButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const input = document.getElementById(button.dataset.target);
+    if (!input) return;
+    const willShow = input.type === "password";
+    input.type = willShow ? "text" : "password";
+    button.classList.toggle("is-visible", willShow);
+    button.setAttribute(
+      "aria-label",
+      willShow ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
+    );
+  });
+});
+
+logoutBtn?.addEventListener("click", async () => {
+  try {
+    if (window.electronAPI?.invoke) {
+      await window.electronAPI.invoke("logout");
+    } else if (window.electronAPI?.logout) {
+      await window.electronAPI.logout();
+    }
+  } catch (error) {
+    console.error("Logout error:", error);
   }
 });
 
