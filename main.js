@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const supabase = require('./supabase');
 const { handleLogin } = require('./controllers/loginController');
 const { generatePDF } = require('./controllers/pdfController');
-const { fetchPatients, addPatient, searchPatientById } = require('./controllers/add_patient_Controller');
+const { fetchPatients, addPatient, searchPatientById } = require('./controllers/add_patient_controller');
 //const { comparePatients } = require('./controllers/compare_patient_controller');
 
 
