@@ -1,6 +1,12 @@
 const userForm = document.getElementById("user-form");
 const userTableBody = document.querySelector("#user-table tbody");
 const formMessage = document.getElementById("form-message");
+const logoutBtn = document.getElementById("logout-btn");
+const togglePasswordButtons = document.querySelectorAll(".toggle-password");
+const themeToggle = document.getElementById("themeToggle");
+const langToggle = document.getElementById("langToggle");
+const dropdownBtn = document.getElementById("dropdownBtn");
+const dropdownMenu = document.getElementById("dropdownMenu");
 
 let users = [];
 let isEditing = false;
@@ -194,6 +200,54 @@ userTableBody.addEventListener("click", async (event) => {
       }
     }
   }
+});
+
+togglePasswordButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const input = document.getElementById(button.dataset.target);
+    if (!input) return;
+    const willShow = input.type === "password";
+    input.type = willShow ? "text" : "password";
+    button.classList.toggle("is-visible", willShow);
+    button.setAttribute(
+      "aria-label",
+      willShow ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
+    );
+  });
+});
+
+logoutBtn?.addEventListener("click", async () => {
+  try {
+    if (window.electronAPI?.invoke) {
+      await window.electronAPI.invoke("logout");
+    } else if (window.electronAPI?.logout) {
+      await window.electronAPI.logout();
+    }
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+});
+
+dropdownBtn?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  dropdownMenu?.classList.toggle("show");
+});
+
+dropdownMenu?.addEventListener("click", (event) => {
+  event.stopPropagation();
+});
+
+document.addEventListener("click", () => {
+  dropdownMenu?.classList.remove("show");
+});
+
+themeToggle?.addEventListener("click", () => {
+  document.body.classList.toggle("dark-theme");
+});
+
+langToggle?.addEventListener("click", () => {
+  const current = langToggle.textContent.trim();
+  langToggle.textContent = current === "TH" ? "EN" : "TH";
 });
 
 // Initialize the page

@@ -4,8 +4,13 @@
    ▶️ เปลี่ยนธีมของหน้าเว็บทั้งหมดระหว่าง Light ↔ Dark
 ============================================================ */
 const themeBtn = document.getElementById("themeToggle");
+let chartInstances = {}; // เก็บ instance ของกราฟเพื่ออัปเดตตอนสลับธีม
+
 themeBtn?.addEventListener("click", () => {
   document.body.classList.toggle("dark");
+  
+  // อัปเดตสีกราฟเมื่อสลับธีม
+  updateChartsForTheme();
 });
 
 
@@ -60,6 +65,22 @@ dashboard_btn?.addEventListener('click', () => {
    ▶️ ข้อมูลจำลอง + วาดกราฟ 3 แบบ: Line, Donut TAT, Gauge KPI
 ============================================================ */
 
+// ฟังก์ชันอัปเดตสีกราฟตาม theme
+function updateChartsForTheme() {
+  const isDark = document.body.classList.contains('dark');
+  
+  // อัปเดต TAT Donut
+  if (chartInstances.tatChart) {
+    chartInstances.tatChart.update();
+  }
+  
+  // อัปเดต Gauge
+  if (chartInstances.gaugeChart) {
+    chartInstances.gaugeChart.data.datasets[0].backgroundColor[1] = isDark ? '#3b3b4a' : '#e9eef6';
+    chartInstances.gaugeChart.update();
+  }
+}
+
 // ใช้เฉพาะในหน้า Dashboard เท่านั้น (กัน error ถ้า element ไม่มี)
 const hasDashboard = !!document.getElementById('usageChart') || !!document.getElementById('tatDonut') || !!document.getElementById('kpiGauge');
 
@@ -95,19 +116,18 @@ if (hasDashboard) {
   renderMetrics();
 
   // ── 3) กราฟเส้น Usage (รายวัน/รายสัปดาห์) ───────────────
-  let usageChart;
   const usageCanvas = document.getElementById('usageChart');
   if (usageCanvas && window.Chart) {
     const ctx = usageCanvas.getContext('2d');
-    usageChart = new Chart(ctx, {
+    chartInstances.usageChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: mockData.line.daily.labels,
         datasets: [{
           label: 'จำนวนเคส',
           data: mockData.line.daily.values,
-          borderColor: '#0b72ff',
-          backgroundColor: 'rgba(11,114,255,0.12)',
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.12)',
           tension: 0.3,
           fill: true,
           pointRadius: 3
@@ -126,9 +146,9 @@ if (hasDashboard) {
         btn.classList.add('active');
         const range = btn.dataset.range;
         const data = mockData.line[range];
-        usageChart.data.labels = data.labels;
-        usageChart.data.datasets[0].data = data.values;
-        usageChart.update();
+        chartInstances.usageChart.data.labels = data.labels;
+        chartInstances.usageChart.data.datasets[0].data = data.values;
+        chartInstances.usageChart.update();
         const subtitle = document.getElementById('usage-subtitle');
         if (subtitle) subtitle.textContent = `สรุป: ราย${range === 'daily' ? 'วัน' : 'สัปดาห์'}`;
       });
@@ -136,32 +156,64 @@ if (hasDashboard) {
   }
 
   // ── 4) Donut ติดตาม TAT ─────────────────────────────────
-  let tatChart;
   const tatCanvas = document.getElementById('tatDonut');
   if (tatCanvas && window.Chart) {
+    const total = mockData.tat.inSLA + mockData.tat.inProgress + mockData.tat.overSLA;
+    
+    // Plugin แสดงตัวเลขตรงกลาง
+    const tatCenterText = {
+      id: 'tatCenterText',
+      afterDraw(chart) {
+        const meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data || meta.data.length === 0) return;
+        
+        const {ctx, chartArea} = chart;
+        const centerX = (chartArea.left + chartArea.right) / 2;
+        const centerY = (chartArea.top + chartArea.bottom) / 2;
+        
+        const isDark = document.body.classList.contains('dark');
+        
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // ตัวเลขใหญ่
+        ctx.font = 'bold 28px "Noto Sans Thai", sans-serif';
+        ctx.fillStyle = isDark ? '#ecf0f1' : '#333';
+        ctx.fillText(total, centerX, centerY - 8);
+        
+        // ข้อความเล็ก
+        ctx.font = '13px "Noto Sans Thai", sans-serif';
+        ctx.fillStyle = isDark ? '#94a3b8' : '#666';
+        ctx.fillText('เคสทั้งหมด', centerX, centerY + 14);
+        
+        ctx.restore();
+      }
+    };
+
     const ctx = tatCanvas.getContext('2d');
-    tatChart = new Chart(ctx, {
+    chartInstances.tatChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
         labels: ['ปกติ (ใน SLA)', 'กำลังดำเนินการ', 'เสี่ยงเกิน SLA'],
         datasets: [{
           data: [mockData.tat.inSLA, mockData.tat.inProgress, mockData.tat.overSLA],
-          backgroundColor: ['#2ecc71', '#0b72ff', '#ff6b6b'],
+          backgroundColor: ['#16a34a', '#2563eb', '#dc2626'],
           borderWidth: 0
         }]
       },
       options: {
-        cutout: '60%',
+        cutout: '65%',
         plugins: {
           legend: { display: false },
           tooltip: { callbacks: { label: (c) => `${c.label}: ${c.parsed}` } }
         }
-      }
+      },
+      plugins: [tatCenterText]
     });
   }
 
   // ── 5) Gauge KPI (Semi Donut) ────────────────────────────
-  let gaugeChart;
   const gaugeCanvas = document.getElementById('kpiGauge');
   if (gaugeCanvas && window.Chart) {
     const rate = mockData.kpi.rejectionRate; // 0-100
@@ -174,25 +226,29 @@ if (hasDashboard) {
         const meta = chart.getDatasetMeta(0);
         const arc = meta?.data?.[0];
         if (!arc) return;
+        
+        const isDark = document.body.classList.contains('dark');
         const {ctx} = chart;
+        
         ctx.save();
-        ctx.font = 'bold 18px Poppins, sans-serif';
-        ctx.fillStyle = '#333';
+        ctx.font = 'bold 24px "Noto Sans Thai", sans-serif';
+        ctx.fillStyle = isDark ? '#ecf0f1' : '#333';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`${rate}%`, arc.x, arc.y);
+        ctx.fillText(`${rate}%`, arc.x, arc.y + 5);
         ctx.restore();
       }
     };
 
+    const isDark = document.body.classList.contains('dark');
     const ctx = gaugeCanvas.getContext('2d');
-    gaugeChart = new Chart(ctx, {
+    chartInstances.gaugeChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
         labels: ['อัตราปฏิเสธ', 'ส่วนที่เหลือ'],
         datasets: [{
           data: [rate, 100 - rate],
-          backgroundColor: ['#ff6b6b', '#e9eef6'],
+          backgroundColor: ['#dc2626', isDark ? '#3b3b4a' : '#e9eef6'],
           borderWidth: 0
         }]
       },

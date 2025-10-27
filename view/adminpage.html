@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Page</title>
   <link rel="stylesheet" href="./css/adminpage.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
   <div class="layout">
@@ -29,8 +30,28 @@
     <!-- ...existing code... -->
     <main class="main-content">
       <header class="page-header">
-        <h1>จัดการผู้ใช้งาน</h1>
-        <p>เพิ่มผู้ใช้งานใหม่และจัดการรายชื่อผู้ใช้งานทั้งหมด</p>
+        <div class="page-title">
+          <h1>จัดการผู้ใช้งาน</h1>
+          <p>เพิ่มผู้ใช้งานใหม่และจัดการรายชื่อผู้ใช้งานทั้งหมด</p>
+        </div>
+        <div class="header-buttons">
+          <button id="themeToggle" class="icon-btn" title="เปลี่ยนธีม">
+            <i class="fa fa-moon"></i>
+          </button>
+          <button id="langToggle" class="lang-btn" title="สลับภาษา">TH</button>
+          <div class="dropdown">
+            <button class="dropbtn" id="dropdownBtn">
+              <i class="fa fa-user-circle"></i>
+              Admin
+              <i class="fa fa-caret-down"></i>
+            </button>
+            <div id="dropdownMenu" class="dropdown-content">
+              <a href="#">Home</a>
+              <a href="#">About</a>
+              <a href="#" id="logout">Logout</a>
+            </div>
+          </div>
+        </div>
       </header>
 
       <section class="card">
@@ -42,7 +63,25 @@
           </div>
           <div class="form-field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" required />
+            <div class="input-with-button">
+              <input id="password" name="password" type="password" required />
+              <button type="button"
+                      class="toggle-password"
+                      data-target="password"
+                      aria-label="แสดงรหัสผ่าน">
+                <svg class="icon icon-eye-open" viewBox="0 0 24 24" fill="none">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+                </svg>
+                <svg class="icon icon-eye-off" viewBox="0 0 24 24" fill="none">
+                  <path d="M3.98 5.51A17.92 17.92 0 0112 5c7 0 11 7 11 7a17.92 17.92 0 01-4.33 5.19"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9.53 9.53A3 3 0 0014.47 14.47" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M2 2l20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="form-field">
             <label for="hospitalId">Hospital ID</label>
