@@ -85,6 +85,8 @@ function renderPatients(data) {
     tbody.insertAdjacentHTML('beforeend', row);
   });
 
+  // 🔗 เพิ่ม Event ให้ทุกปุ่ม Inspect
+  attachInspectButtons();
 }
 
 /* --------------------------------------------
