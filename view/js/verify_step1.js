@@ -76,3 +76,8 @@ nextBtn.addEventListener("click", () => {
   // Navigate to the next step
   window.electronAPI.navigate('verify_step2');
 });
+
+// ปุ่ม Back
+document.querySelector(".back-btn").addEventListener("click", () => {
+  window.location.href = "index.html";
+}); 
