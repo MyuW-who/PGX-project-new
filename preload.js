@@ -8,7 +8,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getPatients: () => ipcRenderer.invoke('get-patients'),
   addPatient: (data) => ipcRenderer.invoke('add-patient', data),
   searchPatient: (id) => ipcRenderer.invoke('search-patient', id),
-  getAccountDetails: (userId) => ipcRenderer.invoke('get-account-details', userId),
+  fetchAccountDetails: (userId) => ipcRenderer.invoke('fetch-account-details', userId),
+  fetchAllAccounts: () => ipcRenderer.invoke('fetch-all-accounts'),
+  createAccount: (userData) => ipcRenderer.invoke('create-account', userData),
+  updateAccount: (data) => ipcRenderer.invoke('update-account', data),
+  deleteAccount: (userId) => ipcRenderer.invoke('delete-account', userId),
+  hashPassword: (password) => ipcRenderer.invoke('hash-password', password),
 });
 
 

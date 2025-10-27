@@ -6,6 +6,11 @@ let users = [];
 let isEditing = false;
 let editingUserId = null;
 
+// Hash password using bcrypt through IPC
+async function hashPassword(password) {
+  return await window.electronAPI.invoke('hash-password', password);
+}
+
 const roleLabels = {
   pharmacist: "Pharmacist",
   medtech: "MedTech",
@@ -88,10 +93,45 @@ userForm.addEventListener("submit", async (event) => {
     hospital_id: parseInt(formData.get("hospital_id").trim(), 10),
     role: formData.get("role"),
   };
+  
+  if (isEditing) {
+    userData.user_id = editingUserId;
+  }
 
   if (!userData.username || (!isEditing && !userData.password) || !userData.hospital_id || !userData.role) {
     showMessage("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
     return;
+  }
+
+  try {
+    // If it's a new user or password is being changed, hash it
+    if (userData.password) {
+      userData.password_hash = await hashPassword(userData.password);
+      delete userData.password; // Remove plain text password
+    }
+
+    let result;
+    if (isEditing) {
+      result = await window.electronAPI.updateAccount(userData);
+      if (result.success) {
+        showMessage("อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว");
+      } else {
+        throw new Error(result.message);
+      }
+    } else {
+      result = await window.electronAPI.createAccount(userData);
+      if (result.success) {
+        showMessage("เพิ่มผู้ใช้งานเรียบร้อยแล้ว");
+      } else {
+        throw new Error(result.message);
+      }
+    }
+
+    await loadUsers();
+    setFormMode('add');
+  } catch (error) {
+    console.error('Form submission error:', error);
+    showMessage(error.message || "เกิดข้อผิดพลาดในการดำเนินการ", "error");
   }
 
   if (userExists(userData.username)) {

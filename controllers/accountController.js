@@ -58,16 +58,35 @@ async function createAccount(userData) {
   return data;
 }
 
-async function updateAccount(userId, userData) {
+async function updateAccount(userData) {
+  // First check if username already exists for other users
+  const { data: existingUser } = await supabase
+    .from('system_users')
+    .select('user_id')
+    .eq('username', userData.username)
+    .neq('user_id', userData.user_id)
+    .single();
+
+  if (existingUser) {
+    throw new Error('Username already exists');
+  }
+
+  const updateData = {
+    username: userData.username,
+    role: userData.role,
+    hospital_id: userData.hospital_id,
+    updated_at: new Date().toISOString()
+  };
+
+  // If password was changed, include the new hash
+  if (userData.password_hash) {
+    updateData.password_hash = userData.password_hash;
+  }
+
   const { data, error } = await supabase
     .from('system_users')
-    .update({
-      username: userData.username,
-      role: userData.role,
-      hospital_id: userData.hospital_id,
-      updated_at: new Date().toISOString()
-    })
-    .eq('user_id', userId)
+    .update(updateData)
+    .eq('user_id', userData.user_id)
     .select()
     .single();
 

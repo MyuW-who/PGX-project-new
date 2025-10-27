@@ -12,6 +12,9 @@ const {
   updateAccount 
 } = require('./controllers/accountController');
 
+// Password hashing configuration
+const SALT_ROUNDS = 10;
+
 
 let mainWindow;
 
@@ -91,15 +94,18 @@ ipcMain.handle('fetch-all-accounts', async () => {
   }
 });
 
+// Password hashing handler
+ipcMain.handle('hash-password', async (event, password) => {
+  try {
+    return await bcrypt.hash(password, SALT_ROUNDS);
+  } catch (err) {
+    console.error('❌ Password Hash Error:', err.message);
+    throw err;
+  }
+});
+
 ipcMain.handle('create-account', async (event, userData) => {
   try {
-    // Hash the password before creating the account
-    if (userData.password) {
-      const salt = await bcrypt.genSalt(10);
-      userData.password_hash = await bcrypt.hash(userData.password, salt);
-      delete userData.password; // Remove plain password
-    }
-
     const result = await createAccount(userData);
     return { success: true, data: result, message: 'บันทึกข้อมูลผู้ใช้สำเร็จ!' };
   } catch (err) {
@@ -108,9 +114,9 @@ ipcMain.handle('create-account', async (event, userData) => {
   }
 });
 
-ipcMain.handle('update-account', async (event, { userId, userData }) => {
+ipcMain.handle('update-account', async (event, userData) => {
   try {
-    const result = await updateAccount(userId, userData);
+    const result = await updateAccount(userData);
     return { success: true, data: result, message: 'อัปเดตข้อมูลผู้ใช้สำเร็จ!' };
   } catch (err) {
     console.error('❌ Account Update Error:', err.message);
