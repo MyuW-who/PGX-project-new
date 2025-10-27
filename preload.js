@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getPatients: () => ipcRenderer.invoke('get-patients'),
   addPatient: (data) => ipcRenderer.invoke('add-patient', data),
   searchPatient: (id) => ipcRenderer.invoke('search-patient', id),
+  getAccountDetails: (userId) => ipcRenderer.invoke('get-account-details', userId),
 });
 
 

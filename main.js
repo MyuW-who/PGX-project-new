@@ -5,7 +5,12 @@ const supabase = require('./supabase');
 const { handleLogin } = require('./controllers/loginController');
 const { generatePDF } = require('./controllers/pdfController');
 const { fetchPatients, addPatient, searchPatientById } = require('./controllers/add_patient_controller');
-//const { comparePatients } = require('./controllers/compare_patient_controller');
+const { 
+  fetchAccountDetails, 
+  fetchAllAccounts, 
+  createAccount, 
+  updateAccount 
+} = require('./controllers/accountController');
 
 
 let mainWindow;
@@ -67,14 +72,64 @@ ipcMain.handle('search-patient', async (event, patientId) => {
   }
 });
 
-/*ipcMain.handle('compare-patients', async (event, patientDataforeach) => {
+// 👥 Account Management Handlers
+ipcMain.handle('fetch-account-details', async (event, userId) => {
   try {
-
+    return await fetchAccountDetails(userId);
   } catch (err) {
-    console.error('❌ Compare Error:', err.message);
+    console.error('❌ Account Fetch Error:', err.message);
+    return null;
+  }
+});
+
+ipcMain.handle('fetch-all-accounts', async () => {
+  try {
+    return await fetchAllAccounts();
+  } catch (err) {
+    console.error('❌ Accounts Fetch Error:', err.message);
     return [];
   }
-});-*/
+});
+
+ipcMain.handle('create-account', async (event, userData) => {
+  try {
+    // Hash the password before creating the account
+    if (userData.password) {
+      const salt = await bcrypt.genSalt(10);
+      userData.password_hash = await bcrypt.hash(userData.password, salt);
+      delete userData.password; // Remove plain password
+    }
+
+    const result = await createAccount(userData);
+    return { success: true, data: result, message: 'บันทึกข้อมูลผู้ใช้สำเร็จ!' };
+  } catch (err) {
+    console.error('❌ Account Creation Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการสร้างบัญชีผู้ใช้' };
+  }
+});
+
+ipcMain.handle('update-account', async (event, { userId, userData }) => {
+  try {
+    const result = await updateAccount(userId, userData);
+    return { success: true, data: result, message: 'อัปเดตข้อมูลผู้ใช้สำเร็จ!' };
+  } catch (err) {
+    console.error('❌ Account Update Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการอัปเดตบัญชีผู้ใช้' };
+  }
+});
+
+ipcMain.handle('delete-account', async (event, userId) => {
+  try {
+    await supabase
+      .from('system_users')
+      .delete()
+      .eq('user_id', userId);
+    return { success: true, message: 'ลบบัญชีผู้ใช้สำเร็จ!' };
+  } catch (err) {
+    console.error('❌ Account Deletion Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการลบบัญชีผู้ใช้' };
+  }
+});
 
 // 🚀 เริ่มต้น
 app.whenReady().then(createWindow);
