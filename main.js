@@ -5,6 +5,8 @@ const supabase = require('./supabase');
 const { handleLogin } = require('./controllers/loginController');
 const { generatePDF } = require('./controllers/pdfController');
 const { fetchPatients, addPatient, searchPatientById } = require('./controllers/add_patient_Controller');
+//const { comparePatients } = require('./controllers/compare_patient_controller');
+
 
 let mainWindow;
 
@@ -21,7 +23,7 @@ function createWindow() {
   });
 
   // เริ่มต้นที่หน้า login
-  mainWindow.loadFile(path.join(__dirname, 'view', 'patient.html'));
+  mainWindow.loadFile(path.join(__dirname, 'view', 'login.html'));
 }
 
 // 📩 ฟัง event จาก renderer เพื่อเปลี่ยนหน้า
@@ -64,6 +66,16 @@ ipcMain.handle('search-patient', async (event, patientId) => {
     return [];
   }
 });
+
+/*ipcMain.handle('compare-patients', async (event, patientDataforeach) => {
+  try {
+
+  } catch (err) {
+    console.error('❌ Compare Error:', err.message);
+    return [];
+  }
+});-*/
+
 // 🚀 เริ่มต้น
 app.whenReady().then(createWindow);
 
