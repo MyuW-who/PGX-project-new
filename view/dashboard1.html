@@ -4,20 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
-
   <!-- CSS -->
   <link rel="stylesheet" href="./css/dashboard.css" />
-
   <!-- Font Awesome -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- Container หลัก -->
   <div class="container">
-    
     <!-- Sidebar -->
     <aside class="sidebar">
       <h2 class="logo">Logo</h2>
@@ -28,20 +23,14 @@
       </ul>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main -->
     <main class="main-content">
-      
-      <!-- Header Section -->
+      <!-- Header -->
       <header class="page-header">
         <h2>Dashboard</h2>
-
         <div class="header-buttons">
-          <button id="themeToggle" class="icon-btn">
-            <i class="fa fa-moon"></i>
-          </button>
+          <button id="themeToggle" class="icon-btn"><i class="fa fa-moon"></i></button>
           <button id="langToggle" class="lang-btn">TH</button>
-
-          <!-- Dropdown -->
           <div class="dropdown">
             <button class="dropbtn" id="dropdownBtn">
               <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
@@ -54,14 +43,79 @@
         </div>
       </header>
 
-      
+      <!-- Top metrics -->
+      <section class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon bg-primary"><i class="fa fa-list-check"></i></div>
+          <div>
+            <div class="metric-number" id="m-total">0</div>
+            <div class="metric-label">จำนวนเคสทั้งหมดวันนี้</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon bg-info"><i class="fa fa-rotate"></i></div>
+          <div>
+            <div class="metric-number" id="m-progress">0</div>
+            <div class="metric-label">เคสที่อยู่ระหว่างดำเนินการ</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon bg-success"><i class="fa fa-circle-check"></i></div>
+          <div>
+            <div class="metric-number" id="m-done">0</div>
+            <div class="metric-label">เคสที่เสร็จสิ้น</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon bg-danger"><i class="fa fa-triangle-exclamation"></i></div>
+          <div>
+            <div class="metric-number" id="m-error">0</div>
+            <div class="metric-label">เคสที่ผิดพลาด</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="dashboard-stats">
+        <div class="stats-grid">
+
+          <!-- Line -->
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <h4><i class="fa fa-chart-line"></i> สถิติการใช้งาน</h4>
+              <div class="toggle-group">
+                <button class="small-btn active" data-range="daily">รายวัน</button>
+                <button class="small-btn" data-range="weekly">รายสัปดาห์</button>
+              </div>
+            </div>
+            <p id="usage-subtitle">สรุป: รายวัน</p>
+            <canvas id="usageChart" height="140"></canvas>
+          </div>
+
+          <!-- Donut TAT -->
+          <div class="stat-card">
+            <h4><i class="fa fa-clock"></i> ติดตาม TAT</h4>
+            <canvas id="tatDonut" height="180"></canvas>
+            <div class="chart-legend">
+              <span class="dot dot-success"></span> ปกติ (ใน SLA)
+              <span class="dot dot-info"></span> กำลังดำเนินการ
+              <span class="dot dot-danger"></span> เสี่ยงเกิน SLA
+            </div>
+          </div>
+
+          <!-- Gauge KPI -->
+          <div class="stat-card">
+            <h4><i class="fa fa-gauge-high"></i> KPI คุณภาพ</h4>
+            <p>อัตราการปฏิเสธสิ่งส่งตรวจ: <strong id="rejectionRateText">0%</strong></p>
+            <canvas id="kpiGauge" height="180"></canvas>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
-  
-
   <!-- Script -->
   <script src="./js/dashboard.js"></script>
-  
 </body>
 </html>
+

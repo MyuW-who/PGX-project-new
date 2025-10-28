@@ -779,3 +779,4 @@ function scrollIntoView(element) {
 function formatISODate(date) {
   return date instanceof Date ? date.toISOString().slice(0, 10) : '';
 }
+
