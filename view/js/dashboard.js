@@ -198,13 +198,16 @@ if (hasDashboard) {
       }
     });
 
-    // ปุ่มสลับกรอบเวลา
-    document.querySelectorAll('.toggle-group .small-btn').forEach(btn => {
+    // ปุ่มสลับกรอบเวลา (จำกัดเฉพาะปุ่มที่มี data-range และสcope ภายในกลุ่มเดียวกัน)
+    document.querySelectorAll('[data-range]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.toggle-group .small-btn').forEach(b => b.classList.remove('active'));
+        const group = btn.closest('.toggle-group');
+        group?.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const range = btn.dataset.range;
+        if (!range) return;
         const data = mockData.line[range];
+        if (!data) return;
         chartInstances.usageChart.data.labels = data.labels;
         chartInstances.usageChart.data.datasets[0].data = data.values;
         chartInstances.usageChart.update();

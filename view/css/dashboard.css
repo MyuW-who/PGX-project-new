@@ -394,6 +394,16 @@ body.dark #usage-subtitle {
   gap: 14px;
 }
 
+/* Layout control for large screens: keep 3 columns and place hospitals card under the right column */
+@media (min-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  #card-hospitals {
+    grid-column: 3;
+  }
+}
+
 /* Keep line chart at the bottom on all breakpoints */
 
 .stat-card {
