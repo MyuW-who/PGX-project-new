@@ -3,15 +3,8 @@
    ------------------------------------------------------------
    ▶️ เปลี่ยนธีมของหน้าเว็บทั้งหมดระหว่าง Light ↔ Dark
 ============================================================ */
-const themeBtn = document.getElementById("themeToggle");
-let chartInstances = {}; // เก็บ instance ของกราฟเพื่ออัปเดตตอนสลับธีม
+let chartInstances = {};
 
-themeBtn?.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  
-  // อัปเดตสีกราฟเมื่อสลับธีม
-  updateChartsForTheme();
-});
 
 
 /* ============================================================
@@ -71,9 +64,43 @@ informationBtn?.addEventListener('click', () => {
    ▶️ ข้อมูลจำลอง + วาดกราฟ 3 แบบ: Line, Donut TAT, Gauge KPI
 ============================================================ */
 
-// ฟังก์ชันอัปเดตสีกราฟตาม theme
+const isDark = document.body.classList.contains('dark');
+
+// ฟังก์ชันอัปเดตสีกราฟ
 function updateChartsForTheme() {
   const isDark = document.body.classList.contains('dark');
+  const textColor = isDark ? '#f1f5f9' : '#111827';
+  const gridColor = isDark ? '#334155' : '#e5e7eb';
+  const bgCard = isDark ? '#2f2f40' : '#ffffff';
+
+  Object.values(chartInstances).forEach(chart => {
+
+    // ✅ 1. ตรวจสอบก่อนว่ากราฟมีแกน (scales) หรือไม่
+    if (chart.options.scales && chart.options.scales.x && chart.options.scales.y) {
+      // ✅ 2. ถ้ามี ค่อยเข้าไปเปลี่ยนสีของแกน
+      chart.options.scales.x.grid.color = gridColor;
+      chart.options.scales.y.grid.color = gridColor;
+      chart.options.scales.x.ticks.color = textColor;
+      chart.options.scales.y.ticks.color = textColor;
+    }
+
+    // ✅ 3. เปลี่ยนสีของ Legend (ถ้ามี)
+    if (chart.options.plugins && chart.options.plugins.legend) {
+      chart.options.plugins.legend.labels.color = textColor;
+    }
+
+    
+
+  });
+
+  
+
+  // เปลี่ยนพื้นหลังการ์ด (กรณีใช้ canvas อยู่บน card)
+  document.querySelectorAll('.stat-card, .metric-card').forEach(el => {
+    el.style.background = bgCard;
+  });
+
+  
   
   // อัปเดต TAT Donut
   if (chartInstances.tatChart) {
@@ -105,7 +132,14 @@ function updateChartsForTheme() {
   if (chartInstances.topHospitalsChart) {
     chartInstances.topHospitalsChart.update();
   }
+
+  Object.values(chartInstances).forEach(chart => {
+    chart.update();
+  });
 }
+
+
+
 
 // ใช้เฉพาะในหน้า Dashboard เท่านั้น (กัน error ถ้า element ไม่มี)
 const hasDashboard = !!document.getElementById('usageChart') || !!document.getElementById('tatDonut') || !!document.getElementById('kpiGauge');
@@ -204,13 +238,16 @@ if (hasDashboard) {
       }
     });
 
-    // ปุ่มสลับกรอบเวลา
-    document.querySelectorAll('.toggle-group .small-btn').forEach(btn => {
+    // ปุ่มสลับกรอบเวลา (จำกัดเฉพาะปุ่มที่มี data-range และสcope ภายในกลุ่มเดียวกัน)
+    document.querySelectorAll('[data-range]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.toggle-group .small-btn').forEach(b => b.classList.remove('active'));
+        const group = btn.closest('.toggle-group');
+        group?.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const range = btn.dataset.range;
+        if (!range) return;
         const data = mockData.line[range];
+        if (!data) return;
         chartInstances.usageChart.data.labels = data.labels;
         chartInstances.usageChart.data.datasets[0].data = data.values;
         chartInstances.usageChart.update();
