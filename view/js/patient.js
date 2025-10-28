@@ -169,14 +169,6 @@ function showPage(pageName, patientId) {
   window.electronAPI.navigate(pageName); // Navigate to the specified page
 }
 
-
-
-
-
-
-
-
-
 /* --------------------------------------------
    📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)
 -------------------------------------------- */
