@@ -58,29 +58,47 @@ async function handleFormSubmit(e) {
 form?.addEventListener('submit', handleFormSubmit);
 
 /* --------------------------------------------
-   🔍 ระบบค้นหาผู้ป่วยด้วย patient_id
+   🔍 ระบบค้นหาผู้ป่วยด้วย patient_id, ชื่อ, หรือนามสกุล
 -------------------------------------------- */
 document.getElementById('searchInput')?.addEventListener('input', async (e) => {
   const keyword = e.target.value.trim();
   try {
-    const patients = keyword
-      ? await window.electronAPI.searchPatient(keyword)
-      : await window.electronAPI.getPatients();
-    renderPatients(patients);
+    if (keyword.length === 0) {
+      // ถ้าไม่มีคำค้นหา แสดงผู้ป่วยทั้งหมด
+      const patients = await window.electronAPI.getPatients();
+      renderPatients(patients);
+    } else if (keyword.length >= 1) {
+      // ค้นหาเมื่อพิมพ์อย่างน้อย 1 ตัวอักษร
+      const patients = await window.electronAPI.searchPatient(keyword);
+      renderPatients(patients);
+      
+      // แสดงจำนวนผลลัพธ์
+      const resultCount = patients.length;
+      console.log(`🔍 พบผลการค้นหา ${resultCount} รายการสำหรับ "${keyword}"`);
+    }
   } catch (err) {
     console.error("❌ Error searching patient:", err);
+    // แสดงข้อความข้อผิดพลาดให้ผู้ใช้เห็น
+    const tbody = document.querySelector('#patientTable tbody');
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">เกิดข้อผิดพลาดในการค้นหา: ${err.message}</td></tr>`;
   }
 });
 
 /* --------------------------------------------
    📋 ฟังก์ชันแสดงข้อมูลในตาราง
 -------------------------------------------- */
+
 function renderPatients(data) {
   const tbody = document.querySelector('#patientTable tbody');
   tbody.innerHTML = '';
 
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6">ไม่พบข้อมูลผู้ป่วย</td></tr>`;
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput?.value.trim();
+    const message = searchTerm 
+      ? `ไม่พบข้อมูลผู้ป่วยที่ตรงกับ "${searchTerm}"` 
+      : 'ไม่พบข้อมูลผู้ป่วย';
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px;">${message}</td></tr>`;
     return;
   }
 
