@@ -10,14 +10,13 @@
   <link rel="stylesheet" href="./css/darkmode.css">
 </head>
 <body>
-  <script src="./js/darkmode.js"></script>
   <div class="container">
     <!-- Sidebar -->
     <aside class="sidebar">
       <h2 class="logo">Logo</h2>
       <ul>
         <li id="dashboard-btn">Dashboard</li>
-        <li>ข้อมูลผู้ป่วย</li>
+        <li id="patient-btn">ข้อมูลผู้ป่วย</li>
         <li class="active">ตรวจสอบข้อมูล</li>
         <li>Admin Page</li>
       </ul>
@@ -46,12 +45,14 @@
       </header>
 
       <!-- Toolbar -->
-      <div class="filter-toolbar">
-        <div class="search-wrapper">
-          <input type="text" id="searchInput" placeholder="ค้นหาด้วยรหัสผู้ป่วย" />
-        </div>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input type="text" id="searchInput" placeholder="ค้นหาด้วยรหัสผู้ป่วย">
           <i class="fa fa-search"></i>
-        <div class="filter-actions">
+        </div>
+          
+        <div class="toolbar-right">
           <select id="tatFilter">
             <option value="all">TAT ทั้งหมด</option>
             <option value="pre-analytic">Pre-analytic</option>
@@ -59,8 +60,10 @@
             <option value="post-analytic">Post-analytic</option>
           </select>
           <button id="scanBarcodeBtn" class="btn primary">
-            <i class="fa fa-barcode"></i> สแกนบาร์โค้ด
+            <i class="fa fa-barcode"></i>
+            สแกนบาร์โค้ด
           </button>
+          
         </div>
       </div>
 
@@ -120,6 +123,8 @@
     </div>
   </div>
   
+
+  <script src="./js/darkmode.js"></script>
   <script src="./js/information.js"></script>
 </body>
 </html>

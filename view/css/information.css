@@ -192,40 +192,45 @@ textarea {
   display: block;
 }
 
-/* ==========================================================
-   🔍 FILTER TOOLBAR (ดีไซน์แบบ Unified Container)
-   ========================================================== */
+/* ============================================
+   🔍 TOOLBAR (Search + Add Button)
+   ============================================ */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 50px;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card-bg);
+  padding: 18px 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
 
-/* 🔹 1. สไตล์กล่องครอบหลัก (The main white container) */
-.filter-toolbar {
+.toolbar-left {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+}
+
+.toolbar-left .fa-search {
+  position: absolute;
+  top: 50%;
+  left: 18px; /* ระยะห่างจากขอบซ้าย */
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none; /* ทำให้คลิกทะลุไอคอนไปที่ input ได้ */
+}
+
+.toolbar-right {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--card-bg);
-  padding: 12px 16px;
-  border-radius: 24px; /*<-- ทำให้ขอบโค้งมนมากๆ */
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-}
-
-/* 🔹 2. ทำให้ช่องค้นหาโปร่งใส ไม่มีขอบ */
-.search-wrapper {
-  position: relative;
-  flex-grow: 1; /*<-- ให้ช่องค้นหายืดเต็มพื้นที่ที่เหลือ */
-}
-
-.search-wrapper i {
-  position: absolute;
-  left: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none; /*<-- ทำให้คลิกทะลุไอคอนได้ */
 }
 
 #searchInput {
-  width: 100%;
-  padding: 14px 16px;
+  width: 25%;
+  padding: 14px 16px 14px 45px;
   border-radius: 14px;
   border: 1px solid var(--border);
   background: transparent;
@@ -240,18 +245,11 @@ textarea {
   outline: none;
 }
 
-/* 🔹 3. กลุ่มของปุ่มและ Dropdown */
-.filter-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 #tatFilter {
-  padding: 10px 14px;
+  padding: 12px 14px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: var(--bg); /*<-- ใช้สีพื้นหลังเว็บเพื่อให้ดูแยกส่วน */
+  background: #fff;
   cursor: pointer;
   color: var(--text-secondary);
 }
@@ -260,25 +258,37 @@ textarea {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px; /*<-- ปรับขนาดปุ่มเล็กน้อย */
-  border-radius: 12px;
+  padding: 12px 18px;
+  border-radius: 14px;
   border: none;
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
-  transition: all 0.2s ease;
+  transition: background-color 0.25s ease, color 0.25s ease, opacity 0.25s ease, transform 0.2s ease;
 }
 
 .btn.primary {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #fff;
-  box-shadow: none; /*<-- เอารุ่นเงาเก่าออก */
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.35);
 }
 
 .btn.primary:hover {
-  background: #2563eb;
   transform: translateY(-1px);
 }
+
+.btn.outline {
+  border: 1px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+}
+
+
+.btn:hover {
+  opacity: 0.95;
+}
+
+
 /* ============================================
    📊 STATS GRID (ส่วนที่เพิ่มใหม่)
    ============================================ */
