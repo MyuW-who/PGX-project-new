@@ -1,6 +1,12 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require('electron');
 
+contextBridge.exposeInMainWorld('api', {
+  checkLogin: (creds) => ipcRenderer.invoke('check-login', creds),
+  getCurrentUser: () => ipcRenderer.invoke('get-current-user'),
+  logout: () => ipcRenderer.invoke('logout'),
+});
+
 contextBridge.exposeInMainWorld('electronAPI', {
   navigate: (page) => ipcRenderer.send('navigate', page),
   checkLogin: (username, password) => ipcRenderer.invoke('check-login', { username, password }),
@@ -18,7 +24,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteAccount: (userId) => ipcRenderer.invoke('delete-account', userId),
   hashPassword: (password) => ipcRenderer.invoke('hash-password', password),
 });
-
 
 try {
   // ถ้า window.electron ไม่มีอยู่ก่อน ให้สร้างใหม่
