@@ -13,6 +13,9 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <!-- Container หลัก -->
@@ -34,7 +37,6 @@
       <!-- Header Section -->
       <header class="page-header">
         <h2>Dashboard</h2>
-
         <div class="header-buttons">
           <button id="themeToggle" class="icon-btn">
             <i class="fa fa-moon"></i>
@@ -47,21 +49,133 @@
               <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
             </button>
             <div id="dropdownMenu" class="dropdown-content">
-              <a href="#">settings</a>
-              <a href="#" id="logout">Logout</a>
+              <a href="#">Home</a>
+              <a href="#">About</a>
+              <a href="#" id="logout">logout</a>
             </div>
           </div>
         </div>
       </header>
 
-      
+      <!-- Top metrics -->
+      <section class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon bg-primary"><i class="fa fa-list-check"></i></div>
+          <div>
+            <div class="metric-number" id="m-total">0</div>
+            <div class="metric-label">จำนวนเคสทั้งหมดวันนี้</div>
+            <div class="metric-change" id="percent-total">100.00%</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon bg-info"><i class="fa fa-rotate"></i></div>
+          <div>
+            <div class="metric-number" id="m-progress">0</div>
+            <div class="metric-label">เคสที่อยู่ระหว่างดำเนินการ</div>
+            <div class="metric-change" id="percent-progress">0.00%</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon bg-success"><i class="fa fa-circle-check"></i></div>
+          <div>
+            <div class="metric-number" id="m-done">0</div>
+            <div class="metric-label">เคสที่เสร็จสิ้น</div>
+            <div class="metric-change" id="percent-done">0.00%</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon bg-danger"><i class="fa fa-triangle-exclamation"></i></div>
+          <div>
+            <div class="metric-number" id="m-error">0</div>
+            <div class="metric-label">เคสที่ผิดพลาด</div>
+            <div class="metric-change" id="percent-error">0.00%</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="dashboard-stats">
+        <div class="stats-grid">
+
+          <!-- Line Charts (สถิติ + อัตราการปฏิเสธ) -->
+          <div class="stat-card">
+            <!-- สถิติการใช้งาน -->
+            <div class="stat-card-header">
+              <h4><i class="fa fa-chart-line"></i> สถิติการใช้งาน</h4>
+              <div class="toggle-group">
+                <button class="small-btn active" data-range="daily">รายวัน</button>
+                <button class="small-btn" data-range="weekly">รายสัปดาห์</button>
+              </div>
+            </div>
+            <p id="usage-subtitle">สรุป: รายวัน</p>
+            <canvas id="usageChart" height="100"></canvas>
+
+            <!-- เส้นแบ่ง -->
+            <div class="chart-divider"></div>
+
+            <!-- อัตราการปฏิเสธสิ่งส่งตรวจ -->
+            <div class="stat-card-header">
+              <h4><i class="fa fa-triangle-exclamation"></i> สรุปอัตราการปฏิเสธสิ่งส่งตรวจ</h4>
+              <div class="toggle-group">
+                <button class="small-btn active" data-error-range="week">7 วัน</button>
+                <button class="small-btn" data-error-range="month">30 วัน</button>
+              </div>
+            </div>
+            <p id="error-subtitle">สรุป: 7 วันล่าสุด</p>
+            <canvas id="errorRateChart" height="100"></canvas>
+          </div>
+
+          <!-- Donut TAT -->
+          <div class="stat-card">
+            <h4><i class="fa fa-clock"></i> ติดตาม TAT</h4>
+            <canvas id="tatDonut" height="120"></canvas>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="dot dot-success"></span><span>ปกติ (ใน SLA)</span></span>
+              <span class="legend-item"><span class="dot dot-info"></span><span>กำลังดำเนินการ</span></span>
+              <span class="legend-item"><span class="dot dot-danger"></span><span>เสี่ยงเกิน SLA</span></span>
+            </div>
+          </div>
+
+          <!-- Gauge KPI -->
+          <div class="stat-card">
+            <h4><i class="fa fa-gauge-high"></i> สรุปอัตราการปฏิเสธ</h4>
+            <p>อัตราการปฏิเสธสิ่งส่งตรวจ (เฉลี่ย): <strong id="rejectionRateText">0%</strong></p>
+            <canvas id="kpiGauge" height="120"></canvas>
+          </div>
+          
+          <!-- Top 5 Rejected Specimens -->
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <h4><i class="fa fa-list-ol"></i> 5 อันดับสิ่งส่งตรวจที่ถูกปฏิเสธมากที่สุด</h4>
+            </div>
+            <p id="top-rejects-subtitle">ข้อมูลจำลอง (ช่วงเวลา: 30 วัน)</p>
+            <canvas id="topRejectsChart" height="140"></canvas>
+          </div>
+
+          <!-- Top 5 DNA Most Found -->
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <h4><i class="fa fa-dna"></i> 5 อันดับ DNA ที่พบมากที่สุด</h4>
+            </div>
+            <p id="top-dna-subtitle">ข้อมูลจำลอง (ช่วงเวลา: 30 วัน)</p>
+            <canvas id="topDnaChart" height="140"></canvas>
+          </div>
+
+          <!-- Top 5 Hospitals by Submissions -->
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <h4><i class="fa fa-hospital"></i> 5 อันดับโรงพยาบาลที่ส่งตรวจมากที่สุด</h4>
+            </div>
+            <p id="top-hospitals-subtitle">ข้อมูลจำลอง (ช่วงเวลา: 30 วัน)</p>
+            <canvas id="topHospitalsChart" height="140"></canvas>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
-  
-
   <!-- Script -->
   <script src="./js/dashboard.js"></script>
-  
 </body>
 </html>
+

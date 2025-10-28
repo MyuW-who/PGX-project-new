@@ -22,19 +22,7 @@ async function handleLogin(event, { username, password }) {
       return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
     }
 
-<<<<<<< Updated upstream
-    // ✅ เพิ่ม role กลับไปใน response
     return { success: true, role: data.role };
-=======
-    const user = {
-      user_id: data.user_id ?? null,
-      username: data.username,
-      role: data.role,
-      hospital_id: data.hospital_id ?? null
-    };
-
-    return { success: true, role: user };
->>>>>>> Stashed changes
   } catch (err) {
     console.error('Login error:', err);
     return { success: false, message: 'เกิดข้อผิดพลาดระหว่างตรวจสอบ' };

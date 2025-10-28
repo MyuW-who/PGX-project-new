@@ -1,54 +1,92 @@
+:root {
+  --bg: #f5f7fb;
+  --sidebar-bg: #111827;
+  --sidebar-active: rgba(59, 130, 246, 0.18);
+  --sidebar-text: #e5e7eb;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --card-bg: #ffffff;
+  --border: #e5e7eb;
+  --primary: #2563eb;
+  --primary-light: rgba(37, 99, 235, 0.12);
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #dc2626;
+  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  --radius: 18px;
+  --transition: all 0.25s ease;
+}
+
 /* ============================================
    🌐 GLOBAL LAYOUT & BASE STYLE
    ============================================ */
 body {
   margin: 0;
-  font-family: "Poppins", sans-serif;
-  background: #f5f7fb;
-  color: #333;
+  font-family: "Noto Sans Thai", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 .container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
 }
 
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
 
 /* ============================================
    🧭 SIDEBAR NAVIGATION
    ============================================ */
 .sidebar {
-  width: 230px;
-  background: #8a5ae6;
-  color: white;
+  width: 240px;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  gap: 40px;
 }
 
-.logo {
+.sidebar .logo {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
   text-align: center;
-  margin-bottom: 2rem;
+  
 }
 
 .sidebar ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: grid;
+  gap: 12px;
 }
 
 .sidebar li {
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: var(--transition);
 }
 
-.sidebar li.active,
-.sidebar li:hover {
-  background: rgba(255, 255, 255, 0.2);
+.sidebar li:hover,
+.sidebar li.active {
+  background: var(--sidebar-active);
+  color: #ffffff;
 }
+
 
 
 /* ============================================
@@ -56,9 +94,15 @@ body {
    ============================================ */
 .main-content {
   flex: 1;
-  padding: 20px 30px;
+  padding: 32px 40px 64px;
   display: flex;
   flex-direction: column;
+  gap: 24px;
+  background: linear-gradient(165deg, #f5f7fb 0%, #eef1f8 45%, #ffffff 100%);
+}
+
+.main-content h1 {
+    margin-bottom: 20px;
 }
 
 
@@ -69,6 +113,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
 }
 
 .header-buttons {
@@ -77,26 +122,47 @@ header {
   gap: 10px;
 }
 
+.header .title {
+        font-size: 24px;
+        font-weight: 600;
+    }
+    .header .actions {
+        display: flex;
+        gap: 15px;
+    }
+    .header .actions button,
+    .header .actions select {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 6px;
+        background: #e9eef6;
+        cursor: pointer;
+        transition: background 0.3s;
+        font-size: 0.95rem;
+    }
+    .header .actions button:hover,
+    .header .actions select:hover {
+        background: #d4d9e6;
+    }
+
 /* 🔘 ปุ่มทั่วไป (Theme, Lang, Dropdown) */
 .icon-btn,
 .lang-btn,
 .dropbtn {
   border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  background: #e9eef6;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 10px 14px;
   cursor: pointer;
-  transition: background 0.3s;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  color: var(--text-primary);
+  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
+  transition: var(--transition);
 }
 
 .icon-btn:hover,
-.lang-btn:hover,
-.dropbtn:hover {
-  background: #dce3ef;
+.lang-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(148, 163, 184, 0.26);
 }
 
 
@@ -109,41 +175,52 @@ header {
 }
 
 .dropbtn {
-  background: #8a5ae6;
-  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
+  transition: var(--transition);
 }
 
 .dropbtn:hover {
-  background: #7242cc;
+  transform: translateY(-1px);
 }
 
 .dropdown-content {
-  display: none;
   position: absolute;
   right: 0;
-  top: 40px;
-  background-color: #ffffff;
-  min-width: 160px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-  overflow: hidden;
-  z-index: 100;
+  top: 110%;
+  min-width: 180px;
+  background: var(--card-bg);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 8px 0;
+  display: none;
+  z-index: 10;
+  border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 .dropdown-content a {
-  color: #333;
+  color: var(--text-secondary);
   padding: 10px 14px;
   text-decoration: none;
   display: block;
-  transition: background 0.3s;
+  transition: var(--transition);
 }
 
 .dropdown-content a:hover {
-  background: #f3f3fa;
+  background: var(--primary-light);
+  color: var(--primary);
 }
 
 /* เปิดเมนูเมื่อมี class .show */
-.show {
+.dropdown-content.show {
   display: block;
 }
 
@@ -153,73 +230,174 @@ header {
    ============================================ */
 .toolbar {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 50px;
   align-items: center;
-  margin: 15px 0;
+  justify-content: space-between;
+  background: var(--card-bg);
+  padding: 18px 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.toolbar-left {
+  flex: 1;
+  min-width: 240px;
+
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 #searchInput {
-  padding: 8px 12px;
-  width: 260px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 15px;
+  color: var(--text-primary);
+  transition: var(--transition);
 }
 
-#addBtn {
-  background: #8a5ae6;
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
+#searchInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-light);
+  outline: none;
+}
+
+#tatFilter {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
   cursor: pointer;
-  transition: background 0.3s;
+  color: var(--text-secondary);
 }
 
-#addBtn:hover {
-  background: #7242cc;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.35);
+}
+
+.btn.primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn.outline {
+  border: 1px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+}
+
+
+.btn:hover {
+  opacity: 0.95;
 }
 
 
 /* ============================================
    📋 TABLE SECTION (Patient List)
    ============================================ */
-.table-section {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  padding: 20px;
-  overflow-y: auto;
+  .case-table .table-wrapper {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
-table {
+.case-table table {
   width: 100%;
   border-collapse: collapse;
 }
 
-th,
-td {
-  text-align: center;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+.case-table thead {
+  background: #f9fafb;
 }
 
-tbody tr:hover {
-  background: #f9f9ff;
+.case-table th,
+.case-table td {
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
 }
 
-/* ปุ่มตรวจสอบ */
-.inspect-btn {
-  background: #4594d8;
-  color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
+.case-table th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.case-table tbody tr {
   cursor: pointer;
-  transition: background 0.3s;
+  transition: var(--transition);
 }
 
-.inspect-btn:hover {
-  background: #317ab8;
+.case-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.case-table tbody tr.selected {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+/* ============================================
+   📋 TABLE SECTION (Patient List)
+   ============================================ */
+/* ... (โค้ดส่วนอื่น) ... */
+
+/* ปุ่มในตาราง (แก้ไข) */
+.Edit-btn,
+.delete-btn {
+  border: none;
+  padding: 10px 20px; /* <-- เพิ่มขนาดปุ่มตรงนี้ */
+  border-radius: 8px; /* <-- ปรับความโค้งมนเล็กน้อย */
+  cursor: pointer;
+  font-size: 14px;    /* <-- เพิ่มขนาดตัวอักษร */
+  font-weight: 600;   /* <-- ทำให้ตัวอักษรหนาขึ้น */
+  transition: all 0.2s ease;
+}
+
+.Edit-btn {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.delete-btn {
+  background: rgba(220, 38, 38, 0.1); /* <-- ทำให้สีพื้นหลังดูนุ่มนวลขึ้น */
+  color: var(--danger);
+}
+
+.Edit-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.delete-btn:hover {
+  background: var(--danger);
+  color: #fff;
+  transform: translateY(-1px);
 }
 
 
@@ -334,44 +512,68 @@ tbody tr:hover {
    🌙 DARK MODE THEME
    ============================================ */
 body.dark {
-  background: #1e1e2f;
-  color: #ecf0f1;
+  /* 1. เปลี่ยน CSS Variables หลักสำหรับ Dark Mode */
+  --bg: #111827;
+  --card-bg: #1f2937;
+  --border: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #ffffff;
+  --text-muted: #6b7280;
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  --primary-light: rgba(37, 99, 235, 0.2);
+
+  /* ไม่จำเป็นต้องเปลี่ยนสี --primary, --success, --danger */
 }
 
+/* 2. ปรับแก้ส่วนที่ไม่ได้ใช้ Variable โดยตรง */
 body.dark .sidebar {
-  background: #5c3ca4;
+  background: #1f2937; /* ทำให้สีเข้ากับ Card */
 }
 
-body.dark .table-section {
-  background: #2f2f40;
+body.dark .main-content {
+  background: linear-gradient(165deg, #111827 0%, #161f30 45%, #1b263b 100%);
 }
 
+body.dark .case-table thead {
+  background: #2b3648; /* ทำให้หัวตารางมีสีเข้มขึ้นเล็กน้อย */
+  color: #ffffff;
+}
+
+/* ปรับสีพื้นหลัง input และ select */
+body.dark #searchInput,
+body.dark #tatFilter,
+body.dark .form-group input,
+body.dark .form-group select {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: var(--text-primary);
+}
+
+body.dark #searchInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+/* ปรับสีปุ่ม Delete ให้ดูดีขึ้นใน Dark Mode */
+body.dark .delete-btn {
+  background: rgba(220, 38, 38, 0.15);
+  color: #ef4444;
+}
+
+body.dark .delete-btn:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Popup Form */
 body.dark .popup-box {
-  background: #2b2b3c;
-  color: #fff;
+  background: var(--card-bg); /* ใช้ variable เพื่อความสอดคล้อง */
 }
 
-body.dark .popup-box label{
-  color: #fff;
+body.dark .popup-box h3,
+body.dark .popup-box label {
+  color: var(--text-primary);
 }
-
-body.dark .popup-box input{
-  border-style: solid;
-}
-
-/* Dropdown (Dark Mode) */
-body.dark .dropdown-content {
-  background: #2f2f40;
-}
-
-body.dark .dropdown-content a {
-  color: #fff;
-}
-
-body.dark .dropdown-content a:hover {
-  background: #3b3b4a;
-}
-
 
 /* ============================================
    📱 RESPONSIVE DESIGN
