@@ -256,3 +256,21 @@ async function deletePatient(patientId) {
   }
 }
 
+
+
+/* --------------------------------------------
+   📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)
+-------------------------------------------- */
+const scannerOverlay = document.getElementById('scannerOverlay');
+const scanBtn = document.getElementById('scanBarcodeBtn');
+const closeScannerBtn = document.getElementById('closeScannerBtn');
+
+// เมื่อกดปุ่ม "สแกนบาร์โค้ด"
+scanBtn?.addEventListener('click', () => {
+  scannerOverlay.style.display = 'flex'; // ให้แสดง scanner popup
+});
+
+// เมื่อกดปุ่ม "ปิด" ใน scanner popup
+closeScannerBtn?.addEventListener('click', () => {
+  scannerOverlay.style.display = 'none'; // ให้ซ่อน scanner popup
+});
