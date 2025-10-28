@@ -58,18 +58,24 @@ const popup = document.getElementById('popup');
 const btn = document.getElementById('btn-login');
 
 /* ============================================
-   � POPUP NOTIFICATION FUNCTIONS
+   🔔 POPUP NOTIFICATION FUNCTIONS
    ============================================ */
 
 // Show popup message
 function showPopup(message, duration = 3000) {
   popup.textContent = message;
   popup.classList.remove('hidden');
-  setTimeout(() => popup.classList.add('hidden'), duration);
+  popup.classList.add('show');
+  
+  setTimeout(() => {
+    popup.classList.remove('show');
+    popup.classList.add('hidden');
+  }, duration);
 }
 
 // Hide popup
 function hidePopup() {
+  popup.classList.remove('show');
   popup.classList.add('hidden');
 }
 
@@ -165,9 +171,7 @@ function navigateBasedOnRole(role) {
     window.electronAPI.navigate('adminpage');
   } else {
     console.warn('❌ Unknown role:', role);
-    popup.textContent = `Role "${role}" ไม่มีหน้าที่กำหนด`;
-    popup.classList.remove('hidden');
-    setTimeout(() => popup.classList.add('hidden'), 3000);
+    showPopup(`Role "${role}" ไม่มีหน้าที่กำหนด`);
   }
 }
 

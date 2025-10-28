@@ -28,6 +28,7 @@ function createWindow() {
       contextIsolation: true,
     },
     autoHideMenuBar: true,
+    fullscreen: true,
   });
 
   // เริ่มต้นที่หน้า login
