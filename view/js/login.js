@@ -58,7 +58,23 @@ const popup = document.getElementById('popup');
 const btn = document.getElementById('btn-login');
 
 /* ============================================
-   🔐 SESSION MANAGEMENT FUNCTIONS
+   � POPUP NOTIFICATION FUNCTIONS
+   ============================================ */
+
+// Show popup message
+function showPopup(message, duration = 3000) {
+  popup.textContent = message;
+  popup.classList.remove('hidden');
+  setTimeout(() => popup.classList.add('hidden'), duration);
+}
+
+// Hide popup
+function hidePopup() {
+  popup.classList.add('hidden');
+}
+
+/* ============================================
+   �🔐 SESSION MANAGEMENT FUNCTIONS
    ============================================ */
 
 // Store user session data
@@ -167,7 +183,7 @@ btn.addEventListener('click', async (e) => {
 
   // 🔸 Validation: Empty Fields
   if (!username || !password) {
-    showPopup("Please fill in username and password");
+    showPopup("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน");
     return;
   }
 
@@ -179,9 +195,7 @@ btn.addEventListener('click', async (e) => {
     const result = await window.electronAPI.checkLogin(username, password);
 
     if (!result.success) {
-      popup.textContent = result.message;
-      popup.classList.remove('hidden');
-      setTimeout(() => popup.classList.add('hidden'), 3000);
+      showPopup(result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
       return;
     }
 
@@ -195,11 +209,9 @@ btn.addEventListener('click', async (e) => {
     
   } catch (error) {
     console.error('❌ Login error:', error);
-    popup.textContent = 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ';
-    popup.classList.remove('hidden');
-    setTimeout(() => popup.classList.add('hidden'), 3000);
+    showPopup('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
   } finally {
-    // Reset button state
+    // Reset button state (only if login failed)
     btn.disabled = false;
     btn.textContent = 'เข้าสู่ระบบ';
   }
