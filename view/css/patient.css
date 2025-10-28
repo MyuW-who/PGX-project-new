@@ -185,6 +185,7 @@ header {
   border-radius: 12px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
+  transition: var(--transition);
 }
 
 .dropbtn:hover {
@@ -365,7 +366,7 @@ header {
    ============================================ */
 /* ... (โค้ดส่วนอื่น) ... */
 
-/* ปุ่มไอคอนในตาราง (ปรับปรุง) */
+/* ปุ่มในตาราง (แก้ไข) */
 .Edit-btn,
 .delete-btn {
   display: inline-flex;
@@ -385,11 +386,10 @@ header {
 }
 
 .delete-btn {
-  background: rgba(220, 38, 38, 0.1);
+  background: rgba(220, 38, 38, 0.1); /* <-- ทำให้สีพื้นหลังดูนุ่มนวลขึ้น */
   color: var(--danger);
 }
 
-/* --- เอฟเฟกต์เมื่อนำเมาส์ไปชี้ (Hover) --- */
 .Edit-btn:hover,
 .delete-btn:hover {
   transform: translateY(-2px); /* <-- ทำให้ปุ่มลอยขึ้นเล็กน้อย */
@@ -570,6 +570,19 @@ body.dark #searchInput:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px var(--primary-light);
 }
+
+body.dark .cancel-btn {
+  background: transparent;      /* 1. ทำให้พื้นหลังโปร่งใส */
+  color: #fff;                  /* 2. ทำให้ตัวอักษรเป็นสีขาว */
+  border: 1px solid #4b5563;  /* 3. เปลี่ยนสีเส้นขอบให้เข้ากับธีม Dark */
+}
+
+body.dark .cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.951); /* 4. เมื่อเมาส์ชี้ ให้มีพื้นหลังสีขาวจางๆ */
+  border-color: #6b7280;
+  color: rgba(0, 0, 0, 0.707);
+}
+
 
 /* ปรับสีปุ่ม Delete ให้ดูดีขึ้นใน Dark Mode */
 body.dark .delete-btn {

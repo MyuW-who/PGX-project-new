@@ -83,6 +83,13 @@ body {
   gap: 32px;
 }
 
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .page-header h1 {
   margin: 0 0 8px;
   font-size: clamp(1.75rem, 2.5vw, 2.2rem);
@@ -91,6 +98,19 @@ body {
 .page-header p {
   margin: 0;
   color: var(--color-muted);
+}
+
+.page-title {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
 
 .card {
@@ -148,6 +168,11 @@ body {
   display: flex;
   gap: 12px;
   justify-content: flex-start;
+}
+
+.form-actions .btn {
+  min-width: 280px;
+  justify-content: center;
 }
 
 .btn {
@@ -218,6 +243,11 @@ tbody tr:hover {
   background: #f9fafb;
 }
 
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
 .table-action {
   display: inline-flex;
   align-items: center;
@@ -225,18 +255,282 @@ tbody tr:hover {
   gap: 6px;
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(220, 38, 38, 0.2);
-  background: rgba(220, 38, 38, 0.08);
-  color: #b91c1c;
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.table-action:hover {
+.table-action.edit {
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+}
+
+.table-action.edit:hover {
+  background: rgba(37, 99, 235, 0.14);
+  transform: translateY(-1px);
+}
+
+.table-action.delete {
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+}
+
+.table-action.delete:hover {
   background: rgba(220, 38, 38, 0.14);
   transform: translateY(-1px);
+}
+
+.input-with-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-button input {
+  flex: 1;
+  padding-right: 48px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.toggle-password .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.toggle-password .icon-eye-off {
+  display: none;
+}
+
+.toggle-password.is-visible .icon-eye-open {
+  display: none;
+}
+
+.toggle-password.is-visible .icon-eye-off {
+  display: block;
+}
+
+.toggle-password:hover {
+  color: var(--color-primary-hover);
+}
+
+.sidebar .logout-btn {
+  margin-top: auto;
+  align-self: stretch;
+}
+
+.btn.logout {
+  color: #fff;
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+.btn.logout:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dropbtn:hover {
+  transform: translateY(-1px);
+}
+
+.dropdown-content {
+  position: absolute;
+  right: 0;
+  top: 110%;
+  min-width: 180px;
+  background: var(--color-surface);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 8px 0;
+  display: none;
+  z-index: 10;
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 10px 16px;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.dropdown-content a:hover {
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--color-primary);
+}
+
+.dropdown-content.show {
+  display: block;
+}
+
+body.dark-theme {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-theme .sidebar {
+  background: #0b1220;
+  color: #e2e8f0;
+}
+
+body.dark-theme .nav-item {
+  color: #cbd5f5;
+}
+
+body.dark-theme .nav-item:hover {
+  background: rgba(148, 163, 226, 0.12);
+}
+
+body.dark-theme .nav-item.active {
+  background: rgba(79, 70, 229, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.4);
+}
+
+body.dark-theme .main-content {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.94));
+}
+
+body.dark-theme .card {
+  background: #17213a;
+  color: #e2e8f0;
+  box-shadow: 0 18px 36px rgba(2, 6, 23, 0.55);
+}
+
+body.dark-theme .page-title h1,
+body.dark-theme .page-title p,
+body.dark-theme .card h2 {
+  color: #f8fafc;
+}
+
+body.dark-theme .form-field label {
+  color: #94a3b8;
+}
+
+body.dark-theme .form-field input,
+body.dark-theme .form-field select {
+  background: #0f172a;
+  border-color: #23324d;
+  color: #e2e8f0;
+}
+
+body.dark-theme .form-field input:focus,
+body.dark-theme .form-field select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
+}
+
+body.dark-theme .btn {
+  background: #1f2937;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+body.dark-theme .btn.primary {
+  background: linear-gradient(135deg, #4c6ef5, #5b21b6);
+  border-color: transparent;
+}
+
+body.dark-theme .btn.primary:hover {
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+}
+
+body.dark-theme .btn.logout {
+  background: linear-gradient(135deg, #fb7185, #f97316);
+  border-color: transparent;
+}
+
+body.dark-theme table {
+  color: #e2e8f0;
+}
+
+body.dark-theme thead th {
+  color: #94a3b8;
+  border-bottom-color: rgba(148, 163, 184, 0.2);
+}
+
+body.dark-theme tbody tr {
+  border-bottom-color: rgba(148, 163, 184, 0.1);
+}
+
+body.dark-theme tbody tr:hover {
+  background: rgba(51, 65, 85, 0.35);
+}
+
+body.dark-theme .table-action.edit {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: #c7d2fe;
+}
+
+body.dark-theme .table-action.delete {
+  background: rgba(248, 113, 113, 0.12);
+  border-color: rgba(248, 113, 113, 0.25);
+  color: #fecaca;
+}
+
+body.dark-theme .icon-btn,
+body.dark-theme .lang-btn,
+body.dark-theme .dropbtn {
+  background: linear-gradient(135deg, #1f2937, #111827);
+  color: #e2e8f0;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.6);
+}
+
+body.dark-theme .dropdown-content {
+  background: #111c33;
+  box-shadow: 0 18px 36px rgba(2, 6, 23, 0.55);
+}
+
+body.dark-theme .dropdown-content a {
+  color: #cbd5f5;
+}
+
+body.dark-theme .dropdown-content a:hover {
+  background: rgba(79, 70, 229, 0.25);
+  color: #f8fafc;
+}
+
+body.dark-theme .form-message.success {
+  color: #86efac;
+}
+
+body.dark-theme .form-message.error {
+  color: #fca5a5;
 }
 
 @media (max-width: 1024px) {
@@ -250,6 +544,12 @@ tbody tr:hover {
     justify-content: space-between;
     padding: 20px clamp(16px, 4vw, 24px);
     gap: 24px;
+  }
+
+  .sidebar .logout-btn {
+    margin-top: 0;
+    margin-left: auto;
+    align-self: center;
   }
 
   .nav-menu {
@@ -271,4 +571,58 @@ tbody tr:hover {
   .form-actions {
     flex-wrap: wrap;
   }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-buttons {
+    margin-left: 0;
+  }
+}
+
+.icon-btn,
+.lang-btn,
+.dropbtn {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  padding: 10px 18px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.icon-btn:hover,
+.lang-btn:hover,
+.dropbtn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.12);
+}
+
+.icon-btn:active,
+.lang-btn:active,
+.dropbtn:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+}
+
+body.dark-theme .icon-btn,
+body.dark-theme .lang-btn,
+body.dark-theme .dropbtn {
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 10px 26px rgba(2, 6, 23, 0.45);
+}
+
+body.dark-theme .icon-btn:hover,
+body.dark-theme .lang-btn:hover,
+body.dark-theme .dropbtn:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 14px 34px rgba(79, 70, 229, 0.35);
 }
