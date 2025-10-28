@@ -208,13 +208,7 @@ function closePopup() {
   if (idEl) idEl.readOnly = false;
 }
 
-/* --------------------------------------------
-   🌙 Toggle Theme
--------------------------------------------- */
-const themeBtn = document.getElementById('themeToggle');
-themeBtn?.addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-});
+
 
 /* --------------------------------------------
    🌐 Toggle Language
@@ -250,6 +244,14 @@ const dashboardBtn = document.getElementById('dashboard-btn');
 dashboardBtn?.addEventListener('click', () => {
   window.electronAPI.navigate('dashboard1');
 });
+
+const informationBtn = document.getElementById('information-btn');
+informationBtn?.addEventListener('click', () => {
+  window.electronAPI.navigate('information');
+});
+
+
+
 
 // ▶️ ปุ่ม Inspect (ทุกปุ่ม)
 function attachInspectButtons() {

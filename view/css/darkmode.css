@@ -1,0 +1,242 @@
+/* ============================================
+   🌙 DARK MODE THEME
+   ============================================ */
+body.dark {
+  /* 1. เปลี่ยน CSS Variables หลักสำหรับ Dark Mode */
+  --bg: #111827;
+  --card-bg: #1f2937;
+  --border: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #ffffff;
+  --text-muted: #6b7280;
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  --primary-light: rgba(37, 99, 235, 0.2);
+  --icon-all-bg: rgba(59, 130, 246, 0.15);
+  --icon-pre-bg: rgba(99, 102, 241, 0.15);
+  --icon-analytic-bg: rgba(168, 85, 247, 0.15);
+  --icon-post-bg: rgba(34, 197, 94, 0.15);
+  --card-bg: #2f2f40;
+  --border: #3b3b4a;
+   background: var(--bg);
+   color: var(--text-primary);
+
+  /* ไม่จำเป็นต้องเปลี่ยนสี --primary, --success, --danger */
+}
+
+/* 2. ปรับแก้ส่วนที่ไม่ได้ใช้ Variable โดยตรง */
+body.dark .sidebar {
+  background: #1f2937; /* ทำให้สีเข้ากับ Card */
+}
+
+body.dark .main-content {
+  background: linear-gradient(165deg, #111827 0%, #161f30 45%, #1b263b 100%);
+}
+
+body.dark .case-table thead {
+  background: #2b3648; /* ทำให้หัวตารางมีสีเข้มขึ้นเล็กน้อย */
+  color: #ffffff;
+}
+
+
+body.dark .icon-btn,
+body.dark .lang-btn,
+body.dark .dropbtn {
+  background: #3b3b4a;
+  color: #ecf0f1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .icon-btn:hover,
+body.dark .lang-btn:hover,
+body.dark .dropbtn:hover {
+  background: #4a4a5a;
+}
+
+/* ปรับสีพื้นหลัง input และ select */
+body.dark #searchInput,
+body.dark #tatFilter,
+body.dark .form-group input,
+body.dark .form-group select {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: var(--text-primary);
+}
+
+body.dark #searchInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+body.dark .cancel-btn {
+  background: transparent;      /* 1. ทำให้พื้นหลังโปร่งใส */
+  color: #fff;                  /* 2. ทำให้ตัวอักษรเป็นสีขาว */
+  border: 1px solid #4b5563;  /* 3. เปลี่ยนสีเส้นขอบให้เข้ากับธีม Dark */
+}
+
+body.dark .cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.951); /* 4. เมื่อเมาส์ชี้ ให้มีพื้นหลังสีขาวจางๆ */
+  border-color: #6b7280;
+  color: rgba(0, 0, 0, 0.707);
+}
+
+
+/* ปรับสีปุ่ม Delete ให้ดูดีขึ้นใน Dark Mode */
+body.dark .delete-btn {
+  background: rgba(220, 38, 38, 0.15);
+  color: #ef4444;
+}
+
+body.dark .delete-btn:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Popup Form */
+body.dark .popup-box {
+  background: var(--card-bg); /* ใช้ variable เพื่อความสอดคล้อง */
+}
+
+body.dark .popup-box h3,
+body.dark .popup-box label {
+  color: var(--text-primary);
+}
+
+body.dark #tatFilter {
+    background-color: #2b3648;
+}
+
+/* 🔹 2. ทำให้ Dropdown Menu, Input, Select ใช้สีของ Dark Mode */
+body.dark .dropdown-content {
+  background-color: var(--card-bg);
+  border-color: var(--border);
+}
+body.dark .dropdown-content a {
+  color: var(--text-secondary);
+}
+body.dark .dropdown-content a:hover {
+  background-color: var(--primary-light);
+  color: #7dd3fc;
+}
+
+body.dark #searchInput,
+body.dark #tatFilter {
+  background-color: #2b3648; /* ทำให้ช่องค้นหาเข้มกว่า Card เล็กน้อย */
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+body.dark #searchInput::placeholder {
+  color: var(--text-secondary);
+}
+
+/* 🔹 3. ปรับสีปุ่มหลัก (สแกนบาร์โค้ด) */
+body.dark .btn.primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+}
+
+/* 🔹 4. ปรับสีตารางให้สวยงาม */
+body.dark .data-table-container th {
+  color: var(--text-secondary);
+}
+body.dark .data-table-container tbody tr {
+  border-bottom-color: var(--border);
+}
+body.dark .data-table-container tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.08);
+}
+body.dark .no-data-row td {
+    background-color: #232d3b;
+}
+
+/* 🔹 5. ปรับดีไซน์ปุ่ม "แก้ไข" และ "ลบ" ในตาราง */
+body.dark .Edit-btn {
+  background-color: #374151;
+  color: #a5b4fc;
+}
+body.dark .Edit-btn:hover {
+  background-color: #434e61;
+  color: #c7d2fe;
+}
+body.dark .delete-btn {
+  background-color: #374151;
+  color: #fca5a5;
+}
+body.dark .delete-btn:hover {
+  background-color: #434e61;
+  color: #fecaca;
+}
+
+/* 🔹 6. ปรับ Scrollbar ให้เข้ากับธีม */
+body.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+body.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+body.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+body.dark .metric-card {
+  background: #2f2f40;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .metric-card:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.dark .metric-number {
+  color: #ecf0f1;
+}
+
+body.dark .metric-label {
+  color: #94a3b8;
+}
+
+body.dark .metric-change {
+  color: #94a3b8;
+}
+
+body.dark .stat-card {
+  background: #2f2f40;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .stat-card:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.dark .stat-card h4 {
+  color: #ecf0f1;
+}
+
+body.dark .stat-card p {
+  color: #94a3b8;
+}
+
+body.dark .toggle-group .small-btn {
+  background: #3b3b4a;
+  border-color: #4a4a5a;
+  color: #cbd5e1;
+}
+
+body.dark .toggle-group .small-btn:hover {
+  background: #4a4a5a;
+}
+
+body.dark .toggle-group .small-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+body.dark .chart-legend {
+  color: #94a3b8;
+}
+
+body.dark #usage-subtitle {
+  color: #94a3b8;
+}

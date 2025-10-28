@@ -1,62 +1,3 @@
-/* ============================================
-   🔐 SESSION MANAGEMENT FUNCTIONS
-   ============================================ */
-
-// Get current user from session
-function getCurrentUser() {
-  try {
-    const sessionData = sessionStorage.getItem('currentUser');
-    return sessionData ? JSON.parse(sessionData) : null;
-  } catch (error) {
-    console.error('❌ Error reading current user:', error);
-    return null;
-  }
-}
-
-// Check authentication and redirect if not logged in
-function checkAuthentication() {
-  const currentUser = getCurrentUser();
-  if (!currentUser) {
-    console.log('🚫 No authenticated user found, redirecting to login...');
-    window.electronAPI.navigate('login');
-    return false;
-  }
-  return true;
-}
-
-// Update user display in header
-function updateUserDisplay() {
-  const currentUser = getCurrentUser();
-  if (currentUser) {
-    // Update dropdown button with user info
-    const dropdownBtn = document.getElementById('dropdownBtn');
-    if (dropdownBtn) {
-      dropdownBtn.innerHTML = `
-        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
-      `;
-    }
-    
-    // Log hospital info if available
-    if (currentUser.hospital_id) {
-      console.log('🏥 Hospital:', currentUser.hospital_id);
-    }
-  }
-}
-
-/* ============================================================
-   🔐 AUTHENTICATION CHECK
-   ============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
-  // Check authentication first
-  if (!checkAuthentication()) return;
-  
-  // Update user display in header
-  updateUserDisplay();
-  
-  // Initialize dashboard if authenticated
-  console.log('✅ User authenticated, loading dashboard...');
-});
-
 /* ============================================================
    1️⃣ THEME SWITCHER (โหมดสว่าง / โหมดมืด)
    ------------------------------------------------------------
@@ -108,22 +49,7 @@ window.addEventListener("click", (e) => {
 // -------- Logout ------------
 document.getElementById('logout')?.addEventListener('click', (e) => {
   e.preventDefault();
-  
-  const confirmLogout = confirm('คุณต้องการออกจากระบบหรือไม่?');
-  if (!confirmLogout) return;
-
-  try {
-    // Clear user session
-    localStorage.removeItem('userSession');
-    sessionStorage.clear();
-    
-    // Navigate to login
-    window.electronAPI.navigate('login');
-  } catch (error) {
-    console.error("Logout error:", error);
-    // Still redirect to login even if there's an error
-    window.electronAPI.navigate('login');
-  }
+  window.electronAPI.navigate('login');
 });
 
 const dashboard_btn = document.getElementById('patient-btn');
