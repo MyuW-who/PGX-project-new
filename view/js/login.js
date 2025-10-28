@@ -1,3 +1,6 @@
+// ===============================
+// 🌐 Language Data
+// ===============================
 const langData = {
   en: {
     username: "Username",
@@ -15,17 +18,23 @@ const langData = {
   },
 };
 
+// ===============================
+// 🔧 Element References
+// ===============================
 const elements = {
   labelUsername: document.getElementById("label-username"),
   labelPassword: document.getElementById("label-password"),
   usernameInput: document.getElementById("username"),
   passwordInput: document.getElementById("password"),
   btnLogin: document.getElementById("btn-login"),
+  popup: document.getElementById("popup"),
+  btnEn: document.getElementById("lang-en"),
+  btnTh: document.getElementById("lang-th"),
 };
 
-const btnEn = document.getElementById("lang-en");
-const btnTh = document.getElementById("lang-th");
-
+// ===============================
+// 🌐 Language Switcher
+// ===============================
 function setLanguage(lang) {
   const text = langData[lang];
   elements.labelUsername.textContent = text.username;
@@ -34,16 +43,14 @@ function setLanguage(lang) {
   elements.passwordInput.placeholder = text.placeholderPass;
   elements.btnLogin.textContent = text.loginBtn;
 
-  // update button state
-  btnEn.classList.toggle("active", lang === "en");
-  btnTh.classList.toggle("active", lang === "th");
+  elements.btnEn.classList.toggle("active", lang === "en");
+  elements.btnTh.classList.toggle("active", lang === "th");
 }
 
-// default: English
+// Default language = English
 setLanguage("en");
-
-btnEn.addEventListener("click", () => setLanguage("en"));
-btnTh.addEventListener("click", () => setLanguage("th"));
+elements.btnEn.addEventListener("click", () => setLanguage("en"));
+elements.btnTh.addEventListener("click", () => setLanguage("th"));
 
 
 // renderer/login.js
@@ -155,13 +162,12 @@ function navigateBasedOnRole(role) {
 btn.addEventListener('click', async (e) => {
   e.preventDefault();
 
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
+  const username = elements.usernameInput.value.trim();
+  const password = elements.passwordInput.value.trim();
 
+  // 🔸 Validation: Empty Fields
   if (!username || !password) {
-    popup.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
-    popup.classList.remove('hidden');
-    setTimeout(() => popup.classList.add('hidden'), 2000);
+    showPopup("Please fill in username and password");
     return;
   }
 
