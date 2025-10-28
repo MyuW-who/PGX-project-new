@@ -15,6 +15,16 @@ const langData = {
   },
 };
 
+// Helper function to save user data
+function saveUserToStorage(user, role) {
+  try {
+    if (user) localStorage.setItem('currentUser', JSON.stringify(user));
+    if (role) localStorage.setItem('userRole', role);
+  } catch (err) {
+    console.warn('Failed to save user to localStorage', err);
+  }
+}
+
 const elements = {
   labelUsername: document.getElementById("label-username"),
   labelPassword: document.getElementById("label-password"),
@@ -52,6 +62,13 @@ const btn = document.getElementById('btn-login');
 
 
 
+function showPopup(text, ms = 2000) {
+  if (!popup) return;
+  popup.textContent = text;
+  popup.classList.remove('hidden');
+  setTimeout(() => popup.classList.add('hidden'), ms);
+}
+
 btn.addEventListener('click', async (e) => {
   e.preventDefault();
 
@@ -59,35 +76,44 @@ btn.addEventListener('click', async (e) => {
   const password = document.getElementById('password').value.trim();
 
   if (!username || !password) {
-    popup.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
-    popup.classList.remove('hidden');
-    setTimeout(() => popup.classList.add('hidden'), 2000);
+    showPopup('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
     return;
   }
 
-  const result = await window.electronAPI.checkLogin(username, password);
+  btn.disabled = true;
+  try {
+    const checkFn = window.api?.checkLogin || window.electronAPI?.checkLogin;
+    if (!checkFn) throw new Error('IPC checkLogin not available');
 
-  if (!result.success) {
-    popup.textContent = result.message;
-    popup.classList.remove('hidden');
-    setTimeout(() => popup.classList.add('hidden'), 2000);
-    return;
-  }
+    const result = await checkFn({ username, password });
 
-  // ✅ ตรวจสอบ role แล้วเลือกหน้า dashboard
-  const role = result.role;
-  localStorage.setItem('userRole', role);
+    if (!result || !result.success) {
+      showPopup(result?.message || 'Login failed');
+      return;
+    }
 
-  if (role === 'medtech') {
-    window.electronAPI.navigate('dashboard1'); 
-  } else if (role === 'pharmacist') {
-    window.electronAPI.navigate('dashboard2'); 
-  } else if (role === 'admin') {
-    window.electronAPI.navigate('adminpage');
-  } else {
-    
-    popup.textContent = `Role "${role}" ไม่มีหน้าที่กำหนด`;
-    popup.classList.remove('hidden');
-    setTimeout(() => popup.classList.add('hidden'), 2000);
+    // Extract and normalize user data
+    const user = result.user || result.data?.user || null;
+    const role = user?.role || result.role || null;
+
+    // Save user data
+    saveUserToStorage(user, role);
+
+    // Navigate based on role
+    const navigate = window.api?.navigate || window.electronAPI?.navigate;
+    if (role === 'medtech') {
+      navigate ? navigate('dashboard1') : window.location.href = '../dashboard1.html';
+    } else if (role === 'pharmacist') {
+      navigate ? navigate('dashboard2') : window.location.href = '../dashboard2.html';
+    } else if (role === 'admin') {
+      navigate ? navigate('adminpage') : window.location.href = '../adminpage.html';
+    } else {
+      showPopup(`Role "${role}" ไม่มีหน้าที่กำหนด`);
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    showPopup(err.message || 'เกิดข้อผิดพลาดระหว่างเข้าสู่ระบบ');
+  } finally {
+    btn.disabled = false;
   }
 });
