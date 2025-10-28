@@ -79,8 +79,8 @@ function renderPatients(data) {
         <td>${p.first_name ?? ''} ${p.last_name ?? ''}</td>
         <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
         <td>${p.hospital_id ?? '-'}</td>
-        <td><button class="Edit-btn"><i class="fas fa-edit"></i></button></td>
-        <td><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td>
+        <td><button class="Edit-btn">Edit</button></td>
+        <td><button class="delete-btn">Delete</button></td>
       </tr>`;
     tbody.insertAdjacentHTML('beforeend', row);
   });
@@ -169,24 +169,3 @@ function showPage(pageName, patientId) {
   sessionStorage.setItem('selectedPatientId', patientId);
   window.electronAPI.navigate(pageName); // Navigate to the specified page
 }
-
-
-
-/* --------------------------------------------
-   📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)
--------------------------------------------- */
-const scannerOverlay = document.getElementById('scannerOverlay');
-const scanBtn = document.getElementById('scanBarcodeBtn');
-const closeScannerBtn = document.getElementById('closeScannerBtn');
-
-// เมื่อกดปุ่ม "สแกนบาร์โค้ด"
-scanBtn?.addEventListener('click', () => {
-  scannerOverlay.style.display = 'flex'; // ให้แสดง scanner popup
-});
-
-// เมื่อกดปุ่ม "ปิด" ใน scanner popup
-closeScannerBtn?.addEventListener('click', () => {
-  scannerOverlay.style.display = 'none'; // ให้ซ่อน scanner popup
-});
-
-
