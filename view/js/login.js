@@ -82,6 +82,8 @@ btn.addEventListener('click', async (e) => {
     window.electronAPI.navigate('dashboard1'); 
   } else if (role === 'pharmacist') {
     window.electronAPI.navigate('dashboard2'); 
+  } else if (role === 'admin') {
+    window.electronAPI.navigate('adminpage');
   } else {
     
     popup.textContent = `Role "${role}" ไม่มีหน้าที่กำหนด`;

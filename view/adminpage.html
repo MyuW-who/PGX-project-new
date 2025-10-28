@@ -24,6 +24,7 @@
           <span>Admin Page</span>
         </a>
       </nav>
+      <button type="button" id="logout-btn" class="btn logout logout-btn">ออกจากระบบ</button>
     </aside>
 
     <!-- ...existing code... -->
@@ -42,7 +43,25 @@
           </div>
           <div class="form-field">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" required />
+            <div class="input-with-button">
+              <input id="password" name="password" type="password" required />
+              <button type="button"
+                      class="toggle-password"
+                      data-target="password"
+                      aria-label="แสดงรหัสผ่าน">
+                <svg class="icon icon-eye-open" viewBox="0 0 24 24" fill="none">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+                </svg>
+                <svg class="icon icon-eye-off" viewBox="0 0 24 24" fill="none">
+                  <path d="M3.98 5.51A17.92 17.92 0 0112 5c7 0 11 7 11 7a17.92 17.92 0 01-4.33 5.19"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9.53 9.53A3 3 0 0014.47 14.47" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M2 2l20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="form-field">
             <label for="hospitalId">Hospital ID</label>
@@ -58,7 +77,6 @@
           </div>
           <div class="form-actions">
             <button type="submit" class="btn primary">เพิ่มผู้ใช้งาน</button>
-            <button type="reset" class="btn">ล้างข้อมูล</button>
           </div>
         </form>
         <div id="form-message" class="form-message" role="alert"></div>

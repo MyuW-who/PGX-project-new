@@ -79,5 +79,5 @@ nextBtn.addEventListener("click", () => {
 
 // ปุ่ม Back
 document.querySelector(".back-btn").addEventListener("click", () => {
-  window.location.href = "index.html";
+  window.electronAPI.navigate('patient');
 }); 

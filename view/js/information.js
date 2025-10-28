@@ -1,147 +1,11 @@
 const state = {
-  cases: [
-    {
-      id: 'PGX-0001',
-      hn: 'HN123456',
-      firstName: 'กมล',
-      lastName: 'สุขสันต์',
-      gender: 'หญิง',
-      dob: '1986-05-10',
-      phone: '081-234-5678',
-      doctor: 'นพ. สมชาย ใจดี',
-      diagnosis: 'Acute lymphoblastic leukemia',
-      sampleType: 'เลือด',
-      collectedAt: '2025-10-15',
-      createdAt: '2025-10-15T09:05:00+07:00',
-      updatedAt: '2025-10-20T17:30:00+07:00',
-      tatStatus: 'analytic',
-      notes: 'มีประวัติแพ้ยา Allopurinol',
-      genotype: [
-        { gene: 'CYP2C19', allele: '*1/*2', phenotype: 'Intermediate metabolizer' },
-        { gene: 'CYP2C9', allele: '*1/*3', phenotype: 'Intermediate metabolizer' },
-        { gene: 'VKORC1', allele: 'G/A', phenotype: 'Warfarin sensitive' }
-      ],
-      cds: [
-        {
-          title: 'Clopidogrel 75 mg',
-          recommendation: 'พิจารณาเพิ่มขนาดยา หรือเปลี่ยนเป็น Ticagrelor / Prasugrel',
-          rationale: 'CYP2C19 Intermediate metabolizer อาจลดการสร้าง active metabolite'
-        },
-        {
-          title: 'Warfarin',
-          recommendation: 'เริ่มต้นที่ 3 mg/day และติดตาม INR อย่างใกล้ชิด',
-          rationale: 'CYP2C9 *1/*3 และ VKORC1 G/A เพิ่มความไวต่อยา'
-        }
-      ],
-      tdm: [
-        {
-          drug: 'Warfarin',
-          date: '2025-10-18',
-          value: 'INR 2.1',
-          target: '2.0 - 3.0',
-          action: 'คงขนาดยาเดิม'
-        },
-        {
-          drug: 'TPMT enzyme activity',
-          date: '2025-10-17',
-          value: '18 U/mL RBC',
-          target: '15 - 26',
-          action: 'ใช้ขนาดมาตรฐานได้'
-        }
-      ],
-      reports: [
-        {
-          id: 'RPT-001',
-          title: 'รายงานผลตรวจพันธุกรรม (PDF)',
-          createdAt: '2025-10-20T17:20:00+07:00',
-          type: 'pdf',
-          url: '#'
-        }
-      ],
-      consents: [
-        {
-          id: 'CNS-001',
-          title: 'e-Consent การตรวจ PGx',
-          signedAt: '2025-10-14',
-          status: 'ยืนยันแล้ว',
-          url: '#'
-        }
-      ],
-      auditLog: [
-        {
-          id: 'LOG-001',
-          actor: 'Admin',
-          action: 'แก้ไขข้อมูลผู้ป่วย',
-          timestamp: '2025-10-20T17:30:00+07:00'
-        },
-        {
-          id: 'LOG-002',
-          actor: 'LabTech01',
-          action: 'อัปโหลดผล TPMP enzyme',
-          timestamp: '2025-10-17T16:05:00+07:00'
-        }
-      ],
-      timeline: [
-        {
-          status: 'pre-analytic',
-          label: 'Pre-analytic',
-          date: '2025-10-15',
-          description: 'รับสิ่งส่งตรวจและตรวจสอบข้อมูล'
-        },
-        {
-          status: 'analytic',
-          label: 'Analytic',
-          date: '2025-10-18',
-          description: 'ดึง DNA และรันเครื่องตรวจ'
-        }
-      ]
-    },
-    {
-      id: 'PGX-0002',
-      hn: 'HN654321',
-      firstName: 'สมชาติ',
-      lastName: 'มีสุข',
-      gender: 'ชาย',
-      dob: '1974-03-22',
-      phone: '089-789-4561',
-      doctor: 'พญ. ศศิวิมล สายธาร',
-      diagnosis: 'Cardiomyopathy',
-      sampleType: 'เลือด',
-      collectedAt: '2025-10-12',
-      createdAt: '2025-10-12T11:45:00+07:00',
-      updatedAt: '2025-10-13T08:10:00+07:00',
-      tatStatus: 'pre-analytic',
-      notes: 'ติดตามผล Warfarin ใน 7 วัน',
-      genotype: [],
-      cds: [],
-      tdm: [],
-      reports: [],
-      consents: [],
-      auditLog: [
-        {
-          id: 'LOG-003',
-          actor: 'Admin',
-          action: 'สร้างเคสใหม่',
-          timestamp: '2025-10-12T11:45:00+07:00'
-        }
-      ],
-      timeline: [
-        {
-          status: 'pre-analytic',
-          label: 'Pre-analytic',
-          date: '2025-10-12',
-          description: 'รับสิ่งส่งตรวจและเตรียม QC'
-        }
-      ]
-    }
-  ],
+  cases: [],
   filteredCases: [],
   selectedCaseId: null,
   isThai: true,
   darkMode: false
 };
 
-/* ---------- DOM HELPERS ---------- */
 const el = {
   searchInput: document.getElementById('searchInput'),
   tatFilter: document.getElementById('tatFilter'),
@@ -190,10 +54,52 @@ let quaggaRunning = false;
 
 /* ---------- INITIALIZATION ---------- */
 document.addEventListener('DOMContentLoaded', () => {
-  state.filteredCases = [...state.cases];
   bindEvents();
-  renderAll();
+  loadCases();
 });
+
+async function loadCases() {
+  try {
+    const result = await window.electronAPI.invoke('fetch-cases');
+    const cases = Array.isArray(result) ? result.map(normalizeCaseRecord) : [];
+    state.cases = cases;
+    state.filteredCases = [...cases];
+    renderAll();
+  } catch (error) {
+    console.error('loadCases error:', error);
+    state.cases = [];
+    state.filteredCases = [];
+    renderAll();
+    alert('ไม่สามารถดึงข้อมูลผู้ป่วยได้');
+  }
+}
+
+function normalizeCaseRecord(raw) {
+  return {
+    id: raw.id ?? '',
+    hn: raw.hn ?? '',
+    firstName: raw.firstName ?? '',
+    lastName: raw.lastName ?? '',
+    gender: raw.gender ?? '',
+    dob: raw.dob ?? '',
+    phone: raw.phone ?? '',
+    doctor: raw.doctor ?? '',
+    diagnosis: raw.diagnosis ?? '',
+    sampleType: raw.sampleType ?? '',
+    collectedAt: raw.collectedAt ?? '',
+    createdAt: raw.createdAt ?? '',
+    updatedAt: raw.updatedAt ?? '',
+    tatStatus: raw.tatStatus ?? 'pre-analytic',
+    notes: raw.notes ?? '',
+    genotype: raw.genotype ?? [],
+    cds: raw.cds ?? [],
+    tdm: raw.tdm ?? [],
+    reports: raw.reports ?? [],
+    consents: raw.consents ?? [],
+    auditLog: raw.auditLog ?? [],
+    timeline: raw.timeline ?? []
+  };
+}
 
 function bindEvents() {
   el.searchInput?.addEventListener('input', handleFilter);

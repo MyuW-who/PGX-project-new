@@ -160,6 +160,7 @@ function attachInspectButtons() {
 
 document.getElementById('logout').addEventListener('click', (e) => {
   e.preventDefault();
+  sessionStorage.clear();
   window.electronAPI.navigate('login');
 });
 

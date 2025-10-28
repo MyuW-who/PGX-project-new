@@ -150,6 +150,11 @@ body {
   justify-content: flex-start;
 }
 
+.form-actions .btn {
+  min-width: 280px;
+  justify-content: center;
+}
+
 .btn {
   padding: 12px 20px;
   border-radius: 10px;
@@ -218,6 +223,11 @@ tbody tr:hover {
   background: #f9fafb;
 }
 
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
 .table-action {
   display: inline-flex;
   align-items: center;
@@ -225,18 +235,96 @@ tbody tr:hover {
   gap: 6px;
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(220, 38, 38, 0.2);
-  background: rgba(220, 38, 38, 0.08);
-  color: #b91c1c;
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.table-action:hover {
+.table-action.edit {
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+}
+
+.table-action.edit:hover {
+  background: rgba(37, 99, 235, 0.14);
+  transform: translateY(-1px);
+}
+
+.table-action.delete {
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+}
+
+.table-action.delete:hover {
   background: rgba(220, 38, 38, 0.14);
   transform: translateY(-1px);
+}
+
+.input-with-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-button input {
+  flex: 1;
+  padding-right: 48px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.toggle-password .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.toggle-password .icon-eye-off {
+  display: none;
+}
+
+.toggle-password.is-visible .icon-eye-open {
+  display: none;
+}
+
+.toggle-password.is-visible .icon-eye-off {
+  display: block;
+}
+
+.toggle-password:hover {
+  color: var(--color-primary-hover);
+}
+
+.sidebar .logout-btn {
+  margin-top: auto;
+  align-self: stretch;
+}
+
+.btn.logout {
+  color: #fff;
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+.btn.logout:hover {
+  background: #dc2626;
+  border-color: #dc2626;
 }
 
 @media (max-width: 1024px) {
@@ -250,6 +338,12 @@ tbody tr:hover {
     justify-content: space-between;
     padding: 20px clamp(16px, 4vw, 24px);
     gap: 24px;
+  }
+
+  .sidebar .logout-btn {
+    margin-top: 0;
+    margin-left: auto;
+    align-self: center;
   }
 
   .nav-menu {
