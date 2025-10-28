@@ -23,14 +23,30 @@ async function addPatient(patientData) {
   return data;
 }
 
-// ค้นหาผู้ป่วย (ด้วยคำค้นบางส่วนของ patient_id)
-async function searchPatientById(patientId) {
+// ค้นหาผู้ป่วย (ด้วยคำค้นบางส่วนของ patient_id, ชื่อ, หรือนามสกุล)
+async function searchPatientById(searchTerm) {
+  if (!searchTerm || typeof searchTerm !== 'string') {
+    return [];
+  }
+
+  const cleanSearchTerm = searchTerm.trim();
+  if (!cleanSearchTerm) {
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('patient')
     .select('*')
-    .like('patient_id', `%${patientId}%`); // Use 'like' for partial matching
-  if (error) console.error('❌ Search Error:', error.message);
-  return data;
+    .or(`patient_id.ilike.%${cleanSearchTerm}%,first_name.ilike.%${cleanSearchTerm}%,last_name.ilike.%${cleanSearchTerm}%`)
+    .order('patient_id', { ascending: true })
+    .limit(50); // Limit results for performance
+
+  if (error) {
+    console.error('❌ Search Error:', error.message);
+    return [];
+  }
+  
+  return data || [];
 }
 
 // ดึงข้อมูลผู้ป่วยรายบุคคล
