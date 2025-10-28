@@ -78,7 +78,7 @@ textarea {
   padding: 12px 16px;
   border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: var(--transition);
 }
 
 .sidebar li:hover,
@@ -156,7 +156,7 @@ header {
   cursor: pointer;
   color: var(--text-primary);
   box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
-  transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+  transition: var(--transition);
 }
 
 .icon-btn:hover,
@@ -185,6 +185,7 @@ header {
   border-radius: 12px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
+  transition: var(--transition);
 }
 
 .dropbtn:hover {
@@ -210,7 +211,7 @@ header {
   padding: 10px 14px;
   text-decoration: none;
   display: block;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: var(--transition);
 }
 
 .dropdown-content a:hover {
@@ -259,7 +260,7 @@ header {
   background: #fff;
   font-size: 15px;
   color: var(--text-primary);
-  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  transition: var(--transition);
 }
 
 #searchInput:focus {
@@ -287,7 +288,7 @@ header {
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
-  transition: background-color 0.25s ease, color 0.25s ease, opacity 0.25s ease, transform 0.2s ease;
+  transition: var(--transition);
 }
 
 .btn.primary {
@@ -349,7 +350,7 @@ header {
 
 .case-table tbody tr {
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: var(--transition);
 }
 
 .case-table tbody tr:hover {
@@ -365,18 +366,16 @@ header {
    ============================================ */
 /* ... (โค้ดส่วนอื่น) ... */
 
-/* ปุ่มไอคอนในตาราง (ปรับปรุง) */
+/* ปุ่มในตาราง (แก้ไข) */
 .Edit-btn,
 .delete-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 25px;
-  border-radius: 10px; 
-  font-size: 15px;
   border: none;
+  padding: 10px 20px; /* <-- เพิ่มขนาดปุ่มตรงนี้ */
+  border-radius: 8px; /* <-- ปรับความโค้งมนเล็กน้อย */
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  font-size: 14px;    /* <-- เพิ่มขนาดตัวอักษร */
+  font-weight: 600;   /* <-- ทำให้ตัวอักษรหนาขึ้น */
+  transition: all 0.2s ease;
 }
 
 .Edit-btn {
@@ -385,143 +384,127 @@ header {
 }
 
 .delete-btn {
-  background: rgba(220, 38, 38, 0.1);
+  background: rgba(220, 38, 38, 0.1); /* <-- ทำให้สีพื้นหลังดูนุ่มนวลขึ้น */
   color: var(--danger);
-}
-
-/* --- เอฟเฟกต์เมื่อนำเมาส์ไปชี้ (Hover) --- */
-.Edit-btn:hover,
-.delete-btn:hover {
-  transform: translateY(-2px); /* <-- ทำให้ปุ่มลอยขึ้นเล็กน้อย */
-  box-shadow: 0 6px 15px rgba(100, 116, 139, 0.15); /* <-- เพิ่มเงาให้ปุ่ม */
 }
 
 .Edit-btn:hover {
   background: var(--primary);
   color: #fff;
+  transform: translateY(-1px);
 }
 
 .delete-btn:hover {
   background: var(--danger);
   color: #fff;
+  transform: translateY(-1px);
 }
 
 
 /* ============================================
-   🪟 POPUP FORM (Light Theme)
+   🪟 POPUP FORM (Overlay)
    ============================================ */
-
-/* --- Overlay (พื้นหลัง) --- */
 .popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(17, 24, 39, 0.6); /* ปรับให้โปร่งแสงพอดีกับธีมขาว */
+  background: rgba(0, 0, 0, 0.4);
   display: none;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
-  animation: fadeInOverlay 0.3s ease;
 }
 
-@keyframes fadeInOverlay {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* --- กล่อง Popup --- */
-.popup-box.large-form {
-  background: var(--card-bg); /* <-- เปลี่ยนเป็นสีขาว */
-  color: var(--text-secondary); /* <-- เปลี่ยนสีตัวอักษรเป็นสีเทาเข้ม */
-  border-radius: 16px;
-  padding: 28px 32px;
-  width: 90%;
-  max-width: 800px;
-  box-shadow: var(--shadow); /* <-- ใช้เงาของธีมหลัก */
-  border: 1px solid var(--border); /* <-- ใช้สีเส้นขอบของธีมหลัก */
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-/* --- หัวข้อ "เพิ่มข้อมูลผู้ป่วย" --- */
-.popup-box h3 {
-  color: var(--text-primary); /* <-- เปลี่ยนเป็นสีดำ */
-  font-size: 20px;
-  margin: 0 0 24px 0;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
+.popup-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   text-align: left;
 }
 
-/* --- Grid ของฟอร์ม --- */
+.large-form {
+  width: 75%;
+  max-width: 950px;
+}
+
+
+/* ============================================
+   🧾 FORM DESIGN (Input, Label)
+   ============================================ */
+.large-form h3 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 600;
+  color: #333;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px 24px;
+  gap: 20px 25px;
 }
 
-/* --- กลุ่มของ Label และ Input --- */
 .form-group label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-secondary); /* <-- สีเทาเข้ม */
+  display: block;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  background: #ffffff; /* <-- พื้นหลังช่องกรอกเป็นสีขาว */
-  border: 1px solid #d1d5db; /* <-- เส้นขอบสีเทาอ่อน */
-  border-radius: 8px;
   padding: 10px 12px;
-  color: var(--text-primary); /* <-- สีตัวอักษรตอนพิมพ์เป็นสีดำ */
-  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
   box-sizing: border-box;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-light);
+.form-group select {
+  background-color: #fff;
 }
 
-/* --- ปุ่ม Save / Cancel --- */
+
+/* ============================================
+   💾 FORM BUTTONS (Save / Cancel)
+   ============================================ */
 .form-actions {
-  margin-top: 30px;
+  margin-top: 25px;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
 }
 
 .save-btn,
 .cancel-btn {
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 8px 14px;
   border: none;
-  font-weight: 600;
+  border-radius: 6px;
+  min-width: 100px;
   cursor: pointer;
-  min-width: 120px;
+  font-size: 0.95rem;
 }
 
 .save-btn {
-  background: var(--primary);
-  color: white;
+  background: #2c5ea8;
+  color: #fff;
 }
+
 .save-btn:hover {
-  opacity: 0.9;
+  background: #1e4d8c;
 }
 
 .cancel-btn {
-  background: #f3f4f6; /* <-- เปลี่ยนเป็นสีเทาอ่อน */
-  color: var(--text-secondary); /* <-- เปลี่ยนเป็นสีเทาเข้ม */
-  border: 1px solid #d1d5db;
+  background: #ccc;
+  color: #333;
 }
+
 .cancel-btn:hover {
-  background: #e5e7eb;
+  background: #b5b5b5;
 }
 
 
@@ -614,99 +597,4 @@ body.dark .popup-box label {
   .form-grid {
     grid-template-columns: 1fr;
   }
-}
-
-
-/* ============================================
-   📷 SCANNER POPUP (ดีไซน์ใหม่)
-   ============================================ */
-.scanner-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6); /* ทำให้พื้นหลังมืดกว่าเดิมเล็กน้อย */
-  display: none; /* ซ่อนไว้ก่อน */
-  justify-content: center;
-  align-items: center;
-  z-index: 1001; /* ให้อยู่เหนือ popup อื่น */
-}
-
-.scanner-popup-box {
-  background: #2d3748; /* สีพื้นหลังโทนเทา-ดำ */
-  color: #f7fafc;
-  padding: 32px 40px;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 420px;
-  text-align: center;
-  border: 1px solid #4a5568;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
-  position: relative; /* สำคัญสำหรับ animation */
-  overflow: hidden;  /* สำคัญสำหรับ animation */
-}
-
-.scanner-popup-box h3 {
-  margin-top: 0;
-  font-size: 24px;
-  letter-spacing: 0.5px;
-}
-
-.scanner-popup-box .scanner-visual {
-  margin: 30px 0;
-  padding: 20px;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.2);
-  position: relative;
-  height: 180px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.scanner-popup-box .scanner-visual .fa-barcode {
-  font-size: 150px;
-  color: rgba(255, 255, 255, 0.1); /* ทำให้ไอคอนจางๆ */
-}
-
-/* --- เส้นสแกน Animation --- */
-.scanner-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: #f87171; /* สีแดงสด */
-  box-shadow: 0 0 15px 2px #ef4444;
-  animation: scan 2.5s linear infinite;
-}
-
-@keyframes scan {
-  0% {
-    top: 0%;
-  }
-  100% {
-    top: 100%;
-  }
-}
-
-.scanner-popup-box p {
-  color: #a0aec0;
-  margin-bottom: 30px;
-}
-
-.scanner-popup-box .close-btn {
-  background: #4a5568;
-  color: #f7fafc;
-  border: none;
-  padding: 10px 25px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s ease;
-}
-
-.scanner-popup-box .close-btn:hover {
-  background: #718096;
 }
