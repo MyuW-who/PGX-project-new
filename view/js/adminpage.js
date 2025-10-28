@@ -1,7 +1,7 @@
 const userForm = document.getElementById("user-form");
 const userTableBody = document.querySelector("#user-table tbody");
 const formMessage = document.getElementById("form-message");
-const logoutBtn = document.getElementById("logout-btn");
+const logoutBtn = document.getElementById("logout"); // Fixed: was "logout-btn", should be "logout"
 const togglePasswordButtons = document.querySelectorAll(".toggle-password");
 const themeToggle = document.getElementById("themeToggle");
 const langToggle = document.getElementById("langToggle");
@@ -11,6 +11,51 @@ const dropdownMenu = document.getElementById("dropdownMenu");
 let users = [];
 let isEditing = false;
 let editingUserId = null;
+
+/* ============================================
+   🔐 SESSION MANAGEMENT FUNCTIONS
+   ============================================ */
+
+// Get current user from session
+function getCurrentUser() {
+  try {
+    const sessionData = sessionStorage.getItem('currentUser');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading current user:', error);
+    return null;
+  }
+}
+
+// Check authentication and redirect if not logged in
+function checkAuthentication() {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    console.log('🚫 No authenticated user found, redirecting to login...');
+    window.electronAPI.navigate('login');
+    return false;
+  }
+  return true;
+}
+
+// Update user display in header
+function updateUserDisplay() {
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    // Update dropdown button with user info
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn) {
+      dropdownBtn.innerHTML = `
+        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
+      `;
+    }
+    
+    // Log hospital info if available
+    if (currentUser.hospital_id) {
+      console.log('🏥 Hospital:', currentUser.hospital_id);
+    }
+  }
+}
 
 // Hash password using bcrypt through IPC
 async function hashPassword(password) {
@@ -217,14 +262,20 @@ togglePasswordButtons.forEach((button) => {
 });
 
 logoutBtn?.addEventListener("click", async () => {
+  const confirmLogout = confirm('คุณต้องการออกจากระบบหรือไม่?');
+  if (!confirmLogout) return;
+
   try {
-    if (window.electronAPI?.invoke) {
-      await window.electronAPI.invoke("logout");
-    } else if (window.electronAPI?.logout) {
-      await window.electronAPI.logout();
-    }
+    // Clear user session
+    localStorage.removeItem('userSession');
+    sessionStorage.clear();
+    
+    // Navigate to login
+    window.electronAPI.navigate('login');
   } catch (error) {
     console.error("Logout error:", error);
+    // Still redirect to login even if there's an error
+    window.electronAPI.navigate('login');
   }
 });
 
@@ -251,5 +302,14 @@ langToggle?.addEventListener("click", () => {
 });
 
 // Initialize the page
-loadUsers();
+document.addEventListener('DOMContentLoaded', () => {
+  // Check authentication first
+  if (!checkAuthentication()) return;
+  
+  // Update user display in header
+  updateUserDisplay();
+  
+  // Load users if authenticated
+  loadUsers();
+});
 

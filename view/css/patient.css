@@ -571,6 +571,19 @@ body.dark #searchInput:focus {
   box-shadow: 0 0 0 4px var(--primary-light);
 }
 
+body.dark .cancel-btn {
+  background: transparent;      /* 1. ทำให้พื้นหลังโปร่งใส */
+  color: #fff;                  /* 2. ทำให้ตัวอักษรเป็นสีขาว */
+  border: 1px solid #4b5563;  /* 3. เปลี่ยนสีเส้นขอบให้เข้ากับธีม Dark */
+}
+
+body.dark .cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.951); /* 4. เมื่อเมาส์ชี้ ให้มีพื้นหลังสีขาวจางๆ */
+  border-color: #6b7280;
+  color: rgba(0, 0, 0, 0.707);
+}
+
+
 /* ปรับสีปุ่ม Delete ให้ดูดีขึ้นใน Dark Mode */
 body.dark .delete-btn {
   background: rgba(220, 38, 38, 0.15);
