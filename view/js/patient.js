@@ -3,9 +3,66 @@
    ============================================ */
 
 /* --------------------------------------------
+   🔐 USER SESSION MANAGEMENT
+-------------------------------------------- */
+
+// Get current user session
+function getCurrentUser() {
+  try {
+    const sessionData = sessionStorage.getItem('currentUser');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading current user:', error);
+    return null;
+  }
+}
+
+// Check if user is authenticated
+function checkAuthentication() {
+  const currentUser = getCurrentUser();
+  
+  if (!currentUser) {
+    console.warn('⚠️ No user session found, redirecting to login');
+    window.electronAPI.navigate('login');
+    return false;
+  }
+  
+  console.log('✅ User authenticated:', currentUser.username, currentUser.role);
+  return true;
+}
+
+// Update user display in header
+function updateUserDisplay() {
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    // Update dropdown button with user info
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn) {
+      dropdownBtn.innerHTML = `
+        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
+      `;
+    }
+    
+    // You can also add hospital info if needed
+    if (currentUser.hospital_id) {
+      console.log('🏥 Hospital:', currentUser.hospital_id);
+    }
+  }
+}
+
+/* --------------------------------------------
    ✅ โหลดข้อมูลผู้ป่วยเมื่อหน้าเปิดขึ้น
 -------------------------------------------- */
 window.addEventListener('DOMContentLoaded', async () => {
+  // Check authentication first
+  if (!checkAuthentication()) {
+    return; // Stop execution if not authenticated
+  }
+  
+  // Update user display
+  updateUserDisplay();
+  
+  // Load patients data
   try {
     const patients = await window.electronAPI.getPatients();
     console.log("📦 Renderer got patients:", patients);
@@ -58,29 +115,47 @@ async function handleFormSubmit(e) {
 form?.addEventListener('submit', handleFormSubmit);
 
 /* --------------------------------------------
-   🔍 ระบบค้นหาผู้ป่วยด้วย patient_id
+   🔍 ระบบค้นหาผู้ป่วยด้วย patient_id, ชื่อ, หรือนามสกุล
 -------------------------------------------- */
 document.getElementById('searchInput')?.addEventListener('input', async (e) => {
   const keyword = e.target.value.trim();
   try {
-    const patients = keyword
-      ? await window.electronAPI.searchPatient(keyword)
-      : await window.electronAPI.getPatients();
-    renderPatients(patients);
+    if (keyword.length === 0) {
+      // ถ้าไม่มีคำค้นหา แสดงผู้ป่วยทั้งหมด
+      const patients = await window.electronAPI.getPatients();
+      renderPatients(patients);
+    } else if (keyword.length >= 1) {
+      // ค้นหาเมื่อพิมพ์อย่างน้อย 1 ตัวอักษร
+      const patients = await window.electronAPI.searchPatient(keyword);
+      renderPatients(patients);
+      
+      // แสดงจำนวนผลลัพธ์
+      const resultCount = patients.length;
+      console.log(`🔍 พบผลการค้นหา ${resultCount} รายการสำหรับ "${keyword}"`);
+    }
   } catch (err) {
     console.error("❌ Error searching patient:", err);
+    // แสดงข้อความข้อผิดพลาดให้ผู้ใช้เห็น
+    const tbody = document.querySelector('#patientTable tbody');
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">เกิดข้อผิดพลาดในการค้นหา: ${err.message}</td></tr>`;
   }
 });
 
 /* --------------------------------------------
    📋 ฟังก์ชันแสดงข้อมูลในตาราง
 -------------------------------------------- */
+
 function renderPatients(data) {
   const tbody = document.querySelector('#patientTable tbody');
   tbody.innerHTML = '';
 
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6">ไม่พบข้อมูลผู้ป่วย</td></tr>`;
+    const searchInput = document.getElementById('searchInput');
+    const searchTerm = searchInput?.value.trim();
+    const message = searchTerm 
+      ? `ไม่พบข้อมูลผู้ป่วยที่ตรงกับ "${searchTerm}"` 
+      : 'ไม่พบข้อมูลผู้ป่วย';
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px;">${message}</td></tr>`;
     return;
   }
 
@@ -185,10 +260,38 @@ function attachInspectButtons() {
   });
 }
 
-document.getElementById('logout').addEventListener('click', (e) => {
+document.getElementById('logout').addEventListener('click', async (e) => {
   e.preventDefault();
-  sessionStorage.clear();
-  window.electronAPI.navigate('login');
+  
+  const currentUser = getCurrentUser();
+  const username = currentUser ? currentUser.username : 'Unknown';
+  
+  // Confirm logout
+  if (confirm(`คุณต้องการออกจากระบบหรือไม่?\n(${username})`)) {
+    try {
+      // Call logout handler if available
+      if (window.electronAPI.handleLogout) {
+        await window.electronAPI.handleLogout({ username });
+      }
+      
+      // Clear all session data
+      localStorage.removeItem('userSession');
+      localStorage.removeItem('userRole'); // Remove old role storage
+      sessionStorage.clear();
+      
+      console.log('👋 User logged out:', username);
+      
+      // Navigate to login page
+      window.electronAPI.navigate('login');
+      
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      // Still logout even if API call fails
+      sessionStorage.clear();
+      localStorage.removeItem('userSession');
+      window.electronAPI.navigate('login');
+    }
+  }
 });
 
 function showPage(pageName, patientId) {
