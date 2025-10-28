@@ -16,17 +16,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* --------------------------------------------
-   📝 Form handler supports Add and Edit modes
---------------------------------------------- */
-const form = document.getElementById('addForm');
-let isEditMode = false;
-let editingPatientId = null;
-
-async function handleFormSubmit(e) {
+   ➕ เมื่อกดปุ่ม "บันทึก" ใน popup form
+-------------------------------------------- */
+document.getElementById('addForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  // collect common fields
-  const baseData = {
+  const patientData = {
     patient_id: parseInt(document.getElementById('patient_id').value),
     hospital_id: document.getElementById('hospital').value.trim(),
     first_name: document.getElementById('first_name').value.trim(),
@@ -36,26 +31,19 @@ async function handleFormSubmit(e) {
     ethnicity: document.getElementById('ethnicity').value.trim(),
     blood_type: document.getElementById('blood_type').value,
     phone: document.getElementById('phone').value.trim(),
+    created_at: new Date().toISOString()
   };
 
   try {
-    if (isEditMode && editingPatientId) {
-      const result = await window.electronAPI.updatePatient(editingPatientId, baseData);
-      alert(result.message || 'อัพเดทข้อมูลสำเร็จ!');
-    } else {
-      const payload = { ...baseData, created_at: new Date().toISOString() };
-      const result = await window.electronAPI.addPatient(payload);
-      alert(result.message || 'บันทึกข้อมูลสำเร็จ!');
-    }
+    const result = await window.electronAPI.addPatient(patientData);
+    alert(result.message || "บันทึกข้อมูลสำเร็จ!");
     closePopup();
     location.reload();
   } catch (err) {
-    console.error('❌ Error saving patient:', err);
-    alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    console.error("❌ Error adding patient:", err);
+    alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
   }
-}
-
-form?.addEventListener('submit', handleFormSubmit);
+});
 
 /* --------------------------------------------
    🔍 ระบบค้นหาผู้ป่วยด้วย patient_id
@@ -86,13 +74,13 @@ function renderPatients(data) {
 
   data.forEach((p, index) => {
     const row = `
-      <tr onclick="showPage('verify_step1', '${p.patient_id}')" data-patient-id="${p.patient_id}">
+      <tr onclick="showPage('verify_step1', '${p.patient_id}')">
         <td>${p.patient_id ?? '-'}</td>
         <td>${p.first_name ?? ''} ${p.last_name ?? ''}</td>
         <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
         <td>${p.hospital_id ?? '-'}</td>
-        <td><button class="Edit-btn" onclick="event.stopPropagation(); editPatient(${p.patient_id})">Edit</button></td>
-        <td><button class="delete-btn" onclick="event.stopPropagation(); deletePatient(${p.patient_id})">Delete</button></td>
+        <td><button class="Edit-btn"><i class="fas fa-edit"></i></button></td>
+        <td><button class="delete-btn"><i class="fas fa-trash-alt"></i></button></td>
       </tr>`;
     tbody.insertAdjacentHTML('beforeend', row);
   });
@@ -107,17 +95,8 @@ function renderPatients(data) {
 const popupAdd = document.getElementById('popupAdd');
 const addBtn = document.getElementById('addBtn');
 const closeAdd = document.getElementById('closeAdd');
-const popupTitle = popupAdd?.querySelector('h3');
 
 addBtn?.addEventListener('click', () => {
-  // switch to add mode
-  isEditMode = false;
-  editingPatientId = null;
-  popupTitle && (popupTitle.textContent = 'เพิ่มข้อมูลผู้ป่วย');
-  // reset form and allow changing patient_id
-  form?.reset();
-  const idEl = document.getElementById('patient_id');
-  if (idEl) idEl.readOnly = false;
   popupAdd.style.display = 'flex';
 });
 
@@ -125,12 +104,6 @@ closeAdd?.addEventListener('click', closePopup);
 
 function closePopup() {
   popupAdd.style.display = 'none';
-  // reset state back to add mode
-  isEditMode = false;
-  editingPatientId = null;
-  popupTitle && (popupTitle.textContent = 'เพิ่มข้อมูลผู้ป่วย');
-  const idEl = document.getElementById('patient_id');
-  if (idEl) idEl.readOnly = false;
 }
 
 /* --------------------------------------------
@@ -187,7 +160,6 @@ function attachInspectButtons() {
 
 document.getElementById('logout').addEventListener('click', (e) => {
   e.preventDefault();
-  sessionStorage.clear();
   window.electronAPI.navigate('login');
 });
 
@@ -197,56 +169,23 @@ function showPage(pageName, patientId) {
   window.electronAPI.navigate(pageName); // Navigate to the specified page
 }
 
-/* --------------------------------------------
-   ✏️ Edit Patient Function
--------------------------------------------- */
-async function editPatient(patientId) {
-  try {
-    // Get patient data
-    const patient = await window.electronAPI.getPatientById(patientId);
-    if (!patient) {
-      alert('ไม่พบข้อมูลผู้ป่วย');
-      return;
-    }
 
-    // Populate form with patient data
-    document.getElementById('patient_id').value = patient.patient_id;
-    document.getElementById('first_name').value = patient.first_name;
-    document.getElementById('last_name').value = patient.last_name;
-    document.getElementById('age').value = patient.age;
-    document.getElementById('gender').value = patient.gender;
-    document.getElementById('ethnicity').value = patient.ethnicity;
-    document.getElementById('blood_type').value = patient.blood_type;
-    document.getElementById('hospital').value = patient.hospital_id;
-    document.getElementById('phone').value = patient.phone;
-
-    // Switch to edit mode
-    isEditMode = true;
-    editingPatientId = patientId;
-    popupTitle && (popupTitle.textContent = 'แก้ไขผู้ป่วย');
-    const idEl = document.getElementById('patient_id');
-    if (idEl) idEl.readOnly = true; // lock primary key during edit
-    // Show popup
-    popupAdd.style.display = 'flex';
-  } catch (err) {
-    console.error('❌ Error fetching patient details:', err);
-    alert('เกิดข้อผิดพลาดในการดึงข้อมูลผู้ป่วย');
-  }
-}
 
 /* --------------------------------------------
-   🗑️ Delete Patient Function
+   📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)
 -------------------------------------------- */
-async function deletePatient(patientId) {
-  if (confirm('คุณแน่ใจที่จะลบข้อมูลผู้ป่วยหรือไม่?')) {
-    try {
-      const result = await window.electronAPI.deletePatient(patientId);
-      alert(result.message || 'ลบข้อมูลสำเร็จ!');
-      location.reload();
-    } catch (err) {
-      console.error('❌ Error deleting patient:', err);
-      alert('เกิดข้อผิดพลาดในการลบข้อมูล');
-    }
-  }
-}
+const scannerOverlay = document.getElementById('scannerOverlay');
+const scanBtn = document.getElementById('scanBarcodeBtn');
+const closeScannerBtn = document.getElementById('closeScannerBtn');
+
+// เมื่อกดปุ่ม "สแกนบาร์โค้ด"
+scanBtn?.addEventListener('click', () => {
+  scannerOverlay.style.display = 'flex'; // ให้แสดง scanner popup
+});
+
+// เมื่อกดปุ่ม "ปิด" ใน scanner popup
+closeScannerBtn?.addEventListener('click', () => {
+  scannerOverlay.style.display = 'none'; // ให้ซ่อน scanner popup
+});
+
 
