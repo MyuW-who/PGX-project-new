@@ -3,6 +3,10 @@ const userTableBody = document.querySelector("#user-table tbody");
 const formMessage = document.getElementById("form-message");
 const logoutBtn = document.getElementById("logout-btn");
 const togglePasswordButtons = document.querySelectorAll(".toggle-password");
+const themeToggle = document.getElementById("themeToggle");
+const langToggle = document.getElementById("langToggle");
+const dropdownBtn = document.getElementById("dropdownBtn");
+const dropdownMenu = document.getElementById("dropdownMenu");
 
 let users = [];
 let isEditing = false;
@@ -222,6 +226,28 @@ logoutBtn?.addEventListener("click", async () => {
   } catch (error) {
     console.error("Logout error:", error);
   }
+});
+
+dropdownBtn?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  dropdownMenu?.classList.toggle("show");
+});
+
+dropdownMenu?.addEventListener("click", (event) => {
+  event.stopPropagation();
+});
+
+document.addEventListener("click", () => {
+  dropdownMenu?.classList.remove("show");
+});
+
+themeToggle?.addEventListener("click", () => {
+  document.body.classList.toggle("dark-theme");
+});
+
+langToggle?.addEventListener("click", () => {
+  const current = langToggle.textContent.trim();
+  langToggle.textContent = current === "TH" ? "EN" : "TH";
 });
 
 // Initialize the page
