@@ -1,14 +1,14 @@
 :root {
-  --color-bg: #f3f4f6;
+  --color-bg: #f5f7fb; /* match patient */
   --color-surface: #ffffff;
   --color-primary: #2563eb;
   --color-primary-hover: #1d4ed8;
   --color-border: #e5e7eb;
-  --color-text: #1f2933;
+  --color-text: #111827; /* match patient text-primary */
   --color-muted: #6b7280;
-  --sidebar-bg: #111827;
-  --sidebar-text: #f9fafb;
-  --sidebar-active: #1f2937;
+  --sidebar-bg: #111827; /* same as patient */
+  --sidebar-text: #e5e7eb; /* same as patient */
+  --sidebar-active: rgba(59, 130, 246, 0.18); /* same as patient */
   --radius: 12px;
   --shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
   font-family: "Segoe UI", "Prompt", system-ui, sans-serif;
@@ -29,7 +29,7 @@ body {
 
 .layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 240px 1fr; /* match patient/dashboard sidebar width */
   min-height: 100vh;
 }
 
@@ -77,22 +77,24 @@ body {
 }
 
 .main-content {
-  padding: 40px clamp(24px, 5vw, 56px);
+  /* Match patient page spacing for consistent header position */
+  padding: 32px 40px 64px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
 }
 
 .page-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center; /* center vertically like patient */
   justify-content: space-between;
   gap: 16px;
 }
 
 .page-header h1 {
-  margin: 0 0 8px;
-  font-size: clamp(1.75rem, 2.5vw, 2.2rem);
+  margin: 0; /* same as patient */
+  font-size: 24px; /* match patient heading size */
+  font-weight: 600;
 }
 
 .page-header p {
@@ -109,8 +111,26 @@ body {
 .header-buttons {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px; /* match patient */
   margin-left: auto;
+}
+
+/* Header controls parity with patient page */
+.page-header .icon-btn,
+.page-header .lang-btn,
+.page-header .dropbtn {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--color-text);
+  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
+}
+
+.page-header .dropbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .card {
@@ -152,7 +172,7 @@ body {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   font-size: 0.95rem;
-  background: #f9fafb;
+  background: #ffffff; /* match patient inputs/search */
   transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -398,139 +418,48 @@ tbody tr:hover {
   display: block;
 }
 
-body.dark-theme {
-  background: #0f172a;
-  color: #e2e8f0;
+/* =============================
+   Admin page - Dark mode (body.dark)
+   Concise rules; uses admin variables
+   ============================= */
+body.dark {
+  /* Map admin variables to patient dark palette */
+  --color-bg: #1e1e2f;
+  --color-surface: #2f2f40;
+  --color-border: #3b3b4a;
+  --color-text: #ecf0f1;
+  --color-muted: #cbd5e1;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
-body.dark-theme .sidebar {
-  background: #0b1220;
-  color: #e2e8f0;
+body.dark .main-content {
+  background: linear-gradient(165deg, #1e1e2f 0%, #252538 45%, #2a2a3e 100%);
 }
 
-body.dark-theme .nav-item {
-  color: #cbd5f5;
+body.dark .card {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
-body.dark-theme .nav-item:hover {
-  background: rgba(148, 163, 226, 0.12);
+/* Inputs/selects/textarea inner color in dark mode */
+body.dark :is(input:not([type="checkbox"]), select, textarea) {
+  background: #3b3b4a;
+  border-color: var(--color-border);
+  color: var(--color-text);
+  caret-color: var(--color-text);
 }
 
-body.dark-theme .nav-item.active {
-  background: rgba(79, 70, 229, 0.35);
-  box-shadow: inset 0 0 0 1px rgba(129, 140, 248, 0.4);
+body.dark :is(input:not([type="checkbox"]), select, textarea):focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  outline: none;
 }
 
-body.dark-theme .main-content {
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.78), rgba(15, 23, 42, 0.94));
-}
-
-body.dark-theme .card {
-  background: #17213a;
-  color: #e2e8f0;
-  box-shadow: 0 18px 36px rgba(2, 6, 23, 0.55);
-}
-
-body.dark-theme .page-title h1,
-body.dark-theme .page-title p,
-body.dark-theme .card h2 {
-  color: #f8fafc;
-}
-
-body.dark-theme .form-field label {
-  color: #94a3b8;
-}
-
-body.dark-theme .form-field input,
-body.dark-theme .form-field select {
-  background: #0f172a;
-  border-color: #23324d;
-  color: #e2e8f0;
-}
-
-body.dark-theme .form-field input:focus,
-body.dark-theme .form-field select:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
-}
-
-body.dark-theme .btn {
-  background: #1f2937;
-  color: #e2e8f0;
-  border-color: #334155;
-}
-
-body.dark-theme .btn.primary {
-  background: linear-gradient(135deg, #4c6ef5, #5b21b6);
-  border-color: transparent;
-}
-
-body.dark-theme .btn.primary:hover {
-  background: linear-gradient(135deg, #6366f1, #7c3aed);
-}
-
-body.dark-theme .btn.logout {
-  background: linear-gradient(135deg, #fb7185, #f97316);
-  border-color: transparent;
-}
-
-body.dark-theme table {
-  color: #e2e8f0;
-}
-
-body.dark-theme thead th {
-  color: #94a3b8;
-  border-bottom-color: rgba(148, 163, 184, 0.2);
-}
-
-body.dark-theme tbody tr {
-  border-bottom-color: rgba(148, 163, 184, 0.1);
-}
-
-body.dark-theme tbody tr:hover {
-  background: rgba(51, 65, 85, 0.35);
-}
-
-body.dark-theme .table-action.edit {
-  background: rgba(99, 102, 241, 0.15);
-  border-color: rgba(99, 102, 241, 0.35);
-  color: #c7d2fe;
-}
-
-body.dark-theme .table-action.delete {
-  background: rgba(248, 113, 113, 0.12);
-  border-color: rgba(248, 113, 113, 0.25);
-  color: #fecaca;
-}
-
-body.dark-theme .icon-btn,
-body.dark-theme .lang-btn,
-body.dark-theme .dropbtn {
-  background: linear-gradient(135deg, #1f2937, #111827);
-  color: #e2e8f0;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.6);
-}
-
-body.dark-theme .dropdown-content {
-  background: #111c33;
-  box-shadow: 0 18px 36px rgba(2, 6, 23, 0.55);
-}
-
-body.dark-theme .dropdown-content a {
-  color: #cbd5f5;
-}
-
-body.dark-theme .dropdown-content a:hover {
-  background: rgba(79, 70, 229, 0.25);
-  color: #f8fafc;
-}
-
-body.dark-theme .form-message.success {
-  color: #86efac;
-}
-
-body.dark-theme .form-message.error {
-  color: #fca5a5;
+body.dark :is(input, textarea)::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
 }
 
 @media (max-width: 1024px) {
@@ -611,21 +540,7 @@ body.dark-theme .form-message.error {
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
 }
 
-body.dark-theme .icon-btn,
-body.dark-theme .lang-btn,
-body.dark-theme .dropbtn {
-  color: #e2e8f0;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  box-shadow: 0 10px 26px rgba(2, 6, 23, 0.45);
-}
-
-body.dark-theme .icon-btn:hover,
-body.dark-theme .lang-btn:hover,
-body.dark-theme .dropbtn:hover {
-  border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 14px 34px rgba(79, 70, 229, 0.35);
-}
+/* (legacy .dark-theme button rules removed) */
 
 /* Settings Popup */
 .popup {
@@ -742,17 +657,4 @@ body.dark-theme .dropbtn:hover {
   background: #d1d5db;
 }
 
-body.dark-theme .popup-content {
-  background: #1e293b;
-}
-
-body.dark-theme .popup-header,
-body.dark-theme .popup-footer {
-  border-color: rgba(148, 163, 184, 0.2);
-}
-
-body.dark-theme .setting-item select {
-  background: #0f172a;
-  color: #e2e8f0;
-  border-color: rgba(148, 163, 184, 0.2);
-}
+/* (legacy .dark-theme popup rules removed) */
