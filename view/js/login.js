@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('🔍 Checking for existing user session...');
   
   // Force reset form state first - ensure everything is enabled
-  btn.disabled = enable;
+  btn.disabled = false;
   elements.usernameInput.disabled = false;
   elements.passwordInput.disabled = false;
   elements.usernameInput.value = '';
