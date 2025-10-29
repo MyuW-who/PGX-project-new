@@ -1,9 +1,7 @@
 /* ========================
-   🔹 Theme & Language Toggle
+   🔹Language Toggle
 ======================== */
-document.getElementById("themeToggle").addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-});
+
 
 const langToggle = document.getElementById("langToggle");
 langToggle.addEventListener("click", () => {

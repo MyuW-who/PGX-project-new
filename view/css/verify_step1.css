@@ -6,10 +6,7 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
-body.dark {
-  background: #0f172a;
-  color: #e2e8f0;
-}
+
 
 /* Navbar (สวยงาม + icon เรียงดี) */
 .navbar {
@@ -68,27 +65,7 @@ body.dark {
   box-shadow: 0 16px 36px rgba(5, 11, 26, 0.4);
 }
 
-body.dark .navbar {
-  background: linear-gradient(135deg, #020617, #0f172a);
-  color: #edf2ff;
-  border-bottom-color: rgba(59, 130, 246, 0.18);
-  box-shadow: 0 18px 42px rgba(2, 6, 23, 0.55);
-}
 
-body.dark .nav-right button,
-body.dark .nav-right .user-icon {
-  background: rgba(15, 23, 42, 0.7);
-  color: #edf2ff;
-  border-color: rgba(148, 163, 184, 0.28);
-  box-shadow: 0 14px 34px rgba(2, 6, 23, 0.6);
-}
-
-body.dark .nav-right button:hover,
-body.dark .nav-right .user-icon:hover {
-  background: rgba(99, 102, 241, 0.35);
-  border-color: rgba(129, 140, 248, 0.55);
-  box-shadow: 0 18px 44px rgba(79, 70, 229, 0.45);
-}
 
 .steps {
   display: flex;
@@ -152,10 +129,7 @@ body.dark .nav-right .user-icon:hover {
   margin-bottom: 1.4rem;
 }
 
-body.dark .patient-box {
-  background: rgba(15, 23, 42, 0.85);
-  border-color: rgba(148, 163, 184, 0.2);
-}
+
 
 .patient-box table {
   width: 100%;
@@ -215,19 +189,8 @@ body.dark .patient-box {
   background-size: 0.9rem;
 }
 
-/* Dark Mode */
-body.dark .dna-section label {
-  color: #90e0ef;
-}
-body.dark .dna-section select {
-  background: #1e293b;
-  color: #e2e8f0;
-  border-color: rgba(148, 163, 184, 0.3);
-}
-body.dark .dna-section select:focus {
-  border-color: #48cae4;
-  box-shadow: 0 0 5px rgba(72, 202, 228, 0.3);
-}
+
+
 
 .btn-area {
   display: flex;
@@ -269,12 +232,4 @@ body.dark .dna-section select:focus {
   box-shadow: 0 16px 32px rgba(37, 99, 235, 0.32);
 }
 
-body.dark .back-btn {
-  background: rgba(15, 23, 42, 0.85);
-  color: #e2e8f0;
-  border-color: rgba(148, 163, 184, 0.3);
-}
 
-body.dark .next-btn {
-  background: linear-gradient(135deg, #4c6ef5, #2563eb);
-}
