@@ -19,14 +19,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 /* ========= Elements & Events ========= */
 
-document.getElementById('dashboard-btn')?.addEventListener('click', () => {
-  window.electronAPI?.navigate('dashboard1');
-});
 
-const dashboard_btn = document.getElementById('patient-btn');
-dashboard_btn?.addEventListener('click', () => {
-  window.electronAPI.navigate('patient');
-});
 
 document.getElementById('searchInput')?.addEventListener('input', async e => {
   const kw = e.target.value.trim();
