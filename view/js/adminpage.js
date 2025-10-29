@@ -1,67 +1,41 @@
-const userForm = document.getElementById("user-form");
-const userTableBody = document.querySelector("#user-table tbody");
-const formMessage = document.getElementById("form-message");
-const logoutBtn = document.getElementById("logout");
-const togglePasswordButtons = document.querySelectorAll(".toggle-password");
-const themeToggle = document.getElementById("themeToggle");
-const langToggle = document.getElementById("langToggle");
-const dropdownBtn = document.getElementById("dropdownBtn");
-const dropdownMenu = document.getElementById("dropdownMenu");
+/* ============================================
+   👥 ADMIN PAGE - USER MANAGEMENT
+   ============================================ */
+
+let userForm;
+let userTableBody;
+let formMessage;
+let logoutBtn;
+let togglePasswordButtons;
+let themeToggle;
+let langToggle;
+let dropdownBtn;
+let dropdownMenu;
 
 // Modal elements
-const editModal = document.getElementById("editModal");
-const editForm = document.getElementById("edit-user-form");
-const editFormMessage = document.getElementById("edit-form-message");
-const closeModalBtn = document.getElementById("closeModal");
-const cancelEditBtn = document.getElementById("cancelEdit");
+let editModal;
+let editForm;
+let editFormMessage;
+let closeModalBtn;
+let cancelEditBtn;
 
 let users = [];
 let isEditing = false;
 let editingUserId = null;
 
 /* ============================================
-   🔐 SESSION MANAGEMENT FUNCTIONS
+   � USER FORM FUNCTIONS
    ============================================ */
 
-// Get current user from session
-function getCurrentUser() {
-  try {
-    const sessionData = sessionStorage.getItem('currentUser');
-    return sessionData ? JSON.parse(sessionData) : null;
-  } catch (error) {
-    console.error('❌ Error reading current user:', error);
-    return null;
-  }
+function clearFormMessage() {
+  formMessage.textContent = "";
+  formMessage.className = "form-message";
 }
 
-// Check authentication and redirect if not logged in
-function checkAuthentication() {
-  const currentUser = getCurrentUser();
-  if (!currentUser) {
-    console.log('🚫 No authenticated user found, redirecting to login...');
-    window.electronAPI.navigate('login');
-    return false;
-  }
-  return true;
-}
-
-// Update user display in header
-function updateUserDisplay() {
-  const currentUser = getCurrentUser();
-  if (currentUser) {
-    // Update dropdown button with user info
-    const dropdownBtn = document.getElementById('dropdownBtn');
-    if (dropdownBtn) {
-      dropdownBtn.innerHTML = `
-        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
-      `;
-    }
-    
-    // Log hospital info if available
-    if (currentUser.hospital_id) {
-      console.log('🏥 Hospital:', currentUser.hospital_id);
-    }
-  }
+function showFormMessage(msg, type = "success") {
+  formMessage.textContent = msg;
+  formMessage.className = `form-message ${type}`;
+  setTimeout(clearFormMessage, 3000);
 }
 
 // Hash password using bcrypt through IPC
@@ -162,252 +136,183 @@ function closeEditModal() {
   resetEditMessage();
 }
 
-// Add new user form submission
-userForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  resetMessage();
+/* ============================================
+   🎯 EVENT LISTENERS INITIALIZATION
+   ============================================ */
 
-  const formData = new FormData(userForm);
-  const userData = {
-    username: formData.get("username").trim(),
-    password: formData.get("password"),
-    hospital_id: parseInt(formData.get("hospital_id").trim(), 10),
-    role: formData.get("role"),
-  };
+function initializeEventListeners() {
+  // Add new user form submission
+  userForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    resetMessage();
 
-  if (!userData.username || !userData.password || !userData.hospital_id || !userData.role) {
-    showMessage("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
-    return;
-  }
-
-  if (userExists(userData.username)) {
-    showMessage("มี Username นี้อยู่แล้ว", "error");
-    return;
-  }
-
-  try {
-    // Hash password
-    userData.password_hash = await hashPassword(userData.password);
-    delete userData.password;
-
-    const result = await window.electronAPI.createAccount(userData);
-    
-    if (result.success) {
-      showMessage("เพิ่มผู้ใช้งานเรียบร้อยแล้ว");
-      await loadUsers();
-      userForm.reset();
-    } else {
-      throw new Error(result.message);
-    }
-  } catch (error) {
-    console.error('Form submission error:', error);
-    showMessage(error.message || "เกิดข้อผิดพลาดในการดำเนินการ", "error");
-  }
-});
-
-// Edit user form submission
-editForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  resetEditMessage();
-
-  const userId = document.getElementById('edit-user-id').value;
-  const password = document.getElementById('edit-password').value;
-  const hospital_id = parseInt(document.getElementById('edit-hospital-id').value, 10);
-  const role = document.getElementById('edit-role').value;
-
-  if (!hospital_id || !role) {
-    showEditMessage("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
-    return;
-  }
-
-  try {
+    const formData = new FormData(userForm);
     const userData = {
-      user_id: userId,
-      hospital_id: hospital_id,
-      role: role
+      username: formData.get("username").trim(),
+      password: formData.get("password"),
+      hospital_id: parseInt(formData.get("hospital_id").trim(), 10),
+      role: formData.get("role"),
     };
 
-    // If password is provided, hash it
-    if (password && password.trim()) {
-      userData.password_hash = await hashPassword(password);
+    if (!userData.username || !userData.password || !userData.hospital_id || !userData.role) {
+      showMessage("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
+      return;
     }
 
-    const result = await window.electronAPI.updateAccount(userData);
-    
-    if (result.success) {
-      showEditMessage("อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว", "success");
-      await loadUsers();
+    if (userExists(userData.username)) {
+      showMessage("มี Username นี้อยู่แล้ว", "error");
+      return;
+    }
+
+    try {
+      // Hash password
+      userData.password_hash = await hashPassword(userData.password);
+      delete userData.password;
+
+      const result = await window.electronAPI.createAccount(userData);
       
-      // Close modal after 1 second
-      setTimeout(() => {
-        closeEditModal();
-      }, 1000);
-    } else {
-      throw new Error(result.message);
+      if (result.success) {
+        showMessage("เพิ่มผู้ใช้งานเรียบร้อยแล้ว");
+        await loadUsers();
+        userForm.reset();
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      showMessage(error.message || "เกิดข้อผิดพลาดในการดำเนินการ", "error");
     }
-  } catch (error) {
-    console.error('Edit form submission error:', error);
-    showEditMessage(error.message || "เกิดข้อผิดพลาดในการอัปเดต", "error");
-  }
-});
+  });
 
-// Modal event listeners
-closeModalBtn.addEventListener('click', closeEditModal);
-cancelEditBtn.addEventListener('click', closeEditModal);
+  // Edit user form submission
+  editForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    resetEditMessage();
 
-// Close modal when clicking outside
-editModal.addEventListener('click', (e) => {
-  if (e.target === editModal) {
-    closeEditModal();
-  }
-});
+    const userId = document.getElementById('edit-user-id').value;
+    const password = document.getElementById('edit-password').value;
+    const hospital_id = parseInt(document.getElementById('edit-hospital-id').value, 10);
+    const role = document.getElementById('edit-role').value;
 
-// Table row click handler
-userTableBody.addEventListener("click", async (event) => {
-  const target = event.target;
-  const action = target.dataset.action;
-  const userId = target.dataset.id;
-
-  if (!action || !userId) return;
-
-  if (action === 'edit') {
-    const user = users.find(u => u.user_id === parseInt(userId));
-    if (user) {
-      openEditModal(user);
+    if (!hospital_id || !role) {
+      showEditMessage("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
+      return;
     }
-  } else if (action === 'delete') {
-    if (confirm('คุณต้องการลบผู้ใช้งานนี้ใช่หรือไม่?')) {
-      try {
-        const result = await window.electron.invoke('delete-account', userId);
-        if (result.success) {
-          await loadUsers();
-          showMessage(result.message);
-        } else {
-          showMessage(result.message, 'error');
+
+    try {
+      const userData = {
+        user_id: userId,
+        hospital_id: hospital_id,
+        role: role
+      };
+
+      if (password && password.trim()) {
+        userData.password_hash = await hashPassword(password);
+      }
+
+      const result = await window.electronAPI.updateAccount(userData);
+      
+      if (result.success) {
+        showEditMessage("แก้ไขผู้ใช้งานเรียบร้อยแล้ว");
+        await loadUsers();
+        setTimeout(() => {
+          closeEditModal();
+        }, 1500);
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.error('Edit form error:', error);
+      showEditMessage(error.message || "เกิดข้อผิดพลาดในการดำเนินการ", "error");
+    }
+  });
+
+  // Modal event listeners
+  closeModalBtn.addEventListener('click', closeEditModal);
+  cancelEditBtn.addEventListener('click', closeEditModal);
+
+  // Close modal when clicking outside
+  editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) {
+      closeEditModal();
+    }
+  });
+
+  // Table row click handler
+  userTableBody.addEventListener("click", async (event) => {
+    const target = event.target;
+    const action = target.dataset.action;
+    const userId = target.dataset.id;
+
+    if (!action || !userId) return;
+
+    if (action === 'edit') {
+      const user = users.find(u => u.user_id === parseInt(userId));
+      if (user) {
+        openEditModal(user);
+      }
+    } else if (action === 'delete') {
+      if (confirm('คุณต้องการลบผู้ใช้งานนี้ใช่หรือไม่?')) {
+        try {
+          const result = await window.electron.invoke('delete-account', userId);
+          if (result.success) {
+            await loadUsers();
+            showMessage(result.message);
+          } else {
+            showMessage(result.message, 'error');
+          }
+        } catch (error) {
+          showMessage('เกิดข้อผิดพลาดในการลบข้อมูล', 'error');
         }
-      } catch (error) {
-        showMessage('เกิดข้อผิดพลาดในการลบข้อมูล', 'error');
       }
     }
-  }
-});
-
-togglePasswordButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const input = document.getElementById(button.dataset.target);
-    if (!input) return;
-    const willShow = input.type === "password";
-    input.type = willShow ? "text" : "password";
-    button.classList.toggle("is-visible", willShow);
-    button.setAttribute(
-      "aria-label",
-      willShow ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
-    );
   });
-});
 
-logoutBtn?.addEventListener("click", async () => {
-  const confirmLogout = confirm('คุณต้องการออกจากระบบหรือไม่?');
-  if (!confirmLogout) return;
-
-  try {
-    // Clear user session
-    localStorage.removeItem('userSession');
-    sessionStorage.clear();
-    
-    // Navigate to login
-    window.electronAPI.navigate('login');
-  } catch (error) {
-    console.error("Logout error:", error);
-    // Still redirect to login even if there's an error
-    window.electronAPI.navigate('login');
-  }
-});
+  // Toggle password visibility
+  togglePasswordButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const input = document.getElementById(button.dataset.target);
+      if (!input) return;
+      const willShow = input.type === "password";
+      input.type = willShow ? "text" : "password";
+      button.classList.toggle("is-visible", willShow);
+      button.setAttribute(
+        "aria-label",
+        willShow ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
+      );
+    });
+  });
+}
 
 /* ============================================
-   ⚙️ SETTINGS POPUP HANDLERS
+   🔄 PAGE INITIALIZATION
    ============================================ */
-
-const settingsPopup = document.getElementById('settingsPopup');
-const closeSettings = document.getElementById('closeSettings');
-const saveSettings = document.getElementById('saveSettings');
-const cancelSettings = document.getElementById('cancelSettings');
-const settingsBtn = document.getElementById('settingsBtn');
-
-// Open settings popup
-settingsBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  settingsPopup.style.display = 'flex';
-  dropdownMenu?.classList.remove('show');
-});
-
-// Close settings popup
-closeSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
-
-cancelSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
-
-// Save settings
-saveSettings?.addEventListener('click', () => {
-  const language = document.getElementById('languageSetting').value;
-  const theme = document.getElementById('themeSetting').value;
-  const notifications = document.getElementById('notificationsSetting').checked;
-  
-  console.log('Settings saved:', { language, theme, notifications });
-  
-  // Apply theme immediately if changed
-  if (theme === 'dark') {
-    document.body.classList.add('dark-theme');
-  } else {
-    document.body.classList.remove('dark-theme');
-  }
-  
-  settingsPopup.style.display = 'none';
-});
-
-// Close popup when clicking outside
-settingsPopup?.addEventListener('click', (e) => {
-  if (e.target === settingsPopup) {
-    settingsPopup.style.display = 'none';
-  }
-});
-
-/* ============================================
-   🎨 DROPDOWN & THEME HANDLERS
-   ============================================ */
-
-dropdownBtn?.addEventListener("click", (event) => {
-  event.stopPropagation();
-  dropdownMenu?.classList.toggle("show");
-});
-
-dropdownMenu?.addEventListener("click", (event) => {
-  event.stopPropagation();
-});
-
-document.addEventListener("click", () => {
-  dropdownMenu?.classList.remove("show");
-});
-
-themeToggle?.addEventListener("click", () => {
-  document.body.classList.toggle("dark-theme");
-});
-
-langToggle?.addEventListener("click", () => {
-  const current = langToggle.textContent.trim();
-  langToggle.textContent = current === "TH" ? "EN" : "TH";
-});
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', () => {
-  // Check authentication first
-  if (!checkAuthentication()) return;
+  // Initialize DOM elements
+  userForm = document.getElementById("user-form");
+  userTableBody = document.querySelector("#user-table tbody");
+  formMessage = document.getElementById("form-message");
+  logoutBtn = document.getElementById("logout");
+  togglePasswordButtons = document.querySelectorAll(".toggle-password");
+  themeToggle = document.getElementById("themeToggle");
+  langToggle = document.getElementById("langToggle");
+  dropdownBtn = document.getElementById("dropdownBtn");
+  dropdownMenu = document.getElementById("dropdownMenu");
   
-  // Update user display in header
-  updateUserDisplay();
+  // Modal elements
+  editModal = document.getElementById("editModal");
+  editForm = document.getElementById("edit-user-form");
+  editFormMessage = document.getElementById("edit-form-message");
+  closeModalBtn = document.getElementById("closeModal");
+  cancelEditBtn = document.getElementById("cancelEdit");
+  
+  // Initialize user profile (from userProfile.js)
+  if (!initializeUserProfile()) return;
+  
+  // Initialize event listeners
+  initializeEventListeners();
   
   // Load users if authenticated
   loadUsers();
