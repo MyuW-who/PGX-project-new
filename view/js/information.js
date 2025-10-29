@@ -1,6 +1,21 @@
 /* ========= Session & Auth ========= */
 function getCurrentUser() {
-  try { const s = sessionStorage.getItem('currentUser'); return s ? JSON.parse(s) : null; }
+  try { 
+    // Try sessionStorage first (current tab)
+    let s = sessionStorage.getItem('currentUser');
+    if (s) return JSON.parse(s);
+    
+    // Fallback to localStorage (persistent)
+    s = localStorage.getItem('userSession');
+    if (s) {
+      const userData = JSON.parse(s);
+      // Also store in sessionStorage for this tab
+      sessionStorage.setItem('currentUser', s);
+      return userData;
+    }
+    
+    return null;
+  }
   catch { return null; }
 }
 function checkAuthentication() {
@@ -166,3 +181,77 @@ function showPage(pageName, patientId) {
 document.getElementById('langToggle')?.addEventListener('click', (e) => {
   e.target.textContent = e.target.textContent === 'TH' ? 'EN' : 'TH';
 });
+
+/* --------------------------------------------
+   ⚙️ Settings Popup Handler
+-------------------------------------------- */
+const settingsPopup = document.getElementById('settingsPopup');
+const closeSettings = document.getElementById('closeSettings');
+const saveSettings = document.getElementById('saveSettings');
+const cancelSettings = document.getElementById('cancelSettings');
+const settingsBtn = document.getElementById('settingsBtn');
+
+// Open settings popup
+settingsBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  settingsPopup.style.display = 'flex';
+  dropdownMenu?.classList.remove('show');
+});
+
+// Close settings popup
+closeSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+cancelSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+// Save settings
+saveSettings?.addEventListener('click', () => {
+  const language = document.getElementById('languageSetting').value;
+  const theme = document.getElementById('themeSetting').value;
+  const notifications = document.getElementById('notificationsSetting').checked;
+  
+  localStorage.setItem('appLanguage', language);
+  localStorage.setItem('appTheme', theme);
+  localStorage.setItem('appNotifications', notifications);
+  
+  if (theme === 'dark') {
+    document.body.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+  }
+  
+  alert('Settings saved successfully!');
+  settingsPopup.style.display = 'none';
+});
+
+// Close popup when clicking outside
+settingsPopup?.addEventListener('click', (e) => {
+  if (e.target === settingsPopup) {
+    settingsPopup.style.display = 'none';
+  }
+});
+
+// Load saved settings
+setTimeout(() => {
+  const savedTheme = localStorage.getItem('appTheme');
+  const savedLanguage = localStorage.getItem('appLanguage');
+  const savedNotifications = localStorage.getItem('appNotifications');
+  
+  if (savedTheme && document.getElementById('themeSetting')) {
+    document.getElementById('themeSetting').value = savedTheme;
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark');
+    }
+  }
+  
+  if (savedLanguage && document.getElementById('languageSetting')) {
+    document.getElementById('languageSetting').value = savedLanguage;
+  }
+  
+  if (savedNotifications !== null && document.getElementById('notificationsSetting')) {
+    document.getElementById('notificationsSetting').checked = savedNotifications === 'true';
+  }
+}, 100);

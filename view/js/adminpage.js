@@ -279,6 +279,61 @@ logoutBtn?.addEventListener("click", async () => {
   }
 });
 
+/* ============================================
+   ⚙️ SETTINGS POPUP HANDLERS
+   ============================================ */
+
+const settingsPopup = document.getElementById('settingsPopup');
+const closeSettings = document.getElementById('closeSettings');
+const saveSettings = document.getElementById('saveSettings');
+const cancelSettings = document.getElementById('cancelSettings');
+const settingsBtn = document.getElementById('settingsBtn');
+
+// Open settings popup
+settingsBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  settingsPopup.style.display = 'flex';
+  dropdownMenu?.classList.remove('show');
+});
+
+// Close settings popup
+closeSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+cancelSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+// Save settings
+saveSettings?.addEventListener('click', () => {
+  const language = document.getElementById('languageSetting').value;
+  const theme = document.getElementById('themeSetting').value;
+  const notifications = document.getElementById('notificationsSetting').checked;
+  
+  console.log('Settings saved:', { language, theme, notifications });
+  
+  // Apply theme immediately if changed
+  if (theme === 'dark') {
+    document.body.classList.add('dark-theme');
+  } else {
+    document.body.classList.remove('dark-theme');
+  }
+  
+  settingsPopup.style.display = 'none';
+});
+
+// Close popup when clicking outside
+settingsPopup?.addEventListener('click', (e) => {
+  if (e.target === settingsPopup) {
+    settingsPopup.style.display = 'none';
+  }
+});
+
+/* ============================================
+   🎨 DROPDOWN & THEME HANDLERS
+   ============================================ */
+
 dropdownBtn?.addEventListener("click", (event) => {
   event.stopPropagation();
   dropdownMenu?.classList.toggle("show");

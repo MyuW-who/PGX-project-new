@@ -5,7 +5,18 @@
 ============================================================ */
 let chartInstances = {};
 
-
+/* ============================================================
+   🎯 DOM ELEMENT REFERENCES
+   ------------------------------------------------------------
+   ▶️ Get references to UI elements
+============================================================ */
+const dropdownBtn = document.getElementById("dropdownBtn");
+const dropdownMenu = document.getElementById("dropdownMenu");
+const settingsPopup = document.getElementById('settingsPopup');
+const closeSettings = document.getElementById('closeSettings');
+const saveSettings = document.getElementById('saveSettings');
+const cancelSettings = document.getElementById('cancelSettings');
+const settingsBtn = document.getElementById('settingsBtn');
 
 /* ============================================================
    2️⃣ LANGUAGE TOGGLE (สลับภาษา TH / EN)
@@ -22,28 +33,115 @@ langBtn?.addEventListener("click", () => {
    ------------------------------------------------------------
    ▶️ เปิด/ปิดเมนูผู้ใช้ (Profile / Setting / Logout)
 ============================================================ */
-const dropdownBtn = document.getElementById("dropdownBtn");
-const dropdownMenu = document.getElementById("dropdownMenu");
+// Get current user session
+function getCurrentUser() {
+  try {
+    // Try sessionStorage first (current tab)
+    let sessionData = sessionStorage.getItem('currentUser');
+    if (sessionData) return JSON.parse(sessionData);
+    
+    // Fallback to localStorage (persistent)
+    sessionData = localStorage.getItem('userSession');
+    if (sessionData) {
+      const userData = JSON.parse(sessionData);
+      // Also store in sessionStorage for this tab
+      sessionStorage.setItem('currentUser', sessionData);
+      return userData;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('❌ Error reading current user:', error);
+    return null;
+  }
+}
 
-// 🔹 เปิด/ปิด dropdown เมื่อกดปุ่ม
-dropdownBtn?.addEventListener("click", (e) => {
-  e.stopPropagation(); // ป้องกัน event ปิด dropdown ซ้อนกัน
-  dropdownMenu.classList.toggle("show");
+// Check if user is authenticated
+function checkAuthentication() {
+  const currentUser = getCurrentUser();
+  
+  if (!currentUser) {
+    console.warn('⚠️ No user session found, redirecting to login');
+    window.electronAPI.navigate('login');
+    return false;
+  }
+  
+  console.log('✅ User authenticated:', currentUser.username, currentUser.role);
+  return true;
+}
+
+// Update user display in header
+function updateUserDisplay() {
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    // Update dropdown button with user info
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn) {
+      dropdownBtn.innerHTML = `
+        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
+      `;
+    }
+    
+    // You can also add hospital info if needed
+    if (currentUser.hospital_id) {
+      console.log('🏥 Hospital:', currentUser.hospital_id);
+    }
+  }
+}
+
+
+// -------- Logout ------------
+document.getElementById('logout')?.addEventListener('click', async (e) => {
+  e.preventDefault();
+  
+  const currentUser = getCurrentUser();
+  const username = currentUser ? currentUser.username : 'Unknown';
+  
+  // Confirm logout
+  if (confirm(`คุณต้องการออกจากระบบหรือไม่?\n(${username})`)) {
+    try {
+      // Call logout handler if available
+      if (window.electronAPI.handleLogout) {
+        await window.electronAPI.handleLogout({ username });
+      }
+      
+      // Clear all session data
+      localStorage.removeItem('userSession');
+      localStorage.removeItem('userRole'); // Remove old role storage
+      sessionStorage.clear();
+      
+      console.log('👋 User logged out:', username);
+      
+      // Navigate to login page
+      window.electronAPI.navigate('login');
+      
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      // Still logout even if API call fails
+      sessionStorage.clear();
+      localStorage.removeItem('userSession');
+      window.electronAPI.navigate('login');
+    }
+  }
 });
 
-// 🔹 ปิด dropdown เมื่อคลิกนอกพื้นที่
+/* --------------------------------------------
+   👤 Dropdown Menu Handler
+-------------------------------------------- */
+dropdownBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  dropdownMenu?.classList.toggle("show");
+});
+
 window.addEventListener("click", (e) => {
   if (!e.target.closest(".dropdown")) {
     dropdownMenu?.classList.remove("show");
   }
 });
 
-
-// -------- Logout ------------
-document.getElementById('logout')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  window.electronAPI.navigate('login');
-});
+/* --------------------------------------------
+   🧭 Navigation Buttons
+-------------------------------------------- */
 
 const dashboard_btn = document.getElementById('patient-btn');
 dashboard_btn?.addEventListener('click', () => {
@@ -53,6 +151,49 @@ dashboard_btn?.addEventListener('click', () => {
 const informationBtn = document.getElementById('information-btn');
 informationBtn?.addEventListener('click', () => {
   window.electronAPI.navigate('information');
+});
+
+// Open settings popup
+settingsBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  settingsPopup.style.display = 'flex';
+  dropdownMenu?.classList.remove('show');
+});
+
+// Close settings popup
+closeSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+cancelSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+// Save settings
+saveSettings?.addEventListener('click', () => {
+  const language = document.getElementById('languageSetting').value;
+  const theme = document.getElementById('themeSetting').value;
+  const notifications = document.getElementById('notificationsSetting').checked;
+  
+  localStorage.setItem('appLanguage', language);
+  localStorage.setItem('appTheme', theme);
+  localStorage.setItem('appNotifications', notifications);
+  
+  if (theme === 'dark') {
+    document.body.classList.add('dark');
+  } else {
+    document.body.classList.remove('dark');
+  }
+  
+  alert('Settings saved successfully!');
+  settingsPopup.style.display = 'none';
+});
+
+// Close popup when clicking outside
+settingsPopup?.addEventListener('click', (e) => {
+  if (e.target === settingsPopup) {
+    settingsPopup.style.display = 'none';
+  }
 });
 
 
@@ -532,3 +673,38 @@ if (hasDashboard) {
     });
   }
 }
+
+/* ============================================================
+   🔄 PAGE INITIALIZATION
+   ------------------------------------------------------------
+   ▶️ Initialize page when DOM is loaded
+============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  // Check authentication first
+  if (!checkAuthentication()) {
+    return; // Stop execution if not authenticated
+  }
+  
+  // Update user display
+  updateUserDisplay();
+  
+  // Load saved settings
+  const savedTheme = localStorage.getItem('appTheme');
+  const savedLanguage = localStorage.getItem('appLanguage');
+  const savedNotifications = localStorage.getItem('appNotifications');
+  
+  if (savedTheme && document.getElementById('themeSetting')) {
+    document.getElementById('themeSetting').value = savedTheme;
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark');
+    }
+  }
+  
+  if (savedLanguage && document.getElementById('languageSetting')) {
+    document.getElementById('languageSetting').value = savedLanguage;
+  }
+  
+  if (savedNotifications !== null && document.getElementById('notificationsSetting')) {
+    document.getElementById('notificationsSetting').checked = savedNotifications === 'true';
+  }
+});
