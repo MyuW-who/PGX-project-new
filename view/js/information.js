@@ -1,35 +1,12 @@
-/* ========= Session & Auth ========= */
-function getCurrentUser() {
-  try { 
-    // Try sessionStorage first (current tab)
-    let s = sessionStorage.getItem('currentUser');
-    if (s) return JSON.parse(s);
-    
-    // Fallback to localStorage (persistent)
-    s = localStorage.getItem('userSession');
-    if (s) {
-      const userData = JSON.parse(s);
-      // Also store in sessionStorage for this tab
-      sessionStorage.setItem('currentUser', s);
-      return userData;
-    }
-    
-    return null;
-  }
-  catch { return null; }
-}
-function checkAuthentication() {
-  const u = getCurrentUser();
-  if (!u) { window.electronAPI?.navigate('login'); return false; }
-  const dropdownBtn = document.getElementById('dropdownBtn');
-  if (dropdownBtn) dropdownBtn.innerHTML =
-    `<i class="fa fa-user-circle"></i> ${u.username} (${u.role}) <i class="fa fa-caret-down"></i>`;
-  return true;
-}
+/* ============================================
+   📊 INFORMATION PAGE - PATIENT TRACKING
+   ============================================ */
 
 /* ========= Bootstrap ========= */
 window.addEventListener('DOMContentLoaded', async () => {
-  if (!checkAuthentication()) return;
+  // Initialize user profile (from userProfile.js)
+  if (!initializeUserProfile()) return;
+  
   try {
     const patients = await window.electronAPI.getPatients();
     renderPatients(patients);
@@ -41,16 +18,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* ========= Elements & Events ========= */
-const dropdownBtn = document.getElementById("dropdownBtn");
-const dropdownMenu = document.getElementById("dropdownMenu");
-dropdownBtn?.addEventListener("click", e => { e.stopPropagation(); dropdownMenu.classList.toggle("show"); });
-window.addEventListener("click", e => { if (!e.target.closest(".dropdown")) dropdownMenu?.classList.remove("show"); });
-
-document.getElementById('logout')?.addEventListener('click', async (e) => {
-  e.preventDefault();
-  sessionStorage.clear(); localStorage.removeItem('userSession'); localStorage.removeItem('userRole');
-  window.electronAPI?.navigate('login');
-});
 
 document.getElementById('dashboard-btn')?.addEventListener('click', () => {
   window.electronAPI?.navigate('dashboard1');

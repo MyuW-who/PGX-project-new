@@ -3,76 +3,13 @@
    ============================================ */
 
 /* --------------------------------------------
-   🔐 USER SESSION MANAGEMENT
--------------------------------------------- */
-
-// Get current user session
-function getCurrentUser() {
-  try {
-    // Try sessionStorage first (current tab)
-    let sessionData = sessionStorage.getItem('currentUser');
-    if (sessionData) return JSON.parse(sessionData);
-    
-    // Fallback to localStorage (persistent)
-    sessionData = localStorage.getItem('userSession');
-    if (sessionData) {
-      const userData = JSON.parse(sessionData);
-      // Also store in sessionStorage for this tab
-      sessionStorage.setItem('currentUser', sessionData);
-      return userData;
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('❌ Error reading current user:', error);
-    return null;
-  }
-}
-
-// Check if user is authenticated
-function checkAuthentication() {
-  const currentUser = getCurrentUser();
-  
-  if (!currentUser) {
-    console.warn('⚠️ No user session found, redirecting to login');
-    window.electronAPI.navigate('login');
-    return false;
-  }
-  
-  console.log('✅ User authenticated:', currentUser.username, currentUser.role);
-  return true;
-}
-
-// Update user display in header
-function updateUserDisplay() {
-  const currentUser = getCurrentUser();
-  if (currentUser) {
-    // Update dropdown button with user info
-    const dropdownBtn = document.getElementById('dropdownBtn');
-    if (dropdownBtn) {
-      dropdownBtn.innerHTML = `
-        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
-      `;
-    }
-    
-    // You can also add hospital info if needed
-    if (currentUser.hospital_id) {
-      console.log('🏥 Hospital:', currentUser.hospital_id);
-    }
-  }
-}
-
-/* --------------------------------------------
    ✅ โหลดข้อมูลผู้ป่วยเมื่อหน้าเปิดขึ้น
 -------------------------------------------- */
 window.addEventListener('DOMContentLoaded', async () => {
-  // Check authentication first
-  if (!checkAuthentication()) {
+  // Initialize user profile (from userProfile.js)
+  if (!initializeUserProfile()) {
     return; // Stop execution if not authenticated
   }
-  
-  // Update user display
-  updateUserDisplay();
   
   // Load patients data
   try {
@@ -231,23 +168,6 @@ langBtn?.addEventListener('click', () => {
 });
 
 /* --------------------------------------------
-   👤 Dropdown Menu (Settings / Logout)
--------------------------------------------- */
-const dropdownBtn = document.getElementById("dropdownBtn");
-const dropdownMenu = document.getElementById("dropdownMenu");
-
-dropdownBtn?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  dropdownMenu.classList.toggle("show");
-});
-
-window.addEventListener("click", (e) => {
-  if (!e.target.closest(".dropdown")) {
-    dropdownMenu?.classList.remove("show");
-  }
-});
-
-/* --------------------------------------------
    🧭 Navigation Buttons
 -------------------------------------------- */
 
@@ -262,9 +182,6 @@ informationBtn?.addEventListener('click', () => {
   window.electronAPI.navigate('information');
 });
 
-
-
-
 // ▶️ ปุ่ม Inspect (ทุกปุ่ม)
 function attachInspectButtons() {
   document.querySelectorAll('.inspect-btn').forEach((btn) => {
@@ -273,40 +190,6 @@ function attachInspectButtons() {
     });
   });
 }
-
-document.getElementById('logout').addEventListener('click', async (e) => {
-  e.preventDefault();
-  
-  const currentUser = getCurrentUser();
-  const username = currentUser ? currentUser.username : 'Unknown';
-  
-  // Confirm logout
-  if (confirm(`คุณต้องการออกจากระบบหรือไม่?\n(${username})`)) {
-    try {
-      // Call logout handler if available
-      if (window.electronAPI.handleLogout) {
-        await window.electronAPI.handleLogout({ username });
-      }
-      
-      // Clear all session data
-      localStorage.removeItem('userSession');
-      localStorage.removeItem('userRole'); // Remove old role storage
-      sessionStorage.clear();
-      
-      console.log('👋 User logged out:', username);
-      
-      // Navigate to login page
-      window.electronAPI.navigate('login');
-      
-    } catch (error) {
-      console.error('❌ Logout error:', error);
-      // Still logout even if API call fails
-      sessionStorage.clear();
-      localStorage.removeItem('userSession');
-      window.electronAPI.navigate('login');
-    }
-  }
-});
 
 function showPage(pageName, patientId) {
   // Store patientId in sessionStorage for use in verify_step1.html
