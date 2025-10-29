@@ -124,6 +124,69 @@
     <!-- ...existing code... -->
   </div>
 
+  <!-- Edit User Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>แก้ไขข้อมูลผู้ใช้</h2>
+        <button class="modal-close" id="closeModal">&times;</button>
+      </div>
+      <form id="edit-user-form">
+        <input type="hidden" id="edit-user-id" />
+        
+        <div class="form-field">
+          <label for="edit-username">Username</label>
+          <input id="edit-username" name="username" type="text" required readonly />
+          <small class="field-note">Username ไม่สามารถแก้ไขได้</small>
+        </div>
+
+        <div class="form-field">
+          <label for="edit-password">Password ใหม่ (เว้นว่างหากไม่ต้องการเปลี่ยน)</label>
+          <div class="input-with-button">
+            <input id="edit-password" name="password" type="password" />
+            <button type="button"
+                    class="toggle-password"
+                    data-target="edit-password"
+                    aria-label="แสดงรหัสผ่าน">
+              <svg class="icon icon-eye-open" viewBox="0 0 24 24" fill="none">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"
+                      stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+              </svg>
+              <svg class="icon icon-eye-off" viewBox="0 0 24 24" fill="none">
+                <path d="M3.98 5.51A17.92 17.92 0 0112 5c7 0 11 7 11 7a17.92 17.92 0 01-4.33 5.19"
+                      stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9.53 9.53A3 3 0 0014.47 14.47" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="edit-hospital-id">Hospital ID</label>
+          <input id="edit-hospital-id" name="hospital_id" type="number" required />
+        </div>
+
+        <div class="form-field">
+          <label for="edit-role">Role</label>
+          <select id="edit-role" name="role" required>
+            <option value="">เลือกบทบาท</option>
+            <option value="pharmacist">เภสัชกร</option>
+            <option value="medtech">นักเทคนิคการแพทย์</option>
+          </select>
+        </div>
+
+        <div id="edit-form-message" class="form-message"></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancelEdit">ยกเลิก</button>
+          <button type="submit" class="btn primary">บันทึกการแก้ไข</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="./js/adminpage.js"></script>
 </body>
 </html>

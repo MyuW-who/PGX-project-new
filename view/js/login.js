@@ -61,22 +61,36 @@ const btn = document.getElementById('btn-login');
    🔔 POPUP NOTIFICATION FUNCTIONS
    ============================================ */
 
-// Show popup message
-function showPopup(message, duration = 3000) {
+// Show notification message with type
+function showPopup(message, type = 'error', duration = 3000) {
+  // Remove any existing type classes
+  popup.classList.remove('success', 'error', 'warning');
+  
+  // Add the new type class
+  popup.classList.add(type);
+  
+  // Set the message
   popup.textContent = message;
+  
+  // Show the notification
   popup.classList.remove('hidden');
   popup.classList.add('show');
   
+  // Auto-hide after duration
   setTimeout(() => {
     popup.classList.remove('show');
-    popup.classList.add('hidden');
+    setTimeout(() => {
+      popup.classList.add('hidden');
+    }, 400); // Wait for animation to finish
   }, duration);
 }
 
 // Hide popup
 function hidePopup() {
   popup.classList.remove('show');
-  popup.classList.add('hidden');
+  setTimeout(() => {
+    popup.classList.add('hidden');
+  }, 400);
 }
 
 /* ============================================
@@ -187,7 +201,7 @@ btn.addEventListener('click', async (e) => {
 
   // 🔸 Validation: Empty Fields
   if (!username || !password) {
-    showPopup("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน");
+    showPopup("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน", 'warning');
     return;
   }
 
@@ -199,7 +213,10 @@ btn.addEventListener('click', async (e) => {
     const result = await window.electronAPI.checkLogin(username, password);
 
     if (!result.success) {
-      showPopup(result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+      showPopup(result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
+      // Reset button immediately on failure
+      btn.disabled = false;
+      btn.textContent = 'เข้าสู่ระบบ';
       return;
     }
 
@@ -208,14 +225,18 @@ btn.addEventListener('click', async (e) => {
     
     storeUserSession(userData);
     
-    // Navigate based on role
-    navigateBasedOnRole(userData.role);
+    // Show success notification before navigating
+    showPopup('เข้าสู่ระบบสำเร็จ!', 'success', 1500);
+    
+    // Navigate based on role after a short delay
+    setTimeout(() => {
+      navigateBasedOnRole(userData.role);
+    }, 800);
     
   } catch (error) {
     console.error('❌ Login error:', error);
-    showPopup('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
-  } finally {
-    // Reset button state (only if login failed)
+    showPopup('เกิดข้อผิดพลาดในการเข้าสู่ระบบ', 'error');
+    // Reset button immediately on error
     btn.disabled = false;
     btn.textContent = 'เข้าสู่ระบบ';
   }
@@ -225,9 +246,39 @@ btn.addEventListener('click', async (e) => {
    🔄 AUTO-LOGIN ON PAGE LOAD
    ============================================ */
 
+// Reset form to initial state
+function resetLoginForm() {
+  // Reset button state
+  btn.disabled = false;
+  btn.textContent = 'เข้าสู่ระบบ';
+  
+  // Clear input fields
+  elements.usernameInput.value = '';
+  elements.passwordInput.value = '';
+  
+  // Enable all inputs
+  elements.usernameInput.disabled = false;
+  elements.passwordInput.disabled = false;
+  
+  // Hide any visible popup
+  hidePopup();
+  
+  console.log('🔄 Login form reset to initial state');
+}
+
 // Check for existing session when page loads
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🔍 Checking for existing user session...');
+  
+  // Force reset form state first - ensure everything is enabled
+  btn.disabled = false;
+  elements.usernameInput.disabled = false;
+  elements.passwordInput.disabled = false;
+  elements.usernameInput.value = '';
+  elements.passwordInput.value = '';
+  
+  // Reset form state
+  resetLoginForm();
   
   // Check if URL has ?clear=true parameter to force clear session
   const urlParams = new URLSearchParams(window.location.search);
@@ -244,6 +295,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       document.getElementById('username')?.focus();
     }, 100);
+  }
+});
+
+// Also reset form when page becomes visible (important for navigation back)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    console.log('🔄 Page became visible, ensuring form is enabled...');
+    btn.disabled = false;
+    elements.usernameInput.disabled = false;
+    elements.passwordInput.disabled = false;
   }
 });
 
