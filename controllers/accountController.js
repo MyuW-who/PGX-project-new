@@ -39,10 +39,37 @@ async function createAccount(userData) {
     throw new Error('Username already exists');
   }
 
-  // If username is unique, proceed with creation
+  // Find the lowest available user_id (including gaps from deleted users)
+  const { data: allUsers, error: fetchError } = await supabase
+    .from('system_users')
+    .select('user_id')
+    .order('user_id', { ascending: true });
+
+  if (fetchError) {
+    throw new Error('Error fetching user IDs: ' + fetchError.message);
+  }
+
+  // Find the first gap in user_id sequence or use next available ID
+  let nextUserId = 1;
+  if (allUsers && allUsers.length > 0) {
+    const existingIds = allUsers.map(u => u.user_id).sort((a, b) => a - b);
+    
+    // Find first gap in sequence
+    for (let i = 0; i < existingIds.length; i++) {
+      if (existingIds[i] !== nextUserId) {
+        break; // Found a gap
+      }
+      nextUserId++;
+    }
+  }
+
+  // If username is unique, proceed with creation using the specific user_id
+  console.log('🔢 Attempting to create user with ID:', nextUserId);
+  
   const { data, error } = await supabase
     .from('system_users')
     .insert([{
+      user_id: nextUserId,
       username: userData.username,
       password_hash: userData.password_hash,
       role: userData.role,
@@ -52,9 +79,11 @@ async function createAccount(userData) {
     .single();
 
   if (error) {
+    console.error('❌ Error creating account:', error);
     throw new Error('Error creating account: ' + error.message);
   }
 
+  console.log('✅ Created user with ID:', data.user_id);
   return data;
 }
 
