@@ -1,12 +1,61 @@
 const userForm = document.getElementById("user-form");
 const userTableBody = document.querySelector("#user-table tbody");
 const formMessage = document.getElementById("form-message");
-const logoutBtn = document.getElementById("logout-btn");
+const logoutBtn = document.getElementById("logout"); // Fixed: was "logout-btn", should be "logout"
 const togglePasswordButtons = document.querySelectorAll(".toggle-password");
+const themeToggle = document.getElementById("themeToggle");
+const langToggle = document.getElementById("langToggle");
+const dropdownBtn = document.getElementById("dropdownBtn");
+const dropdownMenu = document.getElementById("dropdownMenu");
 
 let users = [];
 let isEditing = false;
 let editingUserId = null;
+
+/* ============================================
+   🔐 SESSION MANAGEMENT FUNCTIONS
+   ============================================ */
+
+// Get current user from session
+function getCurrentUser() {
+  try {
+    const sessionData = sessionStorage.getItem('currentUser');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading current user:', error);
+    return null;
+  }
+}
+
+// Check authentication and redirect if not logged in
+function checkAuthentication() {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    console.log('🚫 No authenticated user found, redirecting to login...');
+    window.electronAPI.navigate('login');
+    return false;
+  }
+  return true;
+}
+
+// Update user display in header
+function updateUserDisplay() {
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    // Update dropdown button with user info
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn) {
+      dropdownBtn.innerHTML = `
+        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
+      `;
+    }
+    
+    // Log hospital info if available
+    if (currentUser.hospital_id) {
+      console.log('🏥 Hospital:', currentUser.hospital_id);
+    }
+  }
+}
 
 // Hash password using bcrypt through IPC
 async function hashPassword(password) {
@@ -213,17 +262,109 @@ togglePasswordButtons.forEach((button) => {
 });
 
 logoutBtn?.addEventListener("click", async () => {
+  const confirmLogout = confirm('คุณต้องการออกจากระบบหรือไม่?');
+  if (!confirmLogout) return;
+
   try {
-    if (window.electronAPI?.invoke) {
-      await window.electronAPI.invoke("logout");
-    } else if (window.electronAPI?.logout) {
-      await window.electronAPI.logout();
-    }
+    // Clear user session
+    localStorage.removeItem('userSession');
+    sessionStorage.clear();
+    
+    // Navigate to login
+    window.electronAPI.navigate('login');
   } catch (error) {
     console.error("Logout error:", error);
+    // Still redirect to login even if there's an error
+    window.electronAPI.navigate('login');
   }
 });
 
+/* ============================================
+   ⚙️ SETTINGS POPUP HANDLERS
+   ============================================ */
+
+const settingsPopup = document.getElementById('settingsPopup');
+const closeSettings = document.getElementById('closeSettings');
+const saveSettings = document.getElementById('saveSettings');
+const cancelSettings = document.getElementById('cancelSettings');
+const settingsBtn = document.getElementById('settingsBtn');
+
+// Open settings popup
+settingsBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  settingsPopup.style.display = 'flex';
+  dropdownMenu?.classList.remove('show');
+});
+
+// Close settings popup
+closeSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+cancelSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+// Save settings
+saveSettings?.addEventListener('click', () => {
+  const language = document.getElementById('languageSetting').value;
+  const theme = document.getElementById('themeSetting').value;
+  const notifications = document.getElementById('notificationsSetting').checked;
+  
+  console.log('Settings saved:', { language, theme, notifications });
+  
+  // Apply theme immediately if changed
+  if (theme === 'dark') {
+    document.body.classList.add('dark-theme');
+  } else {
+    document.body.classList.remove('dark-theme');
+  }
+  
+  settingsPopup.style.display = 'none';
+});
+
+// Close popup when clicking outside
+settingsPopup?.addEventListener('click', (e) => {
+  if (e.target === settingsPopup) {
+    settingsPopup.style.display = 'none';
+  }
+});
+
+/* ============================================
+   🎨 DROPDOWN & THEME HANDLERS
+   ============================================ */
+
+dropdownBtn?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  dropdownMenu?.classList.toggle("show");
+});
+
+dropdownMenu?.addEventListener("click", (event) => {
+  event.stopPropagation();
+});
+
+document.addEventListener("click", () => {
+  dropdownMenu?.classList.remove("show");
+});
+
+themeToggle?.addEventListener("click", () => {
+  document.body.classList.toggle("dark-theme");
+});
+
+langToggle?.addEventListener("click", () => {
+  const current = langToggle.textContent.trim();
+  langToggle.textContent = current === "TH" ? "EN" : "TH";
+});
+
 // Initialize the page
-loadUsers();
+document.addEventListener('DOMContentLoaded', () => {
+  // Check authentication first
+  if (!checkAuthentication()) return;
+  
+  // Update user display in header
+  updateUserDisplay();
+  
+  // Load users if authenticated
+  loadUsers();
+});
 

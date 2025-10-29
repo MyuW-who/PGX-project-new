@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Page</title>
   <link rel="stylesheet" href="./css/adminpage.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
   <div class="layout">
@@ -24,14 +25,33 @@
           <span>Admin Page</span>
         </a>
       </nav>
-      <button type="button" id="logout-btn" class="btn logout logout-btn">ออกจากระบบ</button>
     </aside>
 
     <!-- ...existing code... -->
     <main class="main-content">
       <header class="page-header">
-        <h1>จัดการผู้ใช้งาน</h1>
-        <p>เพิ่มผู้ใช้งานใหม่และจัดการรายชื่อผู้ใช้งานทั้งหมด</p>
+        <div class="page-title">
+          <h1>จัดการผู้ใช้งาน</h1>
+          <p>เพิ่มผู้ใช้งานใหม่และจัดการรายชื่อผู้ใช้งานทั้งหมด</p>
+        </div>
+        <div class="header-buttons">
+          <button id="themeToggle" class="icon-btn" title="เปลี่ยนธีม">
+            <i class="fa fa-moon"></i>
+          </button>
+          <button id="langToggle" class="lang-btn" title="สลับภาษา">TH</button>
+          <div class="dropdown">
+            <button class="dropbtn" id="dropdownBtn">
+              <i class="fa fa-user-circle"></i>
+              Admin
+              <i class="fa fa-caret-down"></i>
+            </button>
+            <div id="dropdownMenu" class="dropdown-content">
+              <a href="#" id="settingsBtn">Settings</a>
+              <a href="#">About</a>
+              <a href="#" id="logout">Logout</a>
+            </div>
+          </div>
+        </div>
       </header>
 
       <section class="card">
@@ -101,9 +121,44 @@
         </div>
       </section>
     </main>
-    <!-- ...existing code... -->
+
+    <!-- Settings Popup -->
+    <div id="settingsPopup" class="popup" style="display: none;">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h3>Settings</h3>
+          <span class="close" id="closeSettings">&times;</span>
+        </div>
+        <div class="popup-body">
+          <div class="setting-item">
+            <label>Language:</label>
+            <select id="languageSetting">
+              <option value="th">ไทย (Thai)</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Theme:</label>
+            <select id="themeSetting">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Notifications:</label>
+            <input type="checkbox" id="notificationsSetting" checked>
+          </div>
+        </div>
+        <div class="popup-footer">
+          <button class="btn-primary" id="saveSettings">Save</button>
+          <button class="btn-secondary" id="cancelSettings">Cancel</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
+  <script src="./js/userProfile.js"></script>
   <script src="./js/adminpage.js"></script>
 </body>
 </html>

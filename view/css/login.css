@@ -1,3 +1,4 @@
+/* ===== GLOBAL ===== */
 * {
   margin: 0;
   padding: 0;
@@ -6,112 +7,238 @@
 }
 
 body {
-  background: linear-gradient(135deg, #8866e1, #5e72e4);
+  background: #f7f8fa;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.container {
-  width: 350px;
+/* ===== Layout ===== */
+.login-container {
+  width: 950px;
+  height: 560px;
+  display: flex;
   background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  padding: 25px;
-  text-align: center;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  overflow: hidden;
 }
 
-.language-toggle {
+/* ===== Left Panel ===== */
+.left-panel {
+  width: 45%;
+  background: linear-gradient(180deg, #efefef, #fafafa);
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 50px 30px;
+}
+
+.left-logo {
+  width: 100px;
+  margin-bottom: 30px;
+}
+
+.left-panel h1 {
+  font-size: 32px;
+  color: #111;
+  font-weight: 600;
   margin-bottom: 10px;
 }
 
+.left-panel p {
+  color: #555;
+  font-size: 15px;
+}
+
+/* ===== Right Panel ===== */
+.right-panel {
+  width: 55%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 50px 60px;
+  position: relative;
+}
+
+/* ===== Language Toggle ===== */
+.language-toggle {
+  position: absolute;
+  top: 25px;
+  right: 30px;
+}
+
 .language-toggle button {
-  border: none;
-  background: transparent;
-  font-weight: bold;
-  margin-left: 5px;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-weight: 500;
+  color: #333;
   cursor: pointer;
-  padding: 5px 10px;
+  padding: 5px 12px;
   border-radius: 8px;
+  transition: 0.2s;
 }
 
 .language-toggle button.active {
-  background: #8866e1;
-  color: white;
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.language-toggle button:hover {
+  background: #f0f0f0;
+}
+
+/* ===== Login Form ===== */
+.login-box {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
 }
 
 .login-box h2 {
-  margin-bottom: 20px;
-  color: #2d3436;
-}
-
-.login-box form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.login-box input {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #b2bec3;
-  outline: none;
-}
-#popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  padding: 20px 40px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-  z-index: 9999;
-}
-.hidden {
-  display: none;
-}
-
-.login-box button {
-  background: #8866e1;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.login-box button:hover {
-  background: #8866e1;
+  color: #111;
+  font-weight: 600;
+  margin-bottom: 25px;
+  text-align: center;
 }
 
 .login-box form {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  align-items: flex-start; /* 🔹 ให้ label ชิดซ้าย */
-  text-align: left;        /* 🔹 จัดข้อความทั้งหมดชิดซ้าย */
 }
 
 .login-box label {
+  font-size: 14px;
+  color: #1c1c1e;
   font-weight: 500;
-  margin-bottom: 3px;
 }
 
 .login-box input {
-  width: 100%;             /* 🔹 ให้ช่องกรอกเต็มความกว้าง box */
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #b2bec3;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
   outline: none;
+  font-size: 14px;
+  color: #1c1c1e;
+  background: #fff;
+  transition: 0.3s;
 }
 
-.logo {
-  width: 80px;          /* ขนาดโลโก้ */
-  height: auto;
-  margin-bottom: 20px;  /* เว้นระยะจากฟอร์ม */
+.login-box input:focus {
+  border-color: #000;
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
+}
+
+/* ===== Button ===== */
+.login-box button {
+  background: linear-gradient(90deg, #000, #333);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  margin-top: 10px;
+  transition: 0.3s ease;
+}
+
+.login-box button:hover {
+  background: linear-gradient(90deg, #222, #555);
+  transform: scale(1.02);
+}
+
+/* ===== Popup ===== */
+/* ===== Notification Toast (Top Right) ===== */
+#popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  transform: translateX(400px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  min-width: 280px;
+  max-width: 400px;
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#popup::before {
+  content: '⚠️';
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+#popup.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+#popup.success {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+#popup.success::before {
+  content: '✅';
+}
+
+#popup.error {
+  background: linear-gradient(135deg, #9c0a0a 0%, #9c0a0a 100%);
+}
+
+#popup.error::before {
+  content: '❌';
+}
+
+#popup.warning {
+  background: linear-gradient(135deg, #f57600 0%, #ff9900 100%);
+}
+
+#popup.warning::before {
+  content: '⚠️';
+}
+
+.hidden {
+  display: none;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  #popup {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+    max-width: none;
+    transform: translateY(-100px);
+  }
+  
+  #popup.show {
+    transform: translateY(0);
+  }
+  
+  .login-container {
+    flex-direction: column;
+    height: auto;
+    width: 90%;
+  }
+  .left-panel, .right-panel {
+    width: 100%;
+    padding: 30px;
+  }
 }

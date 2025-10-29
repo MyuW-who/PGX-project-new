@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const supabase = require('./supabase');
 const { handleLogin } = require('./controllers/loginController');
 const { generatePDF } = require('./controllers/pdfController');
-const { fetchPatients, addPatient, searchPatientById } = require('./controllers/add_patient_controller');
+const { fetchPatients, addPatient, searchPatientById, getPatientById, updatePatient, deletePatient } = require('./controllers/add_patient_Controller');
 const { 
   fetchAccountDetails, 
   fetchAllAccounts, 
@@ -28,6 +28,7 @@ function createWindow() {
       contextIsolation: true,
     },
     autoHideMenuBar: true,
+    fullscreen: true,
   });
 
   // เริ่มต้นที่หน้า login
@@ -72,6 +73,39 @@ ipcMain.handle('search-patient', async (event, patientId) => {
   } catch (err) {
     console.error('❌ Search Error:', err.message);
     return [];
+  }
+});
+
+// 👤 Patient CRUD - get by id
+ipcMain.handle('get-patient-by-id', async (event, patientId) => {
+  try {
+    return await getPatientById(patientId);
+  } catch (err) {
+    console.error('❌ Get Patient Error:', err.message);
+    return null;
+  }
+});
+
+// 👤 Patient CRUD - update
+ipcMain.handle('update-patient', async (event, payload) => {
+  try {
+    const { patientId, data } = payload || {};
+    const result = await updatePatient(patientId, data);
+    return { success: true, data: result, message: 'อัปเดตข้อมูลสำเร็จ!' };
+  } catch (err) {
+    console.error('❌ Update Patient Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการอัปเดตข้อมูลผู้ป่วย' };
+  }
+});
+
+// 👤 Patient CRUD - delete
+ipcMain.handle('delete-patient', async (event, patientId) => {
+  try {
+    const ok = await deletePatient(patientId);
+    return { success: ok, message: ok ? 'ลบข้อมูลสำเร็จ!' : 'ไม่สามารถลบข้อมูลได้' };
+  } catch (err) {
+    console.error('❌ Delete Patient Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการลบข้อมูลผู้ป่วย' };
   }
 });
 

@@ -1,13 +1,22 @@
 // preload.js
 const { contextBridge, ipcRenderer } = require('electron');
 
+contextBridge.exposeInMainWorld('api', {
+  checkLogin: (creds) => ipcRenderer.invoke('check-login', creds),
+  getCurrentUser: () => ipcRenderer.invoke('get-current-user'),
+  logout: () => ipcRenderer.invoke('logout'),
+});
+
 contextBridge.exposeInMainWorld('electronAPI', {
   navigate: (page) => ipcRenderer.send('navigate', page),
-  checkLogin: (username, password) => ipcRenderer.invoke('check-login', { username, password }),
+  checkLogin: (creds) => ipcRenderer.invoke('check-login', creds),
   invoke: (channel, data) => ipcRenderer.invoke(channel, data),
   getPatients: () => ipcRenderer.invoke('get-patients'),
   addPatient: (data) => ipcRenderer.invoke('add-patient', data),
   searchPatient: (id) => ipcRenderer.invoke('search-patient', id),
+  getPatientById: (id) => ipcRenderer.invoke('get-patient-by-id', id),
+  updatePatient: (patientId, data) => ipcRenderer.invoke('update-patient', { patientId, data }),
+  deletePatient: (patientId) => ipcRenderer.invoke('delete-patient', patientId),
   fetchAccountDetails: (userId) => ipcRenderer.invoke('fetch-account-details', userId),
   fetchAllAccounts: () => ipcRenderer.invoke('fetch-all-accounts'),
   createAccount: (userData) => ipcRenderer.invoke('create-account', userData),
@@ -15,7 +24,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteAccount: (userId) => ipcRenderer.invoke('delete-account', userId),
   hashPassword: (password) => ipcRenderer.invoke('hash-password', password),
 });
-
 
 try {
   // ถ้า window.electron ไม่มีอยู่ก่อน ให้สร้างใหม่
