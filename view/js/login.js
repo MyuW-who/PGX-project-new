@@ -214,6 +214,9 @@ btn.addEventListener('click', async (e) => {
 
     if (!result.success) {
       showPopup(result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
+      // Reset button immediately on failure
+      btn.disabled = false;
+      btn.textContent = 'เข้าสู่ระบบ';
       return;
     }
 
@@ -233,8 +236,7 @@ btn.addEventListener('click', async (e) => {
   } catch (error) {
     console.error('❌ Login error:', error);
     showPopup('เกิดข้อผิดพลาดในการเข้าสู่ระบบ', 'error');
-  } finally {
-    // Reset button state (only if login failed)
+    // Reset button immediately on error
     btn.disabled = false;
     btn.textContent = 'เข้าสู่ระบบ';
   }
@@ -268,7 +270,14 @@ function resetLoginForm() {
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🔍 Checking for existing user session...');
   
-  // Reset form state first
+  // Force reset form state first - ensure everything is enabled
+  btn.disabled = enable;
+  elements.usernameInput.disabled = false;
+  elements.passwordInput.disabled = false;
+  elements.usernameInput.value = '';
+  elements.passwordInput.value = '';
+  
+  // Reset form state
   resetLoginForm();
   
   // Check if URL has ?clear=true parameter to force clear session
@@ -286,6 +295,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       document.getElementById('username')?.focus();
     }, 100);
+  }
+});
+
+// Also reset form when page becomes visible (important for navigation back)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    console.log('🔄 Page became visible, ensuring form is enabled...');
+    btn.disabled = false;
+    elements.usernameInput.disabled = false;
+    elements.passwordInput.disabled = false;
   }
 });
 
