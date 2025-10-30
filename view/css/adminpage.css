@@ -858,127 +858,132 @@ body.dark-theme .dropbtn:hover {
   box-shadow: 0 14px 34px rgba(79, 70, 229, 0.35);
 }
 
-/* ===== Edit Modal Styles ===== */
-.modal {
-  display: none;
+/* Settings Popup */
+.popup {
   position: fixed;
-  z-index: 10000;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.3s ease;
-}
-
-.modal.show {
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.modal-content {
-  background: var(--color-surface);
-  border-radius: 16px;
-  box-shadow: var(--shadow-lg);
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: slideUp 0.3s ease;
-}
-
-.modal-header {
-  display: flex;
   align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow);
+}
+
+.popup-header {
+  display: flex;
   justify-content: space-between;
-  padding: 24px 32px;
-  border-bottom: 2px solid var(--color-border);
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.modal-header h2 {
+.popup-header h3 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 2rem;
+.close {
+  font-size: 28px;
+  font-weight: bold;
   color: var(--color-muted);
   cursor: pointer;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  line-height: 1;
 }
 
-.modal-close:hover {
-  background: #f1f5f9;
+.close:hover {
   color: var(--color-text);
-  transform: rotate(90deg);
 }
 
-.modal form {
-  padding: 32px;
+.popup-body {
+  padding: 24px;
+}
+
+.setting-item {
+  margin-bottom: 20px;
   display: flex;
-  flex-direction: column;
-  gap: 24px;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.field-note {
-  display: block;
-  margin-top: 6px;
-  font-size: 0.8rem;
-  color: var(--color-muted);
-  font-style: italic;
+.setting-item label {
+  font-weight: 500;
+  color: var(--color-text);
 }
 
-.modal-actions {
+.setting-item select,
+.setting-item input[type="checkbox"] {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.setting-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.popup-footer {
   display: flex;
-  gap: 12px;
   justify-content: flex-end;
-  margin-top: 8px;
-  padding-top: 24px;
+  gap: 12px;
+  padding: 16px 24px;
   border-top: 1px solid var(--color-border);
 }
 
+.btn-primary,
 .btn-secondary {
-  background: #f1f5f9;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn-secondary {
+  background: var(--color-border);
   color: var(--color-text);
-  border: 2px solid var(--color-border);
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #d1d5db;
+}
+
+body.dark-theme .popup-content {
+  background: #1e293b;
+}
+
+body.dark-theme .popup-header,
+body.dark-theme .popup-footer {
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+body.dark-theme .setting-item select {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.2);
 }
