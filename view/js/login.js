@@ -1,3 +1,6 @@
+// ===============================
+// 🌐 Language Data
+// ===============================
 const langData = {
   en: {
     username: "Username",
@@ -15,17 +18,23 @@ const langData = {
   },
 };
 
+// ===============================
+// 🔧 Element References
+// ===============================
 const elements = {
   labelUsername: document.getElementById("label-username"),
   labelPassword: document.getElementById("label-password"),
   usernameInput: document.getElementById("username"),
   passwordInput: document.getElementById("password"),
   btnLogin: document.getElementById("btn-login"),
+  popup: document.getElementById("popup"),
+  btnEn: document.getElementById("lang-en"),
+  btnTh: document.getElementById("lang-th"),
 };
 
-const btnEn = document.getElementById("lang-en");
-const btnTh = document.getElementById("lang-th");
-
+// ===============================
+// 🌐 Language Switcher
+// ===============================
 function setLanguage(lang) {
   const text = langData[lang];
   elements.labelUsername.textContent = text.username;
@@ -34,50 +43,140 @@ function setLanguage(lang) {
   elements.passwordInput.placeholder = text.placeholderPass;
   elements.btnLogin.textContent = text.loginBtn;
 
-  // update button state
-  btnEn.classList.toggle("active", lang === "en");
-  btnTh.classList.toggle("active", lang === "th");
+  elements.btnEn.classList.toggle("active", lang === "en");
+  elements.btnTh.classList.toggle("active", lang === "th");
 }
 
-// default: English
+// Default language = English
 setLanguage("en");
-
-btnEn.addEventListener("click", () => setLanguage("en"));
-btnTh.addEventListener("click", () => setLanguage("th"));
+elements.btnEn.addEventListener("click", () => setLanguage("en"));
+elements.btnTh.addEventListener("click", () => setLanguage("th"));
 
 
 // renderer/login.js
 const popup = document.getElementById('popup');
 const btn = document.getElementById('btn-login');
 
+/* ============================================
+   🔔 POPUP NOTIFICATION FUNCTIONS
+   ============================================ */
 
+// Show notification message with type
+function showPopup(message, type = 'error', duration = 3000) {
+  // Remove any existing type classes
+  popup.classList.remove('success', 'error', 'warning');
+  
+  // Add the new type class
+  popup.classList.add(type);
+  
+  // Set the message
+  popup.textContent = message;
+  
+  // Show the notification
+  popup.classList.remove('hidden');
+  popup.classList.add('show');
+  
+  // Auto-hide after duration
+  setTimeout(() => {
+    popup.classList.remove('show');
+    setTimeout(() => {
+      popup.classList.add('hidden');
+    }, 400); // Wait for animation to finish
+  }, duration);
+}
 
-btn.addEventListener('click', async (e) => {
-  e.preventDefault();
+// Hide popup
+function hidePopup() {
+  popup.classList.remove('show');
+  setTimeout(() => {
+    popup.classList.add('hidden');
+  }, 400);
+}
 
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
+/* ============================================
+   �🔐 SESSION MANAGEMENT FUNCTIONS
+   ============================================ */
 
-  if (!username || !password) {
-    popup.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
-    popup.classList.remove('hidden');
-    setTimeout(() => popup.classList.add('hidden'), 2000);
-    return;
+// Store user session data
+function storeUserSession(userData) {
+  const sessionData = {
+    user_id: userData.user_id,
+    username: userData.username,
+    role: userData.role,
+    hospital_id: userData.hospital_id,
+    loginTime: new Date().toISOString(),
+    sessionId: generateSessionId()
+  };
+  
+  // Store in localStorage for persistence
+  localStorage.setItem('userSession', JSON.stringify(sessionData));
+  
+  // Store in sessionStorage for current tab only
+  sessionStorage.setItem('currentUser', JSON.stringify(sessionData));
+  
+  console.log('✅ User session stored:', sessionData.username, sessionData.role);
+  return sessionData;
+}
+
+// Generate unique session ID
+function generateSessionId() {
+  return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Get stored user session
+function getUserSession() {
+  try {
+    const sessionData = localStorage.getItem('userSession');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading user session:', error);
+    return null;
   }
+}
 
-  const result = await window.electronAPI.checkLogin(username, password);
+// Clear user session
+function clearUserSession() {
+  localStorage.removeItem('userSession');
+  localStorage.removeItem('userRole'); // Remove old role storage
+  sessionStorage.removeItem('currentUser');
+  console.log('🗑️ User session cleared');
+}
 
-  if (!result.success) {
-    popup.textContent = result.message;
-    popup.classList.remove('hidden');
-    setTimeout(() => popup.classList.add('hidden'), 2000);
-    return;
+// Check if user session is valid
+function isSessionValid(sessionData) {
+  if (!sessionData || !sessionData.loginTime) return false;
+  
+  const loginTime = new Date(sessionData.loginTime);
+  const now = new Date();
+  const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
+  
+  // Session expires after 24 hours
+  return hoursSinceLogin < 24;
+}
+
+// Auto-login if valid session exists
+function checkExistingSession() {
+  const sessionData = getUserSession();
+  
+  if (sessionData && isSessionValid(sessionData)) {
+    console.log('🔄 Valid session found, auto-login for:', sessionData.username);
+    
+    // Update session storage
+    sessionStorage.setItem('currentUser', JSON.stringify(sessionData));
+    
+    // Navigate to appropriate dashboard
+    navigateBasedOnRole(sessionData.role);
+    return true;
+  } else if (sessionData) {
+    console.log('⏰ Session expired, clearing...');
+    clearUserSession();
   }
+  
+  return false;
+}
 
-  // ✅ ตรวจสอบ role แล้วเลือกหน้า dashboard
-  const role = result.role;
-  localStorage.setItem('userRole', role);
-
+// Navigate based on user role
+function navigateBasedOnRole(role) {
   if (role === 'medtech') {
     window.electronAPI.navigate('dashboard1'); 
   } else if (role === 'pharmacist') {
@@ -85,9 +184,176 @@ btn.addEventListener('click', async (e) => {
   } else if (role === 'admin') {
     window.electronAPI.navigate('adminpage');
   } else {
+    console.warn('❌ Unknown role:', role);
+    showPopup(`Role "${role}" ไม่มีหน้าที่กำหนด`);
+  }
+}
+
+/* ============================================
+   🚪 LOGIN FORM HANDLER
+   ============================================ */
+
+btn.addEventListener('click', async (e) => {
+  e.preventDefault();
+
+  const username = elements.usernameInput.value.trim();
+  const password = elements.passwordInput.value.trim();
+
+  // 🔸 Validation: Empty Fields
+  if (!username || !password) {
+    showPopup("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน", 'warning');
+    return;
+  }
+
+  // Show loading state
+  btn.disabled = true;
+  btn.textContent = 'กำลังเข้าสู่ระบบ...';
+
+  try {
+    // Pass credentials as an object
+    const result = await window.electronAPI.checkLogin({ username, password });
+
+    if (!result.success) {
+      showPopup(result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
+      // Reset button immediately on failure
+      btn.disabled = false;
+      btn.textContent = 'เข้าสู่ระบบ';
+      return;
+    }
+
+    // ✅ Store complete user session data
+    const userData = result.data || {
+      user_id: result.user_id,
+      username: username,
+      role: result.role,
+      hospital_id: result.hospital_id
+    };
     
-    popup.textContent = `Role "${role}" ไม่มีหน้าที่กำหนด`;
-    popup.classList.remove('hidden');
-    setTimeout(() => popup.classList.add('hidden'), 2000);
+    storeUserSession(userData);
+    
+    // Show success notification before navigating
+    showPopup('เข้าสู่ระบบสำเร็จ!', 'success', 1500);
+    
+    // Navigate based on role after a short delay
+    setTimeout(() => {
+      navigateBasedOnRole(userData.role || result.role);
+    }, 800);
+    
+  } catch (error) {
+    console.error('❌ Login error:', error);
+    showPopup('เกิดข้อผิดพลาดในการเข้าสู่ระบบ', 'error');
+    // Reset button immediately on error
+    btn.disabled = false;
+    btn.textContent = 'เข้าสู่ระบบ';
   }
 });
+
+/* ============================================
+   🔄 AUTO-LOGIN ON PAGE LOAD
+   ============================================ */
+
+// Reset form to initial state
+function resetLoginForm() {
+  // Reset button state
+  btn.disabled = false;
+  btn.textContent = 'เข้าสู่ระบบ';
+  
+  // Clear input fields
+  elements.usernameInput.value = '';
+  elements.passwordInput.value = '';
+  
+  // Enable all inputs
+  elements.usernameInput.disabled = false;
+  elements.passwordInput.disabled = false;
+  
+  // Hide any visible popup
+  hidePopup();
+  
+  console.log('🔄 Login form reset to initial state');
+}
+
+// Check for existing session when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🔍 Checking for existing user session...');
+  
+  // Force reset form state first - ensure everything is enabled
+  btn.disabled = false;
+  elements.usernameInput.disabled = false;
+  elements.passwordInput.disabled = false;
+  elements.usernameInput.value = '';
+  elements.passwordInput.value = '';
+  
+  // Reset form state
+  resetLoginForm();
+  
+  // Check if URL has ?clear=true parameter to force clear session
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('clear') === 'true') {
+    console.log('🗑️ Clearing session as requested...');
+    clearUserSession();
+    // Remove the parameter from URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+  
+  if (!checkExistingSession()) {
+    console.log('👋 No valid session found, showing login form');
+    // Focus on username input for better UX
+    setTimeout(() => {
+      document.getElementById('username')?.focus();
+    }, 100);
+  }
+});
+
+// Also reset form when page becomes visible (important for navigation back)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    console.log('🔄 Page became visible, ensuring form is enabled...');
+    btn.disabled = false;
+    elements.usernameInput.disabled = false;
+    elements.passwordInput.disabled = false;
+  }
+});
+
+// Add keyboard shortcut Ctrl+Shift+L to clear session (for development/testing)
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+    console.log('🗑️ Keyboard shortcut detected - Clearing session...');
+    clearUserSession();
+    alert('Session cleared! Page will reload.');
+    location.reload();
+  }
+});
+
+/* ============================================
+   🔧 UTILITY FUNCTIONS
+   ============================================ */
+
+// Get current user info (for other pages to use)
+function getCurrentUser() {
+  try {
+    const sessionData = sessionStorage.getItem('currentUser');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading current user:', error);
+    return null;
+  }
+}
+
+// Update session data (for profile updates)
+function updateUserSession(updates) {
+  const currentSession = getUserSession();
+  if (currentSession) {
+    const updatedSession = { ...currentSession, ...updates };
+    storeUserSession(updatedSession);
+    return updatedSession;
+  }
+  return null;
+}
+
+// Export functions for use in other modules
+window.userSession = {
+  getCurrentUser,
+  updateUserSession,
+  clearUserSession,
+  storeUserSession
+};

@@ -1,16 +1,68 @@
 const userForm = document.getElementById("user-form");
 const userTableBody = document.querySelector("#user-table tbody");
 const formMessage = document.getElementById("form-message");
-const logoutBtn = document.getElementById("logout-btn");
+const logoutBtn = document.getElementById("logout");
 const togglePasswordButtons = document.querySelectorAll(".toggle-password");
 const themeToggle = document.getElementById("themeToggle");
 const langToggle = document.getElementById("langToggle");
 const dropdownBtn = document.getElementById("dropdownBtn");
 const dropdownMenu = document.getElementById("dropdownMenu");
 
+// Modal elements
+const editModal = document.getElementById("editModal");
+const editForm = document.getElementById("edit-user-form");
+const editFormMessage = document.getElementById("edit-form-message");
+const closeModalBtn = document.getElementById("closeModal");
+const cancelEditBtn = document.getElementById("cancelEdit");
+
 let users = [];
 let isEditing = false;
 let editingUserId = null;
+
+/* ============================================
+   🔐 SESSION MANAGEMENT FUNCTIONS
+   ============================================ */
+
+// Get current user from session
+function getCurrentUser() {
+  try {
+    const sessionData = sessionStorage.getItem('currentUser');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading current user:', error);
+    return null;
+  }
+}
+
+// Check authentication and redirect if not logged in
+function checkAuthentication() {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    console.log('🚫 No authenticated user found, redirecting to login...');
+    window.electronAPI.navigate('login');
+    return false;
+  }
+  return true;
+}
+
+// Update user display in header
+function updateUserDisplay() {
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    // Update dropdown button with user info
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn) {
+      dropdownBtn.innerHTML = `
+        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
+      `;
+    }
+    
+    // Log hospital info if available
+    if (currentUser.hospital_id) {
+      console.log('🏥 Hospital:', currentUser.hospital_id);
+    }
+  }
+}
 
 // Hash password using bcrypt through IPC
 async function hashPassword(password) {
@@ -66,28 +118,51 @@ async function loadUsers() {
   }
 }
 
-function userExists(username) {
-  return users.some((user) => user.username === username && user.user_id !== editingUserId);
+function userExists(username, excludeUserId = null) {
+  return users.some((user) => user.username === username && user.user_id !== excludeUserId);
 }
 
-function setFormMode(mode, userData = null) {
-  const submitBtn = userForm.querySelector('button[type="submit"]');
-  isEditing = mode === 'edit';
-  editingUserId = isEditing ? userData.user_id : null;
-
-  if (isEditing && userData) {
-    userForm.username.value = userData.username;
-    userForm.hospital_id.value = userData.hospital_id;
-    userForm.role.value = userData.role;
-    userForm.password.required = false;
-    submitBtn.textContent = 'บันทึกการแก้ไข';
-  } else {
-    userForm.reset();
-    userForm.password.required = true;
-    submitBtn.textContent = 'เพิ่มผู้ใช้งาน';
-  }
+// Show message in main form
+function showMessage(message, type = "success") {
+  formMessage.textContent = message;
+  formMessage.className = `form-message ${type}`;
 }
 
+function resetMessage() {
+  formMessage.textContent = "";
+  formMessage.className = "form-message";
+}
+
+// Show message in edit modal
+function showEditMessage(message, type = "success") {
+  editFormMessage.textContent = message;
+  editFormMessage.className = `form-message ${type}`;
+}
+
+function resetEditMessage() {
+  editFormMessage.textContent = "";
+  editFormMessage.className = "form-message";
+}
+
+// Modal functions
+function openEditModal(user) {
+  document.getElementById('edit-user-id').value = user.user_id;
+  document.getElementById('edit-username').value = user.username;
+  document.getElementById('edit-password').value = '';
+  document.getElementById('edit-hospital-id').value = user.hospital_id;
+  document.getElementById('edit-role').value = user.role;
+  
+  resetEditMessage();
+  editModal.classList.add('show');
+}
+
+function closeEditModal() {
+  editModal.classList.remove('show');
+  editForm.reset();
+  resetEditMessage();
+}
+
+// Add new user form submission
 userForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   resetMessage();
@@ -99,45 +174,10 @@ userForm.addEventListener("submit", async (event) => {
     hospital_id: parseInt(formData.get("hospital_id").trim(), 10),
     role: formData.get("role"),
   };
-  
-  if (isEditing) {
-    userData.user_id = editingUserId;
-  }
 
-  if (!userData.username || (!isEditing && !userData.password) || !userData.hospital_id || !userData.role) {
+  if (!userData.username || !userData.password || !userData.hospital_id || !userData.role) {
     showMessage("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
     return;
-  }
-
-  try {
-    // If it's a new user or password is being changed, hash it
-    if (userData.password) {
-      userData.password_hash = await hashPassword(userData.password);
-      delete userData.password; // Remove plain text password
-    }
-
-    let result;
-    if (isEditing) {
-      result = await window.electronAPI.updateAccount(userData);
-      if (result.success) {
-        showMessage("อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว");
-      } else {
-        throw new Error(result.message);
-      }
-    } else {
-      result = await window.electronAPI.createAccount(userData);
-      if (result.success) {
-        showMessage("เพิ่มผู้ใช้งานเรียบร้อยแล้ว");
-      } else {
-        throw new Error(result.message);
-      }
-    }
-
-    await loadUsers();
-    setFormMode('add');
-  } catch (error) {
-    console.error('Form submission error:', error);
-    showMessage(error.message || "เกิดข้อผิดพลาดในการดำเนินการ", "error");
   }
 
   if (userExists(userData.username)) {
@@ -146,32 +186,83 @@ userForm.addEventListener("submit", async (event) => {
   }
 
   try {
-    let result;
-    if (isEditing) {
-      result = await window.electron.invoke('update-account', {
-        userId: editingUserId,
-        userData: {
-          username: userData.username,
-          hospital_id: userData.hospital_id,
-          role: userData.role
-        }
-      });
-    } else {
-      result = await window.electron.invoke('create-account', userData);
-    }
+    // Hash password
+    userData.password_hash = await hashPassword(userData.password);
+    delete userData.password;
 
+    const result = await window.electronAPI.createAccount(userData);
+    
     if (result.success) {
+      showMessage("เพิ่มผู้ใช้งานเรียบร้อยแล้ว");
       await loadUsers();
-      setFormMode('add');
-      showMessage(result.message);
+      userForm.reset();
     } else {
-      showMessage(result.message, 'error');
+      throw new Error(result.message);
     }
   } catch (error) {
-    showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
+    console.error('Form submission error:', error);
+    showMessage(error.message || "เกิดข้อผิดพลาดในการดำเนินการ", "error");
   }
 });
 
+// Edit user form submission
+editForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  resetEditMessage();
+
+  const userId = document.getElementById('edit-user-id').value;
+  const password = document.getElementById('edit-password').value;
+  const hospital_id = parseInt(document.getElementById('edit-hospital-id').value, 10);
+  const role = document.getElementById('edit-role').value;
+
+  if (!hospital_id || !role) {
+    showEditMessage("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
+    return;
+  }
+
+  try {
+    const userData = {
+      user_id: userId,
+      hospital_id: hospital_id,
+      role: role
+    };
+
+    // If password is provided, hash it
+    if (password && password.trim()) {
+      userData.password_hash = await hashPassword(password);
+    }
+
+    const result = await window.electronAPI.updateAccount(userData);
+    
+    if (result.success) {
+      showEditMessage("อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว", "success");
+      await loadUsers();
+      
+      // Close modal after 1 second
+      setTimeout(() => {
+        closeEditModal();
+      }, 1000);
+    } else {
+      throw new Error(result.message);
+    }
+  } catch (error) {
+    console.error('Edit form submission error:', error);
+    showEditMessage(error.message || "เกิดข้อผิดพลาดในการอัปเดต", "error");
+  }
+});
+
+// Modal event listeners
+closeModalBtn.addEventListener('click', closeEditModal);
+cancelEditBtn.addEventListener('click', closeEditModal);
+
+// Close modal when clicking outside
+editModal.addEventListener('click', (e) => {
+  if (e.target === editModal) {
+    closeEditModal();
+  }
+});
+
+// Table row click handler
 userTableBody.addEventListener("click", async (event) => {
   const target = event.target;
   const action = target.dataset.action;
@@ -182,8 +273,7 @@ userTableBody.addEventListener("click", async (event) => {
   if (action === 'edit') {
     const user = users.find(u => u.user_id === parseInt(userId));
     if (user) {
-      setFormMode('edit', user);
-      showMessage('กำลังแก้ไขข้อมูลผู้ใช้');
+      openEditModal(user);
     }
   } else if (action === 'delete') {
     if (confirm('คุณต้องการลบผู้ใช้งานนี้ใช่หรือไม่?')) {
@@ -217,16 +307,77 @@ togglePasswordButtons.forEach((button) => {
 });
 
 logoutBtn?.addEventListener("click", async () => {
+  const confirmLogout = confirm('คุณต้องการออกจากระบบหรือไม่?');
+  if (!confirmLogout) return;
+
   try {
-    if (window.electronAPI?.invoke) {
-      await window.electronAPI.invoke("logout");
-    } else if (window.electronAPI?.logout) {
-      await window.electronAPI.logout();
-    }
+    // Clear user session
+    localStorage.removeItem('userSession');
+    sessionStorage.clear();
+    
+    // Navigate to login
+    window.electronAPI.navigate('login');
   } catch (error) {
     console.error("Logout error:", error);
+    // Still redirect to login even if there's an error
+    window.electronAPI.navigate('login');
   }
 });
+
+/* ============================================
+   ⚙️ SETTINGS POPUP HANDLERS
+   ============================================ */
+
+const settingsPopup = document.getElementById('settingsPopup');
+const closeSettings = document.getElementById('closeSettings');
+const saveSettings = document.getElementById('saveSettings');
+const cancelSettings = document.getElementById('cancelSettings');
+const settingsBtn = document.getElementById('settingsBtn');
+
+// Open settings popup
+settingsBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  settingsPopup.style.display = 'flex';
+  dropdownMenu?.classList.remove('show');
+});
+
+// Close settings popup
+closeSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+cancelSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+// Save settings
+saveSettings?.addEventListener('click', () => {
+  const language = document.getElementById('languageSetting').value;
+  const theme = document.getElementById('themeSetting').value;
+  const notifications = document.getElementById('notificationsSetting').checked;
+  
+  console.log('Settings saved:', { language, theme, notifications });
+  
+  // Apply theme immediately if changed
+  if (theme === 'dark') {
+    document.body.classList.add('dark-theme');
+  } else {
+    document.body.classList.remove('dark-theme');
+  }
+  
+  settingsPopup.style.display = 'none';
+});
+
+// Close popup when clicking outside
+settingsPopup?.addEventListener('click', (e) => {
+  if (e.target === settingsPopup) {
+    settingsPopup.style.display = 'none';
+  }
+});
+
+/* ============================================
+   🎨 DROPDOWN & THEME HANDLERS
+   ============================================ */
 
 dropdownBtn?.addEventListener("click", (event) => {
   event.stopPropagation();
@@ -251,5 +402,14 @@ langToggle?.addEventListener("click", () => {
 });
 
 // Initialize the page
-loadUsers();
+document.addEventListener('DOMContentLoaded', () => {
+  // Check authentication first
+  if (!checkAuthentication()) return;
+  
+  // Update user display in header
+  updateUserDisplay();
+  
+  // Load users if authenticated
+  loadUsers();
+});
 

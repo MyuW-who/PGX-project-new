@@ -1,62 +1,11 @@
 /* ============================================================
-   1️⃣ THEME SWITCHER (โหมดสว่าง / โหมดมืด)
+   📊 DASHBOARD SCRIPT
    ------------------------------------------------------------
-   ▶️ เปลี่ยนธีมของหน้าเว็บทั้งหมดระหว่าง Light ↔ Dark
+   ▶️ Dashboard visualization and metrics
 ============================================================ */
-const themeBtn = document.getElementById("themeToggle");
-let chartInstances = {}; // เก็บ instance ของกราฟเพื่ออัปเดตตอนสลับธีม
-
-themeBtn?.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  
-  // อัปเดตสีกราฟเมื่อสลับธีม
-  updateChartsForTheme();
-});
+let chartInstances = {};
 
 
-/* ============================================================
-   2️⃣ LANGUAGE TOGGLE (สลับภาษา TH / EN)
-   ------------------------------------------------------------
-   ▶️ ปุ่มเปลี่ยนข้อความใน UI ระหว่างภาษาไทย ↔ อังกฤษ
-============================================================ */
-const langBtn = document.getElementById("langToggle");
-langBtn?.addEventListener("click", () => {
-  langBtn.textContent = langBtn.textContent === "TH" ? "EN" : "TH";
-});
-
-/* ============================================================
-   6️⃣ USER DROPDOWN MENU (เมนูผู้ใช้)
-   ------------------------------------------------------------
-   ▶️ เปิด/ปิดเมนูผู้ใช้ (Profile / Setting / Logout)
-============================================================ */
-const dropdownBtn = document.getElementById("dropdownBtn");
-const dropdownMenu = document.getElementById("dropdownMenu");
-
-// 🔹 เปิด/ปิด dropdown เมื่อกดปุ่ม
-dropdownBtn?.addEventListener("click", (e) => {
-  e.stopPropagation(); // ป้องกัน event ปิด dropdown ซ้อนกัน
-  dropdownMenu.classList.toggle("show");
-});
-
-// 🔹 ปิด dropdown เมื่อคลิกนอกพื้นที่
-window.addEventListener("click", (e) => {
-  if (!e.target.closest(".dropdown")) {
-    dropdownMenu?.classList.remove("show");
-  }
-});
-
-
-// -------- Logout ------------
-document.getElementById('logout')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  window.electronAPI.navigate('login');
-});
-
-const dashboard_btn = document.getElementById('patient-btn');
-
-dashboard_btn?.addEventListener('click', () => {
-  window.electronAPI.navigate('patient');
-});
 
 
 /* ============================================================
@@ -65,9 +14,43 @@ dashboard_btn?.addEventListener('click', () => {
    ▶️ ข้อมูลจำลอง + วาดกราฟ 3 แบบ: Line, Donut TAT, Gauge KPI
 ============================================================ */
 
-// ฟังก์ชันอัปเดตสีกราฟตาม theme
+const isDark = document.body.classList.contains('dark');
+
+// ฟังก์ชันอัปเดตสีกราฟ
 function updateChartsForTheme() {
   const isDark = document.body.classList.contains('dark');
+  const textColor = isDark ? '#f1f5f9' : '#111827';
+  const gridColor = isDark ? '#334155' : '#e5e7eb';
+  const bgCard = isDark ? '#2f2f40' : '#ffffff';
+
+  Object.values(chartInstances).forEach(chart => {
+
+    // ✅ 1. ตรวจสอบก่อนว่ากราฟมีแกน (scales) หรือไม่
+    if (chart.options.scales && chart.options.scales.x && chart.options.scales.y) {
+      // ✅ 2. ถ้ามี ค่อยเข้าไปเปลี่ยนสีของแกน
+      chart.options.scales.x.grid.color = gridColor;
+      chart.options.scales.y.grid.color = gridColor;
+      chart.options.scales.x.ticks.color = textColor;
+      chart.options.scales.y.ticks.color = textColor;
+    }
+
+    // ✅ 3. เปลี่ยนสีของ Legend (ถ้ามี)
+    if (chart.options.plugins && chart.options.plugins.legend) {
+      chart.options.plugins.legend.labels.color = textColor;
+    }
+
+    
+
+  });
+
+  
+
+  // เปลี่ยนพื้นหลังการ์ด (กรณีใช้ canvas อยู่บน card)
+  document.querySelectorAll('.stat-card, .metric-card').forEach(el => {
+    el.style.background = bgCard;
+  });
+
+  
   
   // อัปเดต TAT Donut
   if (chartInstances.tatChart) {
@@ -79,7 +62,34 @@ function updateChartsForTheme() {
     chartInstances.gaugeChart.data.datasets[0].backgroundColor[1] = isDark ? '#3b3b4a' : '#e9eef6';
     chartInstances.gaugeChart.update();
   }
+
+  // อัปเดต Error Rate Chart
+  if (chartInstances.errorRateChart) {
+    chartInstances.errorRateChart.update();
+  }
+
+  // อัปเดต Top Rejects Chart
+  if (chartInstances.topRejectsChart) {
+    chartInstances.topRejectsChart.update();
+  }
+
+  // อัปเดต Top DNA Chart
+  if (chartInstances.topDnaChart) {
+    chartInstances.topDnaChart.update();
+  }
+
+  // อัปเดต Top Hospitals Chart
+  if (chartInstances.topHospitalsChart) {
+    chartInstances.topHospitalsChart.update();
+  }
+
+  Object.values(chartInstances).forEach(chart => {
+    chart.update();
+  });
 }
+
+
+
 
 // ใช้เฉพาะในหน้า Dashboard เท่านั้น (กัน error ถ้า element ไม่มี)
 const hasDashboard = !!document.getElementById('usageChart') || !!document.getElementById('tatDonut') || !!document.getElementById('kpiGauge');
@@ -99,7 +109,29 @@ if (hasDashboard) {
       }
     },
     tat: { inSLA: 68, inProgress: 23, overSLA: 9 },
-    kpi: { rejectionRate: 2.4 } // %
+    kpi: { rejectionRate: 2.4 }, // %
+    errorRate: {
+      week: {
+        labels: ['วันนี้-6','วันนี้-5','วันนี้-4','วันนี้-3','วันนี้-2','เมื่อวาน','วันนี้'],
+        values: [3.2, 2.8, 4.1, 3.5, 2.9, 3.8, 2.4]
+      },
+      month: {
+        labels: ['สัปดาห์ 1','สัปดาห์ 2','สัปดาห์ 3','สัปดาห์ 4'],
+        values: [3.5, 3.2, 4.0, 2.8]
+      }
+    },
+    topRejects: {
+      labels: ['เลือด EDTA', 'Serum', 'ปัสสาวะ', 'Swab (NP/OP)', 'น้ำลาย'],
+      values: [34, 27, 19, 15, 11]
+    },
+    topDNA: {
+      labels: ['BRCA1', 'BRCA2', 'EGFR', 'KRAS', 'TP53'],
+      values: [125, 112, 98, 87, 76]
+    },
+    topHospitals: {
+      labels: ['โรงพยาบาลศูนย์ A', 'โรงพยาบาลมหาวิทยาลัย B', 'โรงพยาบาลจังหวัด C', 'โรงพยาบาลเอกชน D', 'โรงพยาบาลชุมชน E'],
+      values: [320, 295, 244, 210, 188]
+    }
   };
 
   // ── 2) กล่องตัวเลขด้านบน ────────────────────────────────
@@ -108,10 +140,27 @@ if (hasDashboard) {
     const elProg  = document.getElementById('m-progress');
     const elDone  = document.getElementById('m-done');
     const elErr   = document.getElementById('m-error');
-    if (elTotal) elTotal.textContent = mockData.totals.today;
-    if (elProg)  elProg.textContent  = mockData.totals.inProgress;
-    if (elDone)  elDone.textContent  = mockData.totals.done;
-    if (elErr)   elErr.textContent   = mockData.totals.error;
+    
+    const elPercentTotal = document.getElementById('percent-total');
+    const elPercentProg  = document.getElementById('percent-progress');
+    const elPercentDone  = document.getElementById('percent-done');
+    const elPercentErr   = document.getElementById('percent-error');
+    
+    const total = mockData.totals.today;
+    const progress = mockData.totals.inProgress;
+    const done = mockData.totals.done;
+    const error = mockData.totals.error;
+    
+    if (elTotal) elTotal.textContent = total;
+    if (elProg)  elProg.textContent  = progress;
+    if (elDone)  elDone.textContent  = done;
+    if (elErr)   elErr.textContent   = error;
+    
+    // คำนวณและแสดงเปอร์เซ็นต์
+    if (elPercentTotal) elPercentTotal.textContent = '100.00%';
+    if (elPercentProg)  elPercentProg.textContent  = total > 0 ? ((progress / total) * 100).toFixed(2) + '%' : '0.00%';
+    if (elPercentDone)  elPercentDone.textContent  = total > 0 ? ((done / total) * 100).toFixed(2) + '%' : '0.00%';
+    if (elPercentErr)   elPercentErr.textContent   = total > 0 ? ((error / total) * 100).toFixed(2) + '%' : '0.00%';
   }
   renderMetrics();
 
@@ -139,13 +188,16 @@ if (hasDashboard) {
       }
     });
 
-    // ปุ่มสลับกรอบเวลา
-    document.querySelectorAll('.toggle-group .small-btn').forEach(btn => {
+    // ปุ่มสลับกรอบเวลา (จำกัดเฉพาะปุ่มที่มี data-range และสcope ภายในกลุ่มเดียวกัน)
+    document.querySelectorAll('[data-range]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.toggle-group .small-btn').forEach(b => b.classList.remove('active'));
+        const group = btn.closest('.toggle-group');
+        group?.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const range = btn.dataset.range;
+        if (!range) return;
         const data = mockData.line[range];
+        if (!data) return;
         chartInstances.usageChart.data.labels = data.labels;
         chartInstances.usageChart.data.datasets[0].data = data.values;
         chartInstances.usageChart.update();
@@ -261,5 +313,184 @@ if (hasDashboard) {
       plugins: [centerText]
     });
   }
+
+  // ── 6) Error Rate Line Chart (อัตราการปฏิเสธสิ่งส่งตรวจรายวัน) ──
+  const errorCanvas = document.getElementById('errorRateChart');
+  if (errorCanvas && window.Chart) {
+    const ctx = errorCanvas.getContext('2d');
+    chartInstances.errorRateChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: mockData.errorRate.week.labels,
+        datasets: [{
+          label: 'อัตราการปฏิเสธ (%)',
+          data: mockData.errorRate.week.values,
+          borderColor: '#dc2626',
+          backgroundColor: 'rgba(220, 38, 38, 0.1)',
+          tension: 0.3,
+          fill: true,
+          pointRadius: 3,
+          pointBackgroundColor: '#dc2626'
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { 
+          y: { 
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) { return value + '%'; }
+            }
+          } 
+        }
+      }
+    });
+
+    // ปุ่มสลับช่วงเวลา
+    document.querySelectorAll('[data-error-range]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-error-range]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const range = btn.dataset.errorRange;
+        const data = mockData.errorRate[range];
+        chartInstances.errorRateChart.data.labels = data.labels;
+        chartInstances.errorRateChart.data.datasets[0].data = data.values;
+        chartInstances.errorRateChart.update();
+        const subtitle = document.getElementById('error-subtitle');
+        if (subtitle) subtitle.textContent = `สรุป: ${range === 'week' ? '7 วันล่าสุด' : '30 วันล่าสุด'}`;
+      });
+    });
+  }
+
+  // ── 7) Top 5 Rejected Specimens (Horizontal Bar) ────────
+  const topRejectsCanvas = document.getElementById('topRejectsChart');
+  if (topRejectsCanvas && window.Chart) {
+    const ctx = topRejectsCanvas.getContext('2d');
+    const colors = mockData.topRejects.values.map(() => 'rgba(220, 38, 38, 0.9)');
+    const bgColors = mockData.topRejects.values.map(() => 'rgba(220, 38, 38, 0.18)');
+
+    chartInstances.topRejectsChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: mockData.topRejects.labels,
+        datasets: [{
+          label: 'จำนวนที่ถูกปฏิเสธ',
+          data: mockData.topRejects.values,
+          backgroundColor: bgColors,
+          borderColor: colors,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          barPercentage: 0.7,
+          categoryPercentage: 0.7
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.parsed.x} เคส`
+            }
+          }
+        },
+        scales: {
+          x: { beginAtZero: true },
+          y: { ticks: { font: { weight: '600' } } }
+        }
+      }
+    });
+  }
+
+  // ── 8) Top 5 DNA Most Found (Horizontal Bar) ────────────
+  const topDnaCanvas = document.getElementById('topDnaChart');
+  if (topDnaCanvas && window.Chart) {
+    const ctx = topDnaCanvas.getContext('2d');
+    const colors = mockData.topDNA.values.map(() => 'rgba(34, 197, 94, 0.9)'); // green
+    const bgColors = mockData.topDNA.values.map(() => 'rgba(34, 197, 94, 0.18)');
+
+    chartInstances.topDnaChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: mockData.topDNA.labels,
+        datasets: [{
+          label: 'จำนวนครั้งที่พบ',
+          data: mockData.topDNA.values,
+          backgroundColor: bgColors,
+          borderColor: colors,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          barPercentage: 0.7,
+          categoryPercentage: 0.7
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.parsed.x} ครั้ง`
+            }
+          }
+        },
+        scales: {
+          x: { beginAtZero: true },
+          y: { ticks: { font: { weight: '600' } } }
+        }
+      }
+    });
+  }
+
+  // ── 9) Top 5 Hospitals by Submissions (Horizontal Bar) ─
+  const topHospitalsCanvas = document.getElementById('topHospitalsChart');
+  if (topHospitalsCanvas && window.Chart) {
+    const ctx = topHospitalsCanvas.getContext('2d');
+    const colors = mockData.topHospitals.values.map(() => 'rgba(37, 99, 235, 0.9)'); // blue
+    const bgColors = mockData.topHospitals.values.map(() => 'rgba(37, 99, 235, 0.18)');
+
+    chartInstances.topHospitalsChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: mockData.topHospitals.labels,
+        datasets: [{
+          label: 'จำนวนส่งตรวจ',
+          data: mockData.topHospitals.values,
+          backgroundColor: bgColors,
+          borderColor: colors,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          barPercentage: 0.7,
+          categoryPercentage: 0.7
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.parsed.x} เคส`
+            }
+          }
+        },
+        scales: {
+          x: { beginAtZero: true },
+          y: { ticks: { font: { weight: '600' } } }
+        }
+      }
+    });
+  }
 }
 
+/* ============================================================
+   🔄 PAGE INITIALIZATION
+   ------------------------------------------------------------
+   ▶️ Initialize page when DOM is loaded
+============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  // Initialize user profile (from userProfile.js)
+  if (!initializeUserProfile()) {
+    return; // Stop execution if not authenticated
+  }
+});

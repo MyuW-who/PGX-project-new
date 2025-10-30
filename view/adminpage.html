@@ -46,7 +46,7 @@
               <i class="fa fa-caret-down"></i>
             </button>
             <div id="dropdownMenu" class="dropdown-content">
-              <a href="#">Home</a>
+              <a href="#" id="settingsBtn">Settings</a>
               <a href="#">About</a>
               <a href="#" id="logout">Logout</a>
             </div>
@@ -121,9 +121,44 @@
         </div>
       </section>
     </main>
-    <!-- ...existing code... -->
+
+    <!-- Settings Popup -->
+    <div id="settingsPopup" class="popup" style="display: none;">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h3>Settings</h3>
+          <span class="close" id="closeSettings">&times;</span>
+        </div>
+        <div class="popup-body">
+          <div class="setting-item">
+            <label>Language:</label>
+            <select id="languageSetting">
+              <option value="th">ไทย (Thai)</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Theme:</label>
+            <select id="themeSetting">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Notifications:</label>
+            <input type="checkbox" id="notificationsSetting" checked>
+          </div>
+        </div>
+        <div class="popup-footer">
+          <button class="btn-primary" id="saveSettings">Save</button>
+          <button class="btn-secondary" id="cancelSettings">Cancel</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
+  <script src="./js/userProfile.js"></script>
   <script src="./js/adminpage.js"></script>
 </body>
 </html>

@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <title>ยืนยันการตรวจ - ขั้นตอนที่ 2</title>
   <link rel="stylesheet" href="./css/verify_step2.css" />
+  <link rel="stylesheet" href="./css/darkmode.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
   <!-- Navbar -->
@@ -12,22 +14,11 @@
       <h2>ยืนยันการตรวจ</h2>
     </div>
     <div class="nav-right">
-      <button class="nav-btn icon-btn" id="themeToggle" title="เปลี่ยนธีม">
-        <span class="icon">🌙</span>
+      <button id="themeToggle" title="เปลี่ยนธีม">
+        <i class="fa-solid fa-moon"></i>
       </button>
-      <button class="nav-btn lang-btn" id="langToggle" title="สลับภาษา">TH</button>
-      <div class="dropdown">
-        <button class="nav-btn user-btn" id="userMenuToggle" title="บัญชีผู้ใช้">
-          <span class="icon">👤</span>
-          <span class="label">Admin</span>
-          <span class="chevron">▾</span>
-        </button>
-        <div class="dropdown-menu" id="userMenu">
-          <a href="#">Home</a>
-          <a href="#">About</a>
-          <a href="#">Logout</a>
-        </div>
-      </div>
+      <button id="langToggle" title="สลับภาษา">TH</button>
+      <div class="user-icon" title="บัญชีผู้ใช้">👤</div>
     </div>
   </nav>
 
@@ -62,5 +53,6 @@
   </main>
 
   <script src="./js/verify_step2.js"></script>
+  <script src="./js/darkmode.js"></script>
 </body>
 </html>

@@ -5,9 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Patient Dashboard</title>
 
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  
   <!-- CSS -->
   <link rel="stylesheet" href="./css/patient.css" />
-
+  <link rel="stylesheet" href="./css/menu.css">
+  <link rel="stylesheet" href="./css/darkmode.css">
+  <link rel="stylesheet" href="./css/navbar.css">
   <!-- Font Awesome -->
   <link
     rel="stylesheet"
@@ -23,8 +33,8 @@
       <h2 class="logo">Logo</h2>
       <ul>
         <li id="dashboard-btn">Dashboard</li>
-        <li class="active">ข้อมูลผู้ป่วย</li>
-        <li>ตรวจสอบข้อมูล</li>
+        <li id="patient-btn" class="active">ข้อมูลผู้ป่วย</li>
+        <li id="information-btn">ตรวจสอบข้อมูล</li>
       </ul>
     </aside>
 
@@ -46,9 +56,9 @@
               <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
             </button>
             <div id="dropdownMenu" class="dropdown-content">
-              <a href="#">Home</a>
+              <a href="#" id="settingsBtn">Settings</a>
               <a href="#">About</a>
-              <a href="#" id="logout">logout</a>
+              <a href="#" id="logout">Logout</a>
             </div>
           </div>
         </div>
@@ -57,8 +67,10 @@
       <!-- Toolbar -->
       <div class="toolbar">
         <div class="toolbar-left">
-          <input type="text" id="searchInput" placeholder="ค้นหาผู้ป่วย 🔍 " />
+          <input type="text" id="searchInput" placeholder="ค้นหาด้วยรหัสผู้ป่วย" />
+          <i class="fa fa-search"></i>
         </div>
+          
         <div class="toolbar-right">
           <select id="tatFilter">
             <option value="all">TAT ทั้งหมด</option>
@@ -94,7 +106,6 @@
               </tr>
             </thead>
             <tbody>
-              <!-- ข้อมูลผู้ป่วยจะถูกเพิ่มที่นี่โดย JavaScript -->
             </tbody>
           </table>
         </div>
@@ -108,76 +119,136 @@
       <h3>เพิ่มข้อมูลผู้ป่วย</h3>
 
       <form id="addForm">
-  <div class="form-grid">
-    <div class="form-group">
-      <label>เลขประจำตัวผู้ป่วย:</label>
-      <input type="number" id="patient_id" required />
-    </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>เลขประจำตัวผู้ป่วย:</label>
+            <input type="number" id="patient_id" required />
+          </div>
 
-    <div class="form-group">
-      <label>ชื่อ:</label>
-      <input type="text" id="first_name" required />
-    </div>
+          <div class="form-group">
+            <label>ชื่อ:</label>
+            <input type="text" id="first_name" required />
+          </div>
 
-    <div class="form-group">
-      <label>นามสกุล:</label>
-      <input type="text" id="last_name" required />
-    </div>
+          <div class="form-group">
+            <label>นามสกุล:</label>
+            <input type="text" id="last_name" required />
+          </div>
 
-    <div class="form-group">
-      <label>อายุ:</label>
-      <input type="number" id="age" required />
-    </div>
+          <div class="form-group">
+            <label>อายุ:</label>
+            <input type="number" id="age" required />
+          </div>
 
-    <div class="form-group">
-      <label>เพศ:</label>
-      <select id="gender" required>
-        <option value="">--เลือก--</option>
-        <option value="ชาย">ชาย</option>
-        <option value="หญิง">หญิง</option>
-      </select>
-    </div>
+          <div class="form-group">
+            <label>เพศ:</label>
+            <select id="gender" required>
+              <option value="">--เลือก--</option>
+              <option value="ชาย">ชาย</option>
+              <option value="หญิง">หญิง</option>
+            </select>
+          </div>
 
-    <div class="form-group">
-      <label>เชื้อชาติ:</label>
-      <input type="text" id="ethnicity" />
-    </div>
+          <div class="form-group">
+            <label>เชื้อชาติ:</label>
+            <input type="text" id="ethnicity" />
+          </div>
 
-    <div class="form-group">
-      <label>กรุ๊ปเลือด:</label>
-      <select id="blood_type">
-        <option value="">--เลือก--</option>
-        <option>A</option>
-        <option>B</option>
-        <option>AB</option>
-        <option>O</option>
-      </select>
-    </div>
+          <div class="form-group">
+            <label>กรุ๊ปเลือด:</label>
+            <select id="blood_type">
+              <option>--เลือก--</option>
+              <option value="A">A</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B">B</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB">AB</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O">O</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
 
-    <div class="form-group">
-      <label>โรงพยาบาล:</label>
-      <input type="text" id="hospital" />
-    </div>
+          <div class="form-group">
+            <label>โรงพยาบาล:</label>
+            <input type="text" id="hospital" />
+          </div>
 
-    <div class="form-group">
-      <label>เบอร์โทร:</label>
-      <input type="tel" id="phone" />
+          <div class="form-group">
+            <label>เบอร์โทร:</label>
+            <input type="tel" id="phone" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="save-btn">
+            <i class="fa fa-save"></i> บันทึก
+          </button>
+          <button type="button" id="closeAdd" class="cancel-btn">ยกเลิก</button>
+        </div>
+      </form>
+
     </div>
   </div>
 
-  <div class="form-actions">
-    <button type="submit" class="save-btn">
-      <i class="fa fa-save"></i> บันทึก
-    </button>
-    <button type="button" id="closeAdd" class="cancel-btn">ยกเลิก</button>
+  <div class="scanner-overlay" id="scannerOverlay">
+    <div class="scanner-popup-box">
+      <h3>Scan Barcode</h3>
+      <div class="scanner-visual">
+        <i class="fa fa-barcode"></i>
+        <div class="scanner-line"></div>
+      </div>
+      <p>กรุณาวางบาร์โค้ดให้อยู่ในระยะของกล้อง</p>
+      <button type="button" id="closeScannerBtn" class="close-btn">
+        ปิด
+      </button>
+    </div>
   </div>
-</form>
 
+  <!-- Settings Popup -->
+  <div id="settingsPopup" class="popup" style="display: none;">
+    <div class="popup-content">
+      <div class="popup-header">
+        <h3>Settings</h3>
+        <span class="close" id="closeSettings">&times;</span>
+      </div>
+      <div class="popup-body">
+        <div class="setting-item">
+          <label>Language:</label>
+          <select id="languageSetting">
+            <option value="th">ไทย (Thai)</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label>Theme:</label>
+          <select id="themeSetting">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label>Notifications:</label>
+          <input type="checkbox" id="notificationsSetting" checked>
+        </div>
+      </div>
+      <div class="popup-footer">
+        <button class="btn-primary" id="saveSettings">Save</button>
+        <button class="btn-secondary" id="cancelSettings">Cancel</button>
+      </div>
     </div>
   </div>
 
   <!-- Script -->
+  <script src="./js/userProfile.js"></script>
+  <script src="./js/darkmode.js"></script>
   <script src="./js/patient.js"></script>
-  
+  <script src="./js/menu.js"></script>
+  <script src="./js/navbar.js"></script>
+
 </body>
 </html>

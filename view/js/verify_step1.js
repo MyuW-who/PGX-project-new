@@ -1,8 +1,4 @@
-// Toggle Theme
-const themeToggle = document.getElementById("themeToggle");
-themeToggle.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-});
+
 
 // Toggle Language
 const langToggle = document.getElementById("langToggle");
