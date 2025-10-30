@@ -209,50 +209,6 @@ function closePopup() {
 }
 
 
-
-/* --------------------------------------------
-   🌐 Toggle Language
--------------------------------------------- */
-const langBtn = document.getElementById('langToggle');
-langBtn?.addEventListener('click', () => {
-  langBtn.textContent = langBtn.textContent === 'TH' ? 'EN' : 'TH';
-});
-
-/* --------------------------------------------
-   👤 Dropdown Menu (Settings / Logout)
--------------------------------------------- */
-const dropdownBtn = document.getElementById("dropdownBtn");
-const dropdownMenu = document.getElementById("dropdownMenu");
-
-dropdownBtn?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  dropdownMenu.classList.toggle("show");
-});
-
-window.addEventListener("click", (e) => {
-  if (!e.target.closest(".dropdown")) {
-    dropdownMenu?.classList.remove("show");
-  }
-});
-
-/* --------------------------------------------
-   🧭 Navigation Buttons
--------------------------------------------- */
-
-// ▶️ ปุ่มไปหน้า Dashboard
-const dashboardBtn = document.getElementById('dashboard-btn');
-dashboardBtn?.addEventListener('click', () => {
-  window.electronAPI.navigate('dashboard1');
-});
-
-const informationBtn = document.getElementById('information-btn');
-informationBtn  ?.addEventListener('click', () => {
-  window.electronAPI.navigate('information');
-});
-
-
-
-
 // ▶️ ปุ่ม Inspect (ทุกปุ่ม)
 function attachInspectButtons() {
   document.querySelectorAll('.inspect-btn').forEach((btn) => {

@@ -75,3 +75,17 @@ document.querySelector(".confirm-btn").addEventListener("click", () => {
 document.querySelector(".print-btn").addEventListener("click", () => {
   window.print();
 });
+
+const userMenuToggle = document.getElementById("userMenuToggle");
+const userMenu = document.getElementById("userMenu");
+
+userMenuToggle?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  userMenu?.classList.toggle("show");
+});
+
+document.addEventListener("click", (event) => {
+  if (!userMenu?.contains(event.target) && event.target !== userMenuToggle) {
+    userMenu?.classList.remove("show");
+  }
+});

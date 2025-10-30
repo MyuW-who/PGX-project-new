@@ -5,31 +5,8 @@
 ============================================================ */
 let chartInstances = {};
 
-/* ============================================================
-   2️⃣ LANGUAGE TOGGLE (สลับภาษา TH / EN)
-   ------------------------------------------------------------
-   ▶️ ปุ่มเปลี่ยนข้อความใน UI ระหว่างภาษาไทย ↔ อังกฤษ
-============================================================ */
-const langBtn = document.getElementById("langToggle");
-langBtn?.addEventListener("click", () => {
-  langBtn.textContent = langBtn.textContent === "TH" ? "EN" : "TH";
-});
 
-/* ============================================================
-   🧭 NAVIGATION BUTTONS
-   ------------------------------------------------------------
-   ▶️ Page navigation handlers
-============================================================ */
 
-const dashboard_btn = document.getElementById('patient-btn');
-dashboard_btn?.addEventListener('click', () => {
-  window.electronAPI.navigate('patient');
-});
-
-const informationBtn = document.getElementById('information-btn');
-informationBtn?.addEventListener('click', () => {
-  window.electronAPI.navigate('information');
-});
 
 /* ============================================================
    7️⃣ MOCK DATA & DASHBOARD WIDGETS (ยังคงสไตล์เดิม)
