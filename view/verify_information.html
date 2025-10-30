@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="th">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ตรวจสอบไฟล์ PDF</title>
+		<link rel="stylesheet" href="css/verify_information.css" />
+	</head>
+	<body>
+		<header class="vi-header">
+			<h1>ตรวจสอบเอกสาร</h1>
+			<p class="vi-subtitle">โปรดตรวจสอบไฟล์ PDF ด้านล่าง จากนั้นเลือกยืนยันหรือปฏิเสธ</p>
+		</header>
+
+		<main class="vi-main">
+			<!-- PDF Viewer: uses native viewer via iframe/embed. Source is set by JS. -->
+			<div class="vi-pdf-wrapper">
+				<iframe id="pdfViewer" title="PDF Viewer" class="vi-pdf-frame" src="" frameborder="0"></iframe>
+						<div id="pdfFallback" class="vi-fallback" hidden>
+							<p>ไม่สามารถแสดงไฟล์ PDF ได้</p>
+							<ol>
+								<li>ตรวจสอบว่าไฟล์อยู่ในตำแหน่งที่ถูกต้อง (ค่าเริ่มต้น: mockuppdf.pdf)</li>
+								<li>คุณสามารถส่งพารามิเตอร์ ?pdf= ตามด้วย path/URL ของไฟล์</li>
+							</ol>
+							<code>ตัวอย่าง: verify_information.html?pdf=mockuppdf.pdf</code>
+						</div>
+			</div>
+		</main>
+
+			<footer class="vi-footer">
+				<div class="vi-actions">
+					<div class="vi-actions-left">
+						<button id="btnBack" class="vi-btn vi-btn-ghost">ย้อนกลับ</button>
+					</div>
+					<div class="vi-actions-right">
+						<button id="btnReject" class="vi-btn vi-btn-secondary">ปฏิเสธ</button>
+						<button id="btnConfirm" class="vi-btn vi-btn-primary">ยืนยัน</button>
+					</div>
+				</div>
+			</footer>
+
+		<script src="js/verify_information.js"></script>
+	</body>
+	</html>
