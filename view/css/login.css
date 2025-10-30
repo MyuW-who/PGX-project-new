@@ -189,6 +189,7 @@ body {
   transform: translateX(0);
 }
 
+/* -- -- สี popup -- */
 #popup.success {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
