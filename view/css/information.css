@@ -389,6 +389,49 @@ textarea {
   font-size: 14px;
 }
 
+/* ============================================
+   ⚠️ TAT WARNING INDICATORS
+   ============================================ */
+.tat-warning-icon,
+.tat-overdue-icon {
+  font-size: 16px;
+  margin-left: 8px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* 🟡 Warning (80-100% TAT) */
+.tat-warning-icon {
+  color: #f59e0b;
+}
+
+/* 🔴 Overdue (>100% TAT) */
+.tat-overdue-icon {
+  color: #ef4444;
+}
+
+/* Row highlighting for warnings */
+tr.tat-warning {
+  background-color: rgba(245, 158, 11, 0.05);
+}
+
+tr.tat-overdue {
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+tr.tat-warning:hover,
+tr.tat-overdue:hover {
+  background-color: rgba(245, 158, 11, 0.12);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 .Edit-btn,
 .pdf-btn {
   display: inline-flex;

@@ -86,6 +86,34 @@ function getTATBadgeClass(status) {
   return 'status-default';
 }
 
+/* ========= TAT Warning Calculation ========= */
+function calculateTATWarning(requestDate, slaTime, status) {
+  // Only calculate for non-done and non-reject cases
+  const statusLower = status?.toLowerCase() || '';
+  if (!requestDate || statusLower === 'done' || statusLower === 'reject') {
+    return { warning: false, percentage: 0, overdue: false };
+  }
+
+  const startDate = new Date(requestDate);
+  const now = new Date();
+  
+  // Use provided SLA time or default to 72 hours (3 days) for PGx tests
+  let slaHours = parseFloat(slaTime) || 72;
+  
+  // Calculate elapsed time in hours
+  const elapsedMs = now - startDate;
+  const elapsedHours = elapsedMs / (1000 * 60 * 60);
+  
+  // Calculate percentage
+  const percentage = (elapsedHours / slaHours) * 100;
+  
+  return {
+    warning: percentage > 80 && percentage <= 100,
+    overdue: percentage > 100,
+    percentage: Math.round(percentage)
+  };
+}
+
 function renderTestRequests(data) {
   const tbody = document.querySelector('#patientTable tbody');
   tbody.innerHTML = '';
@@ -104,15 +132,37 @@ function renderTestRequests(data) {
     const received = requestDate ? new Date(requestDate).toLocaleDateString('th-TH') : '-';
     const testTarget = req.test_target || '-';
     const status = req.status || '-';
+    const slaTime = req.SLA_time || req.sla_time || 0;
     
     // Display status as-is from database (already in the format we want)
     const statusDisplay = status;
     
     // Get dot class for color coding
     const dotClass = getTATBadgeClass(status);
+    
+    // Calculate TAT warning (will use default 72 hours if slaTime is 0)
+    const tatWarning = calculateTATWarning(requestDate, slaTime, status);
+    
+    // Debug logging for first row
+    if (req.request_id === 6) {
+      console.log('🔍 TAT Debug for request_id 6:', {
+        requestDate,
+        status,
+        slaTime,
+        tatWarning
+      });
+    }
 
     const tr = document.createElement('tr');
     tr.setAttribute('data-request-id', req.request_id);
+    
+    // Add warning class to row if overdue or warning
+    if (tatWarning.overdue) {
+      tr.classList.add('tat-overdue');
+    } else if (tatWarning.warning) {
+      tr.classList.add('tat-warning');
+    }
+    
     tr.innerHTML = `
       <td>${req.request_id || '-'}</td>
       <td>${hospitalId}</td>
@@ -124,6 +174,8 @@ function renderTestRequests(data) {
         <div class="tat-status">
           <span class="tat-dot ${dotClass}"></span>
           <span>${statusDisplay}</span>
+          ${tatWarning.warning ? '<i class="fas fa-exclamation-triangle tat-warning-icon" title="TAT > 80%"></i>' : ''}
+          ${tatWarning.overdue ? '<i class="fas fa-exclamation-circle tat-overdue-icon" title="TAT > 100% (Overdue!)"></i>' : ''}
         </div>
       </td>
       <td>
