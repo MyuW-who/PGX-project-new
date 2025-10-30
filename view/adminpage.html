@@ -5,21 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Page</title>
   <link rel="stylesheet" href="./css/adminpage.css" />
-  <link rel="stylesheet" href="./css/darkmode.css" />
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="./css/navbar.css">
+	<link rel="stylesheet" href="./css/menu.css">
+  <link rel="stylesheet" href="./css/darkmode.css" />
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
-      <div class="brand">PGX Admin</div>
-      <nav class="nav-menu">
-        <a href="#" class="nav-item active" id="admin-btn">
-          <span>Employee</span>
-        </a>
-        <a href="#" class="nav-item" id="patient-btn">
-          <span>Audit Log</span>
-        </a>
-      </nav>
+      		<h2 class="logo">Logo</h2>
+			<ul>
+				<li id="admin-btn" class="active">Employee</li>
+				<li id="auditlog-btn" >Audit Log</li>
+			</ul>
     </aside>
 
     <!-- ...existing code... -->
@@ -151,9 +150,15 @@
       </div>
     </div>
 
+    
+
   </div>
 
   <script src="./js/userProfile.js"></script>
   <script src="./js/adminpage.js"></script>
+  <script src="./js/darkmode.js"></script>
+  <script src="./js/navbar.js"></script>
+	<script src="./js/menu.js"></script>
+
 </body>
 </html>

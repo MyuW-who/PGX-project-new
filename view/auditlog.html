@@ -8,6 +8,8 @@
 	<link rel="stylesheet" href="./css/adminpage.css" />
 	<link rel="stylesheet" href="./css/darkmode.css" />
 	<link rel="stylesheet" href="./css/auditlog.css" />
+	<link rel="stylesheet" href="./css/navbar.css">
+	<link rel="stylesheet" href="./css/menu.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 	<!-- Removed Google Fonts and inline body font to use admin page font -->
 	<!-- <link rel="preconnect" href="https://fonts.googleapis.com" /> -->
@@ -19,18 +21,16 @@
 <body>
 	<div class="layout">
 		<!-- Sidebar: same structure/styles as adminpage -->
-		<aside class="sidebar">
-			<div class="brand">PGX Admin</div>
-			<nav class="nav-menu">
-				<a href="#" class="nav-item" id="admin-btn">
-					<span>Employee</span>
-				</a>
-				<a href="#" class="nav-item active" id="auditlog-btn">
-					<span>Audit Log</span>
-				</a>
-			</nav>
-		</aside>
 
+		<aside class="sidebar">
+      		<h2 class="logo">Logo</h2>
+			<ul>
+				<li id="admin-btn" >Employee</li>
+				<li id="auditlog-btn" class="active">Audit Log</li>
+			</ul>
+    	</aside>
+
+		
 		<!-- Main -->
 		<main class="main-content">
 			<!-- Header: reuse admin header controls -->
@@ -140,5 +140,8 @@
 
 	<script src="./js/userProfile.js"></script>
 	<script src="./js/auditlog.js"></script>
+	<script src="./js/darkmode.js"></script>
+	<script src="./js/navbar.js"></script>
+	<script src="./js/menu.js"></script>
 </body>
 </html>
