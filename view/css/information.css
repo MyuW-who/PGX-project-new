@@ -390,16 +390,18 @@ textarea {
 }
 
 .Edit-btn,
-.delete-btn {
+.pdf-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 25px;
+  gap: 6px;
+  padding: 8px 20px;
   border-radius: 10px; 
-  font-size: 15px;
+  font-size: 14px;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  font-weight: 500;
 }
 
 .Edit-btn {
@@ -412,6 +414,22 @@ textarea {
   color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(100, 116, 139, 0.15);
+}
+
+.pdf-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.pdf-btn:hover {
+  background: #dc2626;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(220, 38, 38, 0.2);
+}
+
+.pdf-btn i {
+  font-size: 14px;
 }
 
 /* ====== Popup Generic ====== */

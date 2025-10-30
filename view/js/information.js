@@ -114,7 +114,7 @@ function renderTestRequests(data) {
     const tr = document.createElement('tr');
     tr.setAttribute('data-request-id', req.request_id);
     tr.innerHTML = `
-      <td>${patientId}</td>
+      <td>${req.request_id || '-'}</td>
       <td>${hospitalId}</td>
       <td>${patientName} </td>
       <td>${testTarget}</td>
@@ -127,14 +127,18 @@ function renderTestRequests(data) {
         </div>
       </td>
       <td>
-        <button class="Edit-btn" onclick="editTestRequest(${req.request_id})"><i class="fas fa-edit"></i> แก้ไข</button>
-        <button class="delete-btn" onclick="deleteTestRequest(${req.request_id})"><i class="fas fa-trash-alt"></i></button>
+        </button>
+        ${status?.toLowerCase() === 'done' ? `
+          <button class="pdf-btn" onclick="viewPDF(${req.request_id}, '${patientName}')">
+            <i class="fas fa-file-pdf"></i> ดู PDF
+          </button>
+        ` : ''}
       </td>
     `;
     tr.addEventListener('click', (e) => {
       // ไม่ให้คลิกที่ปุ่มทำให้เปลี่ยนหน้า
       if (!e.target.closest('button')) {
-        showPage('verify_step1', patientId);
+         showPage('verify_step1', patientId);
       }
     });
     tbody.appendChild(tr);
@@ -154,7 +158,7 @@ async function updateStatsFromAPI() {
   }
 }
 
-/* ========= Edit / Delete / Navigate ========= */
+/* ========= Edit / View PDF / Navigate ========= */
 async function editTestRequest(requestId) {
   try {
     const req = await window.electronAPI.getTestRequestById(requestId);
@@ -168,17 +172,39 @@ async function editTestRequest(requestId) {
   }
 }
 
-async function deleteTestRequest(requestId) {
-  if (!confirm('คุณแน่ใจที่จะลบข้อมูล Test Request หรือไม่?')) return;
+async function viewPDF(requestId, patientName) {
   try {
-    const res = await window.electronAPI.deleteTestRequest(requestId);
-    alert(res.message || 'ลบข้อมูลสำเร็จ');
-    const data = await window.electronAPI.getTestRequests();
-    renderTestRequests(data);
-    await updateStatsFromAPI();
-  } catch (e) { 
-    console.error(e); 
-    alert('เกิดข้อผิดพลาดในการลบข้อมูล'); 
+    // Get the test request details
+    const req = await window.electronAPI.getTestRequestById(requestId);
+    if (!req) {
+      alert('ไม่พบข้อมูล Test Request');
+      return;
+    }
+    
+    // Check if PDF exists (you can add a field in database to track this)
+    if (req.Doc_Name) {
+      // If there's a PDF file path in the database
+      alert(`เปิดไฟล์ PDF: ${req.Doc_Name}`);
+      // TODO: Implement actual PDF viewing/opening
+      // window.electronAPI.openPDF(req.Doc_Name);
+    } else {
+      // Generate PDF if it doesn't exist
+      const reportData = {
+        name: patientName,
+        age: req.patient?.age || '-',
+        gender: req.patient?.gender || '-',
+        hn: req.patient?.patient_id || '-',
+        hospital: req.patient?.hospital_id || '-',
+        testTarget: req.test_target || '-',
+        specimen: req.Specimen || '-'
+      };
+      
+      const pdfPath = await window.electron.generatePDF(reportData);
+      alert(`สร้าง PDF สำเร็จ: ${pdfPath}`);
+    }
+  } catch (e) {
+    console.error('❌ Error viewing PDF:', e);
+    alert('เกิดข้อผิดพลาดในการดู PDF');
   }
 }
 
