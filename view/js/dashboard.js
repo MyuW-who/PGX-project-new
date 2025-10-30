@@ -45,15 +45,7 @@ document.getElementById('logout')?.addEventListener('click', (e) => {
   window.electronAPI.navigate('login');
 });
 
-const dashboard_btn = document.getElementById('patient-btn');
-dashboard_btn?.addEventListener('click', () => {
-  window.electronAPI.navigate('patient');
-});
 
-const informationBtn = document.getElementById('information-btn');
-informationBtn?.addEventListener('click', () => {
-  window.electronAPI.navigate('information');
-});
 
 
 /* ============================================================

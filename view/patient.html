@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="./css/menu.css">
   <link rel="stylesheet" href="./css/darkmode.css">
   <link rel="stylesheet" href="./css/navbar.css">
+  <link rel="stylesheet" href="./css/navbar_hover.css">
   <!-- Font Awesome -->
   <link
     rel="stylesheet"
@@ -25,6 +26,19 @@
   />
 </head>
 <body>
+
+  <!-- แถบ Navbar -->
+  <div class="hover-navbar">
+    <div class="navbar-content">
+      <div class="navbar-left">
+        <span class="logo">Roblox</span>
+      </div>
+      <div class="navbar-right">
+        <button class="nav-btn close"><i class="fa fa-xmark"></i></button>
+      </div>
+    </div>
+  </div>
+
   <!-- Container หลัก -->
   <div class="container">
     
@@ -244,11 +258,13 @@
   </div>
 
   <!-- Script -->
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="./js/userProfile.js"></script>
   <script src="./js/darkmode.js"></script>
   <script src="./js/patient.js"></script>
   <script src="./js/menu.js"></script>
   <script src="./js/navbar.js"></script>
+  <script src="./js/navbar_hover.js"></script>
 
 </body>
 </html>
