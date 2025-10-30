@@ -5,176 +5,165 @@
 // - Wire up Confirm/Reject buttons to proceed accordingly
 
 (function () {
-	const $ = (sel) => document.querySelector(sel);
+    const $ = (sel) => document.querySelector(sel);
 
-		const pdfFrame = $("#pdfViewer");
-		const pdfjsContainer = $("#pdfjsViewer");
-		const canvas = $("#pdfCanvas");
-		const ctx = canvas?.getContext("2d");
-	const pdfFallback = $("#pdfFallback");
-	const btnConfirm = $("#btnConfirm");
-	const btnReject = $("#btnReject");
-		const btnBack = $("#btnBack");
-		const btnPrevPage = $("#btnPrevPage");
-		const btnNextPage = $("#btnNextPage");
-		const pageNumEl = $("#pageNum");
-		const pageCountEl = $("#pageCount");
+    const pdfFrame = $("#pdfViewer");
+    const pdfjsContainer = $("#pdfjsViewer");
+    const canvas = $("#pdfCanvas");
+    const ctx = canvas?.getContext("2d");
+    const pdfFallback = $("#pdfFallback");
+    const btnPrevPage = $("#btnPrevPage");
+    const btnNextPage = $("#btnNextPage");
+    const pageNumEl = $("#pageNum");
+    const pageCountEl = $("#pageCount");
+    const btnReload = $("#btnReload");
+    const openExternal = $("#openExternal");
+    const btnDownload = $("#btnDownload");
+    const btnConfirm = $("#btnConfirm");
+    const btnReject = $("#btnReject");
+    const btnBack = $("#btnBack");
 
-	// Parse query params
-	const params = new URLSearchParams(window.location.search);
-	let pdfParam = params.get("pdf");
+    const params = new URLSearchParams(window.location.search);
+    const pdfParam = params.get("pdf");
 
-	// If provided as a Windows path (e.g., C:\\Users\\...\\file.pdf), convert to file:/// URL
-	const toFileUrl = (input) => {
-		if (!input) return input;
-		// Already a URL (http/https/file)
-		if (/^(file|https?):\/\//i.test(input)) return input;
-		// Convert Windows path -> file URL
-		const normalized = input.replace(/\\/g, "/");
-		if (/^[a-zA-Z]:\//.test(normalized)) {
-			return `file:///${normalized}`;
-		}
-		// Treat as relative URL
-		return input;
-	};
+    const resolvePdfUrl = (input) => {
+        if (!input) return null;
+        if (/^(file|https?):\/\//i.test(input)) return input;
+        try {
+            return new URL(input.replace(/\\/g, "/"), window.location.href).href;
+        } catch {
+            return input;
+        }
+    };
 
-		// Default PDF: use the bundled mockup placed next to this HTML file
-		// Path is relative to verify_information.html (view/verify_information.html)
-		// You can still override via ?pdf=
-		let defaultPdf = "mockuppdf.pdf";
+    const defaultPdf = resolvePdfUrl("./PDF/Project.pdf");
+    const pdfUrl = resolvePdfUrl(pdfParam) || defaultPdf;
 
-	const pdfUrl = toFileUrl(pdfParam) || defaultPdf;
+    const hideAll = () => {
+        pdfjsContainer.hidden = true;
+        pdfFrame.hidden = true;
+        pdfFallback.hidden = true;
+    };
 
-		const setPdfIframe = (url) => {
-		try {
-			pdfFrame.src = url;
-			// Small sanity: if it fails to load (blocked/404), show fallback after a timeout
-			const timer = setTimeout(() => {
-				// When embedded viewers are blocked, the frame may stay blank
-				// Show help instead. Users can try providing ?pdf= URL/path.
-				if (!pdfFrame.contentDocument) {
-					pdfFallback.hidden = false;
-				}
-			}, 1500);
-			pdfFrame.addEventListener("load", () => {
-				clearTimeout(timer);
-				// If contentDocument exists, keep fallback hidden
-				pdfFallback.hidden = true;
-			});
-		} catch (err) {
-			console.error("Failed to set PDF src:", err);
-			pdfFallback.hidden = false;
-		}
-	};
+    const showFallback = () => {
+        hideAll();
+        pdfFallback.hidden = false;
+    };
 
-		// Try to use PDF.js single-page viewer first; fallback to iframe if fails
-		const initPdfJs = async (url) => {
-			const CDN_BASE = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105";
-			const loadScript = (src) => new Promise((resolve, reject) => {
-				const s = document.createElement("script");
-				s.src = src;
-				s.onload = resolve;
-				s.onerror = reject;
-				document.head.appendChild(s);
-			});
+    const enableIframe = (url) => {
+        hideAll();
+        pdfFrame.hidden = false;
+        pdfFrame.src = url;
 
-			try {
-				if (!window.pdfjsLib) {
-					await loadScript(`${CDN_BASE}/pdf.min.js`);
-				}
-				if (!window.pdfjsLib) throw new Error("PDF.js not loaded");
-				window.pdfjsLib.GlobalWorkerOptions.workerSrc = `${CDN_BASE}/pdf.worker.min.js`;
+        const onFail = () => showFallback();
+        const onLoad = () => {
+            pdfFrame.removeEventListener("error", onFail);
+        };
 
-				const pdf = await window.pdfjsLib.getDocument(url).promise;
-				let currentPage = 1;
-				const totalPages = pdf.numPages;
-				pageCountEl.textContent = String(totalPages);
+        pdfFrame.addEventListener("error", onFail, { once: true });
+        pdfFrame.addEventListener("load", onLoad, { once: true });
+    };
 
-				const renderPage = async (num, fit = true) => {
-					const page = await pdf.getPage(num);
-					let scale = 1;
-					const container = canvas.parentElement;
-					const viewport = page.getViewport({ scale: 1 });
-					if (fit && container && container.clientWidth) {
-						scale = Math.max(0.1, (container.clientWidth - 24) / viewport.width); // padding margin
-					}
-					const vp = page.getViewport({ scale });
-					canvas.width = Math.floor(vp.width);
-					canvas.height = Math.floor(vp.height);
-					const renderTask = page.render({ canvasContext: ctx, viewport: vp });
-					await renderTask.promise;
-					pageNumEl.textContent = String(num);
-				};
+    const initPdfJs = async (url) => {
+        if (!canvas || !ctx) return false;
 
-				// Controls
-				btnPrevPage?.addEventListener("click", () => {
-					if (currentPage > 1) {
-						currentPage -= 1;
-						renderPage(currentPage);
-					}
-				});
-				btnNextPage?.addEventListener("click", () => {
-					if (currentPage < totalPages) {
-						currentPage += 1;
-						renderPage(currentPage);
-					}
-				});
+        const CDN_BASE = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105";
+        const loadScript = (src) =>
+            new Promise((resolve, reject) => {
+                const s = document.createElement("script");
+                s.src = src;
+                s.onload = resolve;
+                s.onerror = reject;
+                document.head.appendChild(s);
+            });
 
-				// Re-render on resize (debounced)
-				let resizeTimer;
-				window.addEventListener("resize", () => {
-					clearTimeout(resizeTimer);
-					resizeTimer = setTimeout(() => renderPage(currentPage, true), 150);
-				});
+        try {
+            if (!window.pdfjsLib) {
+                await loadScript(`${CDN_BASE}/pdf.min.js`);
+                await loadScript(`${CDN_BASE}/pdf.worker.min.js`);
+            }
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = `${CDN_BASE}/pdf.worker.min.js`;
 
-				// Show pdfjs viewer, hide iframe
-				pdfjsContainer.hidden = false;
-				pdfFrame.hidden = true;
-				pdfFallback.hidden = true;
+            const pdf = await window.pdfjsLib.getDocument(url).promise;
+            let currentPage = 1;
+            const totalPages = pdf.numPages;
+            pageCountEl.textContent = String(totalPages);
 
-				await renderPage(currentPage);
-				return true;
-			} catch (err) {
-				console.warn("PDF.js viewer failed, falling back to iframe:", err);
-				return false;
-			}
-		};
+            const renderPage = async (num) => {
+                const page = await pdf.getPage(num);
+                const containerWidth = canvas.parentElement.clientWidth - 30;
+                const viewport = page.getViewport({ scale: 1 });
+                const scale = Math.max(0.35, containerWidth / viewport.width);
+                const scaledViewport = page.getViewport({ scale });
+                canvas.width = Math.floor(scaledViewport.width);
+                canvas.height = Math.floor(scaledViewport.height);
+                await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
+                pageNumEl.textContent = String(num);
+            };
 
-		(async () => {
-			const ok = await initPdfJs(pdfUrl);
-			if (!ok) {
-				pdfjsContainer.hidden = true;
-				pdfFrame.hidden = false;
-				setPdfIframe(pdfUrl);
-			}
-		})();
+            btnPrevPage?.addEventListener("click", () => {
+                if (currentPage > 1) {
+                    currentPage -= 1;
+                    renderPage(currentPage);
+                }
+            });
 
-	// Actions
-	btnConfirm?.addEventListener("click", () => {
-		// Assumption: proceed to the first verification step
-		// You can adapt this to your actual flow or dispatch IPC to main process.
-		const go = () => (window.location.href = "verify_step1.html");
-		if (confirm("ยืนยันว่าข้อมูลในเอกสารถูกต้องใช่หรือไม่?")) {
-			go();
-		}
-	});
+            btnNextPage?.addEventListener("click", () => {
+                if (currentPage < totalPages) {
+                    currentPage += 1;
+                    renderPage(currentPage);
+                }
+            });
 
-	btnReject?.addEventListener("click", () => {
-		// Assumption: navigate back to information input page
-		const go = () => (window.location.href = "information.html");
-		const reason = prompt("โปรดระบุเหตุผลในการปฏิเสธ (ไม่บังคับ)", "");
-		// You can forward 'reason' to your backend or audit log via IPC/supabase here.
-		go();
-	});
+            let resizeTimer;
+            window.addEventListener("resize", () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => renderPage(currentPage), 160);
+            });
 
-		btnBack?.addEventListener("click", () => {
-			// Prefer browser history back, with a safe fallback route
-			if (document.referrer && window.history.length > 1) {
-				window.history.back();
-			} else {
-				// Fallback: back to previous page in your flow
-				window.location.href = "information.html";
-			}
-		});
+            openExternal.href = url;
+            btnDownload?.addEventListener("click", () => {
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = url.split("/").pop() ?? "document.pdf";
+                a.click();
+            });
+
+            hideAll();
+            pdfjsContainer.hidden = false;
+            await renderPage(currentPage);
+            return true;
+        } catch (error) {
+            console.warn("PDF.js failed, fallback to iframe", error);
+            return false;
+        }
+    };
+
+    btnReload?.addEventListener("click", () => window.location.reload());
+
+    (async () => {
+        const ok = await initPdfJs(pdfUrl);
+        if (!ok) enableIframe(pdfUrl);
+    })();
+
+    btnConfirm?.addEventListener("click", () => {
+        if (confirm("ยืนยันว่าข้อมูลในเอกสารถูกต้องใช่หรือไม่?")) {
+            window.location.href = "verify_step1.html";
+        }
+    });
+
+    btnReject?.addEventListener("click", () => {
+        const reason = prompt("โปรดระบุเหตุผลในการปฏิเสธ (ไม่บังคับ)", "");
+        // TODO: ส่ง reason ไปยัง backend หากต้องการ
+        window.location.href = "information.html";
+    });
+
+    btnBack?.addEventListener("click", () => {
+        if (document.referrer && window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = "information.html";
+        }
+    });
 })();
 
