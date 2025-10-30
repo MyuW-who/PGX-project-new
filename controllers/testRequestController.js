@@ -166,6 +166,27 @@ async function getTestRequestStats() {
   return { all, need2Confirmation, need1Confirmation, done };
 }
 
+// ดึงข้อมูล SLA time ของแต่ละ specimen
+async function getSpecimenSLA() {
+  const { data, error } = await supabase
+    .from('Specimen')
+    .select('Specimen_ID, Specimen_Name, SLA_time');
+
+  if (error) {
+    console.error('❌ Fetch Specimen SLA Error:', error.message);
+    return {};
+  }
+
+  // Convert to map for easy lookup
+  const slaMap = {};
+  (data || []).forEach(spec => {
+    slaMap[spec.Specimen_Name?.toLowerCase()] = parseFloat(spec.SLA_time) || 72;
+    slaMap[spec.Specimen_ID] = parseFloat(spec.SLA_time) || 72;
+  });
+  
+  return slaMap;
+}
+
 module.exports = {
   fetchAllTestRequests,
   searchTestRequests,
@@ -173,5 +194,6 @@ module.exports = {
   addTestRequest,
   updateTestRequest,
   deleteTestRequest,
-  getTestRequestStats
+  getTestRequestStats,
+  getSpecimenSLA
 };

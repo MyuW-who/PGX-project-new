@@ -248,6 +248,16 @@ ipcMain.handle('get-test-request-stats', async () => {
   }
 });
 
+ipcMain.handle('get-specimen-sla', async () => {
+  try {
+    const { getSpecimenSLA } = require('./controllers/testRequestController');
+    return await getSpecimenSLA();
+  } catch (err) {
+    console.error('❌ Get Specimen SLA Error:', err.message);
+    return {};
+  }
+});
+
 // 🚀 เริ่มต้น
 app.whenReady().then(createWindow);
 
