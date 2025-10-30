@@ -14,9 +14,22 @@
       <h2>ยืนยันการตรวจ</h2>
     </div>
     <div class="nav-right">
-      <button id="themeToggle" title="เปลี่ยนธีม">🌙</button>
-      <button id="langToggle" title="สลับภาษา">TH</button>
-      <div class="user-icon" title="บัญชีผู้ใช้">👤</div>
+      <button class="nav-btn icon-btn" id="themeToggle" title="เปลี่ยนธีม">
+        <span class="icon">🌙</span>
+      </button>
+      <button class="nav-btn lang-btn" id="langToggle" title="สลับภาษา">TH</button>
+      <div class="dropdown">
+        <button class="nav-btn user-btn" id="userMenuToggle" title="บัญชีผู้ใช้">
+          <span class="icon">👤</span>
+          <span class="label">Admin</span>
+          <span class="chevron">▾</span>
+        </button>
+        <div class="dropdown-menu" id="userMenu">
+          <a href="#">Home</a>
+          <a href="#">About</a>
+          <a href="#">Logout</a>
+        </div>
+      </div>
     </div>
   </nav>
 

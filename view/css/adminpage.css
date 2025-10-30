@@ -1,15 +1,14 @@
 :root {
-  --color-bg: #f8fafc;
+  --color-bg: #f5f7fb; /* match patient */
   --color-surface: #ffffff;
-  --color-primary: #4f46e5;
-  --color-primary-hover: #4338ca;
-  --color-primary-light: #eef2ff;
-  --color-border: #e2e8f0;
-  --color-text: #1e293b;
-  --color-muted: #64748b;
-  --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  --sidebar-text: #f1f5f9;
-  --sidebar-active: #334155;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-border: #e5e7eb;
+  --color-text: #111827; /* match patient text-primary */
+  --color-muted: #6b7280;
+  --sidebar-bg: #111827; /* same as patient */
+  --sidebar-text: #e5e7eb; /* same as patient */
+  --sidebar-active: rgba(59, 130, 246, 0.18); /* same as patient */
   --radius: 12px;
   --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
   --shadow: 0 4px 6px rgba(15, 23, 42, 0.1);
@@ -33,7 +32,7 @@ body {
 
 .layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 240px 1fr; /* match patient/dashboard sidebar width */
   min-height: 100vh;
 }
 
@@ -97,7 +96,8 @@ body {
 }
 
 .main-content {
-  padding: 40px clamp(24px, 5vw, 56px);
+  /* Match patient page spacing for consistent header position */
+  padding: 32px 40px 64px;
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -108,7 +108,7 @@ body {
 
 .page-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center; /* center vertically like patient */
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 24px;
@@ -116,14 +116,9 @@ body {
 }
 
 .page-header h1 {
-  margin: 0 0 8px;
-  font-size: clamp(1.875rem, 2.5vw, 2.5rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  margin: 0; /* same as patient */
+  font-size: 24px; /* match patient heading size */
+  font-weight: 600;
 }
 
 .page-header p {
@@ -142,8 +137,26 @@ body {
 .header-buttons {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px; /* match patient */
   margin-left: auto;
+}
+
+/* Header controls parity with patient page */
+.page-header .icon-btn,
+.page-header .lang-btn,
+.page-header .dropbtn {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--color-text);
+  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
+}
+
+.page-header .dropbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .card {
@@ -206,14 +219,8 @@ body {
   border: 2px solid var(--color-border);
   border-radius: 10px;
   font-size: 0.95rem;
-  background: #ffffff;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.form-field input:hover,
-.form-field select:hover {
-  border-color: #cbd5e1;
+  background: #ffffff; /* match patient inputs/search */
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-field input:focus,
@@ -501,267 +508,48 @@ tbody tr:hover {
   display: block;
 }
 
-/* ============================================
-   🌙 DARK MODE / DARK THEME
-   ============================================ */
-body.dark-theme {
-  /* CSS Variables for Dark Mode */
-  --color-bg: #111827;
-  --color-surface: #1f2937;
-  --color-border: #374151;
-  --color-text: #f9fafb;
-  --color-muted: #9ca3af;
-  --shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.4);
-  --color-primary-light: rgba(79, 70, 229, 0.2);
-  
-  background: #111827;
-  color: #f9fafb;
+/* =============================
+   Admin page - Dark mode (body.dark)
+   Concise rules; uses admin variables
+   ============================= */
+body.dark {
+  /* Map admin variables to patient dark palette */
+  --color-bg: #1e1e2f;
+  --color-surface: #2f2f40;
+  --color-border: #3b3b4a;
+  --color-text: #ecf0f1;
+  --color-muted: #cbd5e1;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
-body.dark-theme .sidebar {
-  background: #1f2937;
-  color: #f9fafb;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+body.dark .main-content {
+  background: linear-gradient(165deg, #1e1e2f 0%, #252538 45%, #2a2a3e 100%);
 }
 
-body.dark-theme .sidebar::before {
-  background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+body.dark .card {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
-body.dark-theme .brand {
-  color: #f9fafb;
+/* Inputs/selects/textarea inner color in dark mode */
+body.dark :is(input:not([type="checkbox"]), select, textarea) {
+  background: #3b3b4a;
+  border-color: var(--color-border);
+  color: var(--color-text);
+  caret-color: var(--color-text);
 }
 
-body.dark-theme .nav-item {
-  color: #e5e7eb;
+body.dark :is(input:not([type="checkbox"]), select, textarea):focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  outline: none;
 }
 
-body.dark-theme .nav-item:hover {
-  background: rgba(59, 130, 246, 0.15);
-  color: #ffffff;
-}
-
-body.dark-theme .nav-item.active {
-  background: rgba(59, 130, 246, 0.18);
-  box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.3);
-  color: #ffffff;
-}
-
-body.dark-theme .main-content {
-  background: linear-gradient(165deg, #111827 0%, #161f30 45%, #1b263b 100%);
-}
-
-body.dark-theme .page-header {
-  border-bottom-color: #374151;
-}
-
-body.dark-theme .page-header h1 {
-  color: #f9fafb;
-  background: none;
-  -webkit-text-fill-color: unset;
-}
-
-body.dark-theme .page-header p {
-  color: #9ca3af;
-}
-
-body.dark-theme .card {
-  background: #1f2937;
-  color: #f9fafb;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-  border-color: #374151;
-}
-
-body.dark-theme .card:hover {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-}
-
-body.dark-theme .card h2 {
-  color: #f9fafb;
-}
-
-body.dark-theme .card h2::before {
-  background: linear-gradient(180deg, #4f46e5 0%, #7c3aed 100%);
-}
-
-body.dark-theme .form-field label {
-  color: #e5e7eb;
-}
-
-body.dark-theme .form-field input,
-body.dark-theme .form-field select {
-  background: #374151;
-  border-color: #4b5563;
-  color: #f9fafb;
-}
-
-body.dark-theme .form-field input:hover,
-body.dark-theme .form-field select:hover {
-  border-color: #6b7280;
-}
-
-body.dark-theme .form-field input:focus,
-body.dark-theme .form-field select:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
-  background: #374151;
-}
-
-body.dark-theme .btn {
-  background: #374151;
-  color: #f9fafb;
-  border-color: #4b5563;
-}
-
-body.dark-theme .btn:hover {
-  background: #4b5563;
-  border-color: #6b7280;
-}
-
-body.dark-theme .btn.primary {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  border-color: transparent;
-  color: #ffffff;
-}
-
-body.dark-theme .btn.primary:hover {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-}
-
-body.dark-theme .btn-secondary {
-  background: transparent;
-  color: #f9fafb;
-  border: 2px solid #4b5563;
-}
-
-body.dark-theme .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: #6b7280;
-}
-
-body.dark-theme .form-message.success {
-  background: rgba(22, 163, 74, 0.15);
-  color: #86efac;
-  border-left-color: #22c55e;
-}
-
-body.dark-theme .form-message.error {
-  background: rgba(220, 38, 38, 0.15);
-  color: #fca5a5;
-  border-left-color: #ef4444;
-}
-
-body.dark-theme .table-wrapper {
-  border-color: #374151;
-}
-
-body.dark-theme table {
-  background: #1f2937;
-  color: #f9fafb;
-}
-
-body.dark-theme thead th {
-  background: #2b3648;
-  color: #ffffff;
-  border-bottom-color: #374151;
-}
-
-body.dark-theme tbody tr {
-  border-bottom-color: #374151;
-}
-
-body.dark-theme tbody tr:hover {
-  background: #374151;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-body.dark-theme .table-action.edit {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
-  color: #93c5fd;
-}
-
-body.dark-theme .table-action.edit:hover {
-  background: rgba(59, 130, 246, 0.25);
-  color: #bfdbfe;
-}
-
-body.dark-theme .table-action.delete {
-  background: rgba(220, 38, 38, 0.15);
-  border-color: #ef4444;
-  color: #fca5a5;
-}
-
-body.dark-theme .table-action.delete:hover {
-  background: #dc2626;
-  color: #ffffff;
-}
-
-body.dark-theme .modal {
-  background: rgba(0, 0, 0, 0.8);
-}
-
-body.dark-theme .modal-content {
-  background: #1f2937;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
-}
-
-body.dark-theme .modal-header {
-  border-bottom-color: #374151;
-}
-
-body.dark-theme .modal-header h2 {
-  color: #f9fafb;
-  background: none;
-  -webkit-text-fill-color: unset;
-}
-
-body.dark-theme .modal-close {
-  color: #9ca3af;
-}
-
-body.dark-theme .modal-close:hover {
-  background: #374151;
-  color: #f9fafb;
-}
-
-body.dark-theme .modal-actions {
-  border-top-color: #374151;
-}
-
-body.dark-theme .field-note {
-  color: #9ca3af;
-}
-
-body.dark-theme .icon-btn,
-body.dark-theme .lang-btn,
-body.dark-theme .dropbtn {
-  background: linear-gradient(135deg, #1f2937, #111827);
-  color: #e2e8f0;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.6);
-}
-
-body.dark-theme .dropdown-content {
-  background: #111c33;
-  box-shadow: 0 18px 36px rgba(2, 6, 23, 0.55);
-}
-
-body.dark-theme .dropdown-content a {
-  color: #cbd5f5;
-}
-
-body.dark-theme .dropdown-content a:hover {
-  background: rgba(79, 70, 229, 0.25);
-  color: #f8fafc;
-}
-
-body.dark-theme .form-message.success {
-  color: #86efac;
-}
-
-body.dark-theme .form-message.error {
-  color: #fca5a5;
+body.dark :is(input, textarea)::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
 }
 
 @media (max-width: 1024px) {
@@ -842,143 +630,121 @@ body.dark-theme .form-message.error {
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
 }
 
-body.dark-theme .icon-btn,
-body.dark-theme .lang-btn,
-body.dark-theme .dropbtn {
-  color: #e2e8f0;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  box-shadow: 0 10px 26px rgba(2, 6, 23, 0.45);
-}
+/* (legacy .dark-theme button rules removed) */
 
-body.dark-theme .icon-btn:hover,
-body.dark-theme .lang-btn:hover,
-body.dark-theme .dropbtn:hover {
-  border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 14px 34px rgba(79, 70, 229, 0.35);
-}
-
-/* ===== Edit Modal Styles ===== */
-.modal {
-  display: none;
+/* Settings Popup */
+.popup {
   position: fixed;
-  z-index: 10000;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.3s ease;
-}
-
-.modal.show {
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.modal-content {
-  background: var(--color-surface);
-  border-radius: 16px;
-  box-shadow: var(--shadow-lg);
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: slideUp 0.3s ease;
-}
-
-.modal-header {
-  display: flex;
   align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow);
+}
+
+.popup-header {
+  display: flex;
   justify-content: space-between;
-  padding: 24px 32px;
-  border-bottom: 2px solid var(--color-border);
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.modal-header h2 {
+.popup-header h3 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 2rem;
+.close {
+  font-size: 28px;
+  font-weight: bold;
   color: var(--color-muted);
   cursor: pointer;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  line-height: 1;
 }
 
-.modal-close:hover {
-  background: #f1f5f9;
+.close:hover {
   color: var(--color-text);
-  transform: rotate(90deg);
 }
 
-.modal form {
-  padding: 32px;
+.popup-body {
+  padding: 24px;
+}
+
+.setting-item {
+  margin-bottom: 20px;
   display: flex;
-  flex-direction: column;
-  gap: 24px;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.field-note {
-  display: block;
-  margin-top: 6px;
-  font-size: 0.8rem;
-  color: var(--color-muted);
-  font-style: italic;
+.setting-item label {
+  font-weight: 500;
+  color: var(--color-text);
 }
 
-.modal-actions {
+.setting-item select,
+.setting-item input[type="checkbox"] {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.setting-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.popup-footer {
   display: flex;
-  gap: 12px;
   justify-content: flex-end;
-  margin-top: 8px;
-  padding-top: 24px;
+  gap: 12px;
+  padding: 16px 24px;
   border-top: 1px solid var(--color-border);
 }
 
+.btn-primary,
 .btn-secondary {
-  background: #f1f5f9;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn-secondary {
+  background: var(--color-border);
   color: var(--color-text);
-  border: 2px solid var(--color-border);
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #d1d5db;
 }
+
+/* (legacy .dark-theme popup rules removed) */

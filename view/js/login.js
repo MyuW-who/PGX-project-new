@@ -210,7 +210,8 @@ btn.addEventListener('click', async (e) => {
   btn.textContent = 'กำลังเข้าสู่ระบบ...';
 
   try {
-    const result = await window.electronAPI.checkLogin(username, password);
+    // Pass credentials as an object
+    const result = await window.electronAPI.checkLogin({ username, password });
 
     if (!result.success) {
       showPopup(result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
@@ -221,7 +222,12 @@ btn.addEventListener('click', async (e) => {
     }
 
     // ✅ Store complete user session data
-    const userData = result.data;
+    const userData = result.data || {
+      user_id: result.user_id,
+      username: username,
+      role: result.role,
+      hospital_id: result.hospital_id
+    };
     
     storeUserSession(userData);
     
@@ -230,7 +236,7 @@ btn.addEventListener('click', async (e) => {
     
     // Navigate based on role after a short delay
     setTimeout(() => {
-      navigateBasedOnRole(userData.role);
+      navigateBasedOnRole(userData.role || result.role);
     }, 800);
     
   } catch (error) {

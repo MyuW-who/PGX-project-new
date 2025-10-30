@@ -45,6 +45,34 @@ function checkAuthentication() {
   return true;
 }
 
+/* ============================================================
+   🧭 NAVIGATION BUTTONS Fix this when finished
+   ------------------------------------------------------------
+   ▶️ Page navigation handlers
+============================================================ */
+
+// Sidebar navigation handlers for Admin page
+// Sidebar navigation handlers
+const dashboardBtn = document.getElementById('dashboard-btn');
+dashboardBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.electronAPI?.navigate('dashboard1');
+});
+
+// In Admin page sidebar the second item is labeled "Audit Log"
+const patientBtn = document.getElementById('patient-btn');
+patientBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.electronAPI?.navigate('auditlog');
+});
+
+// If there's an information page, wire here when available
+// const informationBtn = document.getElementById('information-btn');
+// informationBtn?.addEventListener('click', (e) => {
+//   e.preventDefault();
+//   window.electronAPI?.navigate('information');
+// });
+
 // Update user display in header
 function updateUserDisplay() {
   const currentUser = getCurrentUser();
@@ -324,6 +352,63 @@ logoutBtn?.addEventListener("click", async () => {
   }
 });
 
+/* ============================================
+   ⚙️ SETTINGS POPUP HANDLERS
+   ============================================ */
+
+const settingsPopup = document.getElementById('settingsPopup');
+const closeSettings = document.getElementById('closeSettings');
+const saveSettings = document.getElementById('saveSettings');
+const cancelSettings = document.getElementById('cancelSettings');
+const settingsBtn = document.getElementById('settingsBtn');
+
+// Open settings popup
+settingsBtn?.addEventListener('click', (e) => {
+  e.preventDefault();
+  settingsPopup.style.display = 'flex';
+  dropdownMenu?.classList.remove('show');
+});
+
+// Close settings popup
+closeSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+cancelSettings?.addEventListener('click', () => {
+  settingsPopup.style.display = 'none';
+});
+
+// Save settings
+saveSettings?.addEventListener('click', () => {
+  const language = document.getElementById('languageSetting').value;
+  const theme = document.getElementById('themeSetting').value;
+  const notifications = document.getElementById('notificationsSetting').checked;
+  
+  console.log('Settings saved:', { language, theme, notifications });
+  
+  // Apply theme immediately if changed
+  if (theme === 'dark') {
+    document.body.classList.add('dark');
+    document.body.classList.remove('dark-theme');
+  } else {
+    document.body.classList.remove('dark');
+    document.body.classList.remove('dark-theme');
+  }
+  
+  settingsPopup.style.display = 'none';
+});
+
+// Close popup when clicking outside
+settingsPopup?.addEventListener('click', (e) => {
+  if (e.target === settingsPopup) {
+    settingsPopup.style.display = 'none';
+  }
+});
+
+/* ============================================
+   🎨 DROPDOWN & THEME HANDLERS
+   ============================================ */
+
 dropdownBtn?.addEventListener("click", (event) => {
   event.stopPropagation();
   dropdownMenu?.classList.toggle("show");
@@ -338,7 +423,8 @@ document.addEventListener("click", () => {
 });
 
 themeToggle?.addEventListener("click", () => {
-  document.body.classList.toggle("dark-theme");
+  document.body.classList.toggle("dark");
+  document.body.classList.remove("dark-theme");
 });
 
 langToggle?.addEventListener("click", () => {

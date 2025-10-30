@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="./css/information.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="./css/darkmode.css">
+  <link rel="stylesheet" href="./css/menu.css">
+
 </head>
 <body>
   <div class="container">
@@ -17,7 +19,7 @@
       <ul>
         <li id="dashboard-btn">Dashboard</li>
         <li id="patient-btn">ข้อมูลผู้ป่วย</li>
-        <li class="active">ตรวจสอบข้อมูล</li>
+        <li id="information-btn" class="active">ตรวจสอบข้อมูล</li>
         <li>Admin Page</li>
       </ul>
     </aside>
@@ -36,9 +38,9 @@
               <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
             </button>
             <div id="dropdownMenu" class="dropdown-content">
-              <a href="#">Home</a>
+              <a href="#" id="settingsBtn">Settings</a>
               <a href="#">About</a>
-              <a href="#" id="logout">logout</a>
+              <a href="#" id="logout">Logout</a>
             </div>
           </div>
         </div>
@@ -127,7 +129,43 @@
   </div>
   
 
+  <!-- Settings Popup -->
+  <div id="settingsPopup" class="popup" style="display: none;">
+    <div class="popup-content">
+      <div class="popup-header">
+        <h3>Settings</h3>
+        <span class="close" id="closeSettings">&times;</span>
+      </div>
+      <div class="popup-body">
+        <div class="setting-item">
+          <label>Language:</label>
+          <select id="languageSetting">
+            <option value="th">ไทย (Thai)</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label>Theme:</label>
+          <select id="themeSetting">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label>Notifications:</label>
+          <input type="checkbox" id="notificationsSetting" checked>
+        </div>
+      </div>
+      <div class="popup-footer">
+        <button class="btn-primary" id="saveSettings">Save</button>
+        <button class="btn-secondary" id="cancelSettings">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/userProfile.js"></script>
   <script src="./js/darkmode.js"></script>
   <script src="./js/information.js"></script>
+  <script src="./js/menu.js"></script>
 </body>
 </html>

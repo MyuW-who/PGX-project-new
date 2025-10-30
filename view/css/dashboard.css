@@ -1,8 +1,5 @@
 :root {
   --bg: #f5f7fb;
-  --sidebar-bg: #111827;
-  --sidebar-active: rgba(59, 130, 246, 0.18);
-  --sidebar-text: #e5e7eb;
   --text-primary: #111827;
   --text-secondary: #4b5563;
   --text-muted: #6b7280;
@@ -45,46 +42,6 @@ textarea {
   font-family: inherit;
 }
 
-/* ============================================
-   🧭 SIDEBAR NAVIGATION
-   ============================================ */
-.sidebar {
-  width: 240px;
-  background: var(--sidebar-bg);
-  color: var(--sidebar-text);
-  padding: 32px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
-
-.sidebar .logo {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 700;
-  text-align: center;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 12px;
-}
-
-.sidebar li {
-  padding: 12px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.sidebar li:hover,
-.sidebar li.active {
-  background: var(--sidebar-active);
-  color: #ffffff;
-}
 
 /* ============================================
    🧩 MAIN CONTENT AREA
@@ -98,104 +55,7 @@ textarea {
   background: linear-gradient(165deg, #f5f7fb 0%, #eef1f8 45%, #ffffff 100%);
 }
 
-/* ============================================
-   🧱 HEADER SECTION (Title, Buttons, Dropdown)
-   ============================================ */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 
-.page-header h2 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.header-buttons {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* 🔘 ปุ่มทั่วไป (Theme, Lang, Dropdown) */
-.icon-btn,
-.lang-btn,
-.dropbtn {
-  border: none;
-  background: var(--card-bg);
-  border-radius: 10px;
-  padding: 6px 10px;
-  cursor: pointer;
-  color: var(--text-primary);
-  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
-  transition: var(--transition);
-  font-size: 12px;
-}
-
-.icon-btn:hover,
-.lang-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(148, 163, 184, 0.26);
-}
-
-/* ============================================
-   📂 DROPDOWN MENU
-   ============================================ */
-.dropdown { 
-  position: relative; 
-  z-index: 50;
-}
-
-.dropbtn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: none;
-  background: var(--card-bg);
-  color: var(--text-primary);
-  padding: 10px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2);
-  transition: var(--transition);
-}
-
-.dropbtn:hover {
-  transform: translateY(-1px);
-}
-
-.dropdown-content {
-  position: absolute;
-  right: 0;
-  top: 110%;
-  min-width: 180px;
-  background: var(--card-bg);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  padding: 8px 0;
-  display: none;
-  z-index: 10;
-  border: 1px solid rgba(148, 163, 184, 0.15);
-}
-
-.dropdown-content a {
-  color: var(--text-secondary);
-  padding: 10px 14px;
-  text-decoration: none;
-  display: block;
-  transition: var(--transition);
-}
-
-.dropdown-content a:hover {
-  background: var(--primary-light);
-  color: var(--primary);
-}
-
-/* เปิดเมนูเมื่อมี class .show */
-.dropdown-content.show {
-  display: block;
-}
 
 /*
   background: var(--bg);
@@ -416,49 +276,5 @@ body.dark .chart-divider {
   background: #3b3b4a;
 }
 
-/* ============================================
-   📱 RESPONSIVE DESIGN
-   ============================================ */
-@media (max-width: 900px) {
-  .container {
-    flex-direction: column;
-  }
 
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-around;
-    height: auto;
-    padding: 16px;
-  }
 
-  .sidebar .logo {
-    display: none;
-  }
-
-  .main-content {
-    padding: 20px;
-  }
-
-  .metrics-row {
-    grid-template-columns: 1fr;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .header-buttons {
-    flex-wrap: wrap;
-  }
-
-  .stat-card {
-    padding: 16px;
-  }
-
-  .stat-card h4 {
-    font-size: 0.95rem;
-  }
-}
