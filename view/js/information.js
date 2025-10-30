@@ -145,7 +145,6 @@ function renderTestRequests(data) {
 async function updateStatsFromAPI() {
   try {
     const stats = await window.electronAPI.getTestRequestStats();
-    console.log('📊 Stats received in frontend:', stats);
     document.getElementById('statAll').textContent = stats.all || 0;
     document.getElementById('statPre').textContent = stats.need2Confirmation || 0;
     document.getElementById('statAnalytic').textContent = stats.need1Confirmation || 0;

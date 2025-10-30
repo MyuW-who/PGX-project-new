@@ -103,7 +103,22 @@ const roleLabels = {
 };
 
 function renderUsers() {
-  userTableBody.innerHTML = users
+  console.log('🎨 Rendering users:', users.length, 'users');
+  
+  // Get fresh reference to tbody element
+  const tbody = document.querySelector("#user-table tbody");
+  
+  if (!tbody) {
+    console.error('❌ Table tbody not found!');
+    return;
+  }
+  
+  if (!users || users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:#666;">ไม่มีข้อมูลผู้ใช้งาน</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = users
     .map(
       (user) => `
       <tr data-id="${user.user_id}">
@@ -124,6 +139,8 @@ function renderUsers() {
     `
     )
     .join("");
+  
+  console.log('✅ Users rendered successfully');
 }
 
 function showMessage(message, type = "success") {
@@ -138,10 +155,12 @@ function resetMessage() {
 
 async function loadUsers() {
   try {
-    const result = await window.electron.invoke('fetch-all-accounts');
+    const result = await window.electronAPI.fetchAllAccounts();
+    console.log('📦 Loaded users:', result);
     users = result || [];
     renderUsers();
   } catch (error) {
+    console.error('❌ Error loading users:', error);
     showMessage('ไม่สามารถโหลดข้อมูลผู้ใช้ได้', 'error');
   }
 }
@@ -191,7 +210,7 @@ function closeEditModal() {
 }
 
 // Add new user form submission
-userForm.addEventListener("submit", async (event) => {
+userForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   resetMessage();
 
@@ -234,7 +253,7 @@ userForm.addEventListener("submit", async (event) => {
 });
 
 // Edit user form submission
-editForm.addEventListener("submit", async (event) => {
+editForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   resetEditMessage();
 
@@ -280,21 +299,23 @@ editForm.addEventListener("submit", async (event) => {
 });
 
 // Modal event listeners
-closeModalBtn.addEventListener('click', closeEditModal);
-cancelEditBtn.addEventListener('click', closeEditModal);
+closeModalBtn?.addEventListener('click', closeEditModal);
+cancelEditBtn?.addEventListener('click', closeEditModal);
 
 // Close modal when clicking outside
-editModal.addEventListener('click', (e) => {
+editModal?.addEventListener('click', (e) => {
   if (e.target === editModal) {
     closeEditModal();
   }
 });
 
-// Table row click handler
-userTableBody.addEventListener("click", async (event) => {
-  const target = event.target;
-  const action = target.dataset.action;
-  const userId = target.dataset.id;
+// Table row click handler - Use event delegation
+document.addEventListener("click", async (event) => {
+  const tableTarget = event.target;
+  if (!tableTarget.closest('#user-table')) return;
+  
+  const action = tableTarget.dataset.action;
+  const userId = tableTarget.dataset.id;
 
   if (!action || !userId) return;
 
@@ -306,7 +327,7 @@ userTableBody.addEventListener("click", async (event) => {
   } else if (action === 'delete') {
     if (confirm('คุณต้องการลบผู้ใช้งานนี้ใช่หรือไม่?')) {
       try {
-        const result = await window.electron.invoke('delete-account', userId);
+        const result = await window.electronAPI.deleteAccount(userId);
         if (result.success) {
           await loadUsers();
           showMessage(result.message);
@@ -314,6 +335,7 @@ userTableBody.addEventListener("click", async (event) => {
           showMessage(result.message, 'error');
         }
       } catch (error) {
+        console.error('❌ Delete error:', error);
         showMessage('เกิดข้อผิดพลาดในการลบข้อมูล', 'error');
       }
     }
@@ -366,7 +388,8 @@ const settingsBtn = document.getElementById('settingsBtn');
 settingsBtn?.addEventListener('click', (e) => {
   e.preventDefault();
   settingsPopup.style.display = 'flex';
-  dropdownMenu?.classList.remove('show');
+  const dropdownMenuElement = document.getElementById("dropdownMenu");
+  dropdownMenuElement?.classList.remove('show');
 });
 
 // Close settings popup
@@ -409,17 +432,21 @@ settingsPopup?.addEventListener('click', (e) => {
    🎨 DROPDOWN & THEME HANDLERS
    ============================================ */
 
-dropdownBtn?.addEventListener("click", (event) => {
+// Get fresh references to dropdown elements
+const dropdownButton = document.getElementById("dropdownBtn");
+const dropdownMenuElement = document.getElementById("dropdownMenu");
+
+dropdownButton?.addEventListener("click", (event) => {
   event.stopPropagation();
-  dropdownMenu?.classList.toggle("show");
+  dropdownMenuElement?.classList.toggle("show");
 });
 
-dropdownMenu?.addEventListener("click", (event) => {
+dropdownMenuElement?.addEventListener("click", (event) => {
   event.stopPropagation();
 });
 
 document.addEventListener("click", () => {
-  dropdownMenu?.classList.remove("show");
+  dropdownMenuElement?.classList.remove("show");
 });
 
 themeToggle?.addEventListener("click", () => {
