@@ -381,25 +381,3 @@ body.dark .table-action.edit:hover {
 body.dark .table-action.delete:hover {
   background: rgba(239, 68, 68, 0.25);
 }
-
-
-/* Dark theme for popup */
-body.dark .popup-content {
-  background: #1e293b;
-}
-
-body.dark .popup-header,
-body.dark .popup-footer {
-  border-color: rgba(148, 163, 184, 0.2);
-}
-
-body.dark .setting-item select {
-  background: #0f172a;
-  color: #e2e8f0;
-  border-color: rgba(148, 163, 184, 0.2);
-}
-
-body.dark .popup-header h3,
-body.dark .setting-item label {
-  color: #e2e8f0;
-}

@@ -31,7 +31,24 @@ function checkAuthentication() {
   return true;
 }
 
-
+// Update user display in header
+function updateUserDisplay() {
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    // Update dropdown button with user info
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn) {
+      dropdownBtn.innerHTML = `
+        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
+      `;
+    }
+    
+    // You can also add hospital info if needed
+    if (currentUser.hospital_id) {
+      console.log('🏥 Hospital:', currentUser.hospital_id);
+    }
+  }
+}
 
 /* --------------------------------------------
    ✅ โหลดข้อมูลผู้ป่วยเมื่อหน้าเปิดขึ้น
@@ -215,7 +232,45 @@ function attachInspectButtons() {
   });
 }
 
+document.getElementById('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  
+  const currentUser = getCurrentUser();
+  const username = currentUser ? currentUser.username : 'Unknown';
+  
+  // Confirm logout
+  if (confirm(`คุณต้องการออกจากระบบหรือไม่?\n(${username})`)) {
+    try {
+      // Call logout handler if available
+      if (window.electronAPI.handleLogout) {
+        await window.electronAPI.handleLogout({ username });
+      }
+      
+      // Clear all session data
+      localStorage.removeItem('userSession');
+      localStorage.removeItem('userRole'); // Remove old role storage
+      sessionStorage.clear();
+      
+      console.log('👋 User logged out:', username);
+      
+      // Navigate to login page
+      window.electronAPI.navigate('login');
+      
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      // Still logout even if API call fails
+      sessionStorage.clear();
+      localStorage.removeItem('userSession');
+      window.electronAPI.navigate('login');
+    }
+  }
+});
 
+function showPage(pageName, patientId) {
+  // Store patientId in sessionStorage for use in verify_step1.html
+  sessionStorage.setItem('selectedPatientId', patientId);
+  window.electronAPI.navigate(pageName); // Navigate to the specified page
+}
 
 /* --------------------------------------------
    ✏️ Edit Patient Function
