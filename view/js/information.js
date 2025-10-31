@@ -182,14 +182,6 @@ async function deleteTestRequest(requestId) {
   }
 }
 
-function showPage(pageName, patientId) {
-  sessionStorage.setItem('selectedPatientId', patientId);
-  window.electronAPI?.navigate(pageName);
-}
 
-/* ========= Light/Dark toggle (ตัวอย่าง) ========= */
 
-document.getElementById('langToggle')?.addEventListener('click', (e) => {
-  e.target.textContent = e.target.textContent === 'TH' ? 'EN' : 'TH';
-});
 

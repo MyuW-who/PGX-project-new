@@ -1,7 +1,6 @@
 const userForm = document.getElementById("user-form");
 const userTableBody = document.querySelector("#user-table tbody");
 const formMessage = document.getElementById("form-message");
-const logoutBtn = document.getElementById("logout");
 const togglePasswordButtons = document.querySelectorAll(".toggle-password");
 const langToggle = document.getElementById("langToggle");
 const dropdownBtn = document.getElementById("dropdownBtn");
@@ -329,23 +328,7 @@ togglePasswordButtons.forEach((button) => {
   });
 });
 
-logoutBtn?.addEventListener("click", async () => {
-  const confirmLogout = confirm('คุณต้องการออกจากระบบหรือไม่?');
-  if (!confirmLogout) return;
 
-  try {
-    // Clear user session
-    localStorage.removeItem('userSession');
-    sessionStorage.clear();
-    
-    // Navigate to login
-    window.electronAPI.navigate('login');
-  } catch (error) {
-    console.error("Logout error:", error);
-    // Still redirect to login even if there's an error
-    window.electronAPI.navigate('login');
-  }
-});
 
 /* ============================================
    ⚙️ SETTINGS POPUP HANDLERS

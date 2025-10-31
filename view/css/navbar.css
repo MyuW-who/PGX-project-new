@@ -5,7 +5,8 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
+  overflow: visible !important;
+  z-index: 10 !important;
 }
 
 .header-buttons {
@@ -13,29 +14,6 @@ header {
   align-items: center;
   gap: 10px;
 }
-
-.header .title {
-        font-size: 24px;
-        font-weight: 600;
-    }
-    .header .actions {
-        display: flex;
-        gap: 15px;
-    }
-    .header .actions button,
-    .header .actions select {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 6px;
-        background: #e9eef6;
-        cursor: pointer;
-        transition: background 0.3s;
-        font-size: 0.95rem;
-    }
-    .header .actions button:hover,
-    .header .actions select:hover {
-        background: #d4d9e6;
-    }
 
 /* 🔘 ปุ่มทั่วไป (Theme, Lang, Dropdown) */
 .icon-btn,
@@ -57,15 +35,16 @@ header {
   box-shadow: 0 6px 20px rgba(148, 163, 184, 0.26);
 }
 
-
 /* ============================================
-   📂 DROPDOWN MENU
+   📂 DROPDOWN MENU (Fixed Layered Version)
    ============================================ */
-.dropdown { 
-  position: relative; 
-  z-index: 50; /* ให้ dropdown อยู่ชั้นบน */
+.dropdown {
+  position: relative !important;
+  overflow: visible !important;
+  z-index: 5000 !important;
 }
 
+/* ปุ่มหลัก */
 .dropbtn {
   display: flex;
   align-items: center;
@@ -84,20 +63,28 @@ header {
   transform: translateY(-1px);
 }
 
+/* เมนู dropdown */
 .dropdown-content {
-  position: absolute;
-  right: 0;
-  top: 110%;
-  min-width: 180px;
-  background: var(--card-bg);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
+  position: fixed !important;
+  top: 70px !important; /* ปรับตามความสูง header */
+  right: 40px !important;
+  min-width: 200px;
+  background: var(--card-bg, #fff);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border: 1px solid rgba(148,163,184,0.15);
   padding: 8px 0;
   display: none;
-  z-index: 10;
-  border: 1px solid rgba(148, 163, 184, 0.15);
+  z-index: 99999 !important;
 }
 
+.dropdown-content.show {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* ลิงก์ในเมนู */
 .dropdown-content a {
   color: var(--text-secondary);
   padding: 10px 14px;
@@ -111,14 +98,8 @@ header {
   color: var(--primary);
 }
 
-/* เปิดเมนูเมื่อมี class .show */
-.dropdown-content.show {
-  display: block;
-}
-
-
 /* ============================================
-   ⚙️ SETTINGS POPUP
+   ⚙️ SETTINGS POPUP (ย้ายมารวมไว้ใน navbar.css)
    ============================================ */
 .popup {
   position: fixed;
@@ -127,7 +108,7 @@ header {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  display: flex;
+  display: none; /* เริ่มต้นซ่อน */
   justify-content: center;
   align-items: center;
   z-index: 2000;
@@ -237,25 +218,4 @@ header {
 
 .btn-secondary:hover {
   background: #d1d5db;
-}
-
-/* Dark theme for popup */
-body.dark .popup-content {
-  background: #1e293b;
-}
-
-body.dark .popup-header,
-body.dark .popup-footer {
-  border-color: rgba(148, 163, 184, 0.2);
-}
-
-body.dark .setting-item select {
-  background: #0f172a;
-  color: #e2e8f0;
-  border-color: rgba(148, 163, 184, 0.2);
-}
-
-body.dark .popup-header h3,
-body.dark .setting-item label {
-  color: #e2e8f0;
 }
