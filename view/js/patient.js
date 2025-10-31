@@ -3,13 +3,64 @@
    ============================================ */
 
 /* --------------------------------------------
+   🔐 USER SESSION MANAGEMENT
+-------------------------------------------- */
+
+// Get current user session
+function getCurrentUser() {
+  try {
+    const sessionData = sessionStorage.getItem('currentUser');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading current user:', error);
+    return null;
+  }
+}
+
+// Check if user is authenticated
+function checkAuthentication() {
+  const currentUser = getCurrentUser();
+  
+  if (!currentUser) {
+    console.warn('⚠️ No user session found, redirecting to login');
+    window.electronAPI.navigate('login');
+    return false;
+  }
+  
+  console.log('✅ User authenticated:', currentUser.username, currentUser.role);
+  return true;
+}
+
+// Update user display in header
+function updateUserDisplay() {
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    // Update dropdown button with user info
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn) {
+      dropdownBtn.innerHTML = `
+        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
+      `;
+    }
+    
+    // You can also add hospital info if needed
+    if (currentUser.hospital_id) {
+      console.log('🏥 Hospital:', currentUser.hospital_id);
+    }
+  }
+}
+
+/* --------------------------------------------
    ✅ โหลดข้อมูลผู้ป่วยเมื่อหน้าเปิดขึ้น
 -------------------------------------------- */
 window.addEventListener('DOMContentLoaded', async () => {
-  // Initialize user profile (from userProfile.js)
-  if (!initializeUserProfile()) {
+  // Check authentication first
+  if (!checkAuthentication()) {
     return; // Stop execution if not authenticated
   }
+  
+  // Update user display
+  updateUserDisplay();
   
   // Load patients data
   try {
@@ -45,19 +96,33 @@ async function handleFormSubmit(e) {
   };
 
   try {
-    if (isEditMode && editingPatientId) {
-      const result = await window.electronAPI.updatePatient(editingPatientId, baseData);
-      alert(result.message || 'อัพเดทข้อมูลสำเร็จ!');
-    } else {
-      const payload = { ...baseData, created_at: new Date().toISOString() };
-      const result = await window.electronAPI.addPatient(payload);
-      alert(result.message || 'บันทึกข้อมูลสำเร็จ!');
-    }
-    closePopup();
+    // เรียก API เพื่ออัปเดตข้อมูล
+    // await window.electronAPI.updatePatient(editingPatientId, patientData);
+
+    // --- REPLACED ALERT ---
+    await Swal.fire({
+      icon: 'success',
+      title: 'บันทึกสำเร็จ!',
+      text: 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว',
+      background: '#1f2937',
+      color: '#f9fafb',
+      confirmButtonColor: '#3b82f6'
+    });
+
+    // รีโหลดหน้าเว็บหลังจากกด OK
     location.reload();
+
   } catch (err) {
-    console.error('❌ Error saving patient:', err);
-    alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    console.error('❌ Error saving patient data:', err);
+    // --- REPLACED ALERT ---
+    Swal.fire({
+      icon: 'error',
+      title: 'บันทึกไม่สำเร็จ',
+      text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+      background: '#1f2937',
+      color: '#f9fafb',
+      confirmButtonColor: '#3b82f6'
+    });
   }
 }
 
@@ -158,30 +223,6 @@ function closePopup() {
 }
 
 
-
-/* --------------------------------------------
-   🌐 Toggle Language
--------------------------------------------- */
-const langBtn = document.getElementById('langToggle');
-langBtn?.addEventListener('click', () => {
-  langBtn.textContent = langBtn.textContent === 'TH' ? 'EN' : 'TH';
-});
-
-/* --------------------------------------------
-   🧭 Navigation Buttons
--------------------------------------------- */
-
-// ▶️ ปุ่มไปหน้า Dashboard
-const dashboardBtn = document.getElementById('dashboard-btn');
-dashboardBtn?.addEventListener('click', () => {
-  window.electronAPI.navigate('dashboard1');
-});
-
-const informationBtn = document.getElementById('information-btn');
-informationBtn?.addEventListener('click', () => {
-  window.electronAPI.navigate('information');
-});
-
 // ▶️ ปุ่ม Inspect (ทุกปุ่ม)
 function attachInspectButtons() {
   document.querySelectorAll('.inspect-btn').forEach((btn) => {
@@ -190,6 +231,40 @@ function attachInspectButtons() {
     });
   });
 }
+
+document.getElementById('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  
+  const currentUser = getCurrentUser();
+  const username = currentUser ? currentUser.username : 'Unknown';
+  
+  // Confirm logout
+  if (confirm(`คุณต้องการออกจากระบบหรือไม่?\n(${username})`)) {
+    try {
+      // Call logout handler if available
+      if (window.electronAPI.handleLogout) {
+        await window.electronAPI.handleLogout({ username });
+      }
+      
+      // Clear all session data
+      localStorage.removeItem('userSession');
+      localStorage.removeItem('userRole'); // Remove old role storage
+      sessionStorage.clear();
+      
+      console.log('👋 User logged out:', username);
+      
+      // Navigate to login page
+      window.electronAPI.navigate('login');
+      
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      // Still logout even if API call fails
+      sessionStorage.clear();
+      localStorage.removeItem('userSession');
+      window.electronAPI.navigate('login');
+    }
+  }
+});
 
 function showPage(pageName, patientId) {
   // Store patientId in sessionStorage for use in verify_step1.html
@@ -234,22 +309,64 @@ async function editPatient(patientId) {
   }
 }
 
+
+
+
+
+
+
 /* --------------------------------------------
-   🗑️ Delete Patient Function
+   🗑️ Delete Patient Function (Improved with SweetAlert2)
 -------------------------------------------- */
 async function deletePatient(patientId) {
-  if (confirm('คุณแน่ใจที่จะลบข้อมูลผู้ป่วยหรือไม่?')) {
-    try {
-      const result = await window.electronAPI.deletePatient(patientId);
-      alert(result.message || 'ลบข้อมูลสำเร็จ!');
-      location.reload();
-    } catch (err) {
-      console.error('❌ Error deleting patient:', err);
-      alert('เกิดข้อผิดพลาดในการลบข้อมูล');
-    }
-  }
-}
+  Swal.fire({
+    title: 'คุณแน่ใจหรือไม่?',
+    text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ใช่, ลบเลย!',
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true,
+    
+    // --- Custom Styles for Dark Theme ---
+    background: '#1f2937', // สีพื้นหลัง Pop-up
+    color: '#f9fafb',      // สีตัวอักษร
+    confirmButtonColor: '#3b82f6', // สีปุ่มยืนยัน (สีน้ำเงิน)
+    cancelButtonColor: '#ef4444'   // สีปุ่มยกเลิก (สีแดง)
 
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await window.electronAPI.deletePatient(patientId);
+        
+        // แสดง Pop-up แจ้งว่าลบสำเร็จ
+        Swal.fire({
+          title: 'ลบสำเร็จ!',
+          text: response.message || 'ข้อมูลผู้ป่วยถูกลบเรียบร้อยแล้ว',
+          icon: 'success',
+          background: '#1f2937',
+          color: '#f9fafb',
+          confirmButtonColor: '#3b82f6'
+        }).then(() => {
+          location.reload(); // รีโหลดหน้าเว็บหลังกด OK
+        });
+
+      } catch (err) {
+        console.error('❌ Error deleting patient:', err);
+        
+        // แสดง Pop-up แจ้งเตือนข้อผิดพลาด
+        Swal.fire({
+          title: 'เกิดข้อผิดพลาด!',
+          text: 'ไม่สามารถลบข้อมูลผู้ป่วยได้',
+          icon: 'error',
+          background: '#1f2937',
+          color: '#f9fafb',
+          confirmButtonColor: '#3b82f6'
+        });
+      }
+    }
+  });
+}
 
 
 /* --------------------------------------------

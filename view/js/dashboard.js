@@ -1,9 +1,11 @@
 /* ============================================================
-   📊 DASHBOARD SCRIPT
+   1️⃣ THEME SWITCHER (โหมดสว่าง / โหมดมืด)
    ------------------------------------------------------------
-   ▶️ Dashboard visualization and metrics
+   ▶️ เปลี่ยนธีมของหน้าเว็บทั้งหมดระหว่าง Light ↔ Dark
 ============================================================ */
 let chartInstances = {};
+
+
 
 /* ============================================================
    2️⃣ LANGUAGE TOGGLE (สลับภาษา TH / EN)
@@ -16,20 +18,35 @@ langBtn?.addEventListener("click", () => {
 });
 
 /* ============================================================
-   🧭 NAVIGATION BUTTONS
+   6️⃣ USER DROPDOWN MENU (เมนูผู้ใช้)
    ------------------------------------------------------------
-   ▶️ Page navigation handlers
+   ▶️ เปิด/ปิดเมนูผู้ใช้ (Profile / Setting / Logout)
 ============================================================ */
+const dropdownBtn = document.getElementById("dropdownBtn");
+const dropdownMenu = document.getElementById("dropdownMenu");
 
-const dashboard_btn = document.getElementById('patient-btn');
-dashboard_btn?.addEventListener('click', () => {
-  window.electronAPI.navigate('patient');
+// 🔹 เปิด/ปิด dropdown เมื่อกดปุ่ม
+dropdownBtn?.addEventListener("click", (e) => {
+  e.stopPropagation(); // ป้องกัน event ปิด dropdown ซ้อนกัน
+  dropdownMenu.classList.toggle("show");
 });
 
-const informationBtn = document.getElementById('information-btn');
-informationBtn?.addEventListener('click', () => {
-  window.electronAPI.navigate('information');
+// 🔹 ปิด dropdown เมื่อคลิกนอกพื้นที่
+window.addEventListener("click", (e) => {
+  if (!e.target.closest(".dropdown")) {
+    dropdownMenu?.classList.remove("show");
+  }
 });
+
+
+// -------- Logout ------------
+document.getElementById('logout')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.electronAPI.navigate('login');
+});
+
+
+
 
 /* ============================================================
    7️⃣ MOCK DATA & DASHBOARD WIDGETS (ยังคงสไตล์เดิม)
@@ -505,15 +522,3 @@ if (hasDashboard) {
     });
   }
 }
-
-/* ============================================================
-   🔄 PAGE INITIALIZATION
-   ------------------------------------------------------------
-   ▶️ Initialize page when DOM is loaded
-============================================================ */
-window.addEventListener('DOMContentLoaded', () => {
-  // Initialize user profile (from userProfile.js)
-  if (!initializeUserProfile()) {
-    return; // Stop execution if not authenticated
-  }
-});

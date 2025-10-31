@@ -8,8 +8,24 @@
   <link rel="stylesheet" href="./css/information.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="./css/darkmode.css">
+  <link rel="stylesheet" href="./css/menu.css">
+  <link rel="stylesheet" href="./css/navbar_hover.css">
+
 </head>
 <body>
+
+  <!-- แถบ Navbar -->
+  <div class="hover-navbar">
+    <div class="navbar-content">
+      <div class="navbar-left">
+        <span class="logo">Roblox</span>
+      </div>
+      <div class="navbar-right">
+        <button class="nav-btn close"><i class="fa fa-xmark"></i></button>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -17,7 +33,7 @@
       <ul>
         <li id="dashboard-btn">Dashboard</li>
         <li id="patient-btn">ข้อมูลผู้ป่วย</li>
-        <li class="active">ตรวจสอบข้อมูล</li>
+        <li id="information-btn" class="active">ตรวจสอบข้อมูล</li>
         <li>Admin Page</li>
       </ul>
     </aside>
@@ -54,10 +70,11 @@
           
         <div class="toolbar-right">
           <select id="tatFilter">
-            <option value="all">TAT ทั้งหมด</option>
-            <option value="pre-analytic">Pre-analytic</option>
-            <option value="analytic">Analytic</option>
-            <option value="post-analytic">Post-analytic</option>
+            <option value="all">All status</option>
+            <option value="need 2 confirmation">Need 2 confirmation</option>
+            <option value="need 1 confirmation">Need 1 confirmation</option>
+            <option value="done">Done</option>
+            <option value="reject">Reject</option>
           </select>
           <button id="scanBarcodeBtn" class="btn primary">
             <i class="fa fa-barcode"></i>
@@ -71,19 +88,19 @@
       <section class="stats-grid">
         <div class="stat-card">
           <div class="card-icon icon-all"><i class="fa fa-users"></i></div>
-          <div class="card-info"><p>ทั้งหมด</p><span id="statAll">0</span></div>
+          <div class="card-info"><p>All Case</p><span id="statAll">0</span></div>
         </div>
         <div class="stat-card">
-          <div class="card-icon icon-pre"><i class="fa fa-vial"></i></div>
-          <div class="card-info"><p>Pre-analytic</p><span id="statPre">0</span></div>
+          <div class="card-icon icon-pre"><i class="fa fa-hourglass-half"></i></div>
+          <div class="card-info"><p>Need 2 confirmation</p><span id="statPre">0</span></div>
         </div>
         <div class="stat-card">
-          <div class="card-icon icon-analytic"><i class="fa fa-dna"></i></div>
-          <div class="card-info"><p>Analytic</p><span id="statAnalytic">0</span></div>
+          <div class="card-icon icon-analytic"><i class="fa fa-clock"></i></div>
+          <div class="card-info"><p>Need 1 confirmation</p><span id="statAnalytic">0</span></div>
         </div>
         <div class="stat-card">
-          <div class="card-icon icon-post"><i class="fa fa-clipboard-check"></i></div>
-          <div class="card-info"><p>Post-analytic</p><span id="statPost">0</span></div>
+          <div class="card-icon icon-post"><i class="fa fa-check-circle"></i></div>
+          <div class="card-info"><p>Done</p><span id="statPost">0</span></div>
         </div>
       </section>
 
@@ -93,8 +110,10 @@
           <table id="patientTable">
             <thead>
               <tr>
-                <th>เคสเลขที่ / HN</th>
-                <th>ชื่อ - นามสกุล / การวินิจฉัย</th>
+                <th>เคสเลขที่ </th>
+                <th>Hospital Name</th>
+                <th>ชื่อ - นามสกุล </th> 
+                <th>การวินิจฉัย</th>
                 <th>วันที่รับสิ่งส่งตรวจ</th>
                 <th>ชนิดผลล่าสุด</th>
                 <th>สถานะ TAT</th>
@@ -161,5 +180,8 @@
   <script src="./js/userProfile.js"></script>
   <script src="./js/darkmode.js"></script>
   <script src="./js/information.js"></script>
+  <script src="./js/menu.js"></script>
+  <script src="./js/navbar_hover.js"></script>
+
 </body>
 </html>

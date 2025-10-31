@@ -1,54 +1,30 @@
 /* ============================================
-   🌙 Persistent Dark Mode (Fixed)
+   🌙 Unified Persistent Dark Mode System
    ============================================ */
+
 const themeBtn = document.getElementById('themeToggle');
 const DARK_KEY = 'theme-mode';
-const icon = themeBtn?.querySelector('i'); // ย้ายมาประกาศตรงนี้เพื่อใช้ซ้ำ
+const icon = themeBtn?.querySelector('i');
 
-// ฟังก์ชันสำหรับอัปเดตไอคอน
+// เปลี่ยนไอคอนตามสถานะ
 function updateIcon(isDark) {
-  if (icon) {
-    if (isDark) {
-      icon.classList.remove('fa-moon');
-      icon.classList.add('fa-sun');
-    } else {
-      icon.classList.remove('fa-sun');
-      icon.classList.add('fa-moon');
-    }
-  }
+  if (!icon) return;
+  icon.classList.toggle('fa-sun', isDark);
+  icon.classList.toggle('fa-moon', !isDark);
 }
 
-// 🟢 โหลดค่าที่เคยตั้งไว้เมื่อเปิดหน้า
-// ใช้ document.addEventListener เพื่อให้แน่ใจว่า DOM พร้อมใช้งาน
+// โหลดค่าจาก LocalStorage ตอนเริ่มต้น
 document.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem(DARK_KEY);
   const isDark = savedTheme === 'dark';
 
-  if (isDark) {
-    document.body.classList.add('dark');
-  }
-  updateIcon(isDark); // อัปเดตไอคอนตามธีมที่โหลด
-
-  // ถ้ามีฟังก์ชัน updateCharts ให้เรียกทันที
-  if (typeof updateChartsForTheme === 'function') {
-    updateChartsForTheme();
-  }
+  if (isDark) document.body.classList.add('dark');
+  updateIcon(isDark);
 });
 
-
-// 🌓 เมื่อผู้ใช้กดปุ่ม
+// เมื่อผู้ใช้กดปุ่ม toggle
 themeBtn?.addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-  const isDark = document.body.classList.contains('dark');
-  
-  // บันทึกค่าลง Local Storage
+  const isDark = document.body.classList.toggle('dark');
   localStorage.setItem(DARK_KEY, isDark ? 'dark' : 'light');
-
-  // เปลี่ยน icon
   updateIcon(isDark);
-
-  // อัปเดตกราฟ (ถ้ามี)
-  if (typeof updateChartsForTheme === 'function') {
-    updateChartsForTheme();
-  }
 });

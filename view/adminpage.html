@@ -5,34 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Page</title>
   <link rel="stylesheet" href="./css/adminpage.css" />
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="./css/navbar.css">
+	<link rel="stylesheet" href="./css/menu.css">
+  <link rel="stylesheet" href="./css/darkmode.css" />
+  <link rel="stylesheet" href="./css/navbar_hover.css">
 </head>
 <body>
+
+  <!-- แถบ Navbar -->
+  <div class="hover-navbar">
+    <div class="navbar-content">
+      <div class="navbar-left">
+        <span class="logo">Roblox</span>
+      </div>
+      <div class="navbar-right">
+        <button class="nav-btn close"><i class="fa fa-xmark"></i></button>
+      </div>
+    </div>
+  </div>
+
   <div class="layout">
     <aside class="sidebar">
-      <div class="brand">PGX Admin</div>
-      <nav class="nav-menu">
-        <a href="#" class="nav-item">
-          <span>Dashboard</span>
-        </a>
-        <a href="#" class="nav-item">
-          <span>ข้อมูลผู้ป่วย</span>
-        </a>
-        <a href="#" class="nav-item">
-          <span>ตรวจสอบข้อมูล</span>
-        </a>
-        <a href="#" class="nav-item active">
-          <span>Admin Page</span>
-        </a>
-      </nav>
+      		<h2 class="logo">Logo</h2>
+			<ul>
+				<li id="admin-btn" class="active">Employee</li>
+				<li id="auditlog-btn" >Audit Log</li>
+			</ul>
     </aside>
 
     <!-- ...existing code... -->
     <main class="main-content">
       <header class="page-header">
         <div class="page-title">
-          <h1>จัดการผู้ใช้งาน</h1>
-          <p>เพิ่มผู้ใช้งานใหม่และจัดการรายชื่อผู้ใช้งานทั้งหมด</p>
+          <h1>Employee</h1>
+          <p>Add & Edit All Employees</p>
         </div>
         <div class="header-buttons">
           <button id="themeToggle" class="icon-btn" title="เปลี่ยนธีม">
@@ -156,9 +164,16 @@
       </div>
     </div>
 
+    
+
   </div>
 
   <script src="./js/userProfile.js"></script>
   <script src="./js/adminpage.js"></script>
+  <script src="./js/darkmode.js"></script>
+  <script src="./js/navbar.js"></script>
+	<script src="./js/menu.js"></script>
+  <script src="./js/navbar_hover.js"></script>
+
 </body>
 </html>

@@ -23,6 +23,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateAccount: (data) => ipcRenderer.invoke('update-account', data),
   deleteAccount: (userId) => ipcRenderer.invoke('delete-account', userId),
   hashPassword: (password) => ipcRenderer.invoke('hash-password', password),
+  // Test Request functions
+  getTestRequests: () => ipcRenderer.invoke('get-test-requests'),
+  searchTestRequests: (searchTerm) => ipcRenderer.invoke('search-test-requests', searchTerm),
+  getTestRequestById: (requestId) => ipcRenderer.invoke('get-test-request-by-id', requestId),
+  addTestRequest: (data) => ipcRenderer.invoke('add-test-request', data),
+  updateTestRequest: (requestId, data) => ipcRenderer.invoke('update-test-request', { requestId, data }),
+  deleteTestRequest: (requestId) => ipcRenderer.invoke('delete-test-request', requestId),
+  getTestRequestStats: () => ipcRenderer.invoke('get-test-request-stats'),
+  closeApp: () => ipcRenderer.send('window-close'),
 });
 
 try {
