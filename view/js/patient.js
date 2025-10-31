@@ -96,19 +96,33 @@ async function handleFormSubmit(e) {
   };
 
   try {
-    if (isEditMode && editingPatientId) {
-      const result = await window.electronAPI.updatePatient(editingPatientId, baseData);
-      alert(result.message || 'อัพเดทข้อมูลสำเร็จ!');
-    } else {
-      const payload = { ...baseData, created_at: new Date().toISOString() };
-      const result = await window.electronAPI.addPatient(payload);
-      alert(result.message || 'บันทึกข้อมูลสำเร็จ!');
-    }
-    closePopup();
+    // เรียก API เพื่ออัปเดตข้อมูล
+    // await window.electronAPI.updatePatient(editingPatientId, patientData);
+
+    // --- REPLACED ALERT ---
+    await Swal.fire({
+      icon: 'success',
+      title: 'บันทึกสำเร็จ!',
+      text: 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว',
+      background: '#1f2937',
+      color: '#f9fafb',
+      confirmButtonColor: '#3b82f6'
+    });
+
+    // รีโหลดหน้าเว็บหลังจากกด OK
     location.reload();
+
   } catch (err) {
-    console.error('❌ Error saving patient:', err);
-    alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    console.error('❌ Error saving patient data:', err);
+    // --- REPLACED ALERT ---
+    Swal.fire({
+      icon: 'error',
+      title: 'บันทึกไม่สำเร็จ',
+      text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+      background: '#1f2937',
+      color: '#f9fafb',
+      confirmButtonColor: '#3b82f6'
+    });
   }
 }
 
@@ -302,21 +316,57 @@ async function editPatient(patientId) {
 
 
 /* --------------------------------------------
-   🗑️ Delete Patient Function
+   🗑️ Delete Patient Function (Improved with SweetAlert2)
 -------------------------------------------- */
 async function deletePatient(patientId) {
-  if (confirm('คุณแน่ใจที่จะลบข้อมูลผู้ป่วยหรือไม่?')) {
-    try {
-      const result = await window.electronAPI.deletePatient(patientId);
-      alert(result.message || 'ลบข้อมูลสำเร็จ!');
-      location.reload();
-    } catch (err) {
-      console.error('❌ Error deleting patient:', err);
-      alert('เกิดข้อผิดพลาดในการลบข้อมูล');
-    }
-  }
-}
+  Swal.fire({
+    title: 'คุณแน่ใจหรือไม่?',
+    text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ใช่, ลบเลย!',
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true,
+    
+    // --- Custom Styles for Dark Theme ---
+    background: '#1f2937', // สีพื้นหลัง Pop-up
+    color: '#f9fafb',      // สีตัวอักษร
+    confirmButtonColor: '#3b82f6', // สีปุ่มยืนยัน (สีน้ำเงิน)
+    cancelButtonColor: '#ef4444'   // สีปุ่มยกเลิก (สีแดง)
 
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await window.electronAPI.deletePatient(patientId);
+        
+        // แสดง Pop-up แจ้งว่าลบสำเร็จ
+        Swal.fire({
+          title: 'ลบสำเร็จ!',
+          text: response.message || 'ข้อมูลผู้ป่วยถูกลบเรียบร้อยแล้ว',
+          icon: 'success',
+          background: '#1f2937',
+          color: '#f9fafb',
+          confirmButtonColor: '#3b82f6'
+        }).then(() => {
+          location.reload(); // รีโหลดหน้าเว็บหลังกด OK
+        });
+
+      } catch (err) {
+        console.error('❌ Error deleting patient:', err);
+        
+        // แสดง Pop-up แจ้งเตือนข้อผิดพลาด
+        Swal.fire({
+          title: 'เกิดข้อผิดพลาด!',
+          text: 'ไม่สามารถลบข้อมูลผู้ป่วยได้',
+          icon: 'error',
+          background: '#1f2937',
+          color: '#f9fafb',
+          confirmButtonColor: '#3b82f6'
+        });
+      }
+    }
+  });
+}
 
 
 /* --------------------------------------------

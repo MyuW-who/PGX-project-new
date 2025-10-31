@@ -50,10 +50,6 @@ patientPageBtn?.addEventListener('click', () => {
   window.electronAPI.navigate('patient');
 });
 
-const informationBtn = document.getElementById('information-btn');
-informationBtn?.addEventListener('click', () => {
-  window.electronAPI.navigate('information');
-});
 
 
 /* ============================================================

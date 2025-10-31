@@ -54,7 +54,6 @@ body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
 }
 
 .brand {
@@ -508,98 +507,6 @@ tbody tr:hover {
   display: block;
 }
 
-/* =============================
-   Admin page - Dark mode (body.dark)
-   Concise rules; uses admin variables
-   ============================= */
-body.dark {
-  /* Map admin variables to patient dark palette */
-  --color-bg: #1e1e2f;
-  --color-surface: #2f2f40;
-  --color-border: #3b3b4a;
-  --color-text: #ecf0f1;
-  --color-muted: #cbd5e1;
-  background: var(--color-bg);
-  color: var(--color-text);
-}
-
-body.dark .main-content {
-  background: linear-gradient(165deg, #1e1e2f 0%, #252538 45%, #2a2a3e 100%);
-}
-
-body.dark .card {
-  background: var(--color-surface);
-  color: var(--color-text);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-}
-
-/* Inputs/selects/textarea inner color in dark mode */
-body.dark :is(input:not([type="checkbox"]), select, textarea) {
-  background: #3b3b4a;
-  border-color: var(--color-border);
-  color: var(--color-text);
-  caret-color: var(--color-text);
-}
-
-body.dark :is(input:not([type="checkbox"]), select, textarea):focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-  outline: none;
-}
-
-body.dark :is(input, textarea)::placeholder {
-  color: var(--color-muted);
-  opacity: 1;
-}
-
-@media (max-width: 1024px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px clamp(16px, 4vw, 24px);
-    gap: 24px;
-  }
-
-  .sidebar .logout-btn {
-    margin-top: 0;
-    margin-left: auto;
-    align-self: center;
-  }
-
-  .nav-menu {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .nav-item {
-    padding: 10px 14px;
-  }
-}
-
-@media (max-width: 640px) {
-  table {
-    min-width: unset;
-  }
-
-  .form-actions {
-    flex-wrap: wrap;
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header-buttons {
-    margin-left: 0;
-  }
-}
 
 .icon-btn,
 .lang-btn,
@@ -630,7 +537,6 @@ body.dark :is(input, textarea)::placeholder {
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
 }
 
-/* (legacy .dark-theme button rules removed) */
 
 /* Settings Popup */
 .popup {
@@ -747,4 +653,3 @@ body.dark :is(input, textarea)::placeholder {
   background: #d1d5db;
 }
 
-/* (legacy .dark-theme popup rules removed) */

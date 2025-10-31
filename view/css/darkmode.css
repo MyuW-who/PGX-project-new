@@ -265,3 +265,119 @@ body.dark .chart-legend {
 body.dark #usage-subtitle {
   color: #94a3b8;
 }
+
+
+/* =============================
+   🌙 PGX Admin Unified Dark Mode
+   ============================= */
+body.dark {
+  --color-bg: #0f172a;          /* พื้นหลังหลัก */
+  --color-surface: #1e293b;     /* พื้นผิว card */
+  --color-border: #334155;      /* สีเส้นขอบ */
+  --color-text: #e2e8f0;        /* ตัวหนังสือหลัก */
+  --color-muted: #94a3b8;       /* ตัวหนังสือรอง */
+  --color-primary: #3b82f6;     /* ปุ่มหลัก */
+  --color-primary-hover: #2563eb;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* พื้นหลังเนียนแบบ gradient */
+body.dark .main-content {
+  background: linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #111827 100%);
+}
+
+/* Sidebar ให้เข้ากับ theme */
+body.dark .sidebar {
+  background: #111827;
+  color: var(--color-text);
+}
+
+/* Card */
+body.dark .card {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Table */
+body.dark table {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+body.dark thead th {
+  background: #1e293b;
+  color: var(--color-muted);
+}
+
+body.dark tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* Input & Select */
+body.dark input,
+body.dark select {
+  background: #273549;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+body.dark input:focus,
+body.dark select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+/* Buttons */
+body.dark .btn.primary {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+body.dark .btn.primary:hover {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+}
+
+/* Dropdown */
+body.dark .dropdown-content {
+  background: #1e293b;
+  border-color: var(--color-border);
+}
+
+body.dark .dropdown-content a {
+  color: var(--color-muted);
+}
+
+body.dark .dropdown-content a:hover {
+  color: var(--color-primary);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Popup */
+body.dark .popup-content {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+/* Table Action Buttons */
+body.dark .table-action.edit {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+body.dark .table-action.delete {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+body.dark .table-action.edit:hover {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+body.dark .table-action.delete:hover {
+  background: rgba(239, 68, 68, 0.25);
+}

@@ -1,80 +1,82 @@
-/* --------------------------------------------
-   ⚙️ Settings Popup Handler
--------------------------------------------- */
-const settingsPopup = document.getElementById('settingsPopup');
-const closeSettings = document.getElementById('closeSettings');
-const saveSettings = document.getElementById('saveSettings');
-const cancelSettings = document.getElementById('cancelSettings');
-const settingsBtn = document.getElementById('settingsBtn');
+/* ============================================
+   ⚙️ SETTINGS POPUP (Navbar-safe version)
+   ============================================ */
+const navbarSettingsPopup = document.getElementById('settingsPopup');
+const navbarCloseSettings = document.getElementById('closeSettings');
+const navbarSaveSettings = document.getElementById('saveSettings');
+const navbarCancelSettings = document.getElementById('cancelSettings');
+const navbarSettingsBtn = document.getElementById('settingsBtn');
 
-// Open settings popup
-settingsBtn?.addEventListener('click', (e) => {
+// 🔹 เปิด Settings Popup
+navbarSettingsBtn?.addEventListener('click', (e) => {
   e.preventDefault();
-  settingsPopup.style.display = 'flex';
+  navbarSettingsPopup.style.display = 'flex';
   dropdownMenu?.classList.remove('show');
 });
 
-// Close settings popup
-closeSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
+// 🔹 ปิด Settings Popup
+navbarCloseSettings?.addEventListener('click', () => {
+  navbarSettingsPopup.style.display = 'none';
+});
+navbarCancelSettings?.addEventListener('click', () => {
+  navbarSettingsPopup.style.display = 'none';
 });
 
-cancelSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
+// 🔹 บันทึก Settings
+navbarSaveSettings?.addEventListener('click', () => {
+  const language = document.getElementById('languageSetting')?.value;
+  const theme = document.getElementById('themeSetting')?.value;
+  const notifications = document.getElementById('notificationsSetting')?.checked;
 
-// Save settings
-saveSettings?.addEventListener('click', () => {
-  const language = document.getElementById('languageSetting').value;
-  const theme = document.getElementById('themeSetting').value;
-  const notifications = document.getElementById('notificationsSetting').checked;
-  
   localStorage.setItem('appLanguage', language);
   localStorage.setItem('appTheme', theme);
   localStorage.setItem('appNotifications', notifications);
-  
+
+  // 🔄 sync กับ darkmode.js
   if (theme === 'dark') {
     document.body.classList.add('dark');
+    localStorage.setItem('theme-mode', 'dark');
   } else {
     document.body.classList.remove('dark');
+    localStorage.setItem('theme-mode', 'light');
   }
-  
+
   alert('Settings saved successfully!');
-  settingsPopup.style.display = 'none';
+  navbarSettingsPopup.style.display = 'none';
 });
 
-// Close popup when clicking outside
-settingsPopup?.addEventListener('click', (e) => {
-  if (e.target === settingsPopup) {
-    settingsPopup.style.display = 'none';
+// 🔹 ปิด popup เมื่อคลิกนอกกรอบ
+navbarSettingsPopup?.addEventListener('click', (e) => {
+  if (e.target === navbarSettingsPopup) {
+    navbarSettingsPopup.style.display = 'none';
   }
 });
 
-// Load saved settings on page load
+// 🔹 โหลดค่าที่เคยบันทึกไว้
 window.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('appTheme');
   const savedLanguage = localStorage.getItem('appLanguage');
   const savedNotifications = localStorage.getItem('appNotifications');
-  
+
   if (savedTheme && document.getElementById('themeSetting')) {
     document.getElementById('themeSetting').value = savedTheme;
     if (savedTheme === 'dark') {
       document.body.classList.add('dark');
     }
   }
-  
+
   if (savedLanguage && document.getElementById('languageSetting')) {
     document.getElementById('languageSetting').value = savedLanguage;
   }
-  
+
   if (savedNotifications !== null && document.getElementById('notificationsSetting')) {
     document.getElementById('notificationsSetting').checked = savedNotifications === 'true';
   }
 });
 
-/* --------------------------------------------
-   🌐 Toggle Language
--------------------------------------------- */
+/* ============================================
+   🌐 LANGUAGE TOGGLE
+   ============================================ */
 const langBtn = document.getElementById('langToggle');
 langBtn?.addEventListener('click', () => {
   langBtn.textContent = langBtn.textContent === 'TH' ? 'EN' : 'TH';

@@ -3,7 +3,6 @@ const userTableBody = document.querySelector("#user-table tbody");
 const formMessage = document.getElementById("form-message");
 const logoutBtn = document.getElementById("logout");
 const togglePasswordButtons = document.querySelectorAll(".toggle-password");
-const themeToggle = document.getElementById("themeToggle");
 const langToggle = document.getElementById("langToggle");
 const dropdownBtn = document.getElementById("dropdownBtn");
 const dropdownMenu = document.getElementById("dropdownMenu");
@@ -45,33 +44,7 @@ function checkAuthentication() {
   return true;
 }
 
-/* ============================================================
-   🧭 NAVIGATION BUTTONS Fix this when finished
-   ------------------------------------------------------------
-   ▶️ Page navigation handlers
-============================================================ */
 
-// Sidebar navigation handlers for Admin page
-// Sidebar navigation handlers
-const dashboardBtn = document.getElementById('dashboard-btn');
-dashboardBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  window.electronAPI?.navigate('dashboard1');
-});
-
-// In Admin page sidebar the second item is labeled "Audit Log"
-const patientBtn = document.getElementById('patient-btn');
-patientBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  window.electronAPI?.navigate('auditlog');
-});
-
-// If there's an information page, wire here when available
-// const informationBtn = document.getElementById('information-btn');
-// informationBtn?.addEventListener('click', (e) => {
-//   e.preventDefault();
-//   window.electronAPI?.navigate('information');
-// });
 
 // Update user display in header
 function updateUserDisplay() {
@@ -410,13 +383,6 @@ saveSettings?.addEventListener('click', () => {
   console.log('Settings saved:', { language, theme, notifications });
   
   // Apply theme immediately if changed
-  if (theme === 'dark') {
-    document.body.classList.add('dark');
-    document.body.classList.remove('dark-theme');
-  } else {
-    document.body.classList.remove('dark');
-    document.body.classList.remove('dark-theme');
-  }
   
   settingsPopup.style.display = 'none';
 });
@@ -449,10 +415,7 @@ document.addEventListener("click", () => {
   dropdownMenuElement?.classList.remove("show");
 });
 
-themeToggle?.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  document.body.classList.remove("dark-theme");
-});
+
 
 langToggle?.addEventListener("click", () => {
   const current = langToggle.textContent.trim();

@@ -32,6 +32,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteTestRequest: (requestId) => ipcRenderer.invoke('delete-test-request', requestId),
   getTestRequestStats: (timeFilter) => ipcRenderer.invoke('get-test-request-stats', timeFilter),
   getSpecimenSLA: () => ipcRenderer.invoke('get-specimen-sla'),
+  closeApp: () => ipcRenderer.send('window-close'),
 });
 
 try {

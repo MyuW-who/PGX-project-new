@@ -54,16 +54,6 @@ const auditList = document.getElementById('auditList');
 const auditCount = document.getElementById('auditCount');
 const emptyState = document.getElementById('emptyState');
 
-// --- Navigation (sidebar) ---
-document.getElementById('dashboard-btn')?.addEventListener('click', (e) => {
-	e.preventDefault();
-	window.electronAPI?.navigate('dashboard1');
-});
-
-document.getElementById('admin-btn')?.addEventListener('click', (e) => {
-	e.preventDefault();
-	window.electronAPI?.navigate('adminpage');
-});
 
 // --- Dropdown & theme/lang handlers ---
 dropdownBtn?.addEventListener('click', (e) => {
@@ -73,10 +63,7 @@ dropdownBtn?.addEventListener('click', (e) => {
 dropdownMenu?.addEventListener('click', (e) => e.stopPropagation());
 document.addEventListener('click', () => dropdownMenu?.classList.remove('show'));
 
-themeToggle?.addEventListener('click', () => {
-	document.body.classList.toggle('dark');
-	document.body.classList.remove('dark-theme');
-});
+
 
 langToggle?.addEventListener('click', () => {
 	const current = langToggle.textContent.trim();
