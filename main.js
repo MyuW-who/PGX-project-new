@@ -239,12 +239,12 @@ ipcMain.handle('delete-test-request', async (event, requestId) => {
   }
 });
 
-ipcMain.handle('get-test-request-stats', async () => {
+ipcMain.handle('get-test-request-stats', async (event, timeFilter = 'today') => {
   try {
-    return await getTestRequestStats();
+    return await getTestRequestStats(timeFilter);
   } catch (err) {
     console.error('❌ Get Stats Error:', err.message);
-    return { all: 0, preAnalytic: 0, analytic: 0, postAnalytic: 0 };
+    return { all: 0, need2Confirmation: 0, need1Confirmation: 0, done: 0, reject: 0 };
   }
 });
 

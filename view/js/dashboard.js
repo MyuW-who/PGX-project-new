@@ -143,11 +143,14 @@ function updateChartsForTheme() {
 const hasDashboard = !!document.getElementById('usageChart') || !!document.getElementById('tatDonut') || !!document.getElementById('kpiGauge');
 
 if (hasDashboard) {
+  // Current time filter
+  let currentTimeFilter = 'today';
+  
   // ── Function to fetch and calculate real data ───────────────────
-  async function fetchRealData() {
+  async function fetchRealData(timeFilter = 'today') {
     try {
       const testRequests = await window.electronAPI.getTestRequests();
-      const stats = await window.electronAPI.getTestRequestStats();
+      const stats = await window.electronAPI.getTestRequestStats(timeFilter);
       const specimenSLA = await window.electronAPI.getSpecimenSLA();
       
       console.log('📊 Dashboard Data:', { testRequests, stats, specimenSLA });
@@ -202,8 +205,8 @@ if (hasDashboard) {
         }
       });
       
-      // Calculate rejection rate
-      const rejectionRate = allCases > 0 ? ((rejectedCases / allCases) * 100).toFixed(2) : 0;
+      // Calculate rejection rate (as number, not string)
+      const rejectionRate = allCases > 0 ? parseFloat(((rejectedCases / allCases) * 100).toFixed(2)) : 0;
       
       return {
         totals: {
@@ -413,6 +416,9 @@ if (hasDashboard) {
         const arc = meta?.data?.[0];
         if (!arc) return;
         
+        // Get current rate from chart data dynamically
+        const currentRate = chart.data.datasets[0].data[0] || 0;
+        
         const isDark = document.body.classList.contains('dark');
         const {ctx} = chart;
         
@@ -421,7 +427,7 @@ if (hasDashboard) {
         ctx.fillStyle = isDark ? '#ecf0f1' : '#333';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`${rate}%`, arc.x, arc.y + 5);
+        ctx.fillText(`${currentRate.toFixed(1)}%`, arc.x, arc.y + 5);
         ctx.restore();
       }
     };
@@ -654,5 +660,63 @@ if (hasDashboard) {
       console.error('❌ Failed to fetch dashboard data');
     }
   })();
+  
+  // ── Time Filter Button Handlers ───────────────────
+  document.querySelectorAll('.time-filter-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      // Update active button
+      document.querySelectorAll('.time-filter-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-secondary)';
+      });
+      btn.classList.add('active');
+      btn.style.background = 'var(--primary)';
+      btn.style.color = '#fff';
+      
+      // Get time filter
+      const timeFilter = btn.dataset.time;
+      currentTimeFilter = timeFilter;
+      
+      // Update label
+      const totalLabel = document.getElementById('total-label');
+      if (totalLabel) {
+        const labels = {
+          'today': 'จำนวนเคสทั้งหมดวันนี้',
+          'week': 'จำนวนเคส 7 วันล่าสุด',
+          'month': 'จำนวนเคสเดือนนี้'
+        };
+        totalLabel.textContent = labels[timeFilter] || 'จำนวนเคสทั้งหมดวันนี้';
+      }
+      
+      // Fetch and update data
+      const data = await fetchRealData(timeFilter);
+      if (data) {
+        realData.totals = data.totals;
+        realData.tat = data.tat;
+        realData.kpi = data.kpi;
+        
+        renderMetrics(realData);
+        
+        if (chartInstances.tatChart) {
+          chartInstances.tatChart.data.datasets[0].data = [data.tat.doneInSLA, data.tat.warning80to100, data.tat.overdue100];
+          chartInstances.tatChart.update();
+        }
+        
+        if (chartInstances.gaugeChart) {
+          const rejectionValue = data.kpi.rejectionRate;
+          const remainingValue = 100 - rejectionValue;
+          chartInstances.gaugeChart.data.datasets[0].data = [rejectionValue, remainingValue];
+          const gaugeText = document.querySelector('.gauge-text h2');
+          if (gaugeText) gaugeText.textContent = rejectionValue.toFixed(1) + '%';
+          chartInstances.gaugeChart.update();
+        }
+      }
+    });
+  });
+  
+  // Style active button on load
+  document.querySelector('.time-filter-btn.active')?.setAttribute('style', 
+    'padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; background: var(--primary); color: #fff;');
 }
 
