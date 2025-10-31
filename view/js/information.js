@@ -203,8 +203,6 @@ async function updateStatsFromAPI() {
     // Use 'all' time filter to get all cases, not just today
     const stats = await window.electronAPI.getTestRequestStats('all');
     
-    console.log('📊 Information Stats:', stats);
-    
     document.getElementById('statAll').textContent = stats.all || 0;
     document.getElementById('statPre').textContent = stats.need2 || stats.need2Confirmation || 0;
     document.getElementById('statAnalytic').textContent = stats.need1 || stats.need1Confirmation || 0;

@@ -193,8 +193,6 @@ async function getTestRequestStats(timeFilter = 'today') {
     return status === 'reject';
   })?.length || 0;
 
-  console.log(`📊 Stats (${timeFilter}):`, { all, need2Confirmation, need1Confirmation, done, reject });
-
   return { 
     all, 
     need2Confirmation, 
