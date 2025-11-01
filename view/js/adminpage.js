@@ -1,11 +1,7 @@
 const userForm = document.getElementById("user-form");
 const userTableBody = document.querySelector("#user-table tbody");
 const formMessage = document.getElementById("form-message");
-const logoutBtn = document.getElementById("logout");
 const togglePasswordButtons = document.querySelectorAll(".toggle-password");
-const langToggle = document.getElementById("langToggle");
-const dropdownBtn = document.getElementById("dropdownBtn");
-const dropdownMenu = document.getElementById("dropdownMenu");
 
 // Modal elements
 const editModal = document.getElementById("editModal");
@@ -19,51 +15,23 @@ let isEditing = false;
 let editingUserId = null;
 
 /* ============================================
-   🔐 SESSION MANAGEMENT FUNCTIONS
+   🚀 INITIALIZATION
    ============================================ */
-
-// Get current user from session
-function getCurrentUser() {
-  try {
-    const sessionData = sessionStorage.getItem('currentUser');
-    return sessionData ? JSON.parse(sessionData) : null;
-  } catch (error) {
-    console.error('❌ Error reading current user:', error);
-    return null;
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. 🔑 เรียกใช้สคริปต์หลัก (จาก userProfile.js)
+  //    (จะจัดการ Auth, Header, Dropdown, Settings, Logout, Lang)
+  if (!window.initializeUserProfile()) {
+    return; // หยุดถ้าไม่ผ่านการตรวจสอบสิทธิ์
   }
-}
-
-// Check authentication and redirect if not logged in
-function checkAuthentication() {
-  const currentUser = getCurrentUser();
-  if (!currentUser) {
-    console.log('🚫 No authenticated user found, redirecting to login...');
-    window.electronAPI.navigate('login');
-    return false;
-  }
-  return true;
-}
+  
+  // 2. 📊 โหลดข้อมูลเฉพาะของหน้านี้
+  loadUsers();
+});
 
 
-
-// Update user display in header
-function updateUserDisplay() {
-  const currentUser = getCurrentUser();
-  if (currentUser) {
-    // Update dropdown button with user info
-    const dropdownBtn = document.getElementById('dropdownBtn');
-    if (dropdownBtn) {
-      dropdownBtn.innerHTML = `
-        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
-      `;
-    }
-    
-    // Log hospital info if available
-    if (currentUser.hospital_id) {
-      console.log('🏥 Hospital:', currentUser.hospital_id);
-    }
-  }
-}
+/* ============================================
+   ⚙️ PAGE-SPECIFIC FUNCTIONS (โค้ดเดิมของหน้านี้)
+   ============================================ */
 
 // Hash password using bcrypt through IPC
 async function hashPassword(password) {
@@ -77,10 +45,7 @@ const roleLabels = {
 
 function renderUsers() {
   console.log('🎨 Rendering users:', users.length, 'users');
-  
-  // Get fresh reference to tbody element
   const tbody = document.querySelector("#user-table tbody");
-  
   if (!tbody) {
     console.error('❌ Table tbody not found!');
     return;
@@ -142,17 +107,6 @@ function userExists(username, excludeUserId = null) {
   return users.some((user) => user.username === username && user.user_id !== excludeUserId);
 }
 
-// Show message in main form
-function showMessage(message, type = "success") {
-  formMessage.textContent = message;
-  formMessage.className = `form-message ${type}`;
-}
-
-function resetMessage() {
-  formMessage.textContent = "";
-  formMessage.className = "form-message";
-}
-
 // Show message in edit modal
 function showEditMessage(message, type = "success") {
   editFormMessage.textContent = message;
@@ -206,7 +160,6 @@ userForm?.addEventListener("submit", async (event) => {
   }
 
   try {
-    // Hash password
     userData.password_hash = await hashPassword(userData.password);
     delete userData.password;
 
@@ -247,7 +200,6 @@ editForm?.addEventListener("submit", async (event) => {
       role: role
     };
 
-    // If password is provided, hash it
     if (password && password.trim()) {
       userData.password_hash = await hashPassword(password);
     }
@@ -257,11 +209,7 @@ editForm?.addEventListener("submit", async (event) => {
     if (result.success) {
       showEditMessage("อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว", "success");
       await loadUsers();
-      
-      // Close modal after 1 second
-      setTimeout(() => {
-        closeEditModal();
-      }, 1000);
+      setTimeout(() => closeEditModal(), 1000);
     } else {
       throw new Error(result.message);
     }
@@ -274,12 +222,8 @@ editForm?.addEventListener("submit", async (event) => {
 // Modal event listeners
 closeModalBtn?.addEventListener('click', closeEditModal);
 cancelEditBtn?.addEventListener('click', closeEditModal);
-
-// Close modal when clicking outside
 editModal?.addEventListener('click', (e) => {
-  if (e.target === editModal) {
-    closeEditModal();
-  }
+  if (e.target === editModal) closeEditModal();
 });
 
 // Table row click handler - Use event delegation
@@ -294,9 +238,7 @@ document.addEventListener("click", async (event) => {
 
   if (action === 'edit') {
     const user = users.find(u => u.user_id === parseInt(userId));
-    if (user) {
-      openEditModal(user);
-    }
+    if (user) openEditModal(user);
   } else if (action === 'delete') {
     if (confirm('คุณต้องการลบผู้ใช้งานนี้ใช่หรือไม่?')) {
       try {
@@ -315,6 +257,7 @@ document.addEventListener("click", async (event) => {
   }
 });
 
+// Toggle password visibility
 togglePasswordButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const input = document.getElementById(button.dataset.target);
@@ -328,109 +271,3 @@ togglePasswordButtons.forEach((button) => {
     );
   });
 });
-
-logoutBtn?.addEventListener("click", async () => {
-  const confirmLogout = confirm('คุณต้องการออกจากระบบหรือไม่?');
-  if (!confirmLogout) return;
-
-  try {
-    // Clear user session
-    localStorage.removeItem('userSession');
-    sessionStorage.clear();
-    
-    // Navigate to login
-    window.electronAPI.navigate('login');
-  } catch (error) {
-    console.error("Logout error:", error);
-    // Still redirect to login even if there's an error
-    window.electronAPI.navigate('login');
-  }
-});
-
-/* ============================================
-   ⚙️ SETTINGS POPUP HANDLERS
-   ============================================ */
-
-const settingsPopup = document.getElementById('settingsPopup');
-const closeSettings = document.getElementById('closeSettings');
-const saveSettings = document.getElementById('saveSettings');
-const cancelSettings = document.getElementById('cancelSettings');
-const settingsBtn = document.getElementById('settingsBtn');
-
-// Open settings popup
-settingsBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  settingsPopup.style.display = 'flex';
-  const dropdownMenuElement = document.getElementById("dropdownMenu");
-  dropdownMenuElement?.classList.remove('show');
-});
-
-// Close settings popup
-closeSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
-
-cancelSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
-
-// Save settings
-saveSettings?.addEventListener('click', () => {
-  const language = document.getElementById('languageSetting').value;
-  const theme = document.getElementById('themeSetting').value;
-  const notifications = document.getElementById('notificationsSetting').checked;
-  
-  console.log('Settings saved:', { language, theme, notifications });
-  
-  // Apply theme immediately if changed
-  
-  settingsPopup.style.display = 'none';
-});
-
-// Close popup when clicking outside
-settingsPopup?.addEventListener('click', (e) => {
-  if (e.target === settingsPopup) {
-    settingsPopup.style.display = 'none';
-  }
-});
-
-/* ============================================
-   🎨 DROPDOWN & THEME HANDLERS
-   ============================================ */
-
-// Get fresh references to dropdown elements
-const dropdownButton = document.getElementById("dropdownBtn");
-const dropdownMenuElement = document.getElementById("dropdownMenu");
-
-dropdownButton?.addEventListener("click", (event) => {
-  event.stopPropagation();
-  dropdownMenuElement?.classList.toggle("show");
-});
-
-dropdownMenuElement?.addEventListener("click", (event) => {
-  event.stopPropagation();
-});
-
-document.addEventListener("click", () => {
-  dropdownMenuElement?.classList.remove("show");
-});
-
-
-
-langToggle?.addEventListener("click", () => {
-  const current = langToggle.textContent.trim();
-  langToggle.textContent = current === "TH" ? "EN" : "TH";
-});
-
-// Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-  // Check authentication first
-  if (!checkAuthentication()) return;
-  
-  // Update user display in header
-  updateUserDisplay();
-  
-  // Load users if authenticated
-  loadUsers();
-});
-

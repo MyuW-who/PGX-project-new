@@ -4,9 +4,10 @@
 
 /* ========= Bootstrap ========= */
 window.addEventListener('DOMContentLoaded', async () => {
-  // Initialize user profile (from userProfile.js)
-  if (!initializeUserProfile()) return;
+  // 1. 🔑 เรียกใช้สคริปต์หลัก (จาก userProfile.js)
+  if (!window.initializeUserProfile()) return;
   
+  // 2. 📊 โหลดข้อมูลเฉพาะของหน้านี้
   try {
     const testRequests = await window.electronAPI.getTestRequests();
     console.log('📦 Test Requests:', testRequests);
@@ -18,16 +19,13 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-/* ========= Elements & Events ========= */
-
-
-
+/* ========= Elements & Events (โค้ดเดิมของหน้านี้) ========= */
 document.getElementById('searchInput')?.addEventListener('input', async e => {
   const kw = e.target.value.trim();
   try {
     const data = kw ? await window.electronAPI.searchTestRequests(kw) : await window.electronAPI.getTestRequests();
     renderTestRequests(data);
-    await updateStatsFromAPI();
+    await updateStatsFromAPI(); // อัปเดต stat ทุกครั้งที่ค้นหา/โหลดใหม่
   } catch (err) {
     console.error('search error', err);
     renderTestRequests([]);
@@ -39,50 +37,19 @@ document.getElementById('tatFilter')?.addEventListener('change', async e => {
   const v = e.target.value;
   const filtered = v === 'all' ? all : all.filter(r => r.status === v);
   renderTestRequests(filtered);
-  await updateStatsFromAPI();
+  // ไม่ต้องอัปเดต stat ตอน filter เพราะ stat ควรแสดงยอดรวมทั้งหมด
 });
-
  
-/* --------------------------------------------
-   📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)
--------------------------------------------- */
-const scannerOverlay = document.getElementById('scannerOverlay');
-const scanBtn = document.getElementById('scanBarcodeBtn');
-const closeScannerBtn = document.getElementById('closeScannerBtn');
-
-// เมื่อกดปุ่ม "สแกนบาร์โค้ด"
-scanBtn?.addEventListener('click', () => {
-  scannerOverlay.style.display = 'flex'; // ให้แสดง scanner popup
-});
-
-// เมื่อกดปุ่ม "ปิด" ใน scanner popup
-closeScannerBtn?.addEventListener('click', () => {
-  scannerOverlay.style.display = 'none'; // ให้ซ่อน scanner popup
-});
+/* 📷 Popup Scan Barcode (ถูกย้ายไป scanner.js แล้ว)
+*/
 
 /* ========= Table Renderer (แสดงข้อมูล Test Requests) ========= */
 
-// Helper function to determine TAT badge status and color
 function getTATBadgeClass(status) {
-  // Normalize status to lowercase for comparison
   const statusLower = (status || '').toLowerCase().trim();
-  
-  // 🟢 Green - Done (Completed)
-  if (statusLower === 'done') {
-    return 'status-done';
-  }
-  
-  // 🟡 Yellow - Needs 1 confirmation
-  if (statusLower === 'need 1 confirmation') {
-    return 'status-pending-1';
-  }
-  
-  // 🟠 Orange - Needs 2 confirmations
-  if (statusLower === 'need 2 confirmation') {
-    return 'status-pending-2';
-  }
-  
-  // Default for reject or other statuses
+  if (statusLower === 'done') return 'status-done';
+  if (statusLower === 'need 1 confirmation') return 'status-pending-1';
+  if (statusLower === 'need 2 confirmation') return 'status-pending-2';
   return 'status-default';
 }
 
@@ -104,11 +71,7 @@ function renderTestRequests(data) {
     const received = requestDate ? new Date(requestDate).toLocaleDateString('th-TH') : '-';
     const testTarget = req.test_target || '-';
     const status = req.status || '-';
-    
-    // Display status as-is from database (already in the format we want)
     const statusDisplay = status;
-    
-    // Get dot class for color coding
     const dotClass = getTATBadgeClass(status);
 
     const tr = document.createElement('tr');
@@ -132,9 +95,9 @@ function renderTestRequests(data) {
       </td>
     `;
     tr.addEventListener('click', (e) => {
-      // ไม่ให้คลิกที่ปุ่มทำให้เปลี่ยนหน้า
       if (!e.target.closest('button')) {
-        showPage('verify_step1', patientId);
+        // ❗ เรียกใช้ฟังก์ชัน showPage (Global) จาก utils.js
+        window.showPage('verify_step1', patientId); 
       }
     });
     tbody.appendChild(tr);
@@ -154,7 +117,7 @@ async function updateStatsFromAPI() {
   }
 }
 
-/* ========= Edit / Delete / Navigate ========= */
+/* ========= Edit / Delete (โค้ดเดิมของหน้านี้) ========= */
 async function editTestRequest(requestId) {
   try {
     const req = await window.electronAPI.getTestRequestById(requestId);
@@ -182,14 +145,6 @@ async function deleteTestRequest(requestId) {
   }
 }
 
-function showPage(pageName, patientId) {
-  sessionStorage.setItem('selectedPatientId', patientId);
-  window.electronAPI?.navigate(pageName);
-}
-
-/* ========= Light/Dark toggle (ตัวอย่าง) ========= */
-
-document.getElementById('langToggle')?.addEventListener('click', (e) => {
-  e.target.textContent = e.target.textContent === 'TH' ? 'EN' : 'TH';
-});
-
+/* ฟังก์ชัน showPage (ถูกย้ายไป utils.js แล้ว)
+   ปุ่ม langToggle (ถูกย้ายไป userProfile.js แล้ว)
+*/

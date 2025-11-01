@@ -1,60 +1,46 @@
 /* ============================================================
-   1️⃣ THEME SWITCHER (โหมดสว่าง / โหมดมืด)
-   ------------------------------------------------------------
-   ▶️ เปลี่ยนธีมของหน้าเว็บทั้งหมดระหว่าง Light ↔ Dark
-============================================================ */
+   📊 DASHBOARD SCRIPT
+   ============================================================ */
+
 let chartInstances = {};
 
-
-
 /* ============================================================
-   2️⃣ LANGUAGE TOGGLE (สลับภาษา TH / EN)
-   ------------------------------------------------------------
-   ▶️ ปุ่มเปลี่ยนข้อความใน UI ระหว่างภาษาไทย ↔ อังกฤษ
-============================================================ */
-const langBtn = document.getElementById("langToggle");
-langBtn?.addEventListener("click", () => {
-  langBtn.textContent = langBtn.textContent === "TH" ? "EN" : "TH";
-});
+   🚀 INITIALIZATION
+   ============================================================ */
 
-/* ============================================================
-   6️⃣ USER DROPDOWN MENU (เมนูผู้ใช้)
-   ------------------------------------------------------------
-   ▶️ เปิด/ปิดเมนูผู้ใช้ (Profile / Setting / Logout)
-============================================================ */
-const dropdownBtn = document.getElementById("dropdownBtn");
-const dropdownMenu = document.getElementById("dropdownMenu");
+document.addEventListener("DOMContentLoaded", () => {
+  // 1. 🔑 เรียกใช้สคริปต์หลัก (จาก userProfile.js)
+  //    (Dashboard อาจไม่ต้องการ Auth แต่ต้องใช้ Header/Dropdown/Settings)
+  window.initializeUserProfile();
 
-// 🔹 เปิด/ปิด dropdown เมื่อกดปุ่ม
-dropdownBtn?.addEventListener("click", (e) => {
-  e.stopPropagation(); // ป้องกัน event ปิด dropdown ซ้อนกัน
-  dropdownMenu.classList.toggle("show");
-});
-
-// 🔹 ปิด dropdown เมื่อคลิกนอกพื้นที่
-window.addEventListener("click", (e) => {
-  if (!e.target.closest(".dropdown")) {
-    dropdownMenu?.classList.remove("show");
+  // 2. 📊 วาดกราฟและ Metrics (โค้ดเฉพาะของหน้านี้)
+  if (hasDashboard) {
+    renderMetrics();
+    initializeUsageChart();
+    initializeTatDonut();
+    initializeKpiGauge();
+    initializeErrorRateChart();
+    initializeTopRejectsChart();
+    initializeTopDnaChart();
+    initializeTopHospitalsChart();
+    
+    // 3. 🎨 อัปเดตธีมกราฟครั้งแรกตอนโหลด
+    updateChartsForTheme();
   }
 });
 
-
-// -------- Logout ------------
-document.getElementById('logout')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  window.electronAPI.navigate('login');
+// 4. 🌙 เพิ่ม Listener รอรับ Event จาก darkmode.js
+window.addEventListener('themeChanged', (e) => {
+  console.log('Theme changed, updating charts...');
+  updateChartsForTheme();
 });
 
 
-
-
 /* ============================================================
-   7️⃣ MOCK DATA & DASHBOARD WIDGETS (ยังคงสไตล์เดิม)
+   7️⃣ MOCK DATA & DASHBOARD WIDGETS (โค้ดเดิมของหน้านี้)
    ------------------------------------------------------------
    ▶️ ข้อมูลจำลอง + วาดกราฟ 3 แบบ: Line, Donut TAT, Gauge KPI
 ============================================================ */
-
-const isDark = document.body.classList.contains('dark');
 
 // ฟังก์ชันอัปเดตสีกราฟ
 function updateChartsForTheme() {
@@ -64,147 +50,81 @@ function updateChartsForTheme() {
   const bgCard = isDark ? '#2f2f40' : '#ffffff';
 
   Object.values(chartInstances).forEach(chart => {
-
-    // ✅ 1. ตรวจสอบก่อนว่ากราฟมีแกน (scales) หรือไม่
     if (chart.options.scales && chart.options.scales.x && chart.options.scales.y) {
-      // ✅ 2. ถ้ามี ค่อยเข้าไปเปลี่ยนสีของแกน
       chart.options.scales.x.grid.color = gridColor;
       chart.options.scales.y.grid.color = gridColor;
       chart.options.scales.x.ticks.color = textColor;
       chart.options.scales.y.ticks.color = textColor;
     }
-
-    // ✅ 3. เปลี่ยนสีของ Legend (ถ้ามี)
     if (chart.options.plugins && chart.options.plugins.legend) {
       chart.options.plugins.legend.labels.color = textColor;
     }
-
-    
-
   });
 
-  
-
-  // เปลี่ยนพื้นหลังการ์ด (กรณีใช้ canvas อยู่บน card)
   document.querySelectorAll('.stat-card, .metric-card').forEach(el => {
     el.style.background = bgCard;
   });
-
   
-  
-  // อัปเดต TAT Donut
-  if (chartInstances.tatChart) {
-    chartInstances.tatChart.update();
-  }
-  
-  // อัปเดต Gauge
   if (chartInstances.gaugeChart) {
     chartInstances.gaugeChart.data.datasets[0].backgroundColor[1] = isDark ? '#3b3b4a' : '#e9eef6';
-    chartInstances.gaugeChart.update();
   }
 
-  // อัปเดต Error Rate Chart
-  if (chartInstances.errorRateChart) {
-    chartInstances.errorRateChart.update();
-  }
-
-  // อัปเดต Top Rejects Chart
-  if (chartInstances.topRejectsChart) {
-    chartInstances.topRejectsChart.update();
-  }
-
-  // อัปเดต Top DNA Chart
-  if (chartInstances.topDnaChart) {
-    chartInstances.topDnaChart.update();
-  }
-
-  // อัปเดต Top Hospitals Chart
-  if (chartInstances.topHospitalsChart) {
-    chartInstances.topHospitalsChart.update();
-  }
-
+  // อัปเดตกราฟทั้งหมด
   Object.values(chartInstances).forEach(chart => {
     chart.update();
   });
 }
 
-
-
-
-// ใช้เฉพาะในหน้า Dashboard เท่านั้น (กัน error ถ้า element ไม่มี)
+// ใช้เฉพาะในหน้า Dashboard เท่านั้น
 const hasDashboard = !!document.getElementById('usageChart') || !!document.getElementById('tatDonut') || !!document.getElementById('kpiGauge');
 
-if (hasDashboard) {
-  // ── 1) ข้อมูลจำลอง ───────────────────────────────────────
-  const mockData = {
-    totals: { today: 128, inProgress: 23, done: 98, error: 7 },
-    line: {
-      daily: {
-        labels: ['00:00','04:00','08:00','12:00','16:00','20:00'],
-        values: [12, 25, 40, 60, 50, 30]
-      },
-      weekly: {
-        labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-        values: [120, 150, 170, 160, 180, 90, 140]
-      }
-    },
-    tat: { inSLA: 68, inProgress: 23, overSLA: 9 },
-    kpi: { rejectionRate: 2.4 }, // %
-    errorRate: {
-      week: {
-        labels: ['วันนี้-6','วันนี้-5','วันนี้-4','วันนี้-3','วันนี้-2','เมื่อวาน','วันนี้'],
-        values: [3.2, 2.8, 4.1, 3.5, 2.9, 3.8, 2.4]
-      },
-      month: {
-        labels: ['สัปดาห์ 1','สัปดาห์ 2','สัปดาห์ 3','สัปดาห์ 4'],
-        values: [3.5, 3.2, 4.0, 2.8]
-      }
-    },
-    topRejects: {
-      labels: ['เลือด EDTA', 'Serum', 'ปัสสาวะ', 'Swab (NP/OP)', 'น้ำลาย'],
-      values: [34, 27, 19, 15, 11]
-    },
-    topDNA: {
-      labels: ['BRCA1', 'BRCA2', 'EGFR', 'KRAS', 'TP53'],
-      values: [125, 112, 98, 87, 76]
-    },
-    topHospitals: {
-      labels: ['โรงพยาบาลศูนย์ A', 'โรงพยาบาลมหาวิทยาลัย B', 'โรงพยาบาลจังหวัด C', 'โรงพยาบาลเอกชน D', 'โรงพยาบาลชุมชน E'],
-      values: [320, 295, 244, 210, 188]
-    }
-  };
+// ── 1) ข้อมูลจำลอง ───────────────────────────────────────
+const mockData = {
+  totals: { today: 128, inProgress: 23, done: 98, error: 7 },
+  line: {
+    daily: { labels: ['00:00','04:00','08:00','12:00','16:00','20:00'], values: [12, 25, 40, 60, 50, 30] },
+    weekly: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], values: [120, 150, 170, 160, 180, 90, 140] }
+  },
+  tat: { inSLA: 68, inProgress: 23, overSLA: 9 },
+  kpi: { rejectionRate: 2.4 }, // %
+  errorRate: {
+    week: { labels: ['วันนี้-6','วันนี้-5','วันนี้-4','วันนี้-3','วันนี้-2','เมื่อวาน','วันนี้'], values: [3.2, 2.8, 4.1, 3.5, 2.9, 3.8, 2.4] },
+    month: { labels: ['สัปดาห์ 1','สัปดาห์ 2','สัปดาห์ 3','สัปดาห์ 4'], values: [3.5, 3.2, 4.0, 2.8] }
+  },
+  topRejects: { labels: ['เลือด EDTA', 'Serum', 'ปัสสาวะ', 'Swab (NP/OP)', 'น้ำลาย'], values: [34, 27, 19, 15, 11] },
+  topDNA: { labels: ['BRCA1', 'BRCA2', 'EGFR', 'KRAS', 'TP53'], values: [125, 112, 98, 87, 76] },
+  topHospitals: { labels: ['โรงพยาบาลศูนย์ A', 'โรงพยาบาลมหาวิทยาลัย B', 'โรงพยาบาลจังหวัด C', 'โรงพยาบาลเอกชน D', 'โรงพยาบาลชุมชน E'], values: [320, 295, 244, 210, 188] }
+};
 
-  // ── 2) กล่องตัวเลขด้านบน ────────────────────────────────
-  function renderMetrics() {
-    const elTotal = document.getElementById('m-total');
-    const elProg  = document.getElementById('m-progress');
-    const elDone  = document.getElementById('m-done');
-    const elErr   = document.getElementById('m-error');
-    
-    const elPercentTotal = document.getElementById('percent-total');
-    const elPercentProg  = document.getElementById('percent-progress');
-    const elPercentDone  = document.getElementById('percent-done');
-    const elPercentErr   = document.getElementById('percent-error');
-    
-    const total = mockData.totals.today;
-    const progress = mockData.totals.inProgress;
-    const done = mockData.totals.done;
-    const error = mockData.totals.error;
-    
-    if (elTotal) elTotal.textContent = total;
-    if (elProg)  elProg.textContent  = progress;
-    if (elDone)  elDone.textContent  = done;
-    if (elErr)   elErr.textContent   = error;
-    
-    // คำนวณและแสดงเปอร์เซ็นต์
-    if (elPercentTotal) elPercentTotal.textContent = '100.00%';
-    if (elPercentProg)  elPercentProg.textContent  = total > 0 ? ((progress / total) * 100).toFixed(2) + '%' : '0.00%';
-    if (elPercentDone)  elPercentDone.textContent  = total > 0 ? ((done / total) * 100).toFixed(2) + '%' : '0.00%';
-    if (elPercentErr)   elPercentErr.textContent   = total > 0 ? ((error / total) * 100).toFixed(2) + '%' : '0.00%';
-  }
-  renderMetrics();
+// ── 2) กล่องตัวเลขด้านบน ────────────────────────────────
+function renderMetrics() {
+  const elTotal = document.getElementById('m-total');
+  const elProg  = document.getElementById('m-progress');
+  const elDone  = document.getElementById('m-done');
+  const elErr   = document.getElementById('m-error');
+  const elPercentTotal = document.getElementById('percent-total');
+  const elPercentProg  = document.getElementById('percent-progress');
+  const elPercentDone  = document.getElementById('percent-done');
+  const elPercentErr   = document.getElementById('percent-error');
+  
+  const total = mockData.totals.today;
+  const progress = mockData.totals.inProgress;
+  const done = mockData.totals.done;
+  const error = mockData.totals.error;
+  
+  if (elTotal) elTotal.textContent = total;
+  if (elProg)  elProg.textContent  = progress;
+  if (elDone)  elDone.textContent  = done;
+  if (elErr)   elErr.textContent   = error;
+  
+  if (elPercentTotal) elPercentTotal.textContent = '100.00%';
+  if (elPercentProg)  elPercentProg.textContent  = total > 0 ? ((progress / total) * 100).toFixed(2) + '%' : '0.00%';
+  if (elPercentDone)  elPercentDone.textContent  = total > 0 ? ((done / total) * 100).toFixed(2) + '%' : '0.00%';
+  if (elPercentErr)   elPercentErr.textContent   = total > 0 ? ((error / total) * 100).toFixed(2) + '%' : '0.00%';
+}
 
-  // ── 3) กราฟเส้น Usage (รายวัน/รายสัปดาห์) ───────────────
+// ── 3) กราฟเส้น Usage (รายวัน/รายสัปดาห์) ───────────────
+function initializeUsageChart() {
   const usageCanvas = document.getElementById('usageChart');
   if (usageCanvas && window.Chart) {
     const ctx = usageCanvas.getContext('2d');
@@ -228,7 +148,6 @@ if (hasDashboard) {
       }
     });
 
-    // ปุ่มสลับกรอบเวลา (จำกัดเฉพาะปุ่มที่มี data-range และสcope ภายในกลุ่มเดียวกัน)
     document.querySelectorAll('[data-range]').forEach(btn => {
       btn.addEventListener('click', () => {
         const group = btn.closest('.toggle-group');
@@ -246,39 +165,30 @@ if (hasDashboard) {
       });
     });
   }
+}
 
-  // ── 4) Donut ติดตาม TAT ─────────────────────────────────
+// ── 4) Donut ติดตาม TAT ─────────────────────────────────
+function initializeTatDonut() {
   const tatCanvas = document.getElementById('tatDonut');
   if (tatCanvas && window.Chart) {
     const total = mockData.tat.inSLA + mockData.tat.inProgress + mockData.tat.overSLA;
-    
-    // Plugin แสดงตัวเลขตรงกลาง
     const tatCenterText = {
       id: 'tatCenterText',
       afterDraw(chart) {
-        const meta = chart.getDatasetMeta(0);
-        if (!meta || !meta.data || meta.data.length === 0) return;
-        
         const {ctx, chartArea} = chart;
         const centerX = (chartArea.left + chartArea.right) / 2;
         const centerY = (chartArea.top + chartArea.bottom) / 2;
-        
         const isDark = document.body.classList.contains('dark');
         
         ctx.save();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        
-        // ตัวเลขใหญ่
         ctx.font = 'bold 28px "Noto Sans Thai", sans-serif';
         ctx.fillStyle = isDark ? '#ecf0f1' : '#333';
         ctx.fillText(total, centerX, centerY - 8);
-        
-        // ข้อความเล็ก
         ctx.font = '13px "Noto Sans Thai", sans-serif';
         ctx.fillStyle = isDark ? '#94a3b8' : '#666';
         ctx.fillText('เคสทั้งหมด', centerX, centerY + 14);
-        
         ctx.restore();
       }
     };
@@ -304,24 +214,23 @@ if (hasDashboard) {
       plugins: [tatCenterText]
     });
   }
+}
 
-  // ── 5) Gauge KPI (Semi Donut) ────────────────────────────
+// ── 5) Gauge KPI (Semi Donut) ────────────────────────────
+function initializeKpiGauge() {
   const gaugeCanvas = document.getElementById('kpiGauge');
   if (gaugeCanvas && window.Chart) {
-    const rate = mockData.kpi.rejectionRate; // 0-100
+    const rate = mockData.kpi.rejectionRate;
     const rateText = document.getElementById('rejectionRateText');
     if (rateText) rateText.textContent = rate + '%';
 
     const centerText = {
       id: 'centerText',
       afterDraw(chart) {
-        const meta = chart.getDatasetMeta(0);
-        const arc = meta?.data?.[0];
+        const arc = chart.getDatasetMeta(0)?.data?.[0];
         if (!arc) return;
-        
         const isDark = document.body.classList.contains('dark');
         const {ctx} = chart;
-        
         ctx.save();
         ctx.font = 'bold 24px "Noto Sans Thai", sans-serif';
         ctx.fillStyle = isDark ? '#ecf0f1' : '#333';
@@ -353,8 +262,10 @@ if (hasDashboard) {
       plugins: [centerText]
     });
   }
+}
 
-  // ── 6) Error Rate Line Chart (อัตราการปฏิเสธสิ่งส่งตรวจรายวัน) ──
+// ── 6) Error Rate Line Chart ──────────────────────────
+function initializeErrorRateChart() {
   const errorCanvas = document.getElementById('errorRateChart');
   if (errorCanvas && window.Chart) {
     const ctx = errorCanvas.getContext('2d');
@@ -375,18 +286,10 @@ if (hasDashboard) {
       },
       options: {
         plugins: { legend: { display: false } },
-        scales: { 
-          y: { 
-            beginAtZero: true,
-            ticks: {
-              callback: function(value) { return value + '%'; }
-            }
-          } 
-        }
+        scales: { y: { beginAtZero: true, ticks: { callback: (value) => value + '%' } } }
       }
     });
 
-    // ปุ่มสลับช่วงเวลา
     document.querySelectorAll('[data-error-range]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('[data-error-range]').forEach(b => b.classList.remove('active'));
@@ -401,8 +304,10 @@ if (hasDashboard) {
       });
     });
   }
+}
 
-  // ── 7) Top 5 Rejected Specimens (Horizontal Bar) ────────
+// ── 7) Top 5 Rejected Specimens (Horizontal Bar) ────────
+function initializeTopRejectsChart() {
   const topRejectsCanvas = document.getElementById('topRejectsChart');
   if (topRejectsCanvas && window.Chart) {
     const ctx = topRejectsCanvas.getContext('2d');
@@ -426,27 +331,19 @@ if (hasDashboard) {
       },
       options: {
         indexAxis: 'y',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => ` ${ctx.parsed.x} เคส`
-            }
-          }
-        },
-        scales: {
-          x: { beginAtZero: true },
-          y: { ticks: { font: { weight: '600' } } }
-        }
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.x} เคส` } } },
+        scales: { x: { beginAtZero: true }, y: { ticks: { font: { weight: '600' } } } }
       }
     });
   }
+}
 
-  // ── 8) Top 5 DNA Most Found (Horizontal Bar) ────────────
+// ── 8) Top 5 DNA Most Found (Horizontal Bar) ────────────
+function initializeTopDnaChart() {
   const topDnaCanvas = document.getElementById('topDnaChart');
   if (topDnaCanvas && window.Chart) {
     const ctx = topDnaCanvas.getContext('2d');
-    const colors = mockData.topDNA.values.map(() => 'rgba(34, 197, 94, 0.9)'); // green
+    const colors = mockData.topDNA.values.map(() => 'rgba(34, 197, 94, 0.9)');
     const bgColors = mockData.topDNA.values.map(() => 'rgba(34, 197, 94, 0.18)');
 
     chartInstances.topDnaChart = new Chart(ctx, {
@@ -466,27 +363,19 @@ if (hasDashboard) {
       },
       options: {
         indexAxis: 'y',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => ` ${ctx.parsed.x} ครั้ง`
-            }
-          }
-        },
-        scales: {
-          x: { beginAtZero: true },
-          y: { ticks: { font: { weight: '600' } } }
-        }
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.x} ครั้ง` } } },
+        scales: { x: { beginAtZero: true }, y: { ticks: { font: { weight: '600' } } } }
       }
     });
   }
+}
 
-  // ── 9) Top 5 Hospitals by Submissions (Horizontal Bar) ─
+// ── 9) Top 5 Hospitals by Submissions (Horizontal Bar) ─
+function initializeTopHospitalsChart() {
   const topHospitalsCanvas = document.getElementById('topHospitalsChart');
   if (topHospitalsCanvas && window.Chart) {
     const ctx = topHospitalsCanvas.getContext('2d');
-    const colors = mockData.topHospitals.values.map(() => 'rgba(37, 99, 235, 0.9)'); // blue
+    const colors = mockData.topHospitals.values.map(() => 'rgba(37, 99, 235, 0.9)');
     const bgColors = mockData.topHospitals.values.map(() => 'rgba(37, 99, 235, 0.18)');
 
     chartInstances.topHospitalsChart = new Chart(ctx, {
@@ -506,18 +395,8 @@ if (hasDashboard) {
       },
       options: {
         indexAxis: 'y',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => ` ${ctx.parsed.x} เคส`
-            }
-          }
-        },
-        scales: {
-          x: { beginAtZero: true },
-          y: { ticks: { font: { weight: '600' } } }
-        }
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.x} เคส` } } },
+        scales: { x: { beginAtZero: true }, y: { ticks: { font: { weight: '600' } } } }
       }
     });
   }
