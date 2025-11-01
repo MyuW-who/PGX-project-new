@@ -3,15 +3,66 @@
    ============================================ */
 
 /* --------------------------------------------
+   🔐 USER SESSION MANAGEMENT
+-------------------------------------------- */
+
+// Get current user session
+function getCurrentUser() {
+  try {
+    const sessionData = sessionStorage.getItem('currentUser');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading current user:', error);
+    return null;
+  }
+}
+
+// Check if user is authenticated
+function checkAuthentication() {
+  const currentUser = getCurrentUser();
+  
+  if (!currentUser) {
+    console.warn('⚠️ No user session found, redirecting to login');
+    window.electronAPI.navigate('login');
+    return false;
+  }
+  
+  console.log('✅ User authenticated:', currentUser.username, currentUser.role);
+  return true;
+}
+
+// Update user display in header
+function updateUserDisplay() {
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    // Update dropdown button with user info
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn) {
+      dropdownBtn.innerHTML = `
+        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
+      `;
+    }
+    
+    // You can also add hospital info if needed
+    if (currentUser.hospital_id) {
+      console.log('🏥 Hospital:', currentUser.hospital_id);
+    }
+  }
+}
+
+/* --------------------------------------------
    ✅ โหลดข้อมูลผู้ป่วยเมื่อหน้าเปิดขึ้น
 -------------------------------------------- */
 window.addEventListener('DOMContentLoaded', async () => {
-  // 1. 🔑 เรียกใช้สคริปต์หลัก (จาก userProfile.js)
-  if (!window.initializeUserProfile()) {
-    return; // หยุดถ้าไม่ผ่านการตรวจสอบสิทธิ์
+  // Check authentication first
+  if (!checkAuthentication()) {
+    return; // Stop execution if not authenticated
   }
   
-  // 2. 📊 โหลดข้อมูลเฉพาะของหน้านี้
+  // Update user display
+  updateUserDisplay();
+  
+  // Load patients data
   try {
     const patients = await window.electronAPI.getPatients();
     console.log("📦 Renderer got patients:", patients);
@@ -22,7 +73,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* --------------------------------------------
-   📝 Form handler (โค้ดเดิมของหน้านี้)
+   📝 Form handler supports Add and Edit modes
 --------------------------------------------- */
 const form = document.getElementById('addForm');
 let isEditMode = false;
@@ -31,6 +82,7 @@ let editingPatientId = null;
 async function handleFormSubmit(e) {
   e.preventDefault();
 
+  // collect common fields
   const baseData = {
     patient_id: parseInt(document.getElementById('patient_id').value),
     hospital_id: document.getElementById('hospital').value.trim(),
@@ -44,11 +96,10 @@ async function handleFormSubmit(e) {
   };
 
   try {
-    // โค้ดส่วนนี้ดูเหมือนจะเป็นการ "แก้ไข" เสมอ (ไม่มีการเช็ค isEditMode)
-    // ถ้าต้องการให้รองรับ "เพิ่ม" ด้วย อาจจะต้องปรับ logic ตรงนี้
-    
-    // await window.electronAPI.updatePatient(editingPatientId, baseData); // (สมมติว่าใช้ editingPatientId)
+    // เรียก API เพื่ออัปเดตข้อมูล
+    // await window.electronAPI.updatePatient(editingPatientId, patientData);
 
+    // --- REPLACED ALERT ---
     await Swal.fire({
       icon: 'success',
       title: 'บันทึกสำเร็จ!',
@@ -57,10 +108,13 @@ async function handleFormSubmit(e) {
       color: '#f9fafb',
       confirmButtonColor: '#3b82f6'
     });
+
+    // รีโหลดหน้าเว็บหลังจากกด OK
     location.reload();
 
   } catch (err) {
     console.error('❌ Error saving patient data:', err);
+    // --- REPLACED ALERT ---
     Swal.fire({
       icon: 'error',
       title: 'บันทึกไม่สำเร็จ',
@@ -75,29 +129,36 @@ async function handleFormSubmit(e) {
 form?.addEventListener('submit', handleFormSubmit);
 
 /* --------------------------------------------
-   🔍 ระบบค้นหาผู้ป่วย (โค้ดเดิมของหน้านี้)
+   🔍 ระบบค้นหาผู้ป่วยด้วย patient_id, ชื่อ, หรือนามสกุล
 -------------------------------------------- */
 document.getElementById('searchInput')?.addEventListener('input', async (e) => {
   const keyword = e.target.value.trim();
   try {
     if (keyword.length === 0) {
+      // ถ้าไม่มีคำค้นหา แสดงผู้ป่วยทั้งหมด
       const patients = await window.electronAPI.getPatients();
       renderPatients(patients);
     } else if (keyword.length >= 1) {
+      // ค้นหาเมื่อพิมพ์อย่างน้อย 1 ตัวอักษร
       const patients = await window.electronAPI.searchPatient(keyword);
       renderPatients(patients);
-      console.log(`🔍 พบผลการค้นหา ${patients.length} รายการสำหรับ "${keyword}"`);
+      
+      // แสดงจำนวนผลลัพธ์
+      const resultCount = patients.length;
+      console.log(`🔍 พบผลการค้นหา ${resultCount} รายการสำหรับ "${keyword}"`);
     }
   } catch (err) {
     console.error("❌ Error searching patient:", err);
+    // แสดงข้อความข้อผิดพลาดให้ผู้ใช้เห็น
     const tbody = document.querySelector('#patientTable tbody');
     tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">เกิดข้อผิดพลาดในการค้นหา: ${err.message}</td></tr>`;
   }
 });
 
 /* --------------------------------------------
-   📋 ฟังก์ชันแสดงข้อมูลในตาราง (โค้ดเดิมของหน้านี้)
+   📋 ฟังก์ชันแสดงข้อมูลในตาราง
 -------------------------------------------- */
+
 function renderPatients(data) {
   const tbody = document.querySelector('#patientTable tbody');
   tbody.innerHTML = '';
@@ -114,7 +175,7 @@ function renderPatients(data) {
 
   data.forEach((p, index) => {
     const row = `
-      <tr onclick="window.showPage('verify_step1', '${p.patient_id}')" data-patient-id="${p.patient_id}">
+      <tr onclick="showPage('verify_step1', '${p.patient_id}')" data-patient-id="${p.patient_id}">
         <td>${p.patient_id ?? '-'}</td>
         <td>${p.first_name ?? ''} ${p.last_name ?? ''}</td>
         <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
@@ -124,10 +185,13 @@ function renderPatients(data) {
       </tr>`;
     tbody.insertAdjacentHTML('beforeend', row);
   });
+
+  // 🔗 เพิ่ม Event ให้ทุกปุ่ม Inspect
+  attachInspectButtons();
 }
 
 /* --------------------------------------------
-   🪟 Popup Add Patient (โค้ดเดิมของหน้านี้)
+   🪟 Popup Add Patient
 -------------------------------------------- */
 const popupAdd = document.getElementById('popupAdd');
 const addBtn = document.getElementById('addBtn');
@@ -135,9 +199,11 @@ const closeAdd = document.getElementById('closeAdd');
 const popupTitle = popupAdd?.querySelector('h3');
 
 addBtn?.addEventListener('click', () => {
+  // switch to add mode
   isEditMode = false;
   editingPatientId = null;
   popupTitle && (popupTitle.textContent = 'เพิ่มข้อมูลผู้ป่วย');
+  // reset form and allow changing patient_id
   form?.reset();
   const idEl = document.getElementById('patient_id');
   if (idEl) idEl.readOnly = false;
@@ -148,6 +214,7 @@ closeAdd?.addEventListener('click', closePopup);
 
 function closePopup() {
   popupAdd.style.display = 'none';
+  // reset state back to add mode
   isEditMode = false;
   editingPatientId = null;
   popupTitle && (popupTitle.textContent = 'เพิ่มข้อมูลผู้ป่วย');
@@ -155,17 +222,69 @@ function closePopup() {
   if (idEl) idEl.readOnly = false;
 }
 
+
+// ▶️ ปุ่ม Inspect (ทุกปุ่ม)
+function attachInspectButtons() {
+  document.querySelectorAll('.inspect-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      window.electronAPI.navigate('verify_step1');
+    });
+  });
+}
+
+document.getElementById('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  
+  const currentUser = getCurrentUser();
+  const username = currentUser ? currentUser.username : 'Unknown';
+  
+  // Confirm logout
+  if (confirm(`คุณต้องการออกจากระบบหรือไม่?\n(${username})`)) {
+    try {
+      // Call logout handler if available
+      if (window.electronAPI.handleLogout) {
+        await window.electronAPI.handleLogout({ username });
+      }
+      
+      // Clear all session data
+      localStorage.removeItem('userSession');
+      localStorage.removeItem('userRole'); // Remove old role storage
+      sessionStorage.clear();
+      
+      console.log('👋 User logged out:', username);
+      
+      // Navigate to login page
+      window.electronAPI.navigate('login');
+      
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      // Still logout even if API call fails
+      sessionStorage.clear();
+      localStorage.removeItem('userSession');
+      window.electronAPI.navigate('login');
+    }
+  }
+});
+
+function showPage(pageName, patientId) {
+  // Store patientId in sessionStorage for use in verify_step1.html
+  sessionStorage.setItem('selectedPatientId', patientId);
+  window.electronAPI.navigate(pageName); // Navigate to the specified page
+}
+
 /* --------------------------------------------
-   ✏️ Edit Patient Function (โค้ดเดิมของหน้านี้)
+   ✏️ Edit Patient Function
 -------------------------------------------- */
 async function editPatient(patientId) {
   try {
+    // Get patient data
     const patient = await window.electronAPI.getPatientById(patientId);
     if (!patient) {
       alert('ไม่พบข้อมูลผู้ป่วย');
       return;
     }
 
+    // Populate form with patient data
     document.getElementById('patient_id').value = patient.patient_id;
     document.getElementById('first_name').value = patient.first_name;
     document.getElementById('last_name').value = patient.last_name;
@@ -176,11 +295,13 @@ async function editPatient(patientId) {
     document.getElementById('hospital').value = patient.hospital_id;
     document.getElementById('phone').value = patient.phone;
 
+    // Switch to edit mode
     isEditMode = true;
     editingPatientId = patientId;
     popupTitle && (popupTitle.textContent = 'แก้ไขผู้ป่วย');
     const idEl = document.getElementById('patient_id');
-    if (idEl) idEl.readOnly = true; // lock primary key
+    if (idEl) idEl.readOnly = true; // lock primary key during edit
+    // Show popup
     popupAdd.style.display = 'flex';
   } catch (err) {
     console.error('❌ Error fetching patient details:', err);
@@ -188,8 +309,14 @@ async function editPatient(patientId) {
   }
 }
 
+
+
+
+
+
+
 /* --------------------------------------------
-   🗑️ Delete Patient Function (โค้ดเดิมของหน้านี้)
+   🗑️ Delete Patient Function (Improved with SweetAlert2)
 -------------------------------------------- */
 async function deletePatient(patientId) {
   Swal.fire({
@@ -200,14 +327,19 @@ async function deletePatient(patientId) {
     confirmButtonText: 'ใช่, ลบเลย!',
     cancelButtonText: 'ยกเลิก',
     reverseButtons: true,
-    background: '#1f2937',
-    color: '#f9fafb',
-    confirmButtonColor: '#3b82f6',
-    cancelButtonColor: '#ef4444'
+    
+    // --- Custom Styles for Dark Theme ---
+    background: '#1f2937', // สีพื้นหลัง Pop-up
+    color: '#f9fafb',      // สีตัวอักษร
+    confirmButtonColor: '#3b82f6', // สีปุ่มยืนยัน (สีน้ำเงิน)
+    cancelButtonColor: '#ef4444'   // สีปุ่มยกเลิก (สีแดง)
+
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
         const response = await window.electronAPI.deletePatient(patientId);
+        
+        // แสดง Pop-up แจ้งว่าลบสำเร็จ
         Swal.fire({
           title: 'ลบสำเร็จ!',
           text: response.message || 'ข้อมูลผู้ป่วยถูกลบเรียบร้อยแล้ว',
@@ -216,10 +348,13 @@ async function deletePatient(patientId) {
           color: '#f9fafb',
           confirmButtonColor: '#3b82f6'
         }).then(() => {
-          location.reload();
+          location.reload(); // รีโหลดหน้าเว็บหลังกด OK
         });
+
       } catch (err) {
         console.error('❌ Error deleting patient:', err);
+        
+        // แสดง Pop-up แจ้งเตือนข้อผิดพลาด
         Swal.fire({
           title: 'เกิดข้อผิดพลาด!',
           text: 'ไม่สามารถลบข้อมูลผู้ป่วยได้',
@@ -233,5 +368,20 @@ async function deletePatient(patientId) {
   });
 }
 
-/* Session, Logout, showPage, Scanner (ถูกย้ายไปไฟล์หลักแล้ว)
-*/
+
+/* --------------------------------------------
+   📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)
+-------------------------------------------- */
+const scannerOverlay = document.getElementById('scannerOverlay');
+const scanBtn = document.getElementById('scanBarcodeBtn');
+const closeScannerBtn = document.getElementById('closeScannerBtn');
+
+// เมื่อกดปุ่ม "สแกนบาร์โค้ด"
+scanBtn?.addEventListener('click', () => {
+  scannerOverlay.style.display = 'flex'; // ให้แสดง scanner popup
+});
+
+// เมื่อกดปุ่ม "ปิด" ใน scanner popup
+closeScannerBtn?.addEventListener('click', () => {
+  scannerOverlay.style.display = 'none'; // ให้ซ่อน scanner popup
+});
