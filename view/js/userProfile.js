@@ -73,6 +73,12 @@ function clearUserSession() {
   console.log('🗑️ User session cleared');
 }
 
+function showPage(pageName, patientId) {
+  // Store patientId in sessionStorage for use in verify_step1.html
+  sessionStorage.setItem('selectedPatientId', patientId);
+  window.electronAPI.navigate(pageName); // Navigate to the specified page
+}
+
 /* --------------------------------------------
    🚪 LOGOUT HANDLER
 -------------------------------------------- */
@@ -166,18 +172,25 @@ function initializeSettingsPopup() {
     const notifications = document.getElementById('notificationsSetting')?.checked;
     
     if (language) localStorage.setItem('appLanguage', language);
-    if (theme) localStorage.setItem('appTheme', theme);
+    if (theme) localStorage.setItem('theme-mode', theme);
     if (notifications !== undefined) localStorage.setItem('appNotifications', notifications);
     
     // Apply theme immediately if changed
     if (theme === 'dark') {
       document.body.classList.add('dark');
-      document.body.classList.add('dark-theme');
     } else if (theme === 'light') {
       document.body.classList.remove('dark');
-      document.body.classList.remove('dark-theme');
     }
     
+    // [เพิ่มส่วนนี้] เพื่ออัปเดตไอคอนปุ่มสลับธีม (darkmode.js) ให้ตรงกันทันที
+    const themeBtn = document.getElementById('themeToggle');
+    const icon = themeBtn?.querySelector('i');
+    if (icon) {
+      const isDark = (theme === 'dark');
+      icon.classList.toggle('fa-sun', isDark);
+      icon.classList.toggle('fa-moon', !isDark);
+    }
+
     alert('Settings saved successfully!');
     settingsPopup.style.display = 'none';
   });
@@ -195,16 +208,12 @@ function initializeSettingsPopup() {
 
 // Load saved settings
 function loadSavedSettings() {
-  const savedTheme = localStorage.getItem('appTheme');
+  const savedTheme = localStorage.getItem('theme-mode');
   const savedLanguage = localStorage.getItem('appLanguage');
   const savedNotifications = localStorage.getItem('appNotifications');
   
   if (savedTheme && document.getElementById('themeSetting')) {
     document.getElementById('themeSetting').value = savedTheme;
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark');
-      document.body.classList.add('dark-theme');
-    }
   }
   
   if (savedLanguage && document.getElementById('languageSetting')) {
@@ -242,6 +251,29 @@ function initializeUserProfile() {
     logoutBtn.addEventListener('click', handleLogout);
   }
   
+
+  /* --------------------------------------------
+   📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)
+-------------------------------------------- */
+const scannerOverlay = document.getElementById('scannerOverlay');
+const scanBtn = document.getElementById('scanBarcodeBtn');
+const closeScannerBtn = document.getElementById('closeScannerBtn');
+
+// เมื่อกดปุ่ม "สแกนบาร์โค้ด"
+scanBtn?.addEventListener('click', () => {
+  scannerOverlay.style.display = 'flex'; // ให้แสดง scanner popup
+});
+
+// เมื่อกดปุ่ม "ปิด" ใน scanner popup
+closeScannerBtn?.addEventListener('click', () => {
+  scannerOverlay.style.display = 'none'; // ให้ซ่อน scanner popup
+});
+
+const langBtn = document.getElementById('langToggle');
+  langBtn?.addEventListener('click', () => {
+    langBtn.textContent = langBtn.textContent === 'TH' ? 'EN' : 'TH';
+  });
+
   return true;
 }
 
@@ -251,3 +283,5 @@ if (document.readyState === 'loading') {
     // Don't auto-initialize here, let each page call it explicitly
   });
 }
+
+

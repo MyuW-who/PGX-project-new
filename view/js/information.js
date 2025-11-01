@@ -43,22 +43,6 @@ document.getElementById('tatFilter')?.addEventListener('change', async e => {
 });
 
  
-/* --------------------------------------------
-   📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)
--------------------------------------------- */
-const scannerOverlay = document.getElementById('scannerOverlay');
-const scanBtn = document.getElementById('scanBarcodeBtn');
-const closeScannerBtn = document.getElementById('closeScannerBtn');
-
-// เมื่อกดปุ่ม "สแกนบาร์โค้ด"
-scanBtn?.addEventListener('click', () => {
-  scannerOverlay.style.display = 'flex'; // ให้แสดง scanner popup
-});
-
-// เมื่อกดปุ่ม "ปิด" ใน scanner popup
-closeScannerBtn?.addEventListener('click', () => {
-  scannerOverlay.style.display = 'none'; // ให้ซ่อน scanner popup
-});
 
 /* ========= Table Renderer (แสดงข้อมูล Test Requests) ========= */
 
@@ -169,27 +153,45 @@ async function editTestRequest(requestId) {
 }
 
 async function deleteTestRequest(requestId) {
-  if (!confirm('คุณแน่ใจที่จะลบข้อมูล Test Request หรือไม่?')) return;
-  try {
-    const res = await window.electronAPI.deleteTestRequest(requestId);
-    alert(res.message || 'ลบข้อมูลสำเร็จ');
-    const data = await window.electronAPI.getTestRequests();
-    renderTestRequests(data);
-    await updateStatsFromAPI();
-  } catch (e) { 
-    console.error(e); 
-    alert('เกิดข้อผิดพลาดในการลบข้อมูล'); 
-  }
+  Swal.fire({
+    title: 'คุณแน่ใจหรือไม่?',
+    text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ใช่, ลบเลย!',
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true,
+    customClass: {
+      popup: 'swal-dark' // 👈 ใช้คลาสสำหรับ Dark Mode
+    }
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const res = await window.electronAPI.deleteTestRequest(requestId);
+        
+        Swal.fire({
+          title: 'ลบสำเร็จ!',
+          text: res.message || 'ลบข้อมูลสำเร็จ',
+          icon: 'success',
+          customClass: { popup: 'swal-dark' }
+        });
+
+        // โหลดข้อมูลใหม่ (ตามโค้ดเดิม)
+        const data = await window.electronAPI.getTestRequests();
+        renderTestRequests(data);
+        await updateStatsFromAPI();
+
+      } catch (e) { 
+        console.error(e); 
+        Swal.fire({
+          title: 'เกิดข้อผิดพลาด!',
+          text: 'เกิดข้อผิดพลาดในการลบข้อมูล',
+          icon: 'error',
+          customClass: { popup: 'swal-dark' }
+        });
+      }
+    }
+  });
 }
 
-function showPage(pageName, patientId) {
-  sessionStorage.setItem('selectedPatientId', patientId);
-  window.electronAPI?.navigate(pageName);
-}
-
-/* ========= Light/Dark toggle (ตัวอย่าง) ========= */
-
-document.getElementById('langToggle')?.addEventListener('click', (e) => {
-  e.target.textContent = e.target.textContent === 'TH' ? 'EN' : 'TH';
-});
 

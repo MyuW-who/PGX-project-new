@@ -381,3 +381,18 @@ body.dark .table-action.edit:hover {
 body.dark .table-action.delete:hover {
   background: rgba(239, 68, 68, 0.25);
 }
+
+
+
+/* ============================================
+   🔥 SWEETALERT 2 DARK MODE FIX
+   ============================================ */
+body.dark .swal-dark {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark .swal-dark .swal2-title,
+body.dark .swal-dark .swal2-html-container {
+  color: var(--text-primary) !important;
+}
