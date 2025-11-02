@@ -80,41 +80,54 @@ function showPage(pageName, patientId) {
 }
 
 /* --------------------------------------------
-   🚪 LOGOUT HANDLER
+   🚪 LOGOUT HANDLER (ฉบับแก้ไขที่ถูกต้อง)
 -------------------------------------------- */
 
-// Handle user logout
 async function handleLogout(e) {
-  if (e) e.preventDefault();
-  
-  const currentUser = getCurrentUser();
-  const username = currentUser ? currentUser.username : 'Unknown';
-  
-  // Confirm logout
-  if (confirm(`คุณต้องการออกจากระบบหรือไม่?\n(${username})`)) {
-    try {
-      // Call logout handler if available
-      if (window.electronAPI.handleLogout) {
-        await window.electronAPI.handleLogout({ username });
-      }
-      
-      // Clear all session data
-      clearUserSession();
-      
-      console.log('👋 User logged out:', username);
-      
-      // Navigate to login page
-      window.electronAPI.navigate('login');
-      
-    } catch (error) {
-      console.error('❌ Logout error:', error);
-      // Still logout even if API call fails
-      clearUserSession();
-      window.electronAPI.navigate('login');
-    }
-  }
-}
+  if (e) e.preventDefault();
+  
+  const currentUser = getCurrentUser();
+  const username = currentUser ? currentUser.username : 'Unknown';
+  
+  const result = await Swal.fire({
+    title: 'ยืนยันการออกจากระบบ',
+    text: `คุณ (${username}) ต้องการออกจากระบบใช่หรือไม่?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ใช่, ออกจากระบบ',
+    cancelButtonText: 'ยกเลิก',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#6e7881',
+    customClass: {
+      popup: 'swal-dark'
+    }
+  });
 
+  // ⭐️ ใช้ 'result.isConfirmed' จาก Swal.fire() ตรงนี้
+  if (result.isConfirmed) {
+    try {
+      // Call logout handler if available
+      if (window.electronAPI.handleLogout) {
+        await window.electronAPI.handleLogout({ username });
+      }
+      
+      // Clear all session data
+      clearUserSession();
+      
+      console.log('👋 User logged out:', username);
+      
+      // Navigate to login page
+      window.electronAPI.navigate('login');
+      
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      // Still logout even if API call fails
+      clearUserSession();
+      window.electronAPI.navigate('login');
+    }
+  }
+  // ถ้าผู้ใช้กด "ยกเลิก" (result.isDismissed) โค้ดใน if ก็จะไม่ทำงาน
+}
 /* --------------------------------------------
    📱 DROPDOWN MENU HANDLER
 -------------------------------------------- */
