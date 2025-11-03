@@ -43,22 +43,6 @@ document.getElementById('tatFilter')?.addEventListener('change', async e => {
 });
 
  
-/* --------------------------------------------
-   📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)
--------------------------------------------- */
-const scannerOverlay = document.getElementById('scannerOverlay');
-const scanBtn = document.getElementById('scanBarcodeBtn');
-const closeScannerBtn = document.getElementById('closeScannerBtn');
-
-// เมื่อกดปุ่ม "สแกนบาร์โค้ด"
-scanBtn?.addEventListener('click', () => {
-  scannerOverlay.style.display = 'flex'; // ให้แสดง scanner popup
-});
-
-// เมื่อกดปุ่ม "ปิด" ใน scanner popup
-closeScannerBtn?.addEventListener('click', () => {
-  scannerOverlay.style.display = 'none'; // ให้ซ่อน scanner popup
-});
 
 /* ========= Table Renderer (แสดงข้อมูล Test Requests) ========= */
 
@@ -145,7 +129,6 @@ function renderTestRequests(data) {
 async function updateStatsFromAPI() {
   try {
     const stats = await window.electronAPI.getTestRequestStats();
-    console.log('📊 Stats received in frontend:', stats);
     document.getElementById('statAll').textContent = stats.all || 0;
     document.getElementById('statPre').textContent = stats.need2Confirmation || 0;
     document.getElementById('statAnalytic').textContent = stats.need1Confirmation || 0;
@@ -170,100 +153,45 @@ async function editTestRequest(requestId) {
 }
 
 async function deleteTestRequest(requestId) {
-  if (!confirm('คุณแน่ใจที่จะลบข้อมูล Test Request หรือไม่?')) return;
-  try {
-    const res = await window.electronAPI.deleteTestRequest(requestId);
-    alert(res.message || 'ลบข้อมูลสำเร็จ');
-    const data = await window.electronAPI.getTestRequests();
-    renderTestRequests(data);
-    await updateStatsFromAPI();
-  } catch (e) { 
-    console.error(e); 
-    alert('เกิดข้อผิดพลาดในการลบข้อมูล'); 
-  }
-}
-
-function showPage(pageName, patientId) {
-  sessionStorage.setItem('selectedPatientId', patientId);
-  window.electronAPI?.navigate(pageName);
-}
-
-/* ========= Light/Dark toggle (ตัวอย่าง) ========= */
-
-document.getElementById('langToggle')?.addEventListener('click', (e) => {
-  e.target.textContent = e.target.textContent === 'TH' ? 'EN' : 'TH';
-});
-
-/* --------------------------------------------
-   ⚙️ Settings Popup Handler
--------------------------------------------- */
-const settingsPopup = document.getElementById('settingsPopup');
-const closeSettings = document.getElementById('closeSettings');
-const saveSettings = document.getElementById('saveSettings');
-const cancelSettings = document.getElementById('cancelSettings');
-const settingsBtn = document.getElementById('settingsBtn');
-
-// Open settings popup
-settingsBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  settingsPopup.style.display = 'flex';
-  dropdownMenu?.classList.remove('show');
-});
-
-// Close settings popup
-closeSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
-
-cancelSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
-
-// Save settings
-saveSettings?.addEventListener('click', () => {
-  const language = document.getElementById('languageSetting').value;
-  const theme = document.getElementById('themeSetting').value;
-  const notifications = document.getElementById('notificationsSetting').checked;
-  
-  localStorage.setItem('appLanguage', language);
-  localStorage.setItem('appTheme', theme);
-  localStorage.setItem('appNotifications', notifications);
-  
-  if (theme === 'dark') {
-    document.body.classList.add('dark');
-  } else {
-    document.body.classList.remove('dark');
-  }
-  
-  alert('Settings saved successfully!');
-  settingsPopup.style.display = 'none';
-});
-
-// Close popup when clicking outside
-settingsPopup?.addEventListener('click', (e) => {
-  if (e.target === settingsPopup) {
-    settingsPopup.style.display = 'none';
-  }
-});
-
-// Load saved settings
-setTimeout(() => {
-  const savedTheme = localStorage.getItem('appTheme');
-  const savedLanguage = localStorage.getItem('appLanguage');
-  const savedNotifications = localStorage.getItem('appNotifications');
-  
-  if (savedTheme && document.getElementById('themeSetting')) {
-    document.getElementById('themeSetting').value = savedTheme;
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark');
+  Swal.fire({
+    title: 'คุณแน่ใจหรือไม่?',
+    text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'ใช่, ลบเลย!',
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true,
+    customClass: {
+      popup: 'swal-dark' // 👈 ใช้คลาสสำหรับ Dark Mode
     }
-  }
-  
-  if (savedLanguage && document.getElementById('languageSetting')) {
-    document.getElementById('languageSetting').value = savedLanguage;
-  }
-  
-  if (savedNotifications !== null && document.getElementById('notificationsSetting')) {
-    document.getElementById('notificationsSetting').checked = savedNotifications === 'true';
-  }
-}, 100);
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const res = await window.electronAPI.deleteTestRequest(requestId);
+        
+        Swal.fire({
+          title: 'ลบสำเร็จ!',
+          text: res.message || 'ลบข้อมูลสำเร็จ',
+          icon: 'success',
+          customClass: { popup: 'swal-dark' }
+        });
+
+        // โหลดข้อมูลใหม่ (ตามโค้ดเดิม)
+        const data = await window.electronAPI.getTestRequests();
+        renderTestRequests(data);
+        await updateStatsFromAPI();
+
+      } catch (e) { 
+        console.error(e); 
+        Swal.fire({
+          title: 'เกิดข้อผิดพลาด!',
+          text: 'เกิดข้อผิดพลาดในการลบข้อมูล',
+          icon: 'error',
+          customClass: { popup: 'swal-dark' }
+        });
+      }
+    }
+  });
+}
+
+

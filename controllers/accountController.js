@@ -21,9 +21,11 @@ async function fetchAllAccounts() {
     .order('user_id', { ascending: true });
 
   if (error) {
+    console.error('❌ Error fetching accounts:', error);
     throw new Error('Error fetching accounts: ' + error.message);
   }
 
+  console.log('✅ Fetched accounts:', data?.length, 'records');
   return data;
 }
 

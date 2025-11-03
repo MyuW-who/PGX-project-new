@@ -255,3 +255,17 @@ app.whenReady().then(createWindow);
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+
+
+// 🟥 ปิดแอปเมื่อได้รับ event จาก renderer
+// 🟥 ปิดแอปเมื่อได้รับ event จาก renderer
+ipcMain.on('window-close', () => {
+  console.log("🟥 IPC received: window-close");
+  if (mainWindow) {
+    console.log("🟢 Closing mainWindow...");
+    mainWindow.close();
+  } else {
+    console.error("❌ mainWindow not found");
+  }
+});
+

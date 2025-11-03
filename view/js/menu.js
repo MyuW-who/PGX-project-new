@@ -19,3 +19,13 @@ dashboard_btn?.addEventListener('click', () => {
   window.electronAPI.navigate('dashboard1');
 });
 
+const admin_btn = document.getElementById('admin-btn');
+admin_btn?.addEventListener('click', () => {
+  window.electronAPI.navigate('adminpage');
+});
+
+const auditlog_btn = document.getElementById('auditlog-btn');
+auditlog_btn?.addEventListener('click', () => {
+  window.electronAPI.navigate('auditlog');
+});
+

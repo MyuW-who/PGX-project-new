@@ -153,12 +153,9 @@ async function getTestRequestStats() {
     return { all: 0, need2Confirmation: 0, need1Confirmation: 0, done: 0 };
   }
 
-  console.log('📊 Raw status data:', data);
-
   const all = data?.length || 0;
   const need2Confirmation = data?.filter(r => {
     const status = r.status?.toLowerCase().trim();
-    console.log('Checking status:', status, '=== need 2 confirmation?', status === 'need 2 confirmation');
     return status === 'need 2 confirmation';
   })?.length || 0;
   
@@ -172,10 +169,7 @@ async function getTestRequestStats() {
     return status === 'done';
   })?.length || 0;
 
-  const stats = { all, need2Confirmation, need1Confirmation, done };
-  console.log('✅ Calculated stats:', stats);
-  
-  return stats;
+  return { all, need2Confirmation, need1Confirmation, done };
 }
 
 module.exports = {
