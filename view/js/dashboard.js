@@ -14,7 +14,6 @@ let chartInstances = {};
    ▶️ ข้อมูลจำลอง + วาดกราฟ 3 แบบ: Line, Donut TAT, Gauge KPI
 ============================================================ */
 
-const isDark = document.body.classList.contains('dark');
 
 // ฟังก์ชันอัปเดตสีกราฟ
 function updateChartsForTheme() {
