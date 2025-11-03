@@ -8,7 +8,6 @@ const langData = {
     placeholderUser: "Enter your username",
     placeholderPass: "Enter your password",
     loginBtn: "Login",
-    loginLoading: "Logging in...",
   },
   th: {
     username: "ชื่อผู้ใช้",
@@ -16,7 +15,6 @@ const langData = {
     placeholderUser: "กรอกชื่อผู้ใช้",
     placeholderPass: "กรอกรหัสผ่าน",
     loginBtn: "เข้าสู่ระบบ",
-    loginLoading: "กำลังเข้าสู่ระบบ...",
   },
 };
 
@@ -29,23 +27,10 @@ const elements = {
   usernameInput: document.getElementById("username"),
   passwordInput: document.getElementById("password"),
   btnLogin: document.getElementById("btn-login"),
+  popup: document.getElementById("popup"),
   btnEn: document.getElementById("lang-en"),
   btnTh: document.getElementById("lang-th"),
 };
-
-// ===============================
-// ✨ Notyf Initialization (สำคัญ: ส่วนนี้คือที่กำหนดไอคอน)
-// ===============================
-const notyf = new Notyf({
-  duration: 3000,
-  position: { x: 'right', y: 'top' },
-  types: [
-    // 👇 ไอคอนเหล่านี้ดึงมาจาก Font Awesome ที่คุณติดตั้งไว้ใน HTML ครับ
-    { type: 'success', background: '#34A853', icon: { className: 'fas fa-check-circle', tagName: 'i' } },
-    { type: 'error', background: '#EA4335', icon: { className: 'fas fa-exclamation-circle', tagName: 'i' } },
-    { type: 'warning', background: '#FBBC05', color: '#000', icon: { className: 'fas fa-exclamation-triangle', tagName: 'i' } }
-  ]
-});
 
 // ===============================
 // 🌐 Language Switcher
@@ -56,38 +41,63 @@ function setLanguage(lang) {
   elements.labelPassword.textContent = text.password;
   elements.usernameInput.placeholder = text.placeholderUser;
   elements.passwordInput.placeholder = text.placeholderPass;
-  if (!elements.btnLogin.disabled) {
-    elements.btnLogin.textContent = text.loginBtn;
-  }
+  elements.btnLogin.textContent = text.loginBtn;
+
+  elements.btnEn.classList.toggle("active", lang === "en");
+  elements.btnTh.classList.toggle("active", lang === "th");
 }
 
+// Default language = English
 setLanguage("en");
 elements.btnEn.addEventListener("click", () => setLanguage("en"));
 elements.btnTh.addEventListener("click", () => setLanguage("th"));
 
 
+// renderer/login.js
+const popup = document.getElementById('popup');
+const btn = document.getElementById('btn-login');
+
 /* ============================================
-   🔔 POPUP NOTIFICATION FUNCTIONS (Using Notyf)
+   🔔 POPUP NOTIFICATION FUNCTIONS
    ============================================ */
 
-function showPopup(message, type = 'error') {
-  if (type === 'warning') {
-    notyf.open({ type: 'warning', message: message });
-  } else if (type === 'success') {
-    notyf.success(message);
-  } else {
-    notyf.error(message);
-  }
+// Show notification message with type
+function showPopup(message, type = 'error', duration = 3000) {
+  // Remove any existing type classes
+  popup.classList.remove('success', 'error', 'warning');
+  
+  // Add the new type class
+  popup.classList.add(type);
+  
+  // Set the message
+  popup.textContent = message;
+  
+  // Show the notification
+  popup.classList.remove('hidden');
+  popup.classList.add('show');
+  
+  // Auto-hide after duration
+  setTimeout(() => {
+    popup.classList.remove('show');
+    setTimeout(() => {
+      popup.classList.add('hidden');
+    }, 400); // Wait for animation to finish
+  }, duration);
 }
 
+// Hide popup
 function hidePopup() {
-  notyf.dismissAll();
+  popup.classList.remove('show');
+  setTimeout(() => {
+    popup.classList.add('hidden');
+  }, 400);
 }
 
 /* ============================================
-   🔐 SESSION MANAGEMENT FUNCTIONS
+   �🔐 SESSION MANAGEMENT FUNCTIONS
    ============================================ */
-// (ส่วนนี้เหมือนเดิม ไม่มีการเปลี่ยนแปลง)
+
+// Store user session data
 function storeUserSession(userData) {
   const sessionData = {
     user_id: userData.user_id,
@@ -97,75 +107,121 @@ function storeUserSession(userData) {
     loginTime: new Date().toISOString(),
     sessionId: generateSessionId()
   };
+  
+  // Store in localStorage for persistence
   localStorage.setItem('userSession', JSON.stringify(sessionData));
+  
+  // Store in sessionStorage for current tab only
   sessionStorage.setItem('currentUser', JSON.stringify(sessionData));
+  
   console.log('✅ User session stored:', sessionData.username, sessionData.role);
   return sessionData;
 }
-function generateSessionId() { return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9); }
-function getUserSession() {
-  try { const sessionData = localStorage.getItem('userSession'); return sessionData ? JSON.parse(sessionData) : null; }
-  catch (error) { console.error('❌ Error reading user session:', error); return null; }
+
+// Generate unique session ID
+function generateSessionId() {
+  return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
+
+// Get stored user session
+function getUserSession() {
+  try {
+    const sessionData = localStorage.getItem('userSession');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading user session:', error);
+    return null;
+  }
+}
+
+// Clear user session
 function clearUserSession() {
   localStorage.removeItem('userSession');
-  localStorage.removeItem('userRole');
+  localStorage.removeItem('userRole'); // Remove old role storage
   sessionStorage.removeItem('currentUser');
   console.log('🗑️ User session cleared');
 }
+
+// Check if user session is valid
 function isSessionValid(sessionData) {
   if (!sessionData || !sessionData.loginTime) return false;
+  
   const loginTime = new Date(sessionData.loginTime);
   const now = new Date();
   const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
+  
+  // Session expires after 24 hours
   return hoursSinceLogin < 24;
 }
+
+// Auto-login if valid session exists
 function checkExistingSession() {
   const sessionData = getUserSession();
+  
   if (sessionData && isSessionValid(sessionData)) {
     console.log('🔄 Valid session found, auto-login for:', sessionData.username);
+    
+    // Update session storage
     sessionStorage.setItem('currentUser', JSON.stringify(sessionData));
+    
+    // Navigate to appropriate dashboard
     navigateBasedOnRole(sessionData.role);
     return true;
-  } else if (sessionData) { console.log('⏰ Session expired, clearing...'); clearUserSession(); }
+  } else if (sessionData) {
+    console.log('⏰ Session expired, clearing...');
+    clearUserSession();
+  }
+  
   return false;
 }
+
+// Navigate based on user role
 function navigateBasedOnRole(role) {
-  if (role === 'medtech') { window.electronAPI.navigate('dashboard1'); }
-  else if (role === 'pharmacist') { window.electronAPI.navigate('dashboard2'); }
-  else if (role === 'admin') { window.electronAPI.navigate('adminpage'); }
-  else { console.warn('❌ Unknown role:', role); showPopup(`Role "${role}" ไม่มีหน้าที่กำหนด`); }
+  if (role === 'medtech') {
+    window.electronAPI.navigate('dashboard1'); 
+  } else if (role === 'pharmacist') {
+    window.electronAPI.navigate('dashboard2'); 
+  } else if (role === 'admin') {
+    window.electronAPI.navigate('adminpage');
+  } else {
+    console.warn('❌ Unknown role:', role);
+    showPopup(`Role "${role}" ไม่มีหน้าที่กำหนด`);
+  }
 }
 
 /* ============================================
-   🚪 LOGIN FORM HANDLER (Upgraded with Notyf)
+   🚪 LOGIN FORM HANDLER
    ============================================ */
 
-elements.btnLogin.addEventListener('click', async (e) => {
+btn.addEventListener('click', async (e) => {
   e.preventDefault();
 
   const username = elements.usernameInput.value.trim();
   const password = elements.passwordInput.value.trim();
 
+  // 🔸 Validation: Empty Fields
   if (!username || !password) {
     showPopup("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน", 'warning');
     return;
   }
 
-  const currentLang = elements.btnEn.classList.contains('active') ? 'en' : 'th';
-  elements.btnLogin.disabled = true;
-  elements.btnLogin.textContent = langData[currentLang].loginLoading;
+  // Show loading state
+  btn.disabled = true;
+  btn.textContent = 'กำลังเข้าสู่ระบบ...';
 
   try {
+    // Pass credentials as an object
     const result = await window.electronAPI.checkLogin({ username, password });
 
     if (!result.success) {
       showPopup(result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
-      elements.btnLogin.disabled = false;
-      elements.btnLogin.textContent = langData[currentLang].loginBtn;
+      // Reset button immediately on failure
+      btn.disabled = false;
+      btn.textContent = 'เข้าสู่ระบบ';
       return;
     }
 
+    // ✅ Store complete user session data
     const userData = result.data || {
       user_id: result.user_id,
       username: username,
@@ -174,8 +230,11 @@ elements.btnLogin.addEventListener('click', async (e) => {
     };
     
     storeUserSession(userData);
-    showPopup('เข้าสู่ระบบสำเร็จ!', 'success');
     
+    // Show success notification before navigating
+    showPopup('เข้าสู่ระบบสำเร็จ!', 'success', 1500);
+    
+    // Navigate based on role after a short delay
     setTimeout(() => {
       navigateBasedOnRole(userData.role || result.role);
     }, 800);
@@ -183,9 +242,9 @@ elements.btnLogin.addEventListener('click', async (e) => {
   } catch (error) {
     console.error('❌ Login error:', error);
     showPopup('เกิดข้อผิดพลาดในการเข้าสู่ระบบ', 'error');
-    const currentLang = elements.btnEn.classList.contains('active') ? 'en' : 'th';
-    elements.btnLogin.disabled = false;
-    elements.btnLogin.textContent = langData[currentLang].loginBtn;
+    // Reset button immediately on error
+    btn.disabled = false;
+    btn.textContent = 'เข้าสู่ระบบ';
   }
 });
 
@@ -193,38 +252,59 @@ elements.btnLogin.addEventListener('click', async (e) => {
    🔄 AUTO-LOGIN ON PAGE LOAD
    ============================================ */
 
+// Reset form to initial state
 function resetLoginForm() {
-  elements.btnLogin.disabled = false;
-  const currentLang = elements.btnEn.classList.contains('active') ? 'en' : 'th';
-  elements.btnLogin.textContent = langData[currentLang].loginBtn;
+  // Reset button state
+  btn.disabled = false;
+  btn.textContent = 'เข้าสู่ระบบ';
+  
+  // Clear input fields
   elements.usernameInput.value = '';
   elements.passwordInput.value = '';
+  
+  // Enable all inputs
   elements.usernameInput.disabled = false;
   elements.passwordInput.disabled = false;
+  
+  // Hide any visible popup
   hidePopup();
+  
   console.log('🔄 Login form reset to initial state');
 }
 
-// (ส่วนที่เหลือเหมือนเดิม ไม่มีการเปลี่ยนแปลง)
+// Check for existing session when page loads
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🔍 Checking for existing user session...');
+  
+  // Force reset form state first - ensure everything is enabled
   btn.disabled = false;
   elements.usernameInput.disabled = false;
   elements.passwordInput.disabled = false;
   elements.usernameInput.value = '';
   elements.passwordInput.value = '';
+  
+  // Reset form state
   resetLoginForm();
+  
+  // Check if URL has ?clear=true parameter to force clear session
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('clear') === 'true') {
     console.log('🗑️ Clearing session as requested...');
     clearUserSession();
+    // Remove the parameter from URL
     window.history.replaceState({}, document.title, window.location.pathname);
   }
+  
   if (!checkExistingSession()) {
     console.log('👋 No valid session found, showing login form');
-    setTimeout(() => { document.getElementById('username')?.focus(); }, 100);
+    // Focus on username input for better UX
+    setTimeout(() => {
+      document.getElementById('username')?.focus();
+    }, 100);
   }
 });
+
+// Also reset form when page becomes visible (important for navigation back)
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) {
     console.log('🔄 Page became visible, ensuring form is enabled...');
@@ -233,6 +313,8 @@ document.addEventListener('visibilitychange', () => {
     elements.passwordInput.disabled = false;
   }
 });
+
+// Add keyboard shortcut Ctrl+Shift+L to clear session (for development/testing)
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.shiftKey && e.key === 'L') {
     console.log('🗑️ Keyboard shortcut detected - Clearing session...');
@@ -241,13 +323,37 @@ document.addEventListener('keydown', (e) => {
     location.reload();
   }
 });
+
+/* ============================================
+   🔧 UTILITY FUNCTIONS
+   ============================================ */
+
+// Get current user info (for other pages to use)
 function getCurrentUser() {
-  try { const sessionData = sessionStorage.getItem('currentUser'); return sessionData ? JSON.parse(sessionData) : null; }
-  catch (error) { console.error('❌ Error reading current user:', error); return null; }
+  try {
+    const sessionData = sessionStorage.getItem('currentUser');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading current user:', error);
+    return null;
+  }
 }
+
+// Update session data (for profile updates)
 function updateUserSession(updates) {
   const currentSession = getUserSession();
-  if (currentSession) { const updatedSession = { ...currentSession, ...updates }; storeUserSession(updatedSession); return updatedSession; }
+  if (currentSession) {
+    const updatedSession = { ...currentSession, ...updates };
+    storeUserSession(updatedSession);
+    return updatedSession;
+  }
   return null;
 }
-window.userSession = { getCurrentUser, updateUserSession, clearUserSession, storeUserSession };
+
+// Export functions for use in other modules
+window.userSession = {
+  getCurrentUser,
+  updateUserSession,
+  clearUserSession,
+  storeUserSession
+};
