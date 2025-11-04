@@ -1,3 +1,14 @@
+:root {
+  --verify-btn-bg: rgba(255, 255, 255, 0.92);
+  --verify-btn-bg-hover: rgba(255, 255, 255, 0.98);
+  --verify-btn-text: #111827;
+  --verify-btn-border: rgba(148, 163, 184, 0.35);
+  --verify-btn-border-hover: rgba(59, 130, 246, 0.4);
+  --verify-btn-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+  --verify-btn-shadow-hover: 0 12px 26px rgba(15, 23, 42, 0.12);
+  --verify-btn-shadow-active: 0 6px 16px rgba(15, 23, 42, 0.1);
+}
+
 body {
   font-family: "Noto Sans Thai", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #1f2937;
@@ -8,6 +19,14 @@ body {
 body.dark {
   background: #0d0d0d;
   color: #f5f5f5;
+  --verify-btn-bg: #1a1a1a;
+  --verify-btn-bg-hover: #1f1f1f;
+  --verify-btn-text: #f5f5f5;
+  --verify-btn-border: rgba(255, 255, 255, 0.12);
+  --verify-btn-border-hover: rgba(255, 255, 255, 0.22);
+  --verify-btn-shadow: 0 12px 24px rgba(0, 0, 0, 0.55);
+  --verify-btn-shadow-hover: 0 16px 34px rgba(0, 0, 0, 0.65);
+  --verify-btn-shadow-active: 0 10px 22px rgba(0, 0, 0, 0.5);
 }
 
 /* Navbar (สวยงาม + icon เรียงดี) */
@@ -34,72 +53,58 @@ body.dark {
   gap: 1rem;
 }
 
-.nav-right .nav-btn {
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(255, 255, 255, 0.96);
-  color: #0f172a;
-  border-radius: 20px;
-  padding: 0.55rem 1rem;
+.navbar .nav-right :is(button, .nav-btn, .icon-btn, .lang-btn, .user-btn, .theme-toggle) {
+  border: 1px solid var(--verify-btn-border);
+  background: var(--verify-btn-bg);
+  color: var(--verify-btn-text);
+  border-radius: 14px;
+  padding: 0.6rem 1.1rem;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-}
-
-.nav-right .icon-btn {
-  padding: 0.55rem;
-  width: 44px;
-  justify-content: center;
-}
-
-.nav-right .icon {
-  font-size: 1.05rem;
   line-height: 1;
+  box-shadow: var(--verify-btn-shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
 }
 
-.nav-right .user-btn .chevron {
-  font-size: 0.8rem;
-  opacity: 0.6;
-  transform: translateY(1px);
+.navbar .nav-right :is(.icon-btn, .theme-toggle, .account-btn) {
+  padding: 0.6rem;
+  width: 44px;
+  min-width: 44px;
 }
 
-.nav-right .nav-btn:hover {
+.navbar .nav-right .lang-btn {
+  padding: 0.6rem 1.2rem;
+  letter-spacing: 0.04em;
+}
+
+.navbar .nav-right :is(button, .nav-btn, .icon-btn, .lang-btn, .user-btn, .theme-toggle):hover {
   transform: translateY(-2px);
-  border-color: rgba(37, 99, 235, 0.45);
-  box-shadow: 0 18px 36px rgba(37, 99, 235, 0.16);
+  border-color: var(--verify-btn-border-hover);
+  box-shadow: var(--verify-btn-shadow-hover);
+  background: var(--verify-btn-bg-hover);
 }
 
-.nav-right .nav-btn:active {
+.navbar .nav-right :is(button, .nav-btn, .icon-btn, .lang-btn, .user-btn, .theme-toggle):active {
   transform: translateY(0);
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--verify-btn-shadow-active);
 }
 
-body.dark .navbar {
-  background: #111111;
-  color: #f5f5f5;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-  border-bottom-color: rgba(255, 255, 255, 0.04);
+body.dark .navbar .nav-right :is(button, .nav-btn, .icon-btn, .lang-btn, .user-btn, .theme-toggle) {
+  background: var(--verify-btn-bg);
+  color: var(--verify-btn-text);
+  border-color: var(--verify-btn-border);
+  box-shadow: var(--verify-btn-shadow);
 }
 
-body.dark .nav-left h2 {
-  color: #f5f5f5;
-}
-
-body.dark .nav-right .nav-btn {
-  background: #1a1a1a;
-  color: #f5f5f5;
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.55);
-}
-
-body.dark .nav-right .nav-btn:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.65);
+body.dark .navbar .nav-right :is(button, .nav-btn, .icon-btn, .lang-btn, .user-btn, .theme-toggle):hover {
+  border-color: var(--verify-btn-border-hover);
+  box-shadow: var(--verify-btn-shadow-hover);
 }
 
 .dropdown {
@@ -382,3 +387,4 @@ body.dark .back-btn {
 body.dark .next-btn {
   background: #2563eb;
 }
+
