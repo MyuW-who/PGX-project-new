@@ -135,6 +135,21 @@ function updateChartsForTheme() {
 
 
 
+/* ============================================================
+   🔐 AUTHENTICATION & USER SESSION
+   ------------------------------------------------------------
+   ▶️ Check authentication and update user display on page load
+============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  // Check authentication first
+  if (!checkAuthentication()) {
+    return; // Stop execution if not authenticated
+  }
+  
+  // Update user display in header
+  updateUserDisplay();
+});
+
 // ใช้เฉพาะในหน้า Dashboard เท่านั้น (กัน error ถ้า element ไม่มี)
 const hasDashboard = !!document.getElementById('usageChart') || !!document.getElementById('tatDonut') || !!document.getElementById('kpiGauge');
 

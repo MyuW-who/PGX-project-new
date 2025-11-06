@@ -96,29 +96,40 @@ async function handleFormSubmit(e) {
   };
 
   try {
-    // เรียก API เพื่ออัปเดตข้อมูล
-    // await window.electronAPI.updatePatient(editingPatientId, patientData);
+    let response;
+    
+    if (isEditMode && editingPatientId) {
+      // Update existing patient
+      response = await window.electronAPI.updatePatient(editingPatientId, baseData);
+      console.log('✅ Patient updated:', response);
+    } else {
+      // Add new patient
+      response = await window.electronAPI.addPatient(baseData);
+      console.log('✅ Patient added:', response);
+    }
 
-    // --- REPLACED ALERT ---
+    // Show success message
     await Swal.fire({
       icon: 'success',
       title: 'บันทึกสำเร็จ!',
-      text: 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว',
+      text: isEditMode ? 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว' : 'เพิ่มข้อมูลผู้ป่วยสำเร็จ',
       background: '#1f2937',
       color: '#f9fafb',
       confirmButtonColor: '#3b82f6'
     });
 
-    // รีโหลดหน้าเว็บหลังจากกด OK
-    location.reload();
+    // Close popup and reload data
+    closePopup();
+    const patients = await window.electronAPI.getPatients();
+    renderPatients(patients);
 
   } catch (err) {
     console.error('❌ Error saving patient data:', err);
-    // --- REPLACED ALERT ---
+    // Show error message
     Swal.fire({
       icon: 'error',
       title: 'บันทึกไม่สำเร็จ',
-      text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+      text: err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
       background: '#1f2937',
       color: '#f9fafb',
       confirmButtonColor: '#3b82f6'
