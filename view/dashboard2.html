@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
   <link rel="stylesheet" href="./css/dashboard.css" />
 </head>
 <body>
@@ -21,10 +25,18 @@
     <main class="main-content">
       <header>
         <h1 id="welcome"></h1>
-        <div>
-          <button id="themeToggle">เปลี่ยนธีม</button>
-          <button id="langToggle">EN</button>
-          <button id="logout">ออกจากระบบ</button>
+        <div class="header-buttons">
+          <!-- Dropdown -->
+          <div class="dropdown">
+            <button class="dropbtn" id="dropdownBtn">
+              <i class="fa fa-user-circle"></i> User <i class="fa fa-caret-down"></i>
+            </button>
+            <div id="dropdownMenu" class="dropdown-content">
+              <a href="#" id="settingsBtn">Settings</a>
+              <a href="#">About</a>
+              <a href="#" id="logout">Logout</a>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -49,6 +61,33 @@
     </main>
   </div>
 
+  <!-- Settings Popup -->
+  <div id="settingsPopup" class="settings-popup">
+    <div class="settings-content">
+      <h3>Settings</h3>
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="themeToggle" />
+          Dark Mode
+        </label>
+      </div>
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="langToggle" />
+          English Language
+        </label>
+      </div>
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="notificationToggle" />
+          Enable Notifications
+        </label>
+      </div>
+      <button id="closeSettings" class="btn-close">Close</button>
+    </div>
+  </div>
+
+  <script src="./js/userProfile.js"></script>
   <script src="./js/dashboard.js"></script>
 </body>
 </html>
