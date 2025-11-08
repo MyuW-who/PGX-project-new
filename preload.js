@@ -31,6 +31,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateTestRequest: (requestId, data) => ipcRenderer.invoke('update-test-request', { requestId, data }),
   deleteTestRequest: (requestId) => ipcRenderer.invoke('delete-test-request', requestId),
   getTestRequestStats: () => ipcRenderer.invoke('get-test-request-stats'),
+  getSpecimenSLA: () => ipcRenderer.invoke('get-specimen-sla'),
   closeApp: () => ipcRenderer.send('window-close'),
 });
 
