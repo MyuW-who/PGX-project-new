@@ -82,36 +82,18 @@ async function updatePatient(patientId, updatedData) {
 
 
 
-// ลบข้อมูลผู้ป่วย (with cascading delete for test_request)
+// ลบข้อมูลผู้ป่วย
 async function deletePatient(patientId) {
-  try {
-    // Step 1: Delete all test_request records for this patient first
-    const { error: testRequestError } = await supabase
-      .from('test_request')
-      .delete()
-      .eq('patient_id', patientId);
+  const { error } = await supabase
+    .from('patient')
+    .delete()
+    .eq('patient_id', patientId);
 
-    if (testRequestError) {
-      console.error('❌ Delete Test Request Error:', testRequestError.message);
-      return { success: false, message: 'ไม่สามารถลบข้อมูลการตรวจที่เกี่ยวข้องได้' };
-    }
-
-    // Step 2: Now delete the patient
-    const { error: patientError } = await supabase
-      .from('patient')
-      .delete()
-      .eq('patient_id', patientId);
-
-    if (patientError) {
-      console.error('❌ Delete Patient Error:', patientError.message);
-      return { success: false, message: 'ไม่สามารถลบข้อมูลผู้ป่วยได้' };
-    }
-
-    return { success: true, message: 'ลบข้อมูลผู้ป่วยและการตรวจที่เกี่ยวข้องสำเร็จ' };
-  } catch (err) {
-    console.error('❌ Delete Error:', err.message);
-    return { success: false, message: 'เกิดข้อผิดพลาดในการลบข้อมูล' };
+  if (error) {
+    console.error('❌ Delete Error:', error.message);
+    return false;
   }
+  return true;
 }
 
 module.exports = { fetchPatients, addPatient, searchPatientById, getPatientById, updatePatient, deletePatient };

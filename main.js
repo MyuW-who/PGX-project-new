@@ -110,8 +110,8 @@ ipcMain.handle('update-patient', async (event, payload) => {
 // 👤 Patient CRUD - delete
 ipcMain.handle('delete-patient', async (event, patientId) => {
   try {
-    const result = await deletePatient(patientId);
-    return result; // result already contains { success, message }
+    const ok = await deletePatient(patientId);
+    return { success: ok, message: ok ? 'ลบข้อมูลสำเร็จ!' : 'ไม่สามารถลบข้อมูลได้' };
   } catch (err) {
     console.error('❌ Delete Patient Error:', err.message);
     return { success: false, message: 'เกิดข้อผิดพลาดในการลบข้อมูลผู้ป่วย' };

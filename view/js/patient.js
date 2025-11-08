@@ -28,7 +28,7 @@
     e.preventDefault();
 
     // collect common fields
-    const patientData = {
+    const baseData = {
       patient_id: parseInt(document.getElementById('patient_id').value),
       hospital_id: document.getElementById('hospital').value.trim(),
       first_name: document.getElementById('first_name').value.trim(),
@@ -41,37 +41,26 @@
     };
 
     try {
-      if (isEditMode) {
-        // Edit existing patient
-        await window.electronAPI.updatePatient(editingPatientId, patientData);
-        await Swal.fire({
-          icon: 'success',
-          title: 'บันทึกสำเร็จ!',
-          text: 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว',
-          confirmButtonColor: '#3b82f6',
-          customClass: {
-            popup: 'swal-dark'
-          }
-        });
-      } else {
-        // Add new patient
-        await window.electronAPI.addPatient(patientData);
-        await Swal.fire({
-          icon: 'success',
-          title: 'เพิ่มสำเร็จ!',
-          text: 'เพิ่มข้อมูลผู้ป่วยเรียบร้อยแล้ว',
-          confirmButtonColor: '#3b82f6',
-          customClass: {
-            popup: 'swal-dark'
-          }
-        });
-      }
+      // เรียก API เพื่ออัปเดตข้อมูล
+      // await window.electronAPI.updatePatient(editingPatientId, patientData);
+
+      // --- REPLACED ALERT ---
+      await Swal.fire({
+        icon: 'success',
+        title: 'บันทึกสำเร็จ!',
+        text: 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว',
+        confirmButtonColor: '#3b82f6',
+        customClass: {  // 👈 เพิ่มส่วนนี้
+          popup: 'swal-dark'
+        }
+      });
 
       // รีโหลดหน้าเว็บหลังจากกด OK
       location.reload();
 
     } catch (err) {
       console.error('❌ Error saving patient data:', err);
+      // --- REPLACED ALERT ---
       Swal.fire({
         icon: 'error',
         title: 'บันทึกไม่สำเร็จ',
@@ -79,11 +68,13 @@
         confirmButtonColor: '#3b82f6', 
         cancelButtonColor: '#ef4444',
         customClass: {
-          popup: 'swal-dark'
-        }
+        popup: 'swal-dark'
+      }
       });
     }
-  }  form?.addEventListener('submit', handleFormSubmit);
+  }
+
+  form?.addEventListener('submit', handleFormSubmit);
 
   /* --------------------------------------------
     🔍 ระบบค้นหาผู้ป่วยด้วย patient_id, ชื่อ, หรือนามสกุล
@@ -261,31 +252,18 @@
         try {
           const response = await window.electronAPI.deletePatient(patientId);
           
-          if (response.success) {
-            // แสดง Pop-up แจ้งว่าลบสำเร็จ
-            Swal.fire({
-              title: 'ลบสำเร็จ!',
-              text: response.message || 'ข้อมูลผู้ป่วยถูกลบเรียบร้อยแล้ว',
-              icon: 'success',
-              confirmButtonColor: '#3b82f6',
-              customClass: {
-                popup: 'swal-dark'
-              }
-            }).then(() => {
-              location.reload(); // รีโหลดหน้าเว็บหลังกด OK
-            });
-          } else {
-            // แสดง Pop-up แจ้งเตือนถ้าลบไม่สำเร็จ
-            Swal.fire({
-              title: 'เกิดข้อผิดพลาด!',
-              text: response.message || 'ไม่สามารถลบข้อมูลผู้ป่วยได้',
-              icon: 'error',
-              confirmButtonColor: '#3b82f6',
-              customClass: {
-                popup: 'swal-dark'
-              }
-            });
-          }
+          // แสดง Pop-up แจ้งว่าลบสำเร็จ
+          Swal.fire({
+            title: 'ลบสำเร็จ!',
+            text: response.message || 'ข้อมูลผู้ป่วยถูกลบเรียบร้อยแล้ว',
+            icon: 'success',
+            confirmButtonColor: '#3b82f6',
+            customClass: { // 👈 เพิ่ม/แทนที่ด้วยส่วนนี้
+              popup: 'swal-dark'
+            }
+          }).then(() => {
+            location.reload(); // รีโหลดหน้าเว็บหลังกด OK
+          });
 
         } catch (err) {
           console.error('❌ Error deleting patient:', err);
@@ -296,9 +274,9 @@
             text: 'ไม่สามารถลบข้อมูลผู้ป่วยได้',
             icon: 'error',
             confirmButtonColor: '#3b82f6',
-            customClass: {
-              popup: 'swal-dark'
-            }
+            customClass: { // 👈 เพิ่มส่วนนี้
+            popup: 'swal-dark'
+          }
           });
         }
       }
