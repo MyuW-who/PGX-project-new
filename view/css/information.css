@@ -279,6 +279,95 @@ a {
   font-size: 14px;
 }
 
+/* ============================================
+   ⚠️ TAT WARNING INDICATORS (Enhanced Visibility)
+   ============================================ */
+.tat-warning-icon,
+.tat-overdue-icon {
+  font-size: 22px;
+  margin-left: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 1.5s ease-in-out infinite;
+  font-weight: bold;
+}
+
+/* 🟡 Warning (80-100% TAT) */
+.tat-warning-icon {
+  color: #f59e0b;
+  background-color: rgba(245, 158, 11, 0.15);
+  border: 2px solid #fbbf24;
+}
+
+/* 🔴 Overdue (>100% TAT) */
+.tat-overdue-icon {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 2px solid #f87171;
+}
+
+/* Row highlighting for warnings */
+tr.tat-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  border-left: 4px solid #f59e0b;
+}
+
+tr.tat-overdue {
+  background-color: rgba(239, 68, 68, 0.12);
+  border-left: 4px solid #ef4444;
+}
+
+tr.tat-warning:hover {
+  background-color: rgba(245, 158, 11, 0.18);
+}
+
+tr.tat-overdue:hover {
+  background-color: rgba(239, 68, 68, 0.18);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 10px; 
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+}
+
+.pdf-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.pdf-btn:hover {
+  background: #dc2626;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(220, 38, 38, 0.2);
+}
+
+.pdf-btn i {
+  font-size: 14px;
+}
 
 /* ====== Popup Generic ====== */
 .popup.hidden { display: none; }
