@@ -33,19 +33,6 @@ function updateUserDisplay() {
 }
 
 // --- DOM refs ---
-const dropdownBtn = document.getElementById('dropdownBtn');
-const dropdownMenu = document.getElementById('dropdownMenu');
-const themeToggle = document.getElementById('themeToggle');
-const langToggle = document.getElementById('langToggle');
-const logoutBtn = document.getElementById('logout');
-
-// Settings popup
-const settingsPopup = document.getElementById('settingsPopup');
-const closeSettings = document.getElementById('closeSettings');
-const saveSettings = document.getElementById('saveSettings');
-const cancelSettings = document.getElementById('cancelSettings');
-const settingsBtn = document.getElementById('settingsBtn');
-
 // Filters and list
 const filterUser = document.getElementById('filterUser');
 const filterAction = document.getElementById('filterAction');
@@ -54,44 +41,6 @@ const auditList = document.getElementById('auditList');
 const auditCount = document.getElementById('auditCount');
 const emptyState = document.getElementById('emptyState');
 
-
-// --- Dropdown & theme/lang handlers ---
-dropdownBtn?.addEventListener('click', (e) => {
-	e.stopPropagation();
-	dropdownMenu?.classList.toggle('show');
-});
-dropdownMenu?.addEventListener('click', (e) => e.stopPropagation());
-document.addEventListener('click', () => dropdownMenu?.classList.remove('show'));
-
-
-
-langToggle?.addEventListener('click', () => {
-	const current = langToggle.textContent.trim();
-	langToggle.textContent = current === 'TH' ? 'EN' : 'TH';
-});
-
-logoutBtn?.addEventListener('click', () => {
-	const confirmed = confirm('คุณต้องการออกจากระบบหรือไม่?');
-	if (!confirmed) return;
-	try {
-		localStorage.removeItem('userSession');
-		sessionStorage.clear();
-	} finally {
-		window.electronAPI?.navigate('login');
-	}
-});
-
-// Settings popup wires
-settingsBtn?.addEventListener('click', (e) => { e.preventDefault(); settingsPopup.style.display = 'flex'; dropdownMenu?.classList.remove('show'); });
-closeSettings?.addEventListener('click', () => { settingsPopup.style.display = 'none'; });
-cancelSettings?.addEventListener('click', () => { settingsPopup.style.display = 'none'; });
-saveSettings?.addEventListener('click', () => {
-	const theme = document.getElementById('themeSetting').value;
-	if (theme === 'dark') { document.body.classList.add('dark'); document.body.classList.remove('dark-theme'); }
-	else { document.body.classList.remove('dark'); document.body.classList.remove('dark-theme'); }
-	settingsPopup.style.display = 'none';
-});
-settingsPopup?.addEventListener('click', (e) => { if (e.target === settingsPopup) settingsPopup.style.display = 'none'; });
 
 // --- Mock data ---
 const MOCK_LOGS = [
@@ -210,8 +159,9 @@ searchInput?.addEventListener('input', applyFilters);
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
-	if (!checkAuthentication()) return; // ensure login first
-	updateUserDisplay();
+	// Initialize user profile (authentication, dropdown, settings, logout)
+	if (!initializeUserProfile()) return;
+	
 	populateFilters();
 	applyFilters();
 });
