@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Rulebase Management</title>
+  <link rel="stylesheet" href="./css/global.css">
+  <link rel="stylesheet" href="./css/darkmode.css">
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #555;
+      font-size: 1.2em;
+    }
+    .btn {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #545b62;
+    }
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+    .status.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .status.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .status.info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 14px;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .instructions {
+      background-color: #fff3cd;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #ffc107;
+      margin-bottom: 20px;
+    }
+    .instructions h3 {
+      margin-top: 0;
+      color: #856404;
+    }
+    .instructions ol {
+      margin-left: 20px;
+      color: #856404;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Rulebase Management System</h1>
+    
+    <div class="instructions">
+      <h3>⚙️ Setup Instructions</h3>
+      <ol>
+        <li>Run the SQL file in Supabase SQL Editor: <code>rulebase/create_table.sql</code></li>
+        <li>Place your Excel file in the <code>rulebase/</code> folder</li>
+        <li>Enter the Excel filename below and click Import</li>
+      </ol>
+    </div>
+
+    <!-- Import Excel Section -->
+    <div class="section">
+      <h2>📤 Import Excel to Supabase</h2>
+      <p>Import pharmacogenomics rulebase from Excel file to Supabase database.</p>
+      
+      <div style="margin-top: 15px;">
+        <label for="excelFile">Excel File Name:</label><br>
+        <input type="text" id="excelFile" placeholder="pgx_rulebase.xlsx" value="pgx_rulebase.xlsx">
+      </div>
+      
+      <button class="btn btn-primary" onclick="importExcel()">
+        📤 Import to Supabase
+      </button>
+      
+      <div id="importStatus" class="status"></div>
+    </div>
+
+    <!-- Refresh Cache Section -->
+    <div class="section">
+      <h2>🔄 Refresh Rulebase Cache</h2>
+      <p>Reload rulebase data from Supabase to update the application cache.</p>
+      
+      <button class="btn btn-secondary" onclick="refreshCache()">
+        🔄 Refresh Cache
+      </button>
+      
+      <div id="refreshStatus" class="status"></div>
+    </div>
+
+    <!-- Back Button -->
+    <div style="margin-top: 30px;">
+      <button class="btn btn-secondary" onclick="goBack()">
+        ← Back to Admin Page
+      </button>
+    </div>
+  </div>
+
+  <script>
+    async function importExcel() {
+      const excelFile = document.getElementById('excelFile').value.trim();
+      const statusDiv = document.getElementById('importStatus');
+      
+      if (!excelFile) {
+        showStatus(statusDiv, 'error', 'Please enter an Excel file name');
+        return;
+      }
+      
+      showStatus(statusDiv, 'info', 'Importing... This may take a moment.');
+      
+      try {
+        const result = await window.electronAPI.importExcelToSupabase(excelFile);
+        
+        if (result.success) {
+          let message = `✅ Import successful!\n\n`;
+          result.results.forEach(r => {
+            message += `${r.dnaType}: ${r.action}\n`;
+          });
+          showStatus(statusDiv, 'success', message);
+        } else {
+          showStatus(statusDiv, 'error', `❌ Import failed: ${result.error}`);
+        }
+      } catch (error) {
+        showStatus(statusDiv, 'error', `❌ Error: ${error.message}`);
+      }
+    }
+
+    async function refreshCache() {
+      const statusDiv = document.getElementById('refreshStatus');
+      showStatus(statusDiv, 'info', 'Refreshing cache...');
+      
+      try {
+        const result = await window.electronAPI.refreshRulebase();
+        
+        if (result.success) {
+          const dnaTypes = Object.keys(result.data);
+          showStatus(statusDiv, 'success', `✅ Cache refreshed! Loaded ${dnaTypes.length} DNA types: ${dnaTypes.join(', ')}`);
+        } else {
+          showStatus(statusDiv, 'error', `❌ Refresh failed: ${result.error}`);
+        }
+      } catch (error) {
+        showStatus(statusDiv, 'error', `❌ Error: ${error.message}`);
+      }
+    }
+
+    function showStatus(element, type, message) {
+      element.className = `status ${type}`;
+      element.style.display = 'block';
+      element.innerHTML = message.replace(/\n/g, '<br>');
+    }
+
+    function goBack() {
+      window.electronAPI.navigate('adminpage');
+    }
+  </script>
+</body>
+</html>
