@@ -39,7 +39,7 @@
     };
 
     // 🔹 คุณอาจต้องแก้ Path นี้ให้ถูกต้อง
-    const defaultPdf = resolvePdfUrl("./PDF/Project.pdf");
+    const defaultPdf = resolvePdfUrl("../reports/ada_PGx.pdf");
     const pdfUrl = resolvePdfUrl(pdfParam) || defaultPdf;
 
     const hideAll = () => {
@@ -144,11 +144,13 @@
             // 🔽 [จุดแก้ไขที่ 1: ตรรกะการแสดงผล]
             // เราจะสั่งให้ render หน้าแรกให้เสร็จ *ก่อน*
             // ถ้าสำเร็จ ค่อยซ่อน Loader และแสดงผล
-            await renderPage(currentPage); // ลอง render ก่อน
+            
 
             // ถ้า render สำเร็จ:
             hideAll(); // ซ่อน Loader
             pdfjsContainer.hidden = false; // แสดง PDF.js
+
+            await renderPage(currentPage); // ลอง render ก่อน
             
             // ย้ายมาไว้ตรงนี้
             openExternal.href = url;

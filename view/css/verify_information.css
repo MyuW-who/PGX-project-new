@@ -1,3 +1,24 @@
+/* ========================
+   App Layout (Fixes Page Scroll)
+   ======================== */
+html, body {
+    height: 100vh; /* 100% ของความสูงหน้าจอ */
+    overflow: hidden; /* ⛔️ ซ่อน Scrollbar ของหน้าหลัก */
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column; 
+    padding: 80px ;
+}
+    
+
+/* 🔹 Header จะไม่หด */
+.page-header {
+    flex-shrink: 0; 
+}
+
 /* ===================================================
    📄 VERIFY INFORMATION PAGE (REFACTORED)
    * * V.2.0 - 09 Nov 2025
@@ -17,8 +38,13 @@
     gap: 24px;
     padding: 32px 40px;
     width: 100%;
-    max-width: 100%; /* ลบ max-width: 1600px เพื่อให้เต็มจอ */
-    box-sizing: border-box; /* ป้องกันการล้น */
+    max-width: 100%;
+    box-sizing: border-box;
+
+    flex: 1;
+
+    height: 0;
+
 }
 
 .card {
@@ -167,6 +193,9 @@ iframe.pdf-viewer-shell {
     flex: 1; /* คอลัมน์ขวาแคบ */
     display: flex;
     flex-direction: column;
+
+    /* 🔽 เพิ่มบรรทัดนี้เข้าไปครับ 🔽 */
+    align-self: flex-start; /* ⬅️ สั่งให้คอลัมน์นี้ "ไม่ต้องยืด" */
 }
 .verification-panel h2 {
     margin-top: 0;
