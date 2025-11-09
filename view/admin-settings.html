@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Settings</title>
   <link rel="stylesheet" href="./css/admin-settings.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-XxXggZN3E4VjzHhQmB2vFBR3lD/1gxib+iRGrcY3MMwXx33uK+vBEJnNRti5vjB9pJjRNRARqk0Yy5uX0syykg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
   <div class="app-shell">
@@ -15,15 +15,35 @@
         <a href="./dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
         <a href="./patients.html"><i class="fa-solid fa-user-group"></i> ข้อมูลผู้ป่วย</a>
         <a href="./information.html"><i class="fa-solid fa-table-list"></i> ตรวจสอบข้อมูล</a>
-        <a class="active" href="./admin-settings.html"><i class="fa-solid fa-sliders"></i> Admin Page</a>
+        <a class="active" href="./admin-settings.html"><i class="fa-solid fa-sliders"></i> Admin Settings</a>
       </nav>
     </aside>
 
     <main class="content">
-      <section class="page-title">
-        <h1>Admin Settings</h1>
-        <p>จัดการหมวดหมู่ สิ่งส่งตรวจ และกำหนดค่า TAT ภายในระบบ</p>
-      </section>
+      <header class="page-header">
+        <div class="page-heading">
+          <h1>Admin Settings</h1>
+          <p>จัดการหมวดหมู่ สิ่งส่งตรวจ และกำหนดค่า TAT ภายในระบบ</p>
+        </div>
+        <div class="toolbar-actions">
+          <button type="button" id="themeToggle" class="chip icon-only" aria-label="Toggle theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button type="button" class="chip" id="langToggle">TH</button>
+          <div class="chip dropdown">
+            <button type="button" class="dropdown-toggle">
+              <i class="fa-solid fa-user"></i>
+              <span>Admin</span>
+              <i class="fa-solid fa-caret-down"></i>
+            </button>
+            <nav class="dropdown-menu">
+              <a href="./profile.html">Profile</a>
+              <a href="#">Settings</a>
+              <a href="#" id="logout">Logout</a>
+            </nav>
+          </div>
+        </div>
+      </header>
 
       <section class="settings-grid">
         <article class="card card-category">

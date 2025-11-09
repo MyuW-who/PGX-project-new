@@ -65,3 +65,31 @@ renderCategoryOptions();
 categoryForm.addEventListener("submit", handleCategorySubmit);
 tatForm.addEventListener("submit", handleTatSubmit);
 specimenForm.addEventListener("submit", handleSpecimenSubmit);
+
+const profileDropdown = document.querySelector('.dropdown');
+const profileToggle = document.querySelector('.dropdown-toggle');
+
+if (profileDropdown && profileToggle) {
+  profileToggle.addEventListener('click', (event) => {
+    event.stopPropagation();
+    profileDropdown.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!profileDropdown.contains(event.target)) {
+      profileDropdown.classList.remove('open');
+    }
+  });
+}
+
+const themeToggle = document.getElementById("themeToggle");
+
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-theme");
+    const icon = themeToggle.querySelector("i");
+    if (!icon) return;
+    const dark = document.body.classList.contains("dark-theme");
+    icon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+  });
+}
