@@ -10,13 +10,15 @@ langToggle.addEventListener("click", () => {
 });
 
 /* ========================
-   ดึงข้อมูลจาก localStorage
+   ดึงข้อมูลจาก sessionStorage
 ======================== */
 const dnaType = sessionStorage.getItem("selectedDnaType") || "-";
 const patientName = sessionStorage.getItem("patientName") || "-";
-const genotype = localStorage.getItem("genotype") || "-";
+const patientId = sessionStorage.getItem("patientId") || sessionStorage.getItem("selectedPatientId") || "-";
+const genotype = sessionStorage.getItem("genotype") || "-";
+const phenotype = sessionStorage.getItem("phenotype") || "-";
 
-document.getElementById("patientName").textContent = patientName;
+document.getElementById("patientName").textContent = patientId + " " + patientName;
 document.getElementById("dnaType").textContent = dnaType;
 document.getElementById("genotype").textContent = genotype;
 
@@ -40,7 +42,7 @@ function showAlleles(type) {
     const th = document.createElement("th");
     th.textContent = id.replace("allele", "*");
     const td = document.createElement("td");
-    td.textContent = localStorage.getItem(id) || "-";
+    td.textContent = sessionStorage.getItem(id) || "-";
     alleleHeader.appendChild(th);
     alleleValues.appendChild(td);
   });
@@ -48,17 +50,19 @@ function showAlleles(type) {
 showAlleles(dnaType);
 
 /* ========================
-   คำนวณ Predicted Phenotype
+   แสดง Predicted Phenotype จาก Rulebase
 ======================== */
 function predictPhenotype(geno) {
   const g = geno.toLowerCase();
   if (g.includes("ultra")) return "Ultrarapid Metabolizer (เพิ่มการเผาผลาญยา)";
+  if (g.includes("rapid")) return "Rapid Metabolizer (การเผาผลาญเร็ว)";
   if (g.includes("normal")) return "Normal Metabolizer (การเผาผลาญปกติ)";
   if (g.includes("intermediate")) return "Intermediate Metabolizer (การเผาผลาญลดลง)";
   if (g.includes("poor")) return "Poor Metabolizer (การเผาผลาญช้ามาก)";
   return "-";
 }
-document.getElementById("phenotype").textContent = predictPhenotype(genotype);
+
+document.getElementById("phenotype").textContent = phenotype || predictPhenotype(genotype);
 
 /* ========================
    ปุ่มต่าง ๆ

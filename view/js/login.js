@@ -208,7 +208,7 @@ function resetLoginForm() {
 // (ส่วนที่เหลือเหมือนเดิม ไม่มีการเปลี่ยนแปลง)
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🔍 Checking for existing user session...');
-  btn.disabled = false;
+  elements.btnLogin.disabled = false;
   elements.usernameInput.disabled = false;
   elements.passwordInput.disabled = false;
   elements.usernameInput.value = '';
