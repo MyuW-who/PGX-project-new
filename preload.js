@@ -36,6 +36,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAllelePossibleValues: (dnaType, alleleName) => ipcRenderer.invoke('get-allele-possible-values', dnaType, alleleName),
   getSupportedDnaTypes: () => ipcRenderer.invoke('get-supported-dna-types'),
   getRulebase: () => ipcRenderer.invoke('get-rulebase'),
+  importExcelToSupabase: (excelFileName) => ipcRenderer.invoke('import-excel-to-supabase', excelFileName),
+  refreshRulebase: () => ipcRenderer.invoke('refresh-rulebase'),
   closeApp: () => ipcRenderer.send('window-close'),
 });
 

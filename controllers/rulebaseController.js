@@ -1,22 +1,53 @@
 const fs = require('fs');
 const path = require('path');
+const { getRulebaseFromSupabase } = require('./rulebaseImportController');
 
-// Load rulebase from JSON file
-let rulebase = null;
+// Cache for rulebase data
+let rulebaseCache = null;
+let cacheTimestamp = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-function loadRulebase() {
-  if (!rulebase) {
-    try {
-      const rulebasePath = path.join(__dirname, '../rulebase/cyp_rulebase.json');
-      const data = fs.readFileSync(rulebasePath, 'utf8');
-      rulebase = JSON.parse(data);
-      console.log('✅ Rulebase loaded successfully');
-    } catch (error) {
-      console.error('❌ Error loading rulebase:', error.message);
-      rulebase = {};
-    }
+/**
+ * Load rulebase from Supabase (with caching)
+ * Falls back to JSON file if Supabase fails
+ */
+async function loadRulebase(forceRefresh = false) {
+  const now = Date.now();
+  
+  // Return cached data if still valid
+  if (!forceRefresh && rulebaseCache && cacheTimestamp && (now - cacheTimestamp < CACHE_DURATION)) {
+    return rulebaseCache;
   }
-  return rulebase;
+  
+  try {
+    // Try to load from Supabase
+    console.log('📥 Loading rulebase from Supabase...');
+    const supabaseData = await getRulebaseFromSupabase();
+    
+    if (supabaseData && Object.keys(supabaseData).length > 0) {
+      rulebaseCache = supabaseData;
+      cacheTimestamp = now;
+      const dnaTypes = Object.keys(supabaseData);
+      console.log('✅ Rulebase loaded from Supabase - DNA Types:', dnaTypes.join(', '));
+      return rulebaseCache;
+    }
+  } catch (error) {
+    console.error('⚠️ Failed to load from Supabase, falling back to JSON:', error.message);
+  }
+  
+  // Fallback to JSON file
+  try {
+    const rulebasePath = path.join(__dirname, '../rulebase/cyp_rulebase.json');
+    const data = fs.readFileSync(rulebasePath, 'utf8');
+    rulebaseCache = JSON.parse(data);
+    cacheTimestamp = now;
+    const dnaTypes = Object.keys(rulebaseCache);
+    console.log('✅ Rulebase loaded from JSON file (FALLBACK) - DNA Types:', dnaTypes.join(', '));
+    return rulebaseCache;
+  } catch (error) {
+    console.error('❌ Error loading rulebase from JSON:', error.message);
+    return {};
+  }
 }
 
 /**
@@ -25,8 +56,8 @@ function loadRulebase() {
  * @param {object} alleles - Object with allele values (e.g., { allele10: "C/C", allele4: "G/G", ... })
  * @returns {object} - { genotype, phenotype, activity_score, matched: boolean }
  */
-function predictPhenotype(dnaType, alleles) {
-  const rules = loadRulebase();
+async function predictPhenotype(dnaType, alleles) {
+  const rules = await loadRulebase();
   
   if (!rules[dnaType]) {
     console.error(`❌ Unknown DNA type: ${dnaType}`);
@@ -78,8 +109,8 @@ function predictPhenotype(dnaType, alleles) {
  * @param {string} dnaType - CYP2D6, CYP2C19, or CYP2C9
  * @returns {array} - Array of allele names
  */
-function getAvailableAlleles(dnaType) {
-  const rules = loadRulebase();
+async function getAvailableAlleles(dnaType) {
+  const rules = await loadRulebase();
   
   if (!rules[dnaType]) {
     return [];
@@ -94,8 +125,8 @@ function getAvailableAlleles(dnaType) {
  * @param {string} alleleName - e.g., "*10", "*2", etc.
  * @returns {array} - Array of unique possible values
  */
-function getAllelePossibleValues(dnaType, alleleName) {
-  const rules = loadRulebase();
+async function getAllelePossibleValues(dnaType, alleleName) {
+  const rules = await loadRulebase();
   
   if (!rules[dnaType]) {
     return [];
@@ -117,8 +148,8 @@ function getAllelePossibleValues(dnaType, alleleName) {
  * Get all supported DNA types
  * @returns {array} - Array of DNA type names
  */
-function getSupportedDnaTypes() {
-  const rules = loadRulebase();
+async function getSupportedDnaTypes() {
+  const rules = await loadRulebase();
   return Object.keys(rules);
 }
 
@@ -126,8 +157,15 @@ function getSupportedDnaTypes() {
  * Get complete rulebase information
  * @returns {object} - Complete rulebase
  */
-function getRulebase() {
-  return loadRulebase();
+async function getRulebase() {
+  return await loadRulebase();
+}
+
+/**
+ * Refresh rulebase cache
+ */
+async function refreshRulebase() {
+  return await loadRulebase(true);
 }
 
 module.exports = {
@@ -135,5 +173,6 @@ module.exports = {
   getAvailableAlleles,
   getAllelePossibleValues,
   getSupportedDnaTypes,
-  getRulebase
+  getRulebase,
+  refreshRulebase
 };

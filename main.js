@@ -25,8 +25,13 @@ const {
   getAvailableAlleles,
   getAllelePossibleValues,
   getSupportedDnaTypes,
-  getRulebase
+  getRulebase,
+  refreshRulebase
 } = require('./controllers/rulebaseController');
+const {
+  importExcelToSupabase,
+  getRulebaseFromSupabase
+} = require('./controllers/rulebaseImportController');
 
 // Password hashing configuration
 const SALT_ROUNDS = 10;
@@ -304,10 +309,34 @@ ipcMain.handle('get-supported-dna-types', async () => {
 
 ipcMain.handle('get-rulebase', async () => {
   try {
-    return getRulebase();
+    return await getRulebase();
   } catch (err) {
     console.error('❌ Get Rulebase Error:', err.message);
     return {};
+  }
+});
+
+// 🔄 Import Excel to Supabase
+ipcMain.handle('import-excel-to-supabase', async (event, excelFileName) => {
+  try {
+    console.log('📤 Importing Excel to Supabase:', excelFileName);
+    const result = await importExcelToSupabase(excelFileName);
+    return result;
+  } catch (err) {
+    console.error('❌ Import Excel Error:', err.message);
+    return { success: false, error: err.message };
+  }
+});
+
+// 🔄 Refresh Rulebase Cache
+ipcMain.handle('refresh-rulebase', async () => {
+  try {
+    console.log('🔄 Refreshing rulebase cache...');
+    const result = await refreshRulebase();
+    return { success: true, data: result };
+  } catch (err) {
+    console.error('❌ Refresh Rulebase Error:', err.message);
+    return { success: false, error: err.message };
   }
 });
 
