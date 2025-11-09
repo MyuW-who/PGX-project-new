@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ตรวจสอบเอกสาร (1/2)</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" href="./css/global.css"> 
+    <link rel="stylesheet" href="./css/menu.css">
+    <link rel="stylesheet" href="./css/darkmode.css">
+    <link rel="stylesheet" href="./css/navbar.css">
+    <link rel="stylesheet" href="./css/navbar_hover.css">
+    
+    <link rel="stylesheet" href="./css/information.css"> 
+    <link rel="stylesheet" href="css/verify_information.css" />
+</head>
+<body>
+    
+    <div class="hover-navbar">
+        <div class="navbar-content">
+            <div class="navbar-left"><span class="logo">Roblox</span></div>
+            <div class="navbar-right"><button class="nav-btn close"><i class="fa fa-xmark"></i></button></div>
+        </div>
+    </div>
+
+    <header class="page-header">
+        
+        <div class="page-header-titles">
+            <h2>Case Management</h2>
+            <div class="page-header-subtitle-group">
+                <h1>ตรวจสอบเอกสาร</h1>
+                <p class="vi-subtitle">เจ้าหน้าที่ 1 / 2 กำลังตรวจสอบไฟล์ PDF</p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <div class="vi-status">
+                <span class="vi-status__label">สถานะความคืบหน้า</span>
+                <div class="vi-status__meter">
+                    <span class="vi-status__step vi-status__step--active">1</span>
+                    <span class="vi-status__bar"></span>
+                    <span class="vi-status__step">2</span>
+                </div>
+                <span class="vi-status__caption">รอการยืนยันจากอีก 1 คน</span>
+            </div>
+
+            <button id="themeToggle" class="icon-btn"><i class="fa fa-moon"></i></button>
+            <button id="langToggle" class="lang-btn">TH</button>
+            <div class="dropdown">
+                <button class="dropbtn" id="dropdownBtn">
+                    <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
+                </button>
+                <div id="dropdownMenu" class="dropdown-content">
+                    <a href="#" id="settingsBtn">Settings</a>
+                    <a href="#">About</a>
+                    <a href="#" id="logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="vi-main">
+        <section class="vi-stage">
+            <div class="vi-stage__title">
+                <h2>รายละเอียดเอกสาร</h2>
+                <span id="viDocumentName">รอโหลด...</span>
+            </div>
+
+            <div id="viLoader" class="vi-loader">
+                <div class="vi-loader__spinner"></div>
+                <p>กำลังดึงไฟล์ PDF จากระบบหลังบ้าน...</p>
+            </div>
+
+            <div class="vi-viewer-shell" hidden>
+                <div id="pdfjsViewer" class="vi-viewer vi-viewer--pdfjs" hidden>
+                    <div class="vi-toolbar">
+                        <div class="vi-toolbar__group">
+                            <button id="btnPrevPage" type="button" class="vi-icon-btn" aria-label="หน้าก่อนหน้า">⟨</button>
+                            <div class="vi-page-indicator">
+                                <span id="pageNum">1</span> / <span id="pageCount">1</span>
+                            </div>
+                            <button id="btnNextPage" type="button" class="vi-icon-btn" aria-label="หน้าถัดไป">⟩</button>
+                        </div>
+                        <div class="vi-toolbar__group">
+                            <button id="btnDownload" type="button" class="vi-btn vi-btn-ghost">ดาวน์โหลด</button>
+                            <a id="openExternal" class="vi-btn vi-btn-secondary" target="_blank" rel="noopener noreferrer">เปิดแท็บใหม่</a>
+                        </div>
+                    </div>
+                    <div class="vi-canvas-shell">
+                        <canvas id="pdfCanvas"></canvas>
+                    </div>
+                </div>
+                <iframe id="pdfViewer" class="vi-viewer vi-viewer--iframe" title="PDF Viewer" src="" hidden></iframe>
+                <div id="pdfFallback" class="vi-fallback" hidden>
+                    <h3>ไม่สามารถแสดงไฟล์ PDF ได้</h3>
+                    <p>ตรวจสอบว่าไฟล์อยู่ในตำแหน่งที่ถูกต้อง หรือแนบไฟล์ใหม่อีกครั้ง</p>
+                    <ol>
+                        <li>ตำแหน่งเริ่มต้น: <code>view/PDF/Project.pdf</code></li>
+                        <li>หรือระบุผ่านพารามิเตอร์ <code>?pdf=เส้นทางไฟล์</code></li>
+                    </ol>
+                    <button id="btnReload" type="button" class="vi-btn vi-btn-secondary">ลองอีกครั้ง</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    
+        <div class="vi-actions">
+            <button id="btnBack" class="vi-btn vi-btn-ghost">ย้อนกลับ</button>
+            <div class="vi-actions__right">
+                <button id="btnReject" class="vi-btn vi-btn-secondary">ปฏิเสธ</button>
+                <button id="btnConfirm" class="vi-btn vi-btn-primary" disabled>ยืนยันเจ้าหน้าที่คนที่ 1</button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="./js/userProfile.js"></script>
+    <script src="./js/darkmode.js"></script>
+    <script src="./js/menu.js"></script>
+    <script src="./js/navbar_hover.js"></script>
+    <script src="js/verify_information.js"></script>
+</body>
+</html>

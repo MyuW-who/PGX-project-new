@@ -182,7 +182,7 @@ function renderTestRequests(data) {
     tr.addEventListener('click', (e) => {
       // ไม่ให้คลิกที่ปุ่มทำให้เปลี่ยนหน้า
       if (!e.target.closest('button')) {
-        showPage('verify_step1', patientId);
+        showPage('verify_information', patientId);
       }
     });
     tbody.appendChild(tr);
