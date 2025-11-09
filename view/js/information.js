@@ -2,12 +2,19 @@
    📊 INFORMATION PAGE - PATIENT TRACKING
    ============================================ */
 
+let specimenSlaMap = {};
+
 /* ========= Bootstrap ========= */
 window.addEventListener('DOMContentLoaded', async () => {
   // Initialize user profile (from userProfile.js)
   if (!initializeUserProfile()) return;
   
   try {
+    // 1. ดึงข้อมูล SLA มาเก็บในตัวแปรที่สร้างไว้
+    specimenSlaMap = await window.electronAPI.getSpecimenSLA();
+    console.log('✅ Fetched SLA Map:', specimenSlaMap);
+
+    // 2. ดึงข้อมูล Test Requests (เหมือนเดิม)
     const testRequests = await window.electronAPI.getTestRequests();
     console.log('📦 Test Requests:', testRequests);
     renderTestRequests(testRequests);
@@ -132,11 +139,14 @@ function renderTestRequests(data) {
     const received = requestDate ? new Date(requestDate).toLocaleDateString('th-TH') : '-';
     const testTarget = req.test_target || '-';
     const status = req.status || '-';
-    const slaTime = req.SLA_time || req.sla_time || 0;
-    
+
+    const specimen = req.Specimen || '-';
+
+    const specimenKey = (specimen || '').toLowerCase();
+    const slaTime = specimenSlaMap[specimenKey];
     // Display status as-is from database (already in the format we want)
     const statusDisplay = status;
-    
+
     // Get dot class for color coding
     const dotClass = getTATBadgeClass(status);
     
@@ -153,9 +163,22 @@ function renderTestRequests(data) {
       });
     }
 
+    // Calculate TAT warning (will use default 72 hours if slaTime is 0)
+    const tatWarning = calculateTATWarning(requestDate, slaTime, status);
+    
+    // Debug logging for first row
+    if (req.request_id === 6) {
+      console.log('🔍 TAT Debug for request_id 6:', {
+        requestDate,
+        status,
+        slaTime,
+        tatWarning
+      });
+    }
+
     const tr = document.createElement('tr');
     tr.setAttribute('data-request-id', req.request_id);
-    
+
     // Add warning class to row if overdue or warning
     if (tatWarning.overdue) {
       tr.classList.add('tat-overdue');
@@ -169,7 +192,7 @@ function renderTestRequests(data) {
       <td>${patientName} </td>
       <td>${testTarget}</td>
       <td>${received}</td>
-      <td>${req.Specimen || '-'}</td>
+      <td>${specimen}</td>
       <td>
         <div class="tat-status">
           <span class="tat-dot ${dotClass}"></span>
@@ -179,7 +202,6 @@ function renderTestRequests(data) {
         </div>
       </td>
       <td>
-        </button>
         ${status?.toLowerCase() === 'done' ? `
           <button class="pdf-btn" onclick="viewPDF(${req.request_id}, '${patientName}')">
             <i class="fas fa-file-pdf"></i> ดู PDF
@@ -190,7 +212,7 @@ function renderTestRequests(data) {
     tr.addEventListener('click', (e) => {
       // ไม่ให้คลิกที่ปุ่มทำให้เปลี่ยนหน้า
       if (!e.target.closest('button')) {
-         showPage('verify_step1', patientId);
+        showPage('verify_information', patientId);
       }
     });
     tbody.appendChild(tr);
@@ -200,15 +222,13 @@ function renderTestRequests(data) {
 /* ========= Stats (ดึงจาก API) ========= */
 async function updateStatsFromAPI() {
   try {
-    // Use 'all' time filter to get all cases, not just today
     const stats = await window.electronAPI.getTestRequestStats('all');
-    
     document.getElementById('statAll').textContent = stats.all || 0;
     document.getElementById('statPre').textContent = stats.need2 || stats.need2Confirmation || 0;
     document.getElementById('statAnalytic').textContent = stats.need1 || stats.need1Confirmation || 0;
     document.getElementById('statPost').textContent = stats.done || 0;
   } catch (e) {
-    console.error('❌ Error fetching stats:', e);
+    console.error('Error fetching stats:', e);
     // Set to 0 if error
     document.getElementById('statAll').textContent = 0;
     document.getElementById('statPre').textContent = 0;
@@ -277,4 +297,45 @@ function showPage(pageName, patientId) {
 document.getElementById('langToggle')?.addEventListener('click', (e) => {
   e.target.textContent = e.target.textContent === 'TH' ? 'EN' : 'TH';
 });
+
+async function viewPDF(requestId, patientName) {
+  try {
+    // Get the test request details
+    const req = await window.electronAPI.getTestRequestById(requestId);
+    if (!req) {
+      alert('ไม่พบข้อมูล Test Request');
+      return;
+    }
+    
+    // Check if PDF exists (you can add a field in database to track this)
+    if (req.Doc_Name) {
+      // If there's a PDF file path in the database
+      alert(`เปิดไฟล์ PDF: ${req.Doc_Name}`);
+      // TODO: Implement actual PDF viewing/opening
+      // window.electronAPI.openPDF(req.Doc_Name);
+    } else {
+      // Generate PDF if it doesn't exist
+      const reportData = {
+        name: patientName,
+        age: req.patient?.age || '-',
+        gender: req.patient?.gender || '-',
+        hn: req.patient?.patient_id || '-',
+        hospital: req.patient?.hospital_id || '-',
+        testTarget: req.test_target || '-',
+        specimen: req.Specimen || '-'
+      };
+      
+      const pdfPath = await window.electron.generatePDF(reportData);
+      alert(`สร้าง PDF สำเร็จ: ${pdfPath}`);
+    }
+  } catch (e) {
+    console.error('❌ Error viewing PDF:', e);
+    alert('เกิดข้อผิดพลาดในการดู PDF');
+  }
+}
+
+function showPage(pageName, patientId) {
+  sessionStorage.setItem('selectedPatientId', patientId);
+  window.electronAPI?.navigate(pageName);
+}
 

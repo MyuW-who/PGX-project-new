@@ -339,7 +339,6 @@ tr.tat-overdue:hover {
   }
 }
 
-.Edit-btn,
 .pdf-btn {
   display: inline-flex;
   align-items: center;
@@ -352,18 +351,6 @@ tr.tat-overdue:hover {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   font-weight: 500;
-}
-
-.Edit-btn {
-  background: var(--primary-light);
-  color: var(--primary);
-}
-
-.Edit-btn:hover {
-  background: var(--primary);
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(100, 116, 139, 0.15);
 }
 
 .pdf-btn {
