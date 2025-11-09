@@ -46,15 +46,22 @@ async function getTestRequestsByTimeFilter(timeFilter = 'today') {
         startDate = new Date(now.setHours(0, 0, 0, 0));
     }
 
+    console.log(`📅 Filtering test requests from ${startDate.toISOString()} (${timeFilter})`);
+
     const { data, error } = await supabase
       .from('test_request')
       .select('*')
-      .gte('created_at', startDate.toISOString())
-      .order('created_at', { ascending: false });
+      .gte('request_date', startDate.toISOString().split('T')[0])
+      .order('request_date', { ascending: false });
 
     if (error) {
       console.error('❌ Error fetching test requests by time:', error.message);
       return [];
+    }
+
+    console.log(`✅ Found ${data?.length || 0} test requests`);
+    if (data && data.length > 0) {
+      console.log('📋 Sample request:', data[0]);
     }
 
     return data || [];
@@ -66,7 +73,7 @@ async function getTestRequestsByTimeFilter(timeFilter = 'today') {
 
 /**
  * Get test request statistics by status
- * Status values: 'done', 'in_progress', 'rejected', 'pending'
+ * Status values: 'done', 'need 1 confirmation', 'need 2 confirmation', 'reject'
  * @param {string} timeFilter - 'today', 'week', 'month'
  */
 async function getTestRequestStats(timeFilter = 'today') {
@@ -86,9 +93,9 @@ async function getTestRequestStats(timeFilter = 'today') {
       
       if (status === 'done' || status === 'completed') {
         stats.done++;
-      } else if (status === 'rejected' || status === 'error') {
+      } else if (status === 'reject' || status === 'rejected' || status === 'error') {
         stats.error++;
-      } else if (status === 'in_progress' || status === 'pending') {
+      } else if (status.includes('confirmation') || status === 'in_progress' || status === 'pending') {
         stats.inProgress++;
       }
     });
@@ -173,10 +180,10 @@ async function getRejectedSpecimens(timeFilter = 'month') {
     const requests = await getTestRequestsByTimeFilter(timeFilter);
     
     // Filter only rejected requests
-    const rejected = requests.filter(r => 
-      r.status?.toLowerCase() === 'rejected' || 
-      r.status?.toLowerCase() === 'error'
-    );
+    const rejected = requests.filter(r => {
+      const status = r.status?.toLowerCase() || '';
+      return status === 'reject' || status === 'rejected' || status === 'error';
+    });
 
     // Count by specimen type
     const specimenCount = {};
@@ -224,10 +231,10 @@ async function getErrorRateTimeSeries(range = 'week') {
           r.created_at?.startsWith(dateStr)
         );
         
-        const rejectedCount = dayRequests.filter(r => 
-          r.status?.toLowerCase() === 'rejected' || 
-          r.status?.toLowerCase() === 'error'
-        ).length;
+        const rejectedCount = dayRequests.filter(r => {
+          const status = r.status?.toLowerCase() || '';
+          return status === 'reject' || status === 'rejected' || status === 'error';
+        }).length;
         
         const rate = dayRequests.length > 0 
           ? ((rejectedCount / dayRequests.length) * 100).toFixed(1)
@@ -254,10 +261,10 @@ async function getErrorRateTimeSeries(range = 'week') {
           return reqDate >= startDate && reqDate < endDate;
         });
         
-        const rejectedCount = weekRequests.filter(r => 
-          r.status?.toLowerCase() === 'rejected' || 
-          r.status?.toLowerCase() === 'error'
-        ).length;
+        const rejectedCount = weekRequests.filter(r => {
+          const status = r.status?.toLowerCase() || '';
+          return status === 'reject' || status === 'rejected' || status === 'error';
+        }).length;
         
         const rate = weekRequests.length > 0 
           ? ((rejectedCount / weekRequests.length) * 100).toFixed(1)
@@ -322,9 +329,8 @@ async function getTATStats(timeFilter = 'today') {
   try {
     const requests = await getTestRequestsByTimeFilter(timeFilter);
     
-    // Get SLA map
-    const { getSpecimenSLA } = require('./testRequestController');
-    const slaMap = await getSpecimenSLA();
+    // Simple SLA map (default values)
+    const defaultSLA = 24; // hours
     
     const stats = {
       inSLA: 0,
@@ -334,8 +340,6 @@ async function getTATStats(timeFilter = 'today') {
 
     requests.forEach(request => {
       const status = request.status?.toLowerCase() || '';
-      const specimen = request.Specimen;
-      const sla = slaMap[specimen] || 24; // Default 24 hours
       
       if (status === 'done' || status === 'completed') {
         // Calculate TAT
@@ -343,12 +347,12 @@ async function getTATStats(timeFilter = 'today') {
         const now = new Date();
         const hoursDiff = (now - createdAt) / (1000 * 60 * 60);
         
-        if (hoursDiff <= sla) {
+        if (hoursDiff <= defaultSLA) {
           stats.inSLA++;
         } else {
           stats.overSLA++;
         }
-      } else if (status === 'in_progress' || status === 'pending') {
+      } else if (status.includes('confirmation') || status === 'in_progress' || status === 'pending') {
         stats.inProgress++;
       }
     });
@@ -365,20 +369,44 @@ async function getTATStats(timeFilter = 'today') {
  */
 async function getDashboardSummary(timeFilter = 'today') {
   try {
+    console.log('📊 getDashboardSummary called with timeFilter:', timeFilter);
+    
+    console.log('📊 Fetching test request stats...');
     const stats = await getTestRequestStats(timeFilter);
+    console.log('✅ Stats:', stats);
+    
+    console.log('📊 Fetching TAT stats...');
     const tatStats = await getTATStats(timeFilter);
+    console.log('✅ TAT Stats:', tatStats);
+    
+    console.log('📊 Fetching top DNA types...');
     const topDNA = await getTopDNATypes(5, timeFilter);
+    console.log('✅ Top DNA:', topDNA);
+    
+    console.log('📊 Fetching top specimens...');
     const topSpecimens = await getTopSpecimens(5, timeFilter);
+    console.log('✅ Top Specimens:', topSpecimens);
+    
+    console.log('📊 Fetching rejected specimens...');
     const rejectedSpecimens = await getRejectedSpecimens(timeFilter);
+    console.log('✅ Rejected Specimens:', rejectedSpecimens);
+    
+    console.log('📊 Fetching time series...');
     const timeSeries = await getTestRequestsTimeSeries('daily', timeFilter);
+    console.log('✅ Time Series:', timeSeries);
+    
+    console.log('📊 Fetching error rate series...');
     const errorRateSeries = await getErrorRateTimeSeries('week');
+    console.log('✅ Error Rate Series:', errorRateSeries);
 
     // Calculate rejection rate
     const rejectionRate = stats.total > 0 
       ? ((stats.error / stats.total) * 100).toFixed(1)
       : 0;
+    
+    console.log('✅ Rejection Rate:', rejectionRate);
 
-    return {
+    const summary = {
       stats,
       tatStats,
       topDNA,
@@ -388,6 +416,9 @@ async function getDashboardSummary(timeFilter = 'today') {
       errorRateSeries,
       rejectionRate: parseFloat(rejectionRate)
     };
+    
+    console.log('✅ Dashboard summary complete:', summary);
+    return summary;
   } catch (err) {
     console.error('❌ Exception in getDashboardSummary:', err);
     return null;

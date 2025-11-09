@@ -32,6 +32,16 @@ const {
   importExcelToSupabase,
   getRulebaseFromSupabase
 } = require('./controllers/rulebaseImportController');
+const {
+  getDashboardSummary,
+  getTestRequestStats: getReportStats,
+  getTopDNATypes,
+  getTopSpecimens,
+  getRejectedSpecimens,
+  getErrorRateTimeSeries,
+  getTestRequestsTimeSeries,
+  getTATStats
+} = require('./controllers/reportController');
 
 // Password hashing configuration
 const SALT_ROUNDS = 10;
@@ -340,7 +350,73 @@ ipcMain.handle('refresh-rulebase', async () => {
   }
 });
 
-// 🚀 เริ่มต้น
+// � Dashboard Report Handlers
+ipcMain.handle('get-dashboard-summary', async (event, timeFilter = 'today') => {
+  try {
+    console.log('📊 Getting dashboard summary for:', timeFilter);
+    const summary = await getDashboardSummary(timeFilter);
+    return { success: true, data: summary };
+  } catch (err) {
+    console.error('❌ Get Dashboard Summary Error:', err.message);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('get-top-dna-types', async (event, limit = 5, timeFilter = 'month') => {
+  try {
+    return await getTopDNATypes(limit, timeFilter);
+  } catch (err) {
+    console.error('❌ Get Top DNA Types Error:', err.message);
+    return { labels: [], values: [] };
+  }
+});
+
+ipcMain.handle('get-top-specimens', async (event, limit = 5, timeFilter = 'month') => {
+  try {
+    return await getTopSpecimens(limit, timeFilter);
+  } catch (err) {
+    console.error('❌ Get Top Specimens Error:', err.message);
+    return { labels: [], values: [] };
+  }
+});
+
+ipcMain.handle('get-rejected-specimens', async (event, timeFilter = 'month') => {
+  try {
+    return await getRejectedSpecimens(timeFilter);
+  } catch (err) {
+    console.error('❌ Get Rejected Specimens Error:', err.message);
+    return { labels: [], values: [] };
+  }
+});
+
+ipcMain.handle('get-error-rate-series', async (event, range = 'week') => {
+  try {
+    return await getErrorRateTimeSeries(range);
+  } catch (err) {
+    console.error('❌ Get Error Rate Series Error:', err.message);
+    return { labels: [], values: [] };
+  }
+});
+
+ipcMain.handle('get-usage-time-series', async (event, range = 'daily', timeFilter = 'week') => {
+  try {
+    return await getTestRequestsTimeSeries(range, timeFilter);
+  } catch (err) {
+    console.error('❌ Get Usage Time Series Error:', err.message);
+    return { labels: [], values: [] };
+  }
+});
+
+ipcMain.handle('get-tat-stats', async (event, timeFilter = 'today') => {
+  try {
+    return await getTATStats(timeFilter);
+  } catch (err) {
+    console.error('❌ Get TAT Stats Error:', err.message);
+    return { inSLA: 0, inProgress: 0, overSLA: 0 };
+  }
+});
+
+// �🚀 เริ่มต้น
 app.whenReady().then(createWindow);
 
 // ❌ ปิดโปรแกรมเมื่อปิดหน้าต่าง (Windows/Linux)
