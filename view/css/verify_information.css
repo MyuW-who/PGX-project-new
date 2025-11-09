@@ -1,447 +1,320 @@
-/* ⚠️ global.css จะจัดการ body ⚠️ */
-body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: var(--bg);
-    color: var(--text-primary);
-}
+/* ===================================================
+   📄 VERIFY INFORMATION PAGE (REFACTORED)
+   * * V.2.0 - 09 Nov 2025
+   * - Removed all local variables (e.g., --primary-blue)
+   * - Now uses main variables from global.css
+   * - Matched button styles to information.css
+   * - Matched card radius & shadow to global.css
+   =================================================== */
 
-/* ⚠️ === สไตล์สำหรับ Header ที่รวมร่างใหม่ === ⚠️ */
-.page-header {
-    /* สไตล์ส่วนใหญ่มาจาก information.css และ navbar.css
-      เราแค่ต้องจัดสไตล์ให้ .page-header-titles ที่เราสร้างขึ้นมาใหม่
+/* ========================
+   Main Content Layout
+   ======================== */
+.container {
+    /* หมายเหตุ: .container ใน global.css ถูกตั้งค่าเป็น flex
+       เราแค่ต้องกำหนด gap และ padding เพิ่มเติมสำหรับหน้านี้
     */
-    padding: 24px 40px; 
+    gap: 24px;
+    padding: 32px 40px;
+    width: 100%;
+    max-width: 100%; /* ลบ max-width: 1600px เพื่อให้เต็มจอ */
+    box-sizing: border-box; /* ป้องกันการล้น */
+}
+
+.card {
+    /* 🔹 ใช้ตัวแปรจาก global.css */
     background: var(--card-bg);
-    border-bottom: 1px solid var(--border);
-    /* align-items: center; ถูกกำหนดโดย navbar.css */
-}
-
-.page-header-titles {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.page-header-titles h2 {
-    /* นี่คือ 'Case Management' */
-    margin: 0;
-    font-size: 20px; 
-    color: var(--text-primary);
-    font-weight: 600;
-}
-
-.page-header-titles::after {
-    /* เส้นคั่นแนวตั้ง */
-    content: '';
-    display: block;
-    width: 1px;
-    height: 32px;
-    background: var(--border);
-}
-
-.page-header-subtitle-group h1 {
-    /* นี่คือ 'ตรวจสอบเอกสาร' */
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.page-header-subtitle-group p.vi-subtitle {
-    /* นี่คือ 'เจ้าหน้าที่ 1 / 2...' */
-    margin: 2px 0 0;
-    font-size: 14px;
-    color: var(--text-muted);
-}
-
-.vi-status {
-    padding: 10px 16px; /* ⚠️ ปรับขนาดให้เข้ากับ header */
     border-radius: var(--radius);
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 220px;
+    box-shadow: var(--shadow);
+    padding: 24px 32px;
 }
 
-.vi-status__label {
-    font-size: 13px;
-    color: var(--text-muted);
-}
-
-.vi-status__meter {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.vi-status__bar {
-    flex: 1;
-    height: 4px;
-    border-radius: 999px;
-    background: var(--border);
-    position: relative;
-}
-
-.vi-status__bar::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    width: 50%;
-    border-radius: inherit;
-    background: var(--primary);
-}
-
-.vi-status__step {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: var(--bg);
-    color: var(--text-muted);
-    border: 1px solid var(--border);
-    font-size: 13px;
-    font-weight: 500;
-}
-
-.vi-status__step--active {
-    background: var(--primary);
-    color: #fff;
-    border-color: transparent;
-}
-
-.vi-status__caption {
-    font-size: 13px;
-    color: var(--text-muted);
-}
-
-.vi-main {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    padding: clamp(20px, 4vw, 36px);
-}
-
-.vi-stage {
-    width: min(100%, 880px);
-    background: var(--card-bg);
-    border-radius: var(--radius); /* 🔹 [อัปเกรด] ใช้ --radius ธรรมดาให้เข้ากับส่วนอื่น */
-    /* 🔹 [อัปเกรด] ปรับเงาให้นุ่มนวลและทันสมัยขึ้น */
-    box-shadow: 0 16px 40px -12px rgba(15, 23, 42, 0.1); 
-    padding: clamp(22px, 4vw, 34px);
-    border: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: clamp(20px, 3vw, 32px);
-}
-
-.vi-stage__title {
+.card-header {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
+    margin-bottom: 24px;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 16px;
+    padding-bottom: 20px;
 }
 
-.vi-stage__title h2 {
+.card-header h2 {
     margin: 0;
-    font-size: clamp(20px, 3vw, 26px);
-    font-weight: 500;
-    color: var(--text-primary);
 }
 
-.vi-stage__title span {
-    color: var(--text-muted);
-    font-size: 14px;
+.card-header .upload-link {
+    font-size: 15px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
 }
 
-.vi-loader {
-    border-radius: var(--radius); /* 🔹 [อัปเกรด] ใช้ --radius ธรรมดา */
-    border: 1px dashed var(--text-muted);
-    background: var(--primary-light);
-    padding: 48px 24px;
-    text-align: center;
-    display: grid;
-    justify-items: center;
-    gap: 20px;
-}
-
-/* 🔹 [อัปเกรด] เพิ่มอนิเมชันให้ข้อความ Loader */
-.vi-loader p {
-    animation: vi-pulse-text 1.5s ease-in-out infinite;
-}
-
-@keyframes vi-pulse-text {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-}
-
-.vi-loader__spinner {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 4px solid var(--border);
-    border-top-color: var(--primary);
-    animation: vi-spin 1s linear infinite;
-}
-
-@keyframes vi-spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.vi-viewer-shell {
-    position: relative;
-    border-radius: var(--radius); /* 🔹 [อัปเกรด] ใช้ --radius ธรรมดา */
-    background: var(--bg);
-    border: 1px solid var(--border);
-    min-height: clamp(340px, 68vh, 720px);
-    overflow: hidden;
-    display: none;
-    /* 🔹 [อัปเกรด] เพิ่มเงาด้านในให้ดูมีมิติ */
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.vi-viewer-shell[hidden] {
-    display: none;
-}
-
-.vi-viewer-shell:not([hidden]) {
+/* ========================
+   Left Column (Document Viewer)
+   ======================== */
+.document-viewer {
+    flex: 2; /* คอลัมน์ซ้ายกว้าง */
     display: flex;
     flex-direction: column;
 }
 
-.vi-viewer {
+.document-body {
+    flex: 1; /* ให้ยืดเต็มพื้นที่การ์ดที่เหลือ */
+    display: flex;
+    flex-direction: column;
+    min-height: 500px; /* ความสูงขั้นต่ำ */
+    color: var(--text-secondary);
+}
+
+/* 🔹 --- Loader (จาก id="viLoader") --- */
+.vi-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 1rem;
+}
+.vi-loader__spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    /* 🔹 ใช้สี --primary */
+    border-top: 5px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 🔹 --- PDF Viewer Shell (id="pdfjsViewer" / id="pdfViewer") --- */
+.pdf-viewer-shell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: 8px; /* โค้งมนเล็กน้อยด้านใน */
+    overflow: hidden; /* สำหรับขอบมน */
+    background: #f9f9f9;
+}
+iframe.pdf-viewer-shell {
     width: 100%;
     height: 100%;
     border: none;
-    display: flex;
-    flex-direction: column;
 }
 
+/* 🔹 --- PDF.js Toolbar (class="vi-toolbar") --- */
 .vi-toolbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 22px;
+    padding: 0.5rem 1rem;
     background: var(--card-bg);
     border-bottom: 1px solid var(--border);
-    /* 🔹 [อัปเกรด] ปรับเงาให้เบาลง */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
-    gap: 16px;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
-
 .vi-toolbar__group {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 0.5rem;
 }
-
-.vi-icon-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: var(--card-bg);
-    color: var(--text-primary);
-    font-size: 18px;
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.vi-icon-btn:hover {
-    background: var(--primary-light);
-    border-color: var(--primary);
-    color: var(--primary); /* 🔹 [อัปเกรด] เปลี่ยนสีไอคอนเมื่อ hover */
-}
-
-/* 🔹 [อัปเกรด] สไตล์ตัวเลขหน้าให้เหมือนจอแสดงผล */
 .vi-page-indicator {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+.vi-page-indicator span {
     color: var(--text-primary);
-    background: var(--bg); /* ใช้สีพื้นหลัง */
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    min-width: 60px;
-    justify-content: center;
+    font-weight: 600;
 }
 
+/* 🔹 --- PDF.js Canvas Shell (class="vi-canvas-shell") --- */
 .vi-canvas-shell {
     flex: 1;
-    display: grid;
-    place-items: center;
-    padding: clamp(18px, 4vh, 30px);
     overflow: auto;
+    padding: 1rem;
+    text-align: center; /* ให้ canvas อยู่กลาง */
 }
-
 #pdfCanvas {
     max-width: 100%;
-    border-radius: 8px; /* 🔹 [อัปเกรด] ลดความโค้งมนเล็กน้อย */
-    background: #fff;
-    box-shadow: var(--shadow);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
+/* 🔹 --- Fallback (id="pdfFallback") --- */
 .vi-fallback {
-    position: absolute;
-    inset: 0;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 18px;
     align-items: center;
     justify-content: center;
-    text-align: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 2px dashed var(--border);
+    border-radius: 4px;
+}
+.vi-fallback__icon {
+    font-size: 2rem;
+    /* 🔹 ใช้สี --danger */
+    color: var(--danger);
+}
+
+/* ========================
+   Right Column (Verification Panel)
+   ======================== */
+.verification-panel {
+    flex: 1; /* คอลัมน์ขวาแคบ */
+    display: flex;
+    flex-direction: column;
+}
+.verification-panel h2 {
+    margin-top: 0;
+}
+.verification-panel .subtitle {
     color: var(--text-muted);
-    padding: 40px 20px;
-    background: var(--card-bg);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
 }
 
-.vi-fallback[hidden] {
-    display: none;
+/* --- Stepper --- */
+.stepper-container {
+    /* 🔹 ใช้สี --primary-light */
+    background-color: var(--primary-light);
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid transparent; /* ปรับแก้ตาม global.css */
 }
-
-.vi-footer {
-    padding: clamp(20px, 4vw, 32px);
+.stepper-container h3 {
+    margin-top: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+.stepper {
     display: flex;
-    justify-content: center;
-    background: var(--card-bg);
-    /* 🔹 [อัปเกรด] เพิ่มเงาด้านบนให้ footer */
-    border-top: 1px solid var(--border);
-    box-shadow: 0 -4px 12px -2px rgba(15, 23, 42, 0.05);
-}
-
-.vi-actions {
-    width: min(100%, 880px);
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 16px;
+    gap: 1rem;
+}
+.step {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    background-color: var(--border);
+    color: var(--text-muted);
+}
+.step.active {
+    /* 🔹 ใช้สี --primary */
+    background-color: var(--primary);
+    color: var(--card-bg);
+}
+.stepper-status {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding-left: 0.25rem;
 }
 
-.vi-actions__right {
+/* --- Action Buttons --- */
+.action-buttons {
     display: flex;
+    justify-content: flex-end;
+    align-items: center;
     gap: 12px;
+    margin-top: auto; /* 🔹 ดันปุ่มลงล่างสุด */
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
 }
 
-/* ⚠️ === สไตล์ปุ่ม (ปรับปรุงใหม่) === ⚠️ */
-.vi-btn {
+/* --- ปุ่ม (ดีไซน์ใหม่ ให้เข้ากับ information.css) --- */
+.btn, .vi-btn {
+    /* 🔹 ใช้สไตล์ปุ่มหลัก */
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     padding: 12px 18px;
-    border-radius: 12px; /* 🔹 [อัปเกรด] ลดความโค้งมนเล็กน้อย */
+    border-radius: 14px; /* 🔹 ใช้ 14px */
     border: none;
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
-    transition: all 0.2s ease;
     text-decoration: none;
-    min-width: 120px;
+    transition: all 0.25s ease;
 }
 
-.vi-btn:hover:not([disabled]) {
-    /* 🔹 [อัปเกรด] เพิ่มอนิเมชัน "ลอย" เมื่อ hover */
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
-}
-
-.vi-btn:active:not([disabled]) {
-    transform: translateY(0px) scale(0.99); /* 🔹 [อัปเกรด] ปรับการกด */
-}
-
-.vi-btn[disabled] {
-    opacity: 0.6;
+.btn:disabled, .vi-btn:disabled {
+    opacity: 0.5;
     cursor: not-allowed;
 }
 
-.vi-btn-ghost {
-    background: transparent;
-    border: 1px solid var(--border);
+/* 🔹 ปุ่มย้อนกลับ (เหมือน btn-secondary ของ navbar) */
+.btn-back, .vi-btn-ghost {
+    background: var(--card-bg);
     color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+.btn-back:hover, .vi-btn-ghost:hover {
+    background: var(--bg);
 }
 
-.vi-btn-ghost:hover:not([disabled]) {
-    color: var(--text-primary);
-    border-color: var(--text-secondary);
-    background: var(--bg);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* 🔹 [อัปเกรด] เพิ่มเงาจางๆ */
+/* 🔹 ปุ่มปฏิเสธ (เหมือน delete-btn) */
+.btn-reject {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--danger);
+}
+.btn-reject:hover {
+    background: var(--danger);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(220, 38, 38, 0.2);
+}
+
+/* 🔹 ปุ่มยืนยัน (เหมือน btn.primary) */
+.btn-confirm {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.25);
+}
+.btn-confirm:hover {
+    transform: translateY(-2px);
 }
 
 .vi-btn-secondary {
-    background: var(--card-bg);
+    background: var(--border);
+    color: var(--text-primary);
+}
+.vi-btn-secondary:hover {
+    background: #d1d5db;
+}
+
+.vi-icon-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
     border: 1px solid var(--border);
-    color: var(--text-secondary);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* 🔹 [อัปเกรด] เพิ่มเงาจางๆ */
+    background: var(--card-bg);
+    color: var(--text-primary);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
 }
-
-.vi-btn-secondary:hover:not([disabled]) {
+.vi-icon-btn:hover {
     background: var(--bg);
-    border-color: var(--text-muted);
 }
 
-/* 🔹 [อัปเกรด] เพิ่มสไตล์สำหรับปุ่มอันตราย (สีแดง) */
-.vi-btn-danger {
-    background: rgba(220, 38, 38, 0.1); /* สีแดงจางๆ (จาก global.css) */
-    color: var(--danger);
-    border: 1px solid rgba(220, 38, 38, 0.2);
+.vi-loader[hidden] {
+    display: none;
 }
 
-.vi-btn-danger:hover:not([disabled]) {
-    background: var(--danger);
-    color: #fff;
-    border-color: var(--danger);
-    box-shadow: 0 10px 20px -5px rgba(220, 38, 38, 0.3); /* 🔹 [อัปเกรด] เพิ่มเงาสีแดง */
+.pdf-viewer-shell[hidden] {
+    display: none;
 }
 
-
-.vi-btn-primary {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: #fff;
-    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.35); /* 🔹 [อัปเกรด] ปรับเงา */
-}
-
-.vi-btn-primary:hover:not([disabled]) {
-    transform: translateY(-2px); /* 🔹 [อัปเกรด] ทำให้สอดคล้องกัน */
-    box-shadow: 0 12px 24px -4px rgba(37, 99, 235, 0.4);
-}
-
-/* ⚠️ Responsive (เราไม่แก้ .vi-header แล้ว เพราะมันอยู่ใน .page-header) ⚠️ */
-@media (max-width: 900px) {
-    /* .page-header จะจัดการตัวเองอัตโนมัติ (flex-wrap) */
-
-    .vi-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    /* 🔹 [อัปเกรด] จัดเรียงปุ่มใหม่ในจอมือถือ */
-    .vi-actions__right {
-        width: 100%;
-        display: grid; /* ใช้ grid */
-        grid-template-columns: 1fr 1fr; /* แบ่ง 2 คอลัมน์ */
-        gap: 12px;
-    }
-    
-    .vi-btn-primary {
-        /* 🔹 [อัปเกรด] ให้ปุ่มยืนยันกินพื้นที่เต็ม 2 คอลัมน์ */
-        grid-column: 1 / -1; 
-    }
-
-    .vi-btn {
-        flex: 1;
-        min-width: unset; /* 🔹 [อัปเกรด] ลบ min-width */
-    }
+.vi-fallback[hidden] {
+    display: none;
 }
