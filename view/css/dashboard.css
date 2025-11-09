@@ -1,66 +1,8 @@
-:root {
-  --bg: #f5f7fb;
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --text-muted: #6b7280;
-  --card-bg: #ffffff;
-  --border: #e5e7eb;
-  --primary: #2563eb;
-  --primary-light: rgba(37, 99, 235, 0.12);
-  --success: #16a34a;
-  --warning: #f59e0b;
-  --danger: #dc2626;
-  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-  --radius: 18px;
-  --transition: all 0.25s ease;
-}
-
-/* ============================================
-   🌐 GLOBAL LAYOUT & BASE STYLE
-   ============================================ */
-body {
-  margin: 0;
-  font-family: "Noto Sans Thai", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: var(--bg);
-  color: var(--text-primary);
-}
-
 a {
   color: inherit;
   text-decoration: none;
 }
 
-.container {
-  display: flex;
-  min-height: 100vh;
-}
-
-button,
-input,
-select,
-textarea {
-  font-family: inherit;
-}
-
-
-/* ============================================
-   🧩 MAIN CONTENT AREA
-   ============================================ */
-.main-content {
-  flex: 1;
-  padding: 20px 28px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  background: linear-gradient(165deg, #f5f7fb 0%, #eef1f8 45%, #ffffff 100%);
-}
-
-
-
-/*
-  background: var(--bg);
-  color: var(--text-primary);
-*/
 
 
 /* ============================================

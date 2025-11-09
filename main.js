@@ -35,6 +35,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      webSecurity: false // 👈 เพิ่มบรรทัดนี้
     },
     autoHideMenuBar: true,
     fullscreen: true,
@@ -110,8 +111,8 @@ ipcMain.handle('update-patient', async (event, payload) => {
 // 👤 Patient CRUD - delete
 ipcMain.handle('delete-patient', async (event, patientId) => {
   try {
-    const ok = await deletePatient(patientId);
-    return { success: ok, message: ok ? 'ลบข้อมูลสำเร็จ!' : 'ไม่สามารถลบข้อมูลได้' };
+    const result = await deletePatient(patientId);
+    return result; // result already contains { success, message }
   } catch (err) {
     console.error('❌ Delete Patient Error:', err.message);
     return { success: false, message: 'เกิดข้อผิดพลาดในการลบข้อมูลผู้ป่วย' };
@@ -239,12 +240,22 @@ ipcMain.handle('delete-test-request', async (event, requestId) => {
   }
 });
 
-ipcMain.handle('get-test-request-stats', async () => {
+ipcMain.handle('get-test-request-stats', async (event, timeFilter = 'today') => {
   try {
-    return await getTestRequestStats();
+    return await getTestRequestStats(timeFilter);
   } catch (err) {
     console.error('❌ Get Stats Error:', err.message);
-    return { all: 0, preAnalytic: 0, analytic: 0, postAnalytic: 0 };
+    return { all: 0, need2Confirmation: 0, need1Confirmation: 0, done: 0, reject: 0 };
+  }
+});
+
+ipcMain.handle('get-specimen-sla', async () => {
+  try {
+    const { getSpecimenSLA } = require('./controllers/testRequestController');
+    return await getSpecimenSLA();
+  } catch (err) {
+    console.error('❌ Get Specimen SLA Error:', err.message);
+    return {};
   }
 });
 

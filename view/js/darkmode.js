@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (isDark) document.body.classList.add('dark');
   updateIcon(isDark);
+
+  // 🔽 สั่งอัปเดตกราฟ (ถ้ามี) 🔽
+  if (typeof updateChartsForTheme === 'function') {
+    updateChartsForTheme();
+  }
 });
 
 // เมื่อผู้ใช้กดปุ่ม toggle
@@ -27,4 +32,9 @@ themeBtn?.addEventListener('click', () => {
   const isDark = document.body.classList.toggle('dark');
   localStorage.setItem(DARK_KEY, isDark ? 'dark' : 'light');
   updateIcon(isDark);
+
+  // 🔽 สั่งอัปเดตกราฟ (ถ้ามี) 🔽
+  if (typeof updateChartsForTheme === 'function') {
+    updateChartsForTheme();
+  }
 });

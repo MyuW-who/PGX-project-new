@@ -154,65 +154,6 @@ body {
   transform: scale(1.02);
 }
 
-/* ===== Popup ===== */
-/* ===== Notification Toast (Top Right) ===== */
-#popup {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  transform: translateX(400px);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  padding: 16px 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 9999;
-  opacity: 0;
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  min-width: 280px;
-  max-width: 400px;
-  font-size: 14px;
-  line-height: 1.5;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-#popup::before {
-  content: '⚠️';
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-#popup.show {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* -- -- สี popup -- */
-#popup.success {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-#popup.success::before {
-  content: '✅';
-}
-
-#popup.error {
-  background: linear-gradient(135deg, #9c0a0a 0%, #9c0a0a 100%);
-}
-
-#popup.error::before {
-  content: '❌';
-}
-
-#popup.warning {
-  background: linear-gradient(135deg, #f57600 0%, #ff9900 100%);
-}
-
-#popup.warning::before {
-  content: '⚠️';
-}
 
 .hidden {
   display: none;
@@ -243,3 +184,16 @@ body {
     padding: 30px;
   }
 }
+
+
+/* Custom Notyf Styles */
+    .notyf__toast {
+      padding: 16px 24px; /* เพิ่ม padding (เดิม 12px 20px) */
+      font-size: 15px;    /* เพิ่มขนาด font (เดิม 14px) */
+      border-radius: 8px; /* ทำให้ขอบมนเข้ากับธีม */
+    }
+    
+    .notyf__icon i {
+      font-size: 22px;    /* เพิ่มขนาด icon (เดิม 18px) */
+      margin-right: 12px; /* เพิ่มระยะห่าง icon */
+    }
