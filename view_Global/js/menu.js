@@ -19,6 +19,12 @@ information_btn1?.addEventListener('click', () => {
   window.electronAPI.navigate('information1');
 });
 
+const information_btn2 = document.getElementById('information-btn2');
+information_btn2?.addEventListener('click', () => {
+  window.electronAPI.navigate('information2');
+});
+
+
 const dashboard_btn = document.getElementById('dashboard-btn');
 dashboard_btn?.addEventListener('click', () => {
   window.electronAPI.navigate('dashboard1');
