@@ -230,7 +230,6 @@ body.dark .table-wrapper {
   background-color: transparent;
   border: none;
   border-radius: var(--radius);
-  overflow: hidden;
 }
 
 body.dark table thead {
