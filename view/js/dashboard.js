@@ -119,21 +119,6 @@ function updateChartsForTheme() {
 
 
 
-/* ============================================================
-   🔐 AUTHENTICATION & USER SESSION
-   ------------------------------------------------------------
-   ▶️ Check authentication and update user display on page load
-============================================================ */
-window.addEventListener('DOMContentLoaded', () => {
-  // Check authentication first
-  if (!checkAuthentication()) {
-    return; // Stop execution if not authenticated
-  }
-  
-  // Update user display in header
-  updateUserDisplay();
-});
-
 // ใช้เฉพาะในหน้า Dashboard เท่านั้น (กัน error ถ้า element ไม่มี)
 const hasDashboard = !!document.getElementById('usageChart') || !!document.getElementById('tatDonut') || !!document.getElementById('kpiGauge');
 
@@ -268,9 +253,6 @@ async function renderMetrics() {
         
         const isDark = document.body.classList.contains('dark');
         
-        // Calculate total from actual data
-        const total = chart.data.datasets[0].data.reduce((sum, val) => sum + val, 0);
-        
         ctx.save();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -299,7 +281,7 @@ async function renderMetrics() {
     chartInstances.tatChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['ปกติ (ใน SLA)', 'กำลังดำเนินการ (80% SLA)', 'เสี่ยงเกิน SLA (>100%)'],
+        labels: ['ปกติ (ใน SLA)', 'กำลังดำเนินการ', 'เสี่ยงเกิน SLA'],
         datasets: [{
           data: [tatStats.inSLA, tatStats.inProgress, tatStats.overSLA],
           backgroundColor: ['#16a34a', '#2563eb', '#dc2626'],
@@ -339,9 +321,6 @@ async function renderMetrics() {
         const arc = meta?.data?.[0];
         if (!arc) return;
         
-        // Get current rate from chart data dynamically
-        const currentRate = chart.data.datasets[0].data[0] || 0;
-        
         const isDark = document.body.classList.contains('dark');
         const {ctx} = chart;
         
@@ -350,7 +329,7 @@ async function renderMetrics() {
         ctx.fillStyle = isDark ? '#ecf0f1' : '#333';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`${currentRate.toFixed(1)}%`, arc.x, arc.y + 5);
+        ctx.fillText(`${rate}%`, arc.x, arc.y + 5);
         ctx.restore();
       }
     };
