@@ -29,29 +29,30 @@ async function getAllTestRequests() {
  */
 async function getTestRequestsByTimeFilter(timeFilter = 'today') {
   try {
-    const now = new Date();
     let startDate;
+    const now = new Date();
 
     switch (timeFilter) {
       case 'today':
-        startDate = new Date(now.setHours(0, 0, 0, 0));
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         break;
       case 'week':
-        startDate = new Date(now.setDate(now.getDate() - 7));
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
         break;
       case 'month':
-        startDate = new Date(now.setDate(now.getDate() - 30));
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
         break;
       default:
-        startDate = new Date(now.setHours(0, 0, 0, 0));
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     }
 
-    console.log(`📅 Filtering test requests from ${startDate.toISOString()} (${timeFilter})`);
+    const startDateStr = startDate.toISOString().split('T')[0];
+    console.log(`📅 Filtering test requests from ${startDateStr} (${timeFilter})`);
 
     const { data, error } = await supabase
       .from('test_request')
       .select('*')
-      .gte('request_date', startDate.toISOString().split('T')[0])
+      .gte('request_date', startDateStr)
       .order('request_date', { ascending: false });
 
     if (error) {

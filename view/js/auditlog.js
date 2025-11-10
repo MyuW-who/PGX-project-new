@@ -1,36 +1,9 @@
-// Audit Log page script: renders mock data, filters, and reuses header behaviors
-
-// --- Session helpers (reuse pattern from adminpage.js) ---
-function getCurrentUser() {
-	try {
-		const sessionData = sessionStorage.getItem('currentUser');
-		return sessionData ? JSON.parse(sessionData) : null;
-	} catch (error) {
-		console.error('Error reading current user:', error);
-		return null;
-	}
-}
-
-function checkAuthentication() {
-	const currentUser = getCurrentUser();
-	if (!currentUser) {
-		// If not authenticated, navigate to login via IPC if available
-		try { window.electronAPI?.navigate('login'); } catch (_) {}
-		return false;
-	}
-	return true;
-}
-
-function updateUserDisplay() {
-	const currentUser = getCurrentUser();
-	if (!currentUser) return;
-	const dropdownBtn = document.getElementById('dropdownBtn');
-	if (dropdownBtn) {
-		dropdownBtn.innerHTML = `
-			<i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
-		`;
-	}
-}
+/* ============================================
+   📋 AUDIT LOG PAGE
+   ============================================
+   Audit log display with filtering and search
+   Uses userProfile.js for session management
+   ============================================ */
 
 // --- DOM refs ---
 // Filters and list
@@ -209,10 +182,13 @@ filterAction?.addEventListener('change', applyFilters);
 filterTime?.addEventListener('change', applyFilters);
 searchInput?.addEventListener('input', applyFilters);
 
-// Init
+// --- Initialize ---
 document.addEventListener('DOMContentLoaded', async () => {
-	if (!checkAuthentication()) return; // ensure login first
-	updateUserDisplay();
+	// Initialize user profile (includes auth check)
+	if (!initializeUserProfile()) {
+		return; // User not authenticated, redirected to login
+	}
+	
 	await populateFilters();
 	await applyFilters();
 });

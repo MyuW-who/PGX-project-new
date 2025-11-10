@@ -147,10 +147,10 @@ async function renderMetrics() {
   const elPercentErr   = document.getElementById('percent-error');
   
   const { stats } = dashboardData;
-  const total = stats.total;
-  const progress = stats.inProgress;
-  const done = stats.done;
-  const error = stats.error;
+  const total = stats?.total || 0;
+  const progress = stats?.inProgress || 0;
+  const done = stats?.done || 0;
+  const error = stats?.error || 0;
   
   console.log('📊 Stats:', { total, progress, done, error });
   
@@ -160,7 +160,7 @@ async function renderMetrics() {
   if (elErr)   elErr.textContent   = error;
   
   // คำนวณและแสดงเปอร์เซ็นต์
-  if (elPercentTotal) elPercentTotal.textContent = '100.00%';
+  if (elPercentTotal) elPercentTotal.textContent = total > 0 ? '100.00%' : '0.00%';
   if (elPercentProg)  elPercentProg.textContent  = total > 0 ? ((progress / total) * 100).toFixed(2) + '%' : '0.00%';
   if (elPercentDone)  elPercentDone.textContent  = total > 0 ? ((done / total) * 100).toFixed(2) + '%' : '0.00%';
   if (elPercentErr)   elPercentErr.textContent   = total > 0 ? ((error / total) * 100).toFixed(2) + '%' : '0.00%';

@@ -40,17 +40,6 @@ function updateUserDisplay() {
    🧭 NAVIGATION HANDLERS
    ============================================ */
 
-// Logout handler
-const logoutBtn = document.getElementById('logout');
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    sessionStorage.clear();
-    console.log('🚪 User logged out');
-    window.electronAPI.navigate('login');
-  });
-}
-
 /* ============================================
    📋 SPECIMEN MANAGEMENT
    ============================================ */
@@ -261,8 +250,9 @@ specimenForm.addEventListener("submit", handleFormSubmit);
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 Navigate to: admin-settings');
   
-  if (!checkAuthentication()) {
-    return;
+  // Initialize user profile (includes auth check and UI setup)
+  if (!initializeUserProfile()) {
+    return; // User not authenticated, redirected to login
   }
   
   updateUserDisplay();
