@@ -1,51 +1,11 @@
-// Audit Log page script: renders mock data, filters, and reuses header behaviors
-
-// --- Session helpers (reuse pattern from adminpage.js) ---
-function getCurrentUser() {
-	try {
-		const sessionData = sessionStorage.getItem('currentUser');
-		return sessionData ? JSON.parse(sessionData) : null;
-	} catch (error) {
-		console.error('Error reading current user:', error);
-		return null;
-	}
-}
-
-function checkAuthentication() {
-	const currentUser = getCurrentUser();
-	if (!currentUser) {
-		// If not authenticated, navigate to login via IPC if available
-		try { window.electronAPI?.navigate('login'); } catch (_) {}
-		return false;
-	}
-	return true;
-}
-
-function updateUserDisplay() {
-	const currentUser = getCurrentUser();
-	if (!currentUser) return;
-	const dropdownBtn = document.getElementById('dropdownBtn');
-	if (dropdownBtn) {
-		dropdownBtn.innerHTML = `
-			<i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
-		`;
-	}
-}
+/* ============================================
+   📋 AUDIT LOG PAGE
+   ============================================
+   Audit log display with filtering and search
+   Uses userProfile.js for session management
+   ============================================ */
 
 // --- DOM refs ---
-const dropdownBtn = document.getElementById('dropdownBtn');
-const dropdownMenu = document.getElementById('dropdownMenu');
-const themeToggle = document.getElementById('themeToggle');
-const langToggle = document.getElementById('langToggle');
-const logoutBtn = document.getElementById('logout');
-
-// Settings popup
-const settingsPopup = document.getElementById('settingsPopup');
-const closeSettings = document.getElementById('closeSettings');
-const saveSettings = document.getElementById('saveSettings');
-const cancelSettings = document.getElementById('cancelSettings');
-const settingsBtn = document.getElementById('settingsBtn');
-
 // Filters and list
 const filterUser = document.getElementById('filterUser');
 const filterAction = document.getElementById('filterAction');
@@ -53,45 +13,6 @@ const searchInput = document.getElementById('searchInput');
 const auditList = document.getElementById('auditList');
 const auditCount = document.getElementById('auditCount');
 const emptyState = document.getElementById('emptyState');
-
-
-// --- Dropdown & theme/lang handlers ---
-dropdownBtn?.addEventListener('click', (e) => {
-	e.stopPropagation();
-	dropdownMenu?.classList.toggle('show');
-});
-dropdownMenu?.addEventListener('click', (e) => e.stopPropagation());
-document.addEventListener('click', () => dropdownMenu?.classList.remove('show'));
-
-
-
-langToggle?.addEventListener('click', () => {
-	const current = langToggle.textContent.trim();
-	langToggle.textContent = current === 'TH' ? 'EN' : 'TH';
-});
-
-logoutBtn?.addEventListener('click', () => {
-	const confirmed = confirm('คุณต้องการออกจากระบบหรือไม่?');
-	if (!confirmed) return;
-	try {
-		localStorage.removeItem('userSession');
-		sessionStorage.clear();
-	} finally {
-		window.electronAPI?.navigate('login');
-	}
-});
-
-// Settings popup wires
-settingsBtn?.addEventListener('click', (e) => { e.preventDefault(); settingsPopup.style.display = 'flex'; dropdownMenu?.classList.remove('show'); });
-closeSettings?.addEventListener('click', () => { settingsPopup.style.display = 'none'; });
-cancelSettings?.addEventListener('click', () => { settingsPopup.style.display = 'none'; });
-saveSettings?.addEventListener('click', () => {
-	const theme = document.getElementById('themeSetting').value;
-	if (theme === 'dark') { document.body.classList.add('dark'); document.body.classList.remove('dark-theme'); }
-	else { document.body.classList.remove('dark'); document.body.classList.remove('dark-theme'); }
-	settingsPopup.style.display = 'none';
-});
-settingsPopup?.addEventListener('click', (e) => { if (e.target === settingsPopup) settingsPopup.style.display = 'none'; });
 
 // --- Mock data ---
 const MOCK_LOGS = [
@@ -208,10 +129,15 @@ filterUser?.addEventListener('change', applyFilters);
 filterAction?.addEventListener('change', applyFilters);
 searchInput?.addEventListener('input', applyFilters);
 
-// Init
+/* ============================================
+   🚀 PAGE INITIALIZATION
+   ============================================ */
 document.addEventListener('DOMContentLoaded', () => {
-	if (!checkAuthentication()) return; // ensure login first
-	updateUserDisplay();
+	// Initialize user profile (includes auth check and UI setup)
+	if (!initializeUserProfile()) {
+		return; // User not authenticated, redirected to login
+	}
+	
 	populateFilters();
 	applyFilters();
 });

@@ -46,6 +46,23 @@ async function fetchDashboardData(timeFilter = 'today', forceRefresh = false) {
   }
 }
 
+/* ============================================================
+   📱 NAVIGATION HANDLERS
+   ------------------------------------------------------------
+   ▶️ Navigation between pages
+============================================================ */
+
+/* ============================================================
+   👥 USER MENU & PROFILE
+   ------------------------------------------------------------
+   ▶️ เปิด/ปิดเมนูผู้ใช้ (Profile / Setting / Logout)
+============================================================ */
+
+
+const patientPageBtn = document.getElementById('patient-btn');
+patientPageBtn?.addEventListener('click', () => {
+  window.electronAPI.navigate('patient');
+});
 
 
 
@@ -641,9 +658,61 @@ async function initDashboard() {
       renderTopHospitalsChart()
     ]);
     
+    // Initialize time filter buttons
+    initializeTimeFilters();
+    
     console.log('✅ Dashboard initialized successfully');
   } catch (err) {
     console.error('❌ Error initializing dashboard:', err);
+  }
+}
+
+/* ============================================================
+   ⏱️ TIME FILTER HANDLERS
+   ------------------------------------------------------------
+   ▶️ Handle time period filter buttons (today/week/month)
+============================================================ */
+function initializeTimeFilters() {
+  const filterButtons = document.querySelectorAll('.time-filter-btn');
+  
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      // Remove active class from all buttons
+      filterButtons.forEach(b => b.classList.remove('active'));
+      
+      // Add active class to clicked button
+      btn.classList.add('active');
+      
+      // Get selected time filter
+      const timeFilter = btn.dataset.time;
+      if (!timeFilter) return;
+      
+      console.log('⏱️ Switching to time filter:', timeFilter);
+      
+      // Update current filter
+      currentTimeFilter = timeFilter;
+      
+      // Fetch new data and re-render
+      await fetchDashboardData(timeFilter);
+      
+      if (dashboardData) {
+        await renderMetrics();
+        await renderUsageChart();
+        await renderTATChart();
+        await renderGaugeChart();
+        await renderErrorRateChart();
+        await renderTopRejectsChart();
+        await renderTopDNAChart();
+        await renderTopHospitalsChart();
+      }
+    });
+  });
+  
+  // Set initial active state based on currentTimeFilter
+  const activeBtn = document.querySelector(`.time-filter-btn[data-time="${currentTimeFilter}"]`);
+  if (activeBtn) {
+    filterButtons.forEach(b => b.classList.remove('active'));
+    activeBtn.classList.add('active');
   }
 }
 
