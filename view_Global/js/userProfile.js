@@ -53,8 +53,10 @@ function updateUserDisplay() {
     // Update dropdown button with user info
     const dropdownBtn = document.getElementById('dropdownBtn');
     if (dropdownBtn) {
+      // Use doctor_name (full name) if available, otherwise fallback to username
+      const displayName = currentUser.doctor_name || currentUser.username;
       dropdownBtn.innerHTML = `
-        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
+        <i class="fa fa-user-circle"></i> ${displayName} (${currentUser.role}) <i class="fa fa-caret-down"></i>
       `;
     }
     

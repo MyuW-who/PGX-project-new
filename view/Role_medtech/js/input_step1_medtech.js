@@ -1,6 +1,36 @@
 initializeUserProfile();
 
+// 🧬 Load Specimens from Database
+async function loadSpecimens() {
+  try {
+    console.log('🔄 Loading specimens from database...');
+    const response = await window.electronAPI.getSpecimens();
+    
+    if (response.success && response.data) {
+      const specimenSelect = document.getElementById('specimenType');
+      
+      // Clear existing options except the placeholder
+      specimenSelect.innerHTML = '<option value="">-- เลือกชนิดของสิ่งส่งตรวจ --</option>';
+      
+      // Add options from database
+      response.data.forEach(specimen => {
+        const option = document.createElement('option');
+        option.value = specimen.specimen_name;
+        option.textContent = specimen.specimen_name;
+        specimenSelect.appendChild(option);
+      });
+      
+      console.log('✅ Loaded', response.data.length, 'specimens');
+    } else {
+      console.error('❌ Failed to load specimens:', response);
+    }
+  } catch (error) {
+    console.error('❌ Error loading specimens:', error);
+  }
+}
 
+// Load specimens on page load
+loadSpecimens();
 
 // Fetch patient data using patient ID from sessionStorage
 const patientId = sessionStorage.getItem('selectedPatientId');
@@ -56,13 +86,21 @@ backBtn.addEventListener("click", () => {
 const nextBtn = document.querySelector(".next-btn");
 nextBtn.addEventListener("click", () => {
   const dnaType = document.getElementById("dnaType").value;
+  const specimenType = document.getElementById("specimenType").value;
+  
   if (!dnaType) {
     alert("กรุณาเลือกประเภท DNA ก่อนดำเนินการต่อ");
     return;
   }
+  
+  if (!specimenType) {
+    alert("กรุณาเลือกประเภทสิ่งส่งตรวจก่อนดำเนินการต่อ");
+    return;
+  }
 
-  // Store selected DNA type in sessionStorage
+  // Store selected DNA type and Specimen in sessionStorage
   sessionStorage.setItem("selectedDnaType", dnaType);
+  sessionStorage.setItem("selectedSpecimen", specimenType);
 
   // Navigate to the next step
   window.electronAPI.navigate('input_step2_medtech');
