@@ -45,58 +45,50 @@
         </div>
       </header>
 
-      <section class="settings-grid">
-        <article class="card card-category">
-          <header>
-            <h2>ข้อมูลหมวดหมู่สิ่งส่งตรวจ</h2>
-            <p>สร้างหรืออัปเดตหมวดหมู่เพื่อใช้ในระบบจัดการเคส</p>
-          </header>
-          <form id="categoryForm" class="form-grid">
-            <label>
-              <span>ชื่อหมวดหมู่</span>
-              <input id="categoryName" name="name" type="text" placeholder="เช่น NGS Panel" required />
-            </label>
-            <label>
-              <span>รหัสหมวดหมู่</span>
-              <input id="categoryCode" name="code" type="text" placeholder="เช่น NGS-01" required />
-            </label>
-            <label>
-              <span>TAT (วัน)</span>
-              <input id="tatDays" name="tat" type="number" min="0" placeholder="ระบุจำนวนวัน" required />
-            </label>
-            <label class="span-2">
-              <span>รายละเอียด</span>
-              <textarea id="categoryDesc" name="description" placeholder="รายละเอียดเพิ่มเติม"></textarea>
-            </label>
-            <div class="form-actions span-2">
-              <button type="reset" class="btn ghost">ยกเลิก</button>
-              <button type="submit" class="btn primary">บันทึกหมวดหมู่</button>
-            </div>
-          </form>
-        </article>
+      <section class="specimen-layout">
+        <section class="card specimen-form-card">
+          <div class="form-header">
+            <h2>จัดการข้อมูลสิ่งส่งตรวจ</h2>
+            <div id="form-message" class="form-message" role="alert"></div>
+          </div>
 
-        <article class="card card-tat">
-          <header>
-            <h2>ปรับเวลา TAT รายหมวด</h2>
-            <p>ตั้งค่าระยะเวลา SLA ให้ตรงกับการปฏิบัติงานจริง</p>
-          </header>
-          <form id="tatForm" class="form-stack">
-            <label>
-              <span>เลือกหมวดหมู่</span>
-              <select id="tatCategory" name="category" required>
-                <option value="" selected disabled>เลือกหมวดหมู่...</option>
-              </select>
-            </label>
-            <label>
-              <span>TAT ใหม่ (วัน)</span>
-              <input id="tatNewDays" name="tat" type="number" min="0" required />
-            </label>
-            <div class="form-actions">
-              <button type="reset" class="btn ghost">รีเซ็ต</button>
-              <button type="submit" class="btn accent">อัปเดต TAT</button>
+          <form id="specimenForm" class="inline-form">
+            <input id="specimenName" name="name" type="text" placeholder="ชื่อสิ่งส่งตรวจ (เช่น Blood)" required />
+            <input id="specimenTat" name="tat" type="number" min="0" placeholder="TAT (วัน)" required />
+            <div class="form-actions-inline">
+              <button type="submit" class="btn primary" id="submitBtn">
+                <i class="fa fa-plus"></i> เพิ่ม
+              </button>
+              <button type="button" id="cancelBtn" class="btn secondary" style="display: none;">
+                <i class="fa fa-times"></i> ยกเลิก
+              </button>
             </div>
           </form>
-        </article>
+        </section>
+
+        <section class="specimen-table-panel">
+          <header class="card specimen-table-header">
+            <div>
+              <h2>รายการสิ่งส่งตรวจ</h2>
+              <p>ตรวจสอบและแก้ไขรายการที่สร้างไว้ทั้งหมด</p>
+            </div>
+          </header>
+          <div class="card specimen-table-card">
+            <div class="scrollable-table-wrapper">
+              <table id="specimen-table" class="specimen-table">
+                <thead>
+                  <tr>
+                    <th>ชื่อสิ่งส่งตรวจ</th>
+                    <th style="width: 110px; text-align: center;">TAT (วัน)</th>
+                    <th style="width: 120px; text-align: center;">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </section>
 
         <article class="card card-specimen">
           <header>
