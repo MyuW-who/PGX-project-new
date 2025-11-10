@@ -20,7 +20,7 @@
 
 /* 🔹 2. สไตล์พื้นฐานของ Body */
 body {
-  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  font-family: "Noto Sans Thai", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--body-bg);
   color: var(--text-primary);
   margin: 0;
