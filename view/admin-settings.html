@@ -63,37 +63,49 @@
         </div>
       </header>
 
-      <section class="card compact-form">
-        <div class="form-header">
-          <h2>จัดการข้อมูลสิ่งส่งตรวจ</h2>
-          <div id="form-message" class="form-message" role="alert"></div>
-        </div>
-        
-        <form id="specimenForm" class="inline-form">
-          <input id="specimenName" name="name" type="text" placeholder="ชื่อสิ่งส่งตรวจ (เช่น Blood)" required />
-          <input id="specimenTat" name="tat" type="number" min="0" placeholder="TAT (วัน)" required style="width: 120px;" />
-          <button type="submit" class="btn primary" id="submitBtn">
-            <i class="fa fa-plus"></i> เพิ่ม
-          </button>
-          <button type="button" id="cancelBtn" class="btn secondary" style="display: none;">
-            <i class="fa fa-times"></i> ยกเลิก
-          </button>
-        </form>
+      <section class="specimen-layout">
+        <section class="card specimen-form-card">
+          <div class="form-header">
+            <h2>จัดการข้อมูลสิ่งส่งตรวจ</h2>
+            <div id="form-message" class="form-message" role="alert"></div>
+          </div>
 
-        <div class="scrollable-table-wrapper">
-          <table id="specimen-table" class="specimen-table">
-            <thead>
-              <tr>
-                <th>ชื่อสิ่งส่งตรวจ</th>
-                <th style="width: 100px; text-align: center;">TAT (วัน)</th>
-                <th style="width: 100px; text-align: center;">จัดการ</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- จะถูกเติมโดยสคริปต์ -->
-            </tbody>
-          </table>
-        </div>
+          <form id="specimenForm" class="inline-form">
+            <input id="specimenName" name="name" type="text" placeholder="ชื่อสิ่งส่งตรวจ (เช่น Blood)" required />
+            <input id="specimenTat" name="tat" type="number" min="0" placeholder="TAT (วัน)" required />
+            <div class="form-actions-inline">
+              <button type="submit" class="btn primary" id="submitBtn">
+                <i class="fa fa-plus"></i> เพิ่ม
+              </button>
+              <button type="button" id="cancelBtn" class="btn secondary" style="display: none;">
+                <i class="fa fa-times"></i> ยกเลิก
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="specimen-table-panel">
+          <header class="card specimen-table-header">
+            <div>
+              <h2>รายการสิ่งส่งตรวจ</h2>
+              <p>ตรวจสอบและแก้ไขรายการที่สร้างไว้ทั้งหมด</p>
+            </div>
+          </header>
+          <div class="card specimen-table-card">
+            <div class="scrollable-table-wrapper">
+              <table id="specimen-table" class="specimen-table">
+                <thead>
+                  <tr>
+                    <th>ชื่อสิ่งส่งตรวจ</th>
+                    <th style="width: 110px; text-align: center;">TAT (วัน)</th>
+                    <th style="width: 120px; text-align: center;">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
       </section>
 
       <section class="card compact-form">

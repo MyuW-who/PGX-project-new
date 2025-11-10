@@ -4,12 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-  />
-  <link rel="stylesheet" href="./css/dashboard.css" />
-  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./css/global.css"> 
+  <link rel="stylesheet" href="./css/dashboard.css" />
+  <link rel="stylesheet" href="./css/menu.css">
+  <link rel="stylesheet" href="./css/darkmode.css">
+  <link rel="stylesheet" href="./css/navbar.css">
+  <link rel="stylesheet" href="./css/navbar_hover.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  
 </head>
 <body>
   <!-- แถบ Navbar -->
@@ -153,7 +160,7 @@
             <div class="stat-card-header">
               <h4><i class="fa fa-list-ol"></i> 5 อันดับสิ่งส่งตรวจที่ถูกปฏิเสธมากที่สุด</h4>
             </div>
-            <p id="top-rejects-subtitle">ข้อมูลจำลอง (ช่วงเวลา: 30 วัน)</p>
+            <p id="top-rejects-subtitle">ข้อมูลจากฐานข้อมูล (ช่วงเวลา: วันนี้)</p>
             <canvas id="topRejectsChart" height="140"></canvas>
           </div>
 
@@ -162,59 +169,67 @@
             <div class="stat-card-header">
               <h4><i class="fa fa-dna"></i> 5 อันดับ DNA ที่พบมากที่สุด</h4>
             </div>
-            <p id="top-dna-subtitle">ข้อมูลจำลอง (ช่วงเวลา: 30 วัน)</p>
+            <p id="top-dna-subtitle">ข้อมูลจากฐานข้อมูล (ช่วงเวลา: วันนี้)</p>
             <canvas id="topDnaChart" height="140"></canvas>
           </div>
 
           <!-- Top 5 Hospitals by Submissions -->
           <div class="stat-card" id="card-hospitals">
             <div class="stat-card-header">
-              <h4><i class="fa fa-hospital"></i> 5 อันดับโรงพยาบาลที่ส่งตรวจมากที่สุด</h4>
+              <h4><i class="fa fa-hospital"></i> 5 อันดับชนิดสิ่งส่งตรวจที่ใช้มากที่สุด</h4>
             </div>
-            <p id="top-hospitals-subtitle">ข้อมูลจำลอง (ช่วงเวลา: 30 วัน)</p>
+            <p id="top-hospitals-subtitle">ข้อมูลจากฐานข้อมูล (ช่วงเวลา: วันนี้)</p>
             <canvas id="topHospitalsChart" height="140"></canvas>
           </div>
         </div>
       </section>
     </main>
 
-  <!-- Settings Popup -->
-  <div id="settingsPopup" class="popup" style="display: none;">
-    <div class="popup-content">
-      <div class="popup-header">
-        <h3>Settings</h3>
-        <span class="close" id="closeSettings">&times;</span>
-      </div>
-      <div class="popup-body">
-        <div class="setting-item">
-          <label>Language:</label>
-          <select id="languageSetting">
-            <option value="th">ไทย (Thai)</option>
-            <option value="en">English</option>
-          </select>
+    <!-- Settings Popup -->
+    <div id="settingsPopup" class="popup" style="display: none;">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h3>Settings</h3>
+          <span class="close" id="closeSettings">&times;</span>
         </div>
-        <div class="setting-item">
-          <label>Theme:</label>
-          <select id="themeSetting">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
+        <div class="popup-body">
+          <div class="setting-item">
+            <label>Language:</label>
+            <select id="languageSetting">
+              <option value="th">ไทย (Thai)</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Theme:</label>
+            <select id="themeSetting">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Notifications:</label>
+            <input type="checkbox" id="notificationsSetting" checked>
+          </div>
         </div>
-        <div class="setting-item">
-          <label>Notifications:</label>
-          <input type="checkbox" id="notificationsSetting" checked>
+        <div class="popup-footer">
+          <button class="btn-primary" id="saveSettings">Save</button>
+          <button class="btn-secondary" id="cancelSettings">Cancel</button>
         </div>
-      </div>
-      <div class="popup-footer">
-        <button class="btn-primary" id="saveSettings">Save</button>
-        <button class="btn-secondary" id="cancelSettings">Cancel</button>
       </div>
     </div>
 
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-  <script src="./js/userProfile.js"></script>
-  <script src="./js/dashboard.js"></script>
+  <!-- Script -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+  
+    <script src="./js/userProfile.js"></script>
+  <script src="./js/darkmode.js"></script>
+  <script src="./js/dashboard.js"></script>
+  <script src="./js/menu.js"></script>
+  <script src="./js/navbar_hover.js"></script>
 </body>
 </html>
+
