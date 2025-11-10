@@ -15,29 +15,32 @@ async function findDiplotype(geneSymbol, genotype) {
     // Clean genotype: remove " or" and anything after it
     const cleanedGenotype = genotype.replace(/\s+or.*/gi, '').trim();
     
-    // Set a timeout of 3 seconds for the query
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Query timeout')), 3000)
-    );
+    // Query with timeout using AbortController
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
     
-    const queryPromise = supabase
+    const { data, error } = await supabase
       .from('diplotype')
-      .select('*')
+      .select('description, consultationtext, totalactivityscore')
       .eq('genesymbol', geneSymbol)
       .eq('diplotype', cleanedGenotype)
       .limit(1)
-      .single();
-    
-    const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+      .maybeSingle();
 
-    if (error) {
+    clearTimeout(timeoutId);
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
       console.error('❌ Error finding diplotype:', error.message);
       return null;
     }
 
     return data;
   } catch (err) {
-    console.error('❌ Exception in findDiplotype:', err.message);
+    if (err.name === 'AbortError') {
+      console.log('⚠️ Diplotype query timeout');
+    } else {
+      console.error('❌ Exception in findDiplotype:', err.message);
+    }
     return null;
   }
 }
@@ -88,58 +91,55 @@ async function generatePGxPDF(reportInfo) {
     }
 
     // Create unique filename with report_id or request_id
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
-    const reportId = reportInfo.report_id || reportInfo.request_id || Date.now();
-    const fileName = `PGx_${reportInfo.patientId}_${reportInfo.test_target}_${reportId}_${timestamp}.pdf`;
+    const timestamp = Date.now();
+    const reportId = reportInfo.report_id || reportInfo.request_id || timestamp;
+    const fileName = `PGx_${reportInfo.patientId}_${reportInfo.test_target}_${reportId}.pdf`;
     const filePath = path.join(reportsDir, fileName);
 
     const doc = new PDFDocument({ margin: 50, size: 'A4' });
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
-    // Load Thai font
+    // Load Thai font once
     const fontPath = path.join(__dirname, '..', 'fonts', 'Sarabun-Regular.ttf');
     const fontBoldPath = path.join(__dirname, '..', 'fonts', 'Sarabun-Bold.ttf');
     
-    let hasRegularFont = false;
-    let hasBoldFont = false;
+    const hasRegularFont = fs.existsSync(fontPath);
+    const hasBoldFont = fs.existsSync(fontBoldPath);
     
-    if (fs.existsSync(fontPath)) {
-      doc.registerFont('THSarabun', fontPath);
-      hasRegularFont = true;
-    }
-    
-    if (fs.existsSync(fontBoldPath)) {
-      doc.registerFont('THSarabunBold', fontBoldPath);
-      hasBoldFont = true;
-    }
-    
-    // Use Thai font if available, otherwise use default
     if (hasRegularFont) {
+      doc.registerFont('THSarabun', fontPath);
       doc.font('THSarabun');
     }
+    
+    if (hasBoldFont) {
+      doc.registerFont('THSarabunBold', fontBoldPath);
+    }
+    
+    // Helper function for bold text
+    const setBold = () => hasBoldFont && doc.font('THSarabunBold');
+    const setRegular = () => hasRegularFont && doc.font('THSarabun');
 
     // Header - Laboratory Name
     doc.fontSize(18);
-    if (hasBoldFont) doc.font('THSarabunBold');
+    setBold();
     doc.text('ห้องปฏิบัติการเภสัชพันธุศาสตร์', { align: 'center' });
     
     doc.fontSize(16);
-    if (hasRegularFont) doc.font('THSarabun');
+    setRegular();
     doc.text('(Laboratory for Pharmacogenomics)', { align: 'center' });
     doc.moveDown(0.3);
     
     // Contact Information
     doc.fontSize(9).text(
-      '6th Floor, Bumrungrat Hospital East tower, Department of Pathology, Faculty of Medicine, Ramathibodi Hospital',
+      '6th Floor, Bumrungrat Hospital East tower, Department of Pathology, Faculty of Medicine, Ramathibodi Hospital\nTel. +662-200-4321 Fax +662-200-4322',
       { align: 'center' }
     );
-    doc.text('Tel. +662-200-4321 Fax +662-200-4322', { align: 'center' });
     doc.moveDown(1);
 
     // Title
     doc.fontSize(13);
-    if (hasBoldFont) doc.font('THSarabunBold');
+    setBold();
     doc.text('PHARMACOGENOMICS AND PERSONALIZED MEDICINE REPORT', { 
       align: 'center', 
       underline: true 
@@ -147,46 +147,32 @@ async function generatePGxPDF(reportInfo) {
     doc.moveDown(1.2);
 
     // Patient Information Section
-    if (hasRegularFont) doc.font('THSarabun');
+    setRegular();
     doc.fontSize(11);
     
     const leftCol = 70;
     const leftVal = 200;
     const rightCol = 320;
     const rightVal = 430;
+    
+    // Patient info rows
+    const patientInfo = [
+      ['ชื่อ-สกุล (Name):', reportInfo.patientName || 'N/A', 'อายุ (Age):', `${reportInfo.patientAge || 'N/A'} ปี (years)`],
+      ['เลขประจำตัวผู้ป่วย (HN):', reportInfo.patientId || 'N/A', 'เพศ (Gender):', reportInfo.patientGender || 'N/A'],
+      ['ชนิดสิ่งส่งตรวจ (Specimen):', reportInfo.specimen || 'Blood', 'เลขที่รับผล (Patient#):', reportInfo.patientNumber || 'N/A'],
+      ['โรงพยาบาล (Hospital):', reportInfo.hospital || 'N/A', 'วันที่รับตัวอย่าง (Create date):', reportInfo.createDate || new Date().toLocaleDateString('th-TH')],
+      ['แพทย์ผู้ส่งตรวจ (Clinician):', reportInfo.doctorName || 'N/A', 'วันที่รายงานผล (Update date):', reportInfo.updateDate || new Date().toLocaleDateString('th-TH')]
+    ];
+
     let y = doc.y;
+    patientInfo.forEach(row => {
+      doc.text(row[0], leftCol, y);
+      doc.text(row[1], leftVal, y);
+      doc.text(row[2], rightCol, y);
+      doc.text(row[3], rightVal, y);
+      y += 18;
+    });
 
-    // Row 1
-    doc.text('ชื่อ-สกุล (Name):', leftCol, y);
-    doc.text(reportInfo.patientName || 'N/A', leftVal, y);
-    doc.text('อายุ (Age):', rightCol, y);
-    doc.text(`${reportInfo.patientAge || 'N/A'} ปี (years)`, rightVal, y);
-
-    y += 18;
-    doc.text('เลขประจำตัวผู้ป่วย (HN):', leftCol, y);
-    doc.text(reportInfo.patientId || 'N/A', leftVal, y);
-    doc.text('เพศ (Gender):', rightCol, y);
-    doc.text(reportInfo.patientGender || 'N/A', rightVal, y);
-
-    y += 18;
-    doc.text('ชนิดสิ่งส่งตรวจ (Specimen):', leftCol, y);
-    doc.text(reportInfo.specimen || 'Blood', leftVal, y);
-    doc.text('เลขที่รับผล (Patient#):', rightCol, y);
-    doc.text(reportInfo.patientNumber || 'N/A', rightVal, y);
-
-    y += 18;
-    doc.text('โรงพยาบาล (Hospital):', leftCol, y);
-    doc.text(reportInfo.hospital || 'N/A', leftVal, y);
-    doc.text('วันที่รับตัวอย่าง (Create date):', rightCol, y);
-    doc.text(reportInfo.createDate || new Date().toLocaleDateString('th-TH'), rightVal, y);
-
-    y += 18;
-    doc.text('แพทย์ผู้ส่งตรวจ (Clinician):', leftCol, y);
-    doc.text(reportInfo.doctorName || 'N/A', leftVal, y);
-    doc.text('วันที่รายงานผล (Update date):', rightCol, y);
-    doc.text(reportInfo.updateDate || new Date().toLocaleDateString('th-TH'), rightVal, y);
-
-    y += 18;
     doc.text('แพทย์ผู้รับผิดชอบ (Physician) / doc.name:', leftCol, y);
     doc.text(reportInfo.responsibleDoctor || reportInfo.doctorName || 'N/A', leftVal, y);
 
@@ -194,7 +180,7 @@ async function generatePGxPDF(reportInfo) {
 
     // Test Results Section
     doc.fontSize(13);
-    if (hasBoldFont) doc.font('THSarabunBold');
+    setBold();
     doc.text(
       `${reportInfo.test_target} genotyping: ${reportInfo.activityScore || 'n/a'}`,
       { underline: true }
@@ -203,49 +189,38 @@ async function generatePGxPDF(reportInfo) {
 
     // Gene name
     doc.fontSize(11);
-    if (hasBoldFont) doc.font('THSarabunBold');
     doc.text(`${reportInfo.test_target} gene`);
-    if (hasRegularFont) doc.font('THSarabun');
+    setRegular();
     doc.moveDown(0.3);
 
     // Allele table - formatted horizontally
-    if (reportInfo.alleles && reportInfo.alleles.length > 0) {
-      let alleleText = '';
-      reportInfo.alleles.forEach((allele, index) => {
-        alleleText += `${allele.name}  ${allele.value}`;
-        if (index < reportInfo.alleles.length - 1) {
-          alleleText += '     ';
-        }
-      });
+    if (reportInfo.alleles?.length > 0) {
+      const alleleText = reportInfo.alleles.map(a => `${a.name}  ${a.value}`).join('     ');
       doc.text(alleleText);
     }
 
     doc.moveDown(0.8);
     
-    // Genotype
-    if (hasBoldFont) doc.font('THSarabunBold');
-    doc.text('Genotype:', { continued: true });
-    if (hasRegularFont) doc.font('THSarabun');
-    doc.text(`  ${reportInfo.genotype || 'N/A'}`);
+    // Results with bold labels
+    const results = [
+      ['Genotype:', reportInfo.genotype || 'N/A'],
+      ['Total activity score:', reportInfo.activityScore || 'n/a'],
+      ['Predicted Phenotype:', reportInfo.predicted_phenotype || 'N/A']
+    ];
 
-    // Total activity score
-    if (hasBoldFont) doc.font('THSarabunBold');
-    doc.text('Total activity score:', { continued: true });
-    if (hasRegularFont) doc.font('THSarabun');
-    doc.text(`  ${reportInfo.activityScore || 'n/a'}`);
-
-    // Predicted Phenotype
-    if (hasBoldFont) doc.font('THSarabunBold');
-    doc.text('Predicted Phenotype:', { continued: true });
-    if (hasRegularFont) doc.font('THSarabun');
-    doc.text(`  ${reportInfo.predicted_phenotype || 'N/A'}`);
+    results.forEach(([label, value]) => {
+      setBold();
+      doc.text(label, { continued: true });
+      setRegular();
+      doc.text(`  ${value}`);
+    });
 
     doc.moveDown(1);
 
     // Genotype Summary
-    if (hasBoldFont) doc.font('THSarabunBold');
+    setBold();
     doc.text('Genotype Summary:');
-    if (hasRegularFont) doc.font('THSarabun');
+    setRegular();
     doc.text(reportInfo.genotype_summary || 'An individual carrying two normal function alleles', {
       align: 'left',
       width: 480,
@@ -255,10 +230,10 @@ async function generatePGxPDF(reportInfo) {
     doc.moveDown(1);
 
     // Recommendation section
-    if (hasBoldFont) doc.font('THSarabunBold');
+    setBold();
     doc.text('recommendation:');
-    if (hasRegularFont) doc.font('THSarabun');
-    doc.text(reportInfo.recommendation || 'This result signifies that the patient has two copies of a normal function allele. Patients with this genotype are expected to require higher starting tacrolimus dosing (1.5 to 3 times the standard dose-maximum starting dose not to exceed 0.3mg/kg/day). Dosage adjustments or selection of alternative therapy may be necessary due to other factors (e.g., medication interactions, or hepatic function). Please consult a clinical pharmacist for more specific dosing information.', {
+    setRegular();
+    doc.text(reportInfo.recommendation || 'Please consult a clinical pharmacist for more specific dosing information.', {
       align: 'left',
       width: 480,
       lineGap: 2
@@ -268,42 +243,26 @@ async function generatePGxPDF(reportInfo) {
 
     // Signature section
     doc.fontSize(10);
-    if (hasRegularFont) doc.font('THSarabun');
-    doc.text('วิธีการในการตรวจและผลทดลอง', { align: 'center' });
-    doc.text('วิธีการในการทดลองผลการทดลอง', { align: 'center' });
-
-    doc.moveDown(2);
+    doc.text('วิธีการในการตรวจและผลทดลอง\nวิธีการในการทดลองผลการทดลอง', { align: 'center' });
 
     // Footer - positioned at bottom of page
     const footerY = doc.page.height - 60;
     doc.fontSize(8);
-    if (hasRegularFont) doc.font('THSarabun');
-    
-    // Left side - report date
     doc.text(
       `สร้างรายงาน-04-${reportInfo.createDate || new Date().toLocaleDateString('th-TH').replace(/\//g, '-')}`,
       50,
       footerY,
       { align: 'left', width: 250 }
     );
-    
-    // Right side - page number
-    doc.text(
-      'Page 1 of 2',
-      doc.page.width - 150,
-      footerY,
-      { align: 'right', width: 100 }
-    );
+    doc.text('Page 1 of 2', doc.page.width - 150, footerY, { align: 'right', width: 100 });
 
     doc.end();
 
     // Wait for PDF to finish writing
-    await new Promise((resolve, reject) => {
-      stream.on('finish', resolve);
+    return new Promise((resolve, reject) => {
+      stream.on('finish', () => resolve(filePath));
       stream.on('error', reject);
     });
-
-    return filePath;
   } catch (err) {
     console.error('❌ Exception in generatePGxPDF:', err);
     throw err;
@@ -320,23 +279,60 @@ async function uploadPDFToStorage(filePath, fileName) {
   try {
     const fileBuffer = fs.readFileSync(filePath);
     
+    // Try PDF_Bucket first, then fall back to checking available buckets
+    let bucketName = 'PDF_Bucket';
+    
     const { data, error } = await supabase.storage
-      .from('PDF_Bucket')
+      .from(bucketName)
       .upload(fileName, fileBuffer, {
         contentType: 'application/pdf',
         upsert: true
       });
 
     if (error) {
-      console.error('❌ Error uploading to storage:', error.message);
-      return null;
+      console.error('❌ Error uploading to storage:', error);
+      
+      // If bucket not found, list available buckets
+      if (error.message?.includes('Bucket not found')) {
+        const { data: buckets } = await supabase.storage.listBuckets();
+        console.log('📦 Available buckets:', buckets?.map(b => b.name));
+        
+        // Try to find a PDF or report bucket
+        const pdfBucket = buckets?.find(b => 
+          b.name.toLowerCase().includes('pdf') || 
+          b.name.toLowerCase().includes('report')
+        );
+        
+        if (pdfBucket) {
+          console.log(`🔄 Retrying with bucket: ${pdfBucket.name}`);
+          bucketName = pdfBucket.name;
+          
+          const { data: retryData, error: retryError } = await supabase.storage
+            .from(bucketName)
+            .upload(fileName, fileBuffer, {
+              contentType: 'application/pdf',
+              upsert: true
+            });
+            
+          if (retryError) {
+            console.error('❌ Retry failed:', retryError);
+            return null;
+          }
+        } else {
+          console.error('❌ No PDF bucket found. Please create "PDF_Bucket" in Supabase Storage.');
+          return null;
+        }
+      } else {
+        return null;
+      }
     }
 
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from('PDF_Bucket')
+      .from(bucketName)
       .getPublicUrl(fileName);
 
+    console.log('✅ PDF uploaded successfully:', urlData.publicUrl);
     return urlData.publicUrl;
   } catch (err) {
     console.error('❌ Exception in uploadPDFToStorage:', err);
