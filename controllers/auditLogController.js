@@ -61,7 +61,6 @@ async function logAuditEvent({
       return { success: false, message: error.message };
     }
 
-    console.log('✅ Audit log recorded:', action, 'by', username);
     return { success: true, data: data?.[0] };
   } catch (err) {
     console.error('❌ Audit Log Error:', err);
@@ -135,7 +134,6 @@ async function fetchAuditLogs({
       return [];
     }
 
-    console.log('✅ Fetched audit logs:', data?.length || 0, 'records');
     return data || [];
   } catch (err) {
     console.error('❌ Fetch Audit Logs Error:', err);

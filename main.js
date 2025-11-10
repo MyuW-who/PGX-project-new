@@ -380,7 +380,6 @@ ipcMain.handle('get-rulebase', async () => {
 // 🔄 Import Excel to Supabase
 ipcMain.handle('import-excel-to-supabase', async (event, excelFileName) => {
   try {
-    console.log('📤 Importing Excel to Supabase:', excelFileName);
     const result = await importExcelToSupabase(excelFileName);
     return result;
   } catch (err) {
@@ -392,7 +391,6 @@ ipcMain.handle('import-excel-to-supabase', async (event, excelFileName) => {
 // 🔄 Refresh Rulebase Cache
 ipcMain.handle('refresh-rulebase', async () => {
   try {
-    console.log('🔄 Refreshing rulebase cache...');
     const result = await refreshRulebase();
     return { success: true, data: result };
   } catch (err) {
@@ -439,10 +437,9 @@ ipcMain.handle('get-audit-stats', async () => {
 });
 
 // �🚀 เริ่มต้น
-// � Dashboard Report Handlers
+// 📊 Dashboard Report Handlers
 ipcMain.handle('get-dashboard-summary', async (event, timeFilter = 'today') => {
   try {
-    console.log('📊 Getting dashboard summary for:', timeFilter);
     const summary = await getDashboardSummary(timeFilter);
     return { success: true, data: summary };
   } catch (err) {
@@ -517,12 +514,11 @@ app.on('window-all-closed', () => {
 // 🟥 ปิดแอปเมื่อได้รับ event จาก renderer
 // 🟥 ปิดแอปเมื่อได้รับ event จาก renderer
 ipcMain.on('window-close', () => {
-  console.log("🟥 IPC received: window-close");
   if (mainWindow) {
-    console.log("🟢 Closing mainWindow...");
     mainWindow.close();
   } else {
     console.error("❌ mainWindow not found");
   }
 });
+
 

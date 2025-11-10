@@ -47,7 +47,6 @@ async function getTestRequestsByTimeFilter(timeFilter = 'today') {
     }
 
     const startDateStr = startDate.toISOString().split('T')[0];
-    console.log(`📅 Filtering test requests from ${startDateStr} (${timeFilter})`);
 
     const { data, error } = await supabase
       .from('test_request')
@@ -58,11 +57,6 @@ async function getTestRequestsByTimeFilter(timeFilter = 'today') {
     if (error) {
       console.error('❌ Error fetching test requests by time:', error.message);
       return [];
-    }
-
-    console.log(`✅ Found ${data?.length || 0} test requests`);
-    if (data && data.length > 0) {
-      console.log('📋 Sample request:', data[0]);
     }
 
     return data || [];
@@ -370,42 +364,18 @@ async function getTATStats(timeFilter = 'today') {
  */
 async function getDashboardSummary(timeFilter = 'today') {
   try {
-    console.log('📊 getDashboardSummary called with timeFilter:', timeFilter);
-    
-    console.log('📊 Fetching test request stats...');
     const stats = await getTestRequestStats(timeFilter);
-    console.log('✅ Stats:', stats);
-    
-    console.log('📊 Fetching TAT stats...');
     const tatStats = await getTATStats(timeFilter);
-    console.log('✅ TAT Stats:', tatStats);
-    
-    console.log('📊 Fetching top DNA types...');
     const topDNA = await getTopDNATypes(5, timeFilter);
-    console.log('✅ Top DNA:', topDNA);
-    
-    console.log('📊 Fetching top specimens...');
     const topSpecimens = await getTopSpecimens(5, timeFilter);
-    console.log('✅ Top Specimens:', topSpecimens);
-    
-    console.log('📊 Fetching rejected specimens...');
     const rejectedSpecimens = await getRejectedSpecimens(timeFilter);
-    console.log('✅ Rejected Specimens:', rejectedSpecimens);
-    
-    console.log('📊 Fetching time series...');
     const timeSeries = await getTestRequestsTimeSeries('daily', timeFilter);
-    console.log('✅ Time Series:', timeSeries);
-    
-    console.log('📊 Fetching error rate series...');
     const errorRateSeries = await getErrorRateTimeSeries('week');
-    console.log('✅ Error Rate Series:', errorRateSeries);
 
     // Calculate rejection rate
     const rejectionRate = stats.total > 0 
       ? ((stats.error / stats.total) * 100).toFixed(1)
       : 0;
-    
-    console.log('✅ Rejection Rate:', rejectionRate);
 
     const summary = {
       stats,
@@ -418,7 +388,6 @@ async function getDashboardSummary(timeFilter = 'today') {
       rejectionRate: parseFloat(rejectionRate)
     };
     
-    console.log('✅ Dashboard summary complete:', summary);
     return summary;
   } catch (err) {
     console.error('❌ Exception in getDashboardSummary:', err);
