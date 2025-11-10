@@ -38,6 +38,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteTestRequest: (requestId) => ipcRenderer.invoke('delete-test-request', requestId),
   getTestRequestStats: (timeFilter) => ipcRenderer.invoke('get-test-request-stats',timeFilter),
   getSpecimenSLA: () => ipcRenderer.invoke('get-specimen-sla'),
+  confirmTestRequest: (requestId, userId) => ipcRenderer.invoke('confirm-test-request', requestId, userId),
+  rejectTestRequest: (requestId, userId, reason) => ipcRenderer.invoke('reject-test-request', requestId, userId, reason),
   predictPhenotype: (dnaType, alleles) => ipcRenderer.invoke('predict-phenotype', dnaType, alleles),
   getAvailableAlleles: (dnaType) => ipcRenderer.invoke('get-available-alleles', dnaType),
   getAllelePossibleValues: (dnaType, alleleName) => ipcRenderer.invoke('get-allele-possible-values', dnaType, alleleName),
@@ -58,6 +60,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getErrorRateSeries: (range) => ipcRenderer.invoke('get-error-rate-series', range),
   getUsageTimeSeries: (range, timeFilter) => ipcRenderer.invoke('get-usage-time-series', range, timeFilter),
   getTATStats: (timeFilter) => ipcRenderer.invoke('get-tat-stats', timeFilter),
+  
+  // PGx Report APIs
+  findDiplotype: (geneSymbol, genotype) => ipcRenderer.invoke('find-diplotype', geneSymbol, genotype),
+  createPgxReport: (testData) => ipcRenderer.invoke('create-pgx-report', testData),
+  
   closeApp: () => ipcRenderer.send('window-close'),
 });
 

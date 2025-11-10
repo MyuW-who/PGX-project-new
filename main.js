@@ -57,6 +57,14 @@ const {
   deleteSpecimen
 } = require('./controllers/specimenController');
 
+const {
+  findDiplotype,
+  createReport,
+  generatePGxPDF,
+  uploadPDFToStorage,
+  processCompleteReport
+} = require('./controllers/pgxReportController');
+
 // Password hashing configuration
 const SALT_ROUNDS = 10;
 
@@ -95,6 +103,7 @@ ipcMain.on('navigate', (event, page) => {
     'input_step3_medtech': 'view/Role_medtech/input_step3_medtech.html',
     'profile_medtech': 'view/Role_medtech/profile_medtech.html',
     'state_medtech': 'view/Role_medtech/state_informaiton_medtech.html',
+    'showpdf_medtech': 'view/Role_medtech/show_pdf.html',
     
     // Pharmacy pages
     'dashboard_pharmacy': 'view/Role_pharmacy/dashboard_pharmacy.html',
@@ -319,6 +328,28 @@ ipcMain.handle('add-test-request', async (event, requestData) => {
   }
 });
 
+// Confirm test request
+ipcMain.handle('confirm-test-request', async (event, requestId, userId) => {
+  try {
+    const { confirmTestRequest } = require('./controllers/testRequestController');
+    return await confirmTestRequest(requestId, userId);
+  } catch (err) {
+    console.error('❌ Confirm Test Request Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาด' };
+  }
+});
+
+// Reject test request
+ipcMain.handle('reject-test-request', async (event, requestId, userId, reason) => {
+  try {
+    const { rejectTestRequest } = require('./controllers/testRequestController');
+    return await rejectTestRequest(requestId, userId, reason);
+  } catch (err) {
+    console.error('❌ Reject Test Request Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาด' };
+  }
+});
+
 ipcMain.handle('update-test-request', async (event, payload) => {
   try {
     const { requestId, data } = payload || {};
@@ -348,6 +379,26 @@ ipcMain.handle('get-test-request-stats', async (event, timeFilter = 'today') => 
     return { all: 0, need2Confirmation: 0, need1Confirmation: 0, done: 0, reject: 0 };
   }
 });
+
+// 📊 PGx Report Handlers
+ipcMain.handle('find-diplotype', async (event, geneSymbol, genotype) => {
+  try {
+    return await findDiplotype(geneSymbol, genotype);
+  } catch (err) {
+    console.error('❌ Find Diplotype Error:', err.message);
+    return null;
+  }
+});
+
+ipcMain.handle('create-pgx-report', async (event, testData) => {
+  try {
+    return await processCompleteReport(testData);
+  } catch (err) {
+    console.error('❌ Create PGx Report Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการสร้างรายงาน' };
+  }
+});
+
 
 ipcMain.handle('get-specimen-sla', async () => {
   try {
