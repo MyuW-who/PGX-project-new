@@ -94,12 +94,15 @@ function storeUserSession(userData) {
     username: userData.username,
     role: userData.role,
     hospital_id: userData.hospital_id,
+    first_name: userData.first_name,
+    last_name: userData.last_name,
+    doctor_name: userData.doctor_name,
     loginTime: new Date().toISOString(),
     sessionId: generateSessionId()
   };
   localStorage.setItem('userSession', JSON.stringify(sessionData));
   sessionStorage.setItem('currentUser', JSON.stringify(sessionData));
-  console.log('✅ User session stored:', sessionData.username, sessionData.role);
+  console.log('✅ User session stored:', sessionData.doctor_name || sessionData.username, sessionData.role);
   return sessionData;
 }
 function generateSessionId() { return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9); }
