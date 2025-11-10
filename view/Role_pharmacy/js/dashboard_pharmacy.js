@@ -6,15 +6,26 @@
 let chartInstances = {};
 let dashboardData = null;
 let currentTimeFilter = 'week'; // Changed from 'today' to 'week' to show existing data
+let lastFetchTime = null;
+const CACHE_DURATION = 60000; // Cache for 1 minute
 
 /* ============================================================
    📥 FETCH DASHBOARD DATA FROM DATABASE
    ------------------------------------------------------------
-   ▶️ Get real data from test_request table
+   ▶️ Get real data from test_request table with caching
 ============================================================ */
-async function fetchDashboardData(timeFilter = 'today') {
+async function fetchDashboardData(timeFilter = 'today', forceRefresh = false) {
   try {
-    console.log('📊 Fetching dashboard data for:', timeFilter);
+    // Check if we can use cached data
+    const now = Date.now();
+    if (!forceRefresh && dashboardData && lastFetchTime && 
+        (now - lastFetchTime < CACHE_DURATION) && 
+        currentTimeFilter === timeFilter) {
+      console.log('� Using cached dashboard data');
+      return dashboardData;
+    }
+    
+    console.log('�📊 Fetching dashboard data for:', timeFilter);
     const result = await window.electronAPI.getDashboardSummary(timeFilter);
     
     console.log('📊 Dashboard result:', result);
@@ -22,6 +33,7 @@ async function fetchDashboardData(timeFilter = 'today') {
     if (result.success && result.data) {
       dashboardData = result.data;
       currentTimeFilter = timeFilter;
+      lastFetchTime = now;
       console.log('✅ Dashboard data loaded:', dashboardData);
       return dashboardData;
     } else {
@@ -615,17 +627,19 @@ async function initDashboard() {
       return;
     }
     
-    console.log('📊 Rendering components...');
+    console.log('📊 Rendering components in parallel...');
     
-    // Render all components
-    await renderMetrics();
-    await renderUsageChart();
-    await renderTATChart();
-    await renderGaugeChart();
-    await renderErrorRateChart();
-    await renderTopRejectsChart();
-    await renderTopDNAChart();
-    await renderTopHospitalsChart();
+    // Render all components in parallel for faster loading
+    await Promise.all([
+      renderMetrics(),
+      renderUsageChart(),
+      renderTATChart(),
+      renderGaugeChart(),
+      renderErrorRateChart(),
+      renderTopRejectsChart(),
+      renderTopDNAChart(),
+      renderTopHospitalsChart()
+    ]);
     
     console.log('✅ Dashboard initialized successfully');
   } catch (err) {

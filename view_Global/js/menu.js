@@ -5,34 +5,34 @@
 ============================================================ */
 
 // Medtech navigation
-const patient_btn = document.getElementById('patient-btn');
-patient_btn?.addEventListener('click', () => {
+const patient_btn_medtech = document.getElementById('patient-btn-medtech');
+patient_btn_medtech?.addEventListener('click', () => {
   window.electronAPI.navigate('patient_medtech');
 });
 
-const information_btn = document.getElementById('information-btn');
-information_btn?.addEventListener('click', () => {
+const information_btn_medtech = document.getElementById('information-btn-medtech');
+information_btn_medtech?.addEventListener('click', () => {
   window.electronAPI.navigate('information_medtech');
 });
 
-const dashboard_btn = document.getElementById('dashboard-btn');
-dashboard_btn?.addEventListener('click', () => {
+const dashboard_btn_medtech = document.getElementById('dashboard-btn-medtech');
+dashboard_btn_medtech?.addEventListener('click', () => {
   window.electronAPI.navigate('dashboard_medtech');
 });
 
 // Pharmacy navigation
-const information_btn1 = document.getElementById('information-btn1');
-information_btn1?.addEventListener('click', () => {
+const information_btn_pharmacy = document.getElementById('information-btn-pharmacy');
+information_btn_pharmacy?.addEventListener('click', () => {
   window.electronAPI.navigate('information_pharmacy');
 });
 
-const dashboard_btn1 = document.getElementById('dashboard-btn1');
-dashboard_btn1?.addEventListener('click', () => {
+const dashboard_btn_pharmacy = document.getElementById('dashboard-btn-pharmacy');
+dashboard_btn_pharmacy?.addEventListener('click', () => {
   window.electronAPI.navigate('dashboard_pharmacy');
 });
 
-const verify_btn = document.getElementById('verify-btn');
-verify_btn?.addEventListener('click', () => {
+const verify_btn_pharmacy = document.getElementById('verify-btn-pharmacy');
+verify_btn_pharmacy?.addEventListener('click', () => {
   window.electronAPI.navigate('verify_pharmacy');
 });
 

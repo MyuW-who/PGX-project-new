@@ -364,13 +364,24 @@ async function getTATStats(timeFilter = 'today') {
  */
 async function getDashboardSummary(timeFilter = 'today') {
   try {
-    const stats = await getTestRequestStats(timeFilter);
-    const tatStats = await getTATStats(timeFilter);
-    const topDNA = await getTopDNATypes(5, timeFilter);
-    const topSpecimens = await getTopSpecimens(5, timeFilter);
-    const rejectedSpecimens = await getRejectedSpecimens(timeFilter);
-    const timeSeries = await getTestRequestsTimeSeries('daily', timeFilter);
-    const errorRateSeries = await getErrorRateTimeSeries('week');
+    // Execute all database queries in parallel for faster performance
+    const [
+      stats,
+      tatStats,
+      topDNA,
+      topSpecimens,
+      rejectedSpecimens,
+      timeSeries,
+      errorRateSeries
+    ] = await Promise.all([
+      getTestRequestStats(timeFilter),
+      getTATStats(timeFilter),
+      getTopDNATypes(5, timeFilter),
+      getTopSpecimens(5, timeFilter),
+      getRejectedSpecimens(timeFilter),
+      getTestRequestsTimeSeries('daily', timeFilter),
+      getErrorRateTimeSeries('week')
+    ]);
 
     // Calculate rejection rate
     const rejectionRate = stats.total > 0 
