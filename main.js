@@ -94,6 +94,7 @@ ipcMain.on('navigate', (event, page) => {
     'input_step2_medtech': 'view/Role_medtech/input_step2_medtech.html',
     'input_step3_medtech': 'view/Role_medtech/input_step3_medtech.html',
     'profile_medtech': 'view/Role_medtech/profile_medtech.html',
+    'state_medtech': 'view/Role_medtech/state_informaiton_medtech.html',
     
     // Pharmacy pages
     'dashboard_pharmacy': 'view/Role_pharmacy/dashboard_pharmacy.html',
