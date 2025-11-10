@@ -1,60 +1,9 @@
 /* ============================================
-   🔐 SESSION MANAGEMENT FUNCTIONS
+   ⚙️ ADMIN SETTINGS PAGE
+   ============================================
+   Manage categories, specimens, and TAT settings
+   Uses userProfile.js for session management
    ============================================ */
-
-// Get current user from session
-function getCurrentUser() {
-  try {
-    const sessionData = sessionStorage.getItem('currentUser');
-    return sessionData ? JSON.parse(sessionData) : null;
-  } catch (error) {
-    console.error('❌ Error reading current user:', error);
-    return null;
-  }
-}
-
-// Check authentication and redirect if not logged in
-function checkAuthentication() {
-  const currentUser = getCurrentUser();
-  if (!currentUser) {
-    console.log('🚫 No authenticated user found, redirecting to login...');
-    window.electronAPI.navigate('login');
-    return false;
-  }
-  return true;
-}
-
-// Update user display in header
-function updateUserDisplay() {
-  const currentUser = getCurrentUser();
-  if (currentUser) {
-    const dropdownBtn = document.getElementById('dropdownBtn');
-    if (dropdownBtn) {
-      dropdownBtn.innerHTML = `
-        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
-      `;
-    }
-    
-    if (currentUser.hospital_id) {
-      console.log('🏥 Hospital:', currentUser.hospital_id);
-    }
-  }
-}
-
-/* ============================================
-   🧭 NAVIGATION HANDLERS
-   ============================================ */
-
-// Logout handler
-const logoutBtn = document.getElementById('logout');
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    sessionStorage.clear();
-    console.log('🚪 User logged out');
-    window.electronAPI.navigate('login');
-  });
-}
 
 /* ============================================
    📋 CATEGORY MANAGEMENT
@@ -127,46 +76,20 @@ function handleSpecimenSubmit(event) {
    🚀 INITIALIZATION
    ============================================ */
 
-// Check authentication on page load
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🚀 Admin Settings page loaded');
   
-  if (!checkAuthentication()) {
-    return;
+  // Initialize user profile (includes auth check and UI setup)
+  if (!initializeUserProfile()) {
+    return; // User not authenticated, redirected to login
   }
-  
-  updateUserDisplay();
 });
 
-renderCategoryOptions();
+// Event listeners for forms
 categoryForm.addEventListener("submit", handleCategorySubmit);
 tatForm.addEventListener("submit", handleTatSubmit);
 specimenForm.addEventListener("submit", handleSpecimenSubmit);
 
-const profileDropdown = document.querySelector('.dropdown');
-const profileToggle = document.querySelector('.dropdown-toggle');
-
-if (profileDropdown && profileToggle) {
-  profileToggle.addEventListener('click', (event) => {
-    event.stopPropagation();
-    profileDropdown.classList.toggle('open');
-  });
-
-  document.addEventListener('click', (event) => {
-    if (!profileDropdown.contains(event.target)) {
-      profileDropdown.classList.remove('open');
-    }
-  });
-}
-
-const themeToggle = document.getElementById("themeToggle");
-
-if (themeToggle) {
-  themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark-theme");
-    const icon = themeToggle.querySelector("i");
-    if (!icon) return;
-    const dark = document.body.classList.contains("dark-theme");
-    icon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
-  });
-}
+// Initialize category options
+renderCategoryOptions();
