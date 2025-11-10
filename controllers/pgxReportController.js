@@ -91,7 +91,11 @@ async function generatePGxPDF(reportInfo) {
       const reportId = reportInfo.report_id || reportInfo.request_id || timestamp;
       const fileName = `PGx_${reportInfo.patientId}_${reportInfo.test_target}_${reportId}.pdf`;
 
-      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      const doc = new PDFDocument({ 
+        margin: 50, 
+        size: 'A4',
+        bufferPages: true
+      });
       
       // Collect PDF data in memory instead of writing to file
       const chunks = [];
@@ -102,7 +106,7 @@ async function generatePGxPDF(reportInfo) {
       });
       doc.on('error', reject);
 
-      // Load Thai font once
+      // Load Thai font
       const fontPath = path.join(__dirname, '..', 'fonts', 'Sarabun-Regular.ttf');
       const fontBoldPath = path.join(__dirname, '..', 'fonts', 'Sarabun-Bold.ttf');
       
@@ -118,145 +122,252 @@ async function generatePGxPDF(reportInfo) {
         doc.registerFont('THSarabunBold', fontBoldPath);
       }
       
-      // Helper function for bold text
+      // Helper functions
       const setBold = () => hasBoldFont && doc.font('THSarabunBold');
       const setRegular = () => hasRegularFont && doc.font('THSarabun');
 
-    // Header - Laboratory Name
-    doc.fontSize(18);
-    setBold();
-    doc.text('ห้องปฏิบัติการเภสัชพันธุศาสตร์', { align: 'center' });
+    // === HEADER SECTION ===
+    // Purple line at top
+    doc.rect(50, 40, doc.page.width - 100, 3).fill('#8B4789');
     
-    doc.fontSize(16);
+    // Logo area (left side) - PPM Logo placeholder
+    doc.fontSize(8).fillColor('#000000');
     setRegular();
-    doc.text('(Laboratory for Pharmacogenomics)', { align: 'center' });
-    doc.moveDown(0.3);
+    doc.text('รหัสเอกสาร: LAB-02-2374', doc.page.width - 150, 33, { width: 100, align: 'right' });
     
-    // Contact Information
-    doc.fontSize(9).text(
-      '6th Floor, Bumrungrat Hospital East tower, Department of Pathology, Faculty of Medicine, Ramathibodi Hospital\nTel. +662-200-4321 Fax +662-200-4322',
-      { align: 'center' }
+    // Main header box
+    const headerY = 55;
+    doc.rect(50, headerY, doc.page.width - 100, 75).stroke('#000000');
+    
+    // Laboratory name - Thai
+    doc.fontSize(14);
+    setBold();
+    doc.fillColor('#000000').text('ห้องปฏิบัติการเภสัชพันธุศาสตร์', 50, headerY + 12, { 
+      align: 'center',
+      width: doc.page.width - 100
+    });
+    
+    // Laboratory name - English
+    doc.fontSize(11);
+    setRegular();
+    doc.text('(Laboratory for Pharmacogenomics)', 50, headerY + 30, {
+      align: 'center',
+      width: doc.page.width - 100
+    });
+    
+    // Address
+    doc.fontSize(7.5);
+    doc.text(
+      '6th Floor, Bumrungrat Plus Department Medical Centre, Department of Pathology, Faculty of Medicine',
+      50,
+      headerY + 47,
+      { align: 'center', width: doc.page.width - 100 }
     );
+    doc.text(
+      'Ramathibodi Hospital Tel. +662-200-4321 Fax +662-200-4322',
+      50,
+      headerY + 57,
+      { align: 'center', width: doc.page.width - 100 }
+    );
+    
+    doc.y = headerY + 85;
+
+    // === TITLE ===
+    doc.fontSize(11);
+    setBold();
+    doc.fillColor('#000000').text('PHARMACOGENOMICS AND PERSONALIZED MEDICINE REPORT', { 
+      align: 'center'
+    });
     doc.moveDown(1);
 
-    // Title
-    doc.fontSize(13);
-    setBold();
-    doc.text('PHARMACOGENOMICS AND PERSONALIZED MEDICINE REPORT', { 
-      align: 'center', 
-      underline: true 
-    });
-    doc.moveDown(1.2);
-
-    // Patient Information Section
+    // === PATIENT INFORMATION BOX ===
+    const patientBoxY = doc.y;
+    doc.rect(50, patientBoxY, doc.page.width - 100, 110).stroke('#000000');
+    
     setRegular();
-    doc.fontSize(11);
+    doc.fontSize(9);
+    doc.fillColor('#000000');
     
-    const leftCol = 70;
-    const leftVal = 200;
-    const rightCol = 320;
-    const rightVal = 430;
+    // Define columns
+    const col1Label = 60;
+    const col1Value = 145;
+    const col2Label = 310;
+    const col2Value = 395;
     
-    // Patient info rows
-    const patientInfo = [
-      ['ชื่อ-สกุล (Name):', reportInfo.patientName || 'N/A', 'อายุ (Age):', `${reportInfo.patientAge || 'N/A'} ปี (years)`],
-      ['เลขประจำตัวผู้ป่วย (HN):', reportInfo.patientId || 'N/A', 'เพศ (Gender):', reportInfo.patientGender || 'N/A'],
-      ['ชนิดสิ่งส่งตรวจ (Specimen):', reportInfo.specimen || 'Blood', 'เลขที่รับผล (Patient#):', reportInfo.patientNumber || 'N/A'],
-      ['โรงพยาบาล (Hospital):', reportInfo.hospital || 'N/A', 'วันที่รับตัวอย่าง (Create date):', reportInfo.createDate || new Date().toLocaleDateString('th-TH')],
-      ['แพทย์ผู้ส่งตรวจ (Clinician):', reportInfo.doctorName || 'N/A', 'วันที่รายงานผล (Update date):', reportInfo.updateDate || new Date().toLocaleDateString('th-TH')]
-    ];
+    let y = patientBoxY + 10;
+    const lineHeight = 16;
+    
+    // Row 1: Name and Age
+    doc.text('ชื่อ-สกุล (Name):', col1Label, y);
+    doc.text(reportInfo.patientName || 'N/A', col1Value, y);
+    doc.text('อายุ (Age):', col2Label, y);
+    doc.text(`${reportInfo.patientAge || 'N/A'} ปี (years)`, col2Value, y);
+    
+    y += lineHeight;
+    // Row 2: HN and Gender
+    doc.text('เลขประจำตัวผู้ป่วย (HN):', col1Label, y);
+    doc.text(reportInfo.patientId || 'N/A', col1Value, y);
+    doc.text('เพศ (Gender):', col2Label, y);
+    doc.text(reportInfo.patientGender || 'N/A', col2Value, y);
+    
+    y += lineHeight;
+    // Row 3: Specimen and Patient#
+    doc.text('ชนิดสิ่งส่งตรวจ (Specimen):', col1Label, y);
+    doc.text(reportInfo.specimen || 'Blood', col1Value, y);
+    doc.text('เลขที่รับผล (Patient#):', col2Label, y);
+    doc.text(reportInfo.patientNumber || reportInfo.request_id || 'N/A', col2Value, y);
+    
+    y += lineHeight;
+    // Row 4: Hospital and Create date
+    doc.text('โรงพยาบาล (Hospital):', col1Label, y);
+    doc.text(reportInfo.hospital || 'hospital', col1Value, y);
+    doc.text('วันที่รับตัวอย่าง (Create date):', col2Label, y);
+    doc.text(reportInfo.createDate || new Date().toLocaleDateString('th-TH'), col2Value, y);
+    
+    y += lineHeight;
+    // Row 5: Clinician and Update date
+    doc.text('แพทย์ผู้ส่งตรวจ (Clinician):', col1Label, y);
+    doc.text(reportInfo.doctorName || 'N/A', col1Value, y);
+    doc.text('วันที่รายงานผล (Update date):', col2Label, y);
+    doc.text(reportInfo.updateDate || new Date().toLocaleDateString('th-TH'), col2Value, y);
+    
+    y += lineHeight;
+    // Row 6: Physician
+    doc.text('แพทย์ผู้รับผิดชอบ (Physician) / doc.name:', col1Label, y);
+    doc.text(reportInfo.responsibleDoctor || reportInfo.doctorName || 'Doc_name', col1Value, y);
 
-    let y = doc.y;
-    patientInfo.forEach(row => {
-      doc.text(row[0], leftCol, y);
-      doc.text(row[1], leftVal, y);
-      doc.text(row[2], rightCol, y);
-      doc.text(row[3], rightVal, y);
-      y += 18;
-    });
+    doc.y = patientBoxY + 125;
 
-    doc.text('แพทย์ผู้รับผิดชอบ (Physician) / doc.name:', leftCol, y);
-    doc.text(reportInfo.responsibleDoctor || reportInfo.doctorName || 'N/A', leftVal, y);
-
-    doc.moveDown(2);
-
-    // Test Results Section
-    doc.fontSize(13);
+    // === TEST RESULTS SECTION ===
+    // Section title with gene and score
+    doc.fontSize(10);
     setBold();
-    doc.text(
-      `${reportInfo.test_target} genotyping: ${reportInfo.activityScore || 'n/a'}`,
-      { underline: true }
-    );
-    doc.moveDown(0.8);
+    doc.text(`${reportInfo.test_target} genotyping: ${reportInfo.activityScore || 'N/A'} (จำนวนคะแนนสภาพ ${reportInfo.activityScore || ''})`, {
+      align: 'left'
+    });
+    doc.moveDown(0.5);
 
     // Gene name
-    doc.fontSize(11);
+    doc.fontSize(9);
+    setBold();
     doc.text(`${reportInfo.test_target} gene`);
-    setRegular();
     doc.moveDown(0.3);
 
-    // Allele table - formatted horizontally
+    // === ALLELE TABLE ===
     if (reportInfo.alleles?.length > 0) {
-      const alleleText = reportInfo.alleles.map(a => `${a.name}  ${a.value}`).join('     ');
-      doc.text(alleleText);
+      const tableY = doc.y;
+      const tableX = 105;
+      const numAlleles = reportInfo.alleles.length;
+      const cellWidth = 105;
+      const cellHeight = 22;
+      const tableWidth = cellWidth * numAlleles;
+      
+      setRegular();
+      doc.fontSize(9);
+      
+      // Draw outer box
+      doc.rect(tableX, tableY, tableWidth, cellHeight * 2).stroke('#000000');
+      
+      // Draw vertical separators
+      for (let i = 1; i < numAlleles; i++) {
+        const x = tableX + (cellWidth * i);
+        doc.moveTo(x, tableY).lineTo(x, tableY + cellHeight * 2).stroke('#000000');
+      }
+      
+      // Draw horizontal separator
+      doc.moveTo(tableX, tableY + cellHeight).lineTo(tableX + tableWidth, tableY + cellHeight).stroke('#000000');
+      
+      // Fill header and value cells
+      reportInfo.alleles.forEach((allele, index) => {
+        const x = tableX + (cellWidth * index);
+        
+        // Header (allele name)
+        doc.text(allele.name, x + 5, tableY + 6, { 
+          width: cellWidth - 10, 
+          align: 'center' 
+        });
+        
+        // Value
+        doc.text(allele.value, x + 5, tableY + cellHeight + 6, { 
+          width: cellWidth - 10, 
+          align: 'center' 
+        });
+      });
+      
+      doc.y = tableY + cellHeight * 2 + 15;
     }
 
-    doc.moveDown(0.8);
+    // === GENOTYPE, ACTIVITY SCORE, PHENOTYPE ===
+    setRegular();
+    doc.fontSize(9);
+    let resultY = doc.y;
     
-    // Results with bold labels
-    const results = [
-      ['Genotype:', reportInfo.genotype || 'N/A'],
-      ['Total activity score:', reportInfo.activityScore || 'n/a'],
-      ['Predicted Phenotype:', reportInfo.predicted_phenotype || 'N/A']
-    ];
+    doc.text('Genotype:', 60, resultY);
+    doc.text(reportInfo.genotype || 'N/A', 200, resultY);
+    
+    resultY += 15;
+    doc.text('Total activity score:', 60, resultY);
+    doc.text(String(reportInfo.activityScore || 'N/A'), 200, resultY);
+    
+    resultY += 15;
+    doc.text('Predicted Phenotype:', 60, resultY);
+    doc.text(reportInfo.predicted_phenotype || 'N/A', 200, resultY);
+    
+    doc.y = resultY + 20;
 
-    results.forEach(([label, value]) => {
-      setBold();
-      doc.text(label, { continued: true });
-      setRegular();
-      doc.text(`  ${value}`);
-    });
-
-    doc.moveDown(1);
-
-    // Genotype Summary
+    // === GENOTYPE SUMMARY ===
+    doc.fontSize(9);
     setBold();
     doc.text('Genotype Summary:');
+    doc.moveDown(0.3);
+    
     setRegular();
-    doc.text(reportInfo.genotype_summary || 'An individual carrying two normal function alleles', {
+    const summaryText = reportInfo.genotype_summary || 'An individual carrying two normal function alleles';
+    doc.text(summaryText, {
+      width: doc.page.width - 120,
       align: 'left',
-      width: 480,
-      lineGap: 2
+      lineGap: 1
     });
-
+    
     doc.moveDown(1);
 
-    // Recommendation section
+    // === RECOMMENDATION ===
     setBold();
     doc.text('recommendation:');
+    doc.moveDown(0.3);
+    
     setRegular();
-    doc.text(reportInfo.recommendation || 'Please consult a clinical pharmacist for more specific dosing information.', {
+    const recText = reportInfo.recommendation || 'This result signifies that the patient has [1 copy of a decreased function allele with an activity value of 0.5 (*_*)] or [2 copies of a decreased function allele with an activity value of 0.5 (*_*)] and one copy of a no function allele (*_*) OR two copies for a decreased function allele with an activity value of 0.25 (*_*). Based on the genotype result this patient is predicted to be an intermediate metabolizer for CYP2D6 substrates. This patient may be at risk for an adverse or poor response to medications that are metabolized by CYP2D6. To avoid an untoward drug response, dose adjustments may be necessary for medications metabolized by CYP2D6. Please consult a clinical pharmacist for more information about how CYP2D6 metabolic status influences drug selection and dosing.';
+    doc.text(recText, {
+      width: doc.page.width - 120,
       align: 'left',
-      width: 480,
-      lineGap: 2
+      lineGap: 1
     });
 
-    doc.moveDown(3);
-
-    // Signature section
-    doc.fontSize(10);
-    doc.text('วิธีการในการตรวจและผลทดลอง\nวิธีการในการทดลองผลการทดลอง', { align: 'center' });
-
-    // Footer - positioned at bottom of page
-    const footerY = doc.page.height - 60;
+    // === SIGNATURE BOX ===
+    const sigBoxY = doc.page.height - 120;
+    doc.rect(90, sigBoxY, 415, 40).stroke('#000000');
+    
     doc.fontSize(8);
+    doc.text('วิธีการและผลการตรวจของสิ่งส่ง', 95, sigBoxY + 5);
+    doc.text('วิธีการและผลการตรวจของสิ่งส่ง', 310, sigBoxY + 5);
+
+    // === FOOTER ===
+    const footerY = doc.page.height - 40;
+    doc.fontSize(7);
+    setRegular();
     doc.text(
-      `สร้างรายงาน-04-${reportInfo.createDate || new Date().toLocaleDateString('th-TH').replace(/\//g, '-')}`,
+      `รหัสรายงาน:LAB-02-044 Rev:2 24.11.61`,
       50,
       footerY,
-      { align: 'left', width: 250 }
+      { align: 'left' }
     );
-    doc.text('Page 1 of 2', doc.page.width - 150, footerY, { align: 'right', width: 100 });
+    doc.text(
+      `Page 1 of 2`,
+      doc.page.width - 100,
+      footerY,
+      { align: 'right', width: 50 }
+    );
 
     doc.end();
     } catch (err) {
@@ -382,7 +493,7 @@ async function processCompleteReport(testData) {
       report_id: reportId,
       genotype_summary: genotypeDescription,
       recommendation: consultationText,
-      activityScore: diplotype?.totalactivityscore || testData.activityScore || 'N/A'
+      activityScore: diplotype?.totalactivityscore || 'N/A'
     };
 
     const { buffer: pdfBuffer, fileName } = await generatePGxPDF(pdfInfo);
