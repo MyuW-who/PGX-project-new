@@ -57,6 +57,14 @@ const {
   deleteSpecimen
 } = require('./controllers/specimenController');
 
+const {
+  findDiplotype,
+  createReport,
+  generatePGxPDF,
+  uploadPDFToStorage,
+  processCompleteReport
+} = require('./controllers/pgxReportController');
+
 // Password hashing configuration
 const SALT_ROUNDS = 10;
 
@@ -348,6 +356,26 @@ ipcMain.handle('get-test-request-stats', async (event, timeFilter = 'today') => 
     return { all: 0, need2Confirmation: 0, need1Confirmation: 0, done: 0, reject: 0 };
   }
 });
+
+// 📊 PGx Report Handlers
+ipcMain.handle('find-diplotype', async (event, geneSymbol, genotype) => {
+  try {
+    return await findDiplotype(geneSymbol, genotype);
+  } catch (err) {
+    console.error('❌ Find Diplotype Error:', err.message);
+    return null;
+  }
+});
+
+ipcMain.handle('create-pgx-report', async (event, testData) => {
+  try {
+    return await processCompleteReport(testData);
+  } catch (err) {
+    console.error('❌ Create PGx Report Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการสร้างรายงาน' };
+  }
+});
+
 
 ipcMain.handle('get-specimen-sla', async () => {
   try {
