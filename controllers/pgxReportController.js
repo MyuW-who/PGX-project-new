@@ -92,12 +92,12 @@ async function generatePGxPDF(reportInfo) {
       const fileName = `PGx_${reportInfo.patientId}_${reportInfo.test_target}_${reportId}.pdf`;
 
       const doc = new PDFDocument({ 
-        margin: 50, 
+        margin: 40, 
         size: 'A4',
-        bufferPages: true
+        bufferPages: false
       });
       
-      // Collect PDF data in memory instead of writing to file
+      // Collect PDF data in memory
       const chunks = [];
       doc.on('data', chunk => chunks.push(chunk));
       doc.on('end', () => {
@@ -106,7 +106,7 @@ async function generatePGxPDF(reportInfo) {
       });
       doc.on('error', reject);
 
-      // Load Thai font
+      // Load Thai fonts
       const fontPath = path.join(__dirname, '..', 'fonts', 'Sarabun-Regular.ttf');
       const fontBoldPath = path.join(__dirname, '..', 'fonts', 'Sarabun-Bold.ttf');
       
@@ -128,142 +128,139 @@ async function generatePGxPDF(reportInfo) {
 
     // === HEADER SECTION ===
     // Purple line at top
-    doc.rect(50, 40, doc.page.width - 100, 3).fill('#8B4789');
+    doc.rect(40, 35, doc.page.width - 80, 2.5).fill('#8B4789');
     
-    // Logo area (left side) - PPM Logo placeholder
-    doc.fontSize(8).fillColor('#000000');
+    // Document code
+    doc.fontSize(7).fillColor('#000000');
     setRegular();
-    doc.text('รหัสเอกสาร: LAB-02-2374', doc.page.width - 150, 33, { width: 100, align: 'right' });
+    doc.text('รหัสเอกสาร: LAB-02-2374', doc.page.width - 130, 22, { width: 90, align: 'right' });
     
     // Main header box
-    const headerY = 55;
-    doc.rect(50, headerY, doc.page.width - 100, 75).stroke('#000000');
+    const headerY = 48;
+    const headerHeight = 62;
+    doc.rect(40, headerY, doc.page.width - 80, headerHeight).stroke('#000000');
     
     // Laboratory name - Thai
-    doc.fontSize(14);
+    doc.fontSize(13);
     setBold();
-    doc.fillColor('#000000').text('ห้องปฏิบัติการเภสัชพันธุศาสตร์', 50, headerY + 12, { 
+    doc.fillColor('#000000').text('ห้องปฏิบัติการเภสัชพันธุศาสตร์', 40, headerY + 8, { 
       align: 'center',
-      width: doc.page.width - 100
+      width: doc.page.width - 80
     });
     
     // Laboratory name - English
-    doc.fontSize(11);
+    doc.fontSize(10);
     setRegular();
-    doc.text('(Laboratory for Pharmacogenomics)', 50, headerY + 30, {
+    doc.text('(Laboratory for Pharmacogenomics)', 40, headerY + 24, {
       align: 'center',
-      width: doc.page.width - 100
+      width: doc.page.width - 80
     });
     
     // Address
-    doc.fontSize(7.5);
+    doc.fontSize(7);
     doc.text(
       '6th Floor, Bumrungrat Plus Department Medical Centre, Department of Pathology, Faculty of Medicine',
-      50,
-      headerY + 47,
-      { align: 'center', width: doc.page.width - 100 }
+      40,
+      headerY + 40,
+      { align: 'center', width: doc.page.width - 80 }
     );
     doc.text(
       'Ramathibodi Hospital Tel. +662-200-4321 Fax +662-200-4322',
-      50,
-      headerY + 57,
-      { align: 'center', width: doc.page.width - 100 }
+      40,
+      headerY + 50,
+      { align: 'center', width: doc.page.width - 80 }
     );
     
-    doc.y = headerY + 85;
+    doc.y = headerY + headerHeight + 4;
 
     // === TITLE ===
-    doc.fontSize(11);
+    doc.fontSize(10);
     setBold();
     doc.fillColor('#000000').text('PHARMACOGENOMICS AND PERSONALIZED MEDICINE REPORT', { 
       align: 'center'
     });
-    doc.moveDown(1);
+    doc.moveDown(0.6);
 
     // === PATIENT INFORMATION BOX ===
     const patientBoxY = doc.y;
-    doc.rect(50, patientBoxY, doc.page.width - 100, 110).stroke('#000000');
+    const patientBoxHeight = 88;
+    doc.rect(40, patientBoxY, doc.page.width - 80, patientBoxHeight).stroke('#000000');
     
     setRegular();
-    doc.fontSize(9);
+    doc.fontSize(7.5);
     doc.fillColor('#000000');
     
     // Define columns
-    const col1Label = 60;
-    const col1Value = 145;
-    const col2Label = 310;
-    const col2Value = 395;
+    const col1Label = 48;
+    const col1Value = 148;
+    const col2Label = 300;
+    const col2Value = 405;
     
-    let y = patientBoxY + 10;
-    const lineHeight = 16;
+    let y = patientBoxY + 8;
+    const lineHeight = 14;
     
     // Row 1: Name and Age
-    doc.text('ชื่อ-สกุล (Name):', col1Label, y);
-    doc.text(reportInfo.patientName || 'N/A', col1Value, y);
-    doc.text('อายุ (Age):', col2Label, y);
-    doc.text(`${reportInfo.patientAge || 'N/A'} ปี (years)`, col2Value, y);
+    doc.text('ชื่อ-สกุล (Name):', col1Label, y, { width: 95 });
+    doc.text(reportInfo.patientName || 'N/A', col1Value, y, { width: 145 });
+    doc.text('อายุ (Age):', col2Label, y, { width: 100 });
+    doc.text(`${reportInfo.patientAge || 'N/A'} ปี`, col2Value, y, { width: 110 });
     
     y += lineHeight;
     // Row 2: HN and Gender
-    doc.text('เลขประจำตัวผู้ป่วย (HN):', col1Label, y);
-    doc.text(reportInfo.patientId || 'N/A', col1Value, y);
-    doc.text('เพศ (Gender):', col2Label, y);
-    doc.text(reportInfo.patientGender || 'N/A', col2Value, y);
+    doc.text('เลขประจำตัวผู้ป่วย (HN):', col1Label, y, { width: 95 });
+    doc.text(reportInfo.patientId || 'N/A', col1Value, y, { width: 145 });
+    doc.text('เพศ (Gender):', col2Label, y, { width: 100 });
+    doc.text(reportInfo.patientGender || 'N/A', col2Value, y, { width: 110 });
     
     y += lineHeight;
     // Row 3: Specimen and Patient#
-    doc.text('ชนิดสิ่งส่งตรวจ (Specimen):', col1Label, y);
-    doc.text(reportInfo.specimen || 'Blood', col1Value, y);
-    doc.text('เลขที่รับผล (Patient#):', col2Label, y);
-    doc.text(reportInfo.patientNumber || reportInfo.request_id || 'N/A', col2Value, y);
+    doc.text('ชนิดสิ่งส่งตรวจ (Specimen):', col1Label, y, { width: 95 });
+    doc.text(reportInfo.specimen || 'Nails', col1Value, y, { width: 145 });
+    doc.text('เลขที่รับผล (Patient#):', col2Label, y, { width: 100 });
+    doc.text((reportInfo.patientNumber || reportInfo.request_id || '68').toString(), col2Value, y, { width: 110 });
     
     y += lineHeight;
     // Row 4: Hospital and Create date
-    doc.text('โรงพยาบาล (Hospital):', col1Label, y);
-    doc.text(reportInfo.hospital || 'hospital', col1Value, y);
-    doc.text('วันที่รับตัวอย่าง (Create date):', col2Label, y);
-    doc.text(reportInfo.createDate || new Date().toLocaleDateString('th-TH'), col2Value, y);
+    doc.text('โรงพยาบาล (Hospital):', col1Label, y, { width: 95 });
+    doc.text((reportInfo.hospital || '1').toString(), col1Value, y, { width: 145 });
+    doc.text('วันที่รับตัวอย่าง (Date):', col2Label, y, { width: 100 });
+    doc.text(reportInfo.createDate || '2025-11-10', col2Value, y, { width: 110 });
     
     y += lineHeight;
     // Row 5: Clinician and Update date
-    doc.text('แพทย์ผู้ส่งตรวจ (Clinician):', col1Label, y);
-    doc.text(reportInfo.doctorName || 'N/A', col1Value, y);
-    doc.text('วันที่รายงานผล (Update date):', col2Label, y);
-    doc.text(reportInfo.updateDate || new Date().toLocaleDateString('th-TH'), col2Value, y);
-    
-    y += lineHeight;
-    // Row 6: Physician
-    doc.text('แพทย์ผู้รับผิดชอบ (Physician) / doc.name:', col1Label, y);
-    doc.text(reportInfo.responsibleDoctor || reportInfo.doctorName || 'Doc_name', col1Value, y);
+    doc.text('แพทย์ผู้ส่งตรวจ (Clinician):', col1Label, y, { width: 95 });
+    doc.text(reportInfo.doctorName || 'ศมบูลูป รักไทย', col1Value, y, { width: 145 });
+    doc.text('วันที่รายงานผล (Report):', col2Label, y, { width: 100 });
+    doc.text(reportInfo.updateDate || '11/12/2568', col2Value, y, { width: 110 });
 
-    doc.y = patientBoxY + 125;
+    doc.y = patientBoxY + patientBoxHeight + 8;
 
     // === TEST RESULTS SECTION ===
     // Section title with gene and score
-    doc.fontSize(10);
+    doc.fontSize(8);
     setBold();
-    doc.text(`${reportInfo.test_target} genotyping: ${reportInfo.activityScore || 'N/A'} (จำนวนคะแนนสภาพ ${reportInfo.activityScore || ''})`, {
+    doc.text(`${reportInfo.test_target} genotyping: ${reportInfo.activityScore || 'N/A'}`, {
       align: 'left'
     });
-    doc.moveDown(0.5);
+    doc.moveDown(0.2);
 
     // Gene name
-    doc.fontSize(9);
+    doc.fontSize(7.5);
     setBold();
     doc.text(`${reportInfo.test_target} gene`);
-    doc.moveDown(0.3);
+    doc.moveDown(0.15);
 
     // === ALLELE TABLE ===
     if (reportInfo.alleles?.length > 0) {
       const tableY = doc.y;
-      const tableX = 105;
+      const tableX = 100;
       const numAlleles = reportInfo.alleles.length;
-      const cellWidth = 105;
-      const cellHeight = 22;
+      const cellWidth = 100;
+      const cellHeight = 18;
       const tableWidth = cellWidth * numAlleles;
       
       setRegular();
-      doc.fontSize(9);
+      doc.fontSize(7.5);
       
       // Draw outer box
       doc.rect(tableX, tableY, tableWidth, cellHeight * 2).stroke('#000000');
@@ -282,92 +279,95 @@ async function generatePGxPDF(reportInfo) {
         const x = tableX + (cellWidth * index);
         
         // Header (allele name)
-        doc.text(allele.name, x + 5, tableY + 6, { 
-          width: cellWidth - 10, 
+        doc.text(allele.name, x + 4, tableY + 4, { 
+          width: cellWidth - 8, 
           align: 'center' 
         });
         
         // Value
-        doc.text(allele.value, x + 5, tableY + cellHeight + 6, { 
-          width: cellWidth - 10, 
+        doc.text(allele.value, x + 4, tableY + cellHeight + 4, { 
+          width: cellWidth - 8, 
           align: 'center' 
         });
       });
       
-      doc.y = tableY + cellHeight * 2 + 15;
+      doc.y = tableY + cellHeight * 2 + 8;
     }
 
     // === GENOTYPE, ACTIVITY SCORE, PHENOTYPE ===
     setRegular();
-    doc.fontSize(9);
+    doc.fontSize(7.5);
     let resultY = doc.y;
     
-    doc.text('Genotype:', 60, resultY);
-    doc.text(reportInfo.genotype || 'N/A', 200, resultY);
+    doc.text('Genotype:', 48, resultY);
+    doc.text(reportInfo.genotype || 'N/A', 180, resultY, { width: doc.page.width - 220 });
     
-    resultY += 15;
-    doc.text('Total activity score:', 60, resultY);
-    doc.text(String(reportInfo.activityScore || 'N/A'), 200, resultY);
+    resultY += 11;
+    doc.text('Total activity score:', 48, resultY);
+    doc.text(String(reportInfo.activityScore || 'N/A'), 180, resultY, { width: doc.page.width - 220 });
     
-    resultY += 15;
-    doc.text('Predicted Phenotype:', 60, resultY);
-    doc.text(reportInfo.predicted_phenotype || 'N/A', 200, resultY);
+    resultY += 11;
+    doc.text('Predicted Phenotype:', 48, resultY);
+    const phenotypeText = reportInfo.predicted_phenotype || 'N/A';
+    doc.text(phenotypeText, 180, resultY, { width: doc.page.width - 220, lineGap: 0 });
     
-    doc.y = resultY + 20;
+    // Calculate how much vertical space the phenotype text took
+    const textHeight = doc.heightOfString(phenotypeText, { width: doc.page.width - 220, lineGap: 0 });
+    doc.y = resultY + textHeight + 10;
 
     // === GENOTYPE SUMMARY ===
-    doc.fontSize(9);
+    doc.fontSize(7.5);
     setBold();
-    doc.text('Genotype Summary:');
-    doc.moveDown(0.3);
+    const summaryY = doc.y;
+    doc.text('Genotype Summary:', 48, summaryY);
     
     setRegular();
     const summaryText = reportInfo.genotype_summary || 'An individual carrying two normal function alleles';
-    doc.text(summaryText, {
-      width: doc.page.width - 120,
+    const summaryTextHeight = doc.heightOfString(summaryText, { width: doc.page.width - 228, lineGap: 0 });
+    doc.text(summaryText, 180, summaryY, {
+      width: doc.page.width - 228,
       align: 'left',
-      lineGap: 1
+      lineGap: 0
     });
     
-    doc.moveDown(1);
+    doc.y = summaryY + summaryTextHeight + 8;
 
     // === RECOMMENDATION ===
+    const recY = doc.y;
     setBold();
-    doc.text('recommendation:');
-    doc.moveDown(0.3);
+    doc.text('Recommendation:', 48, recY);
     
     setRegular();
-    const recText = reportInfo.recommendation || 'This result signifies that the patient has [1 copy of a decreased function allele with an activity value of 0.5 (*_*)] or [2 copies of a decreased function allele with an activity value of 0.5 (*_*)] and one copy of a no function allele (*_*) OR two copies for a decreased function allele with an activity value of 0.25 (*_*). Based on the genotype result this patient is predicted to be an intermediate metabolizer for CYP2D6 substrates. This patient may be at risk for an adverse or poor response to medications that are metabolized by CYP2D6. To avoid an untoward drug response, dose adjustments may be necessary for medications metabolized by CYP2D6. Please consult a clinical pharmacist for more information about how CYP2D6 metabolic status influences drug selection and dosing.';
-    doc.text(recText, {
-      width: doc.page.width - 120,
+    const recText = reportInfo.recommendation || 'Please consult a clinical pharmacist for more specific dosing information based on this patient\'s CYP2D6 metabolizer status.';
+    const recTextHeight = doc.heightOfString(recText, { width: doc.page.width - 228, lineGap: 0 });
+    doc.text(recText, 180, recY, {
+      width: doc.page.width - 228,
       align: 'left',
-      lineGap: 1
+      lineGap: 0
     });
+    
+    doc.y = recY + recTextHeight + 8;
 
     // === SIGNATURE BOX ===
-    const sigBoxY = doc.page.height - 120;
-    doc.rect(90, sigBoxY, 415, 40).stroke('#000000');
+    const sigBoxY = doc.page.height - 95;
+    const sigBoxWidth = 400;
+    const sigBoxHeight = 35;
+    const sigBoxX = 85;
     
-    doc.fontSize(8);
-    doc.text('วิธีการและผลการตรวจของสิ่งส่ง', 95, sigBoxY + 5);
-    doc.text('วิธีการและผลการตรวจของสิ่งส่ง', 310, sigBoxY + 5);
-
-    // === FOOTER ===
-    const footerY = doc.page.height - 40;
-    doc.fontSize(7);
+    // Draw outer box
+    doc.rect(sigBoxX, sigBoxY, sigBoxWidth, sigBoxHeight).stroke('#000000');
+    
+    // Draw vertical line to split box in half
+    const centerX = sigBoxX + (sigBoxWidth / 2);
+    doc.moveTo(centerX, sigBoxY).lineTo(centerX, sigBoxY + sigBoxHeight).stroke('#000000');
+    
+    // Left side labels
+    doc.fontSize(7.5);
     setRegular();
-    doc.text(
-      `รหัสรายงาน:LAB-02-044 Rev:2 24.11.61`,
-      50,
-      footerY,
-      { align: 'left' }
-    );
-    doc.text(
-      `Page 1 of 2`,
-      doc.page.width - 100,
-      footerY,
-      { align: 'right', width: 50 }
-    );
+    doc.text('วิเคราะห์และแปลผลโดย', sigBoxX + 4, sigBoxY + 4, { width: (sigBoxWidth / 2) - 8, align: 'left' });
+    
+    // Right side labels
+    doc.text('วิเคราะห์และแปลผลโดย', centerX + 4, sigBoxY + 4, { width: (sigBoxWidth / 2) - 8, align: 'left' });
 
     doc.end();
     } catch (err) {
