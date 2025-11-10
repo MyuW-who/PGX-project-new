@@ -43,6 +43,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAuditUsers: () => ipcRenderer.invoke('get-audit-users'),
   getAuditDetail: (logId) => ipcRenderer.invoke('get-audit-detail', logId),
   getAuditStats: () => ipcRenderer.invoke('get-audit-stats'),
+  // Dashboard Report APIs
+  getDashboardSummary: (timeFilter) => ipcRenderer.invoke('get-dashboard-summary', timeFilter),
+  getTopDNATypes: (limit, timeFilter) => ipcRenderer.invoke('get-top-dna-types', limit, timeFilter),
+  getTopSpecimens: (limit, timeFilter) => ipcRenderer.invoke('get-top-specimens', limit, timeFilter),
+  getRejectedSpecimens: (timeFilter) => ipcRenderer.invoke('get-rejected-specimens', timeFilter),
+  getErrorRateSeries: (range) => ipcRenderer.invoke('get-error-rate-series', range),
+  getUsageTimeSeries: (range, timeFilter) => ipcRenderer.invoke('get-usage-time-series', range, timeFilter),
+  getTATStats: (timeFilter) => ipcRenderer.invoke('get-tat-stats', timeFilter),
   closeApp: () => ipcRenderer.send('window-close'),
 });
 
