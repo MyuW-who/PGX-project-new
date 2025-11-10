@@ -264,6 +264,27 @@ function initializeUserProfile() {
     logoutBtn.addEventListener('click', handleLogout);
   }
   
+  // Attach profile navigation handler
+  const profileLink = document.getElementById('profile-link');
+  if (profileLink) {
+    profileLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        // Navigate to role-specific profile page
+        if (currentUser.role === 'medtech') {
+          window.electronAPI.navigate('profile_medtech');
+        } else if (currentUser.role === 'pharmacist') {
+          // TODO: Create profile_pharmacy.html
+          console.warn('Profile page not yet available for pharmacist role');
+        } else if (currentUser.role === 'admin') {
+          // TODO: Create profile_admin.html
+          console.warn('Profile page not yet available for admin role');
+        }
+      }
+    });
+  }
+  
 
   /* --------------------------------------------
    📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)

@@ -507,7 +507,7 @@ renderDNAForm(dnaType);
    🔙 ปุ่ม Back / ✅ Confirm
 ======================== */
 document.querySelector(".back-btn").addEventListener("click", () => {
-  window.electronAPI.navigate('verify_step1');
+  window.electronAPI.navigate('input_step1_medtech');
 });
 
 document.querySelector(".confirm-btn").addEventListener("click", async () => {
@@ -571,7 +571,7 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
   sessionStorage.setItem("alleles", JSON.stringify(currentAlleles));
 
   // ไปหน้า Step 3 (only if exact match found)
-  window.electronAPI.navigate('verify_step3');
+  window.electronAPI.navigate('input_step3_medtech');
 });
 
 const userMenuToggle = document.getElementById("userMenuToggle");

@@ -45,11 +45,11 @@
     
     if (isEditMode && editingPatientId) {
       // Update existing patient
-      response = await window.electronAPI.updatePatient(editingPatientId, baseData);
+      response = await window.electronAPI.updatePatient(editingPatientId, patientData);
       console.log('✅ Patient updated:', response);
     } else {
       // Add new patient
-      response = await window.electronAPI.addPatient(baseData);
+      response = await window.electronAPI.addPatient(patientData);
       console.log('✅ Patient added:', response);
     }
 
@@ -131,7 +131,7 @@ form?.addEventListener('submit', handleFormSubmit);
 
     data.forEach((p, index) => {
       const row = `
-        <tr onclick="showPage('verify_step1', '${p.patient_id}')" data-patient-id="${p.patient_id}">
+        <tr onclick="showPage('input_step1_medtech', '${p.patient_id}')" data-patient-id="${p.patient_id}">
           <td>${p.patient_id ?? '-'}</td>
           <td>${p.first_name ?? ''} ${p.last_name ?? ''}</td>
           <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
@@ -185,7 +185,7 @@ form?.addEventListener('submit', handleFormSubmit);
   function attachInspectButtons() {
     document.querySelectorAll('.inspect-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
-        window.electronAPI.navigate('verify_step1');
+        window.electronAPI.navigate('input_step1_medtech');
       });
     });
   }
@@ -306,5 +306,10 @@ form?.addEventListener('submit', handleFormSubmit);
     });
   }
 
+// Navigation helper function
+function showPage(pageName, patientId) {
+  sessionStorage.setItem('selectedPatientId', patientId);
+  window.electronAPI?.navigate(pageName);
+}
 
 

@@ -49,7 +49,7 @@ async function fetchPatientData(patientId) {
 // Back Button
 const backBtn = document.querySelector(".back-btn");
 backBtn.addEventListener("click", () => {
-  window.electronAPI.navigate('patient'); // Navigate back to the patient page
+  window.electronAPI.navigate('patient_medtech'); // Navigate back to the patient page
 });
 
 // Next Button
@@ -65,7 +65,7 @@ nextBtn.addEventListener("click", () => {
   sessionStorage.setItem("selectedDnaType", dnaType);
 
   // Navigate to the next step
-  window.electronAPI.navigate('verify_step2');
+  window.electronAPI.navigate('input_step2_medtech');
 });
 
 // ปุ่ม Back

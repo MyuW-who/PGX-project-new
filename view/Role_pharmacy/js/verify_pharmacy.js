@@ -194,8 +194,8 @@
 
     btnConfirm?.addEventListener("click", () => {
         if (confirm("ยืนยันว่าข้อมูลในเอกสารถูกต้องใช่หรือไม่?")) {
-            // TODO: เปลี่ยน URL ปลายทางตามที่คุณต้องการ
-            window.location.href = "verify_step1.html";
+            // Navigate back to pharmacy dashboard
+            window.electronAPI?.navigate('dashboard_pharmacy');
         }
     });
 

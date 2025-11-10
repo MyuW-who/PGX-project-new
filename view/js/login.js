@@ -131,8 +131,8 @@ function checkExistingSession() {
   return false;
 }
 function navigateBasedOnRole(role) {
-  if (role === 'medtech') { window.electronAPI.navigate('dashboard1'); }
-  else if (role === 'pharmacist') { window.electronAPI.navigate('dashboard2'); }
+  if (role === 'medtech') { window.electronAPI.navigate('dashboard_medtech'); }
+  else if (role === 'pharmacist') { window.electronAPI.navigate('dashboard_pharmacy'); }
   else if (role === 'admin') { window.electronAPI.navigate('adminpage'); }
   else { console.warn('❌ Unknown role:', role); showPopup(`Role "${role}" ไม่มีหน้าที่กำหนด`); }
 }

@@ -62,12 +62,12 @@ document.getElementById("phenotype").textContent = phenotype || predictPhenotype
    ปุ่มต่าง ๆ
 ======================== */
 document.querySelector(".back-btn").addEventListener("click", () => {
-  window.electronAPI.navigate('verify_step2');
+  window.electronAPI.navigate('input_step2_medtech');
 });
 
 document.querySelector(".confirm-btn").addEventListener("click", () => {
   alert("✅ ยืนยันข้อมูลเรียบร้อยแล้ว!");
-  window.electronAPI.navigate('patient');
+  window.electronAPI.navigate('patient_medtech');
 });
 
 document.querySelector(".print-btn").addEventListener("click", () => {
