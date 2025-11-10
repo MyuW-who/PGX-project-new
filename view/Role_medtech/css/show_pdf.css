@@ -30,14 +30,16 @@ html {
   align-items: center;
   justify-content: center;
   background: var(--dark-gradient);
-  padding: 48px 24px;
+  padding: 24px 16px;
 }
 
 .pdf-shell {
-  width: min(1080px, 92vw);
+  width: 100%;
+  max-width: 1600px;
+  height: calc(100vh - 48px);
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px;
 }
 
 .pdf-top-bar {
@@ -87,10 +89,12 @@ html {
 .pdf-stage {
   display: flex;
   justify-content: center;
+  flex: 1;
+  overflow: hidden;
 }
 
 .pdf-window {
-  width: min(860px, 88vw);
+  width: 100%;
   background: var(--panel-bg);
   border-radius: 26px;
   border: 1px solid var(--panel-border);
@@ -98,6 +102,7 @@ html {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .pdf-toolbar {
@@ -156,12 +161,13 @@ html {
 
 .pdf-frame-wrap {
   flex: 1;
-  min-height: 540px;
+  min-height: 0;
   background: #101522;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 22px;
+  padding: 16px;
+  overflow: hidden;
 }
 
 .pdf-frame-wrap iframe {
