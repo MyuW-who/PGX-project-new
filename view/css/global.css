@@ -1,6 +1,3 @@
-/* ============================================
-   🎨 GLOBAL STYLES (REFINED & CONSOLIDATED)
-   ============================================ */
 :root {
   --bg: #f5f7fb;
   --text-primary: #111827;
@@ -10,12 +7,11 @@
   --border: #e5e7eb;
   --primary: #2563eb;
   --primary-light: rgba(37, 99, 235, 0.12);
-  
-  --shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
-  --radius: 12px;
+  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  --radius: 18px;
   --transition: all 0.25s ease;
 
+  /* 🔹 สีใหม่สำหรับ Stat Cards */
   --icon-all-bg: #e0f2fe;
   --icon-pre-bg: #e0e7ff;
   --icon-analytic-bg: #f3e8ff;
@@ -38,12 +34,14 @@ body {
   min-height: 100vh;
 }
 
+
 button,
 input,
 select,
 textarea {
   font-family: inherit;
 }
+
 
 /* ============================================
    🧩 MAIN CONTENT AREA
@@ -55,44 +53,9 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  background-color: var(--bg); 
+  background-color: var(--bg); /* 🔹 เปลี่ยนเป็นสีพื้นหลังเรียบๆ */
 }
 
-/* ============================================
-   🔹 GLOBAL BUTTON STYLES (Moved from information.css)
-   ============================================ */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 18px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: background-color 0.25s ease, color 0.25s ease, opacity 0.25s ease, transform 0.2s ease;
-}
-
-.btn.primary {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #fff;
-  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.35);
-}
-
-.btn.primary:hover {
-  transform: translateY(-1px);
-}
-
-.btn.outline {
-  border: 1px solid var(--primary);
-  background: transparent;
-  color: var(--primary);
-}
-
-.btn:hover {
-  opacity: 0.95;
-}
 
 /* ============================================
    📋 TABLE SECTION (Patient List)
@@ -119,14 +82,14 @@ textarea {
 }
 
 .delete-btn {
-  background: rgba(220, 38, 38, 0.1);
+  background: rgba(220, 38, 38, 0.1); /* <-- ทำให้สีพื้นหลังดูนุ่มนวลขึ้น */
   color: var(--danger);
 }
 
 .Edit-btn:hover,
 .delete-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(100, 116, 139, 0.15);
+  transform: translateY(-2px); /* <-- ทำให้ปุ่มลอยขึ้นเล็กน้อย */
+  box-shadow: 0 6px 15px rgba(100, 116, 139, 0.15); /* <-- เพิ่มเงาให้ปุ่ม */
 }
 
 .Edit-btn:hover {

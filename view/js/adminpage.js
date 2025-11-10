@@ -210,7 +210,9 @@ userForm?.addEventListener("submit", async (event) => {
     userData.password_hash = await hashPassword(userData.password);
     delete userData.password;
 
-    const result = await window.electronAPI.createAccount(userData);
+    // Get current user for audit logging
+    const currentUser = getCurrentUser();
+    const result = await window.electronAPI.createAccount(userData, currentUser);
     
     if (result.success) {
       showMessage("เพิ่มผู้ใช้งานเรียบร้อยแล้ว");
@@ -231,6 +233,7 @@ editForm?.addEventListener("submit", async (event) => {
   resetEditMessage();
 
   const userId = document.getElementById('edit-user-id').value;
+  const username = document.getElementById('edit-username').value;
   const password = document.getElementById('edit-password').value;
   const hospital_id = parseInt(document.getElementById('edit-hospital-id').value, 10);
   const role = document.getElementById('edit-role').value;
@@ -243,6 +246,7 @@ editForm?.addEventListener("submit", async (event) => {
   try {
     const userData = {
       user_id: userId,
+      username: username,
       hospital_id: hospital_id,
       role: role
     };
@@ -252,7 +256,9 @@ editForm?.addEventListener("submit", async (event) => {
       userData.password_hash = await hashPassword(password);
     }
 
-    const result = await window.electronAPI.updateAccount(userData);
+    // Get current user for audit logging
+    const currentUser = getCurrentUser();
+    const result = await window.electronAPI.updateAccount(userData, currentUser);
     
     if (result.success) {
       showEditMessage("อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว", "success");
@@ -329,106 +335,10 @@ togglePasswordButtons.forEach((button) => {
   });
 });
 
-logoutBtn?.addEventListener("click", async () => {
-  const confirmLogout = confirm('คุณต้องการออกจากระบบหรือไม่?');
-  if (!confirmLogout) return;
-
-  try {
-    // Clear user session
-    localStorage.removeItem('userSession');
-    sessionStorage.clear();
-    
-    // Navigate to login
-    window.electronAPI.navigate('login');
-  } catch (error) {
-    console.error("Logout error:", error);
-    // Still redirect to login even if there's an error
-    window.electronAPI.navigate('login');
-  }
-});
-
-/* ============================================
-   ⚙️ SETTINGS POPUP HANDLERS
-   ============================================ */
-
-const settingsPopup = document.getElementById('settingsPopup');
-const closeSettings = document.getElementById('closeSettings');
-const saveSettings = document.getElementById('saveSettings');
-const cancelSettings = document.getElementById('cancelSettings');
-const settingsBtn = document.getElementById('settingsBtn');
-
-// Open settings popup
-settingsBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  settingsPopup.style.display = 'flex';
-  const dropdownMenuElement = document.getElementById("dropdownMenu");
-  dropdownMenuElement?.classList.remove('show');
-});
-
-// Close settings popup
-closeSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
-
-cancelSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
-
-// Save settings
-saveSettings?.addEventListener('click', () => {
-  const language = document.getElementById('languageSetting').value;
-  const theme = document.getElementById('themeSetting').value;
-  const notifications = document.getElementById('notificationsSetting').checked;
-  
-  console.log('Settings saved:', { language, theme, notifications });
-  
-  // Apply theme immediately if changed
-  
-  settingsPopup.style.display = 'none';
-});
-
-// Close popup when clicking outside
-settingsPopup?.addEventListener('click', (e) => {
-  if (e.target === settingsPopup) {
-    settingsPopup.style.display = 'none';
-  }
-});
-
-/* ============================================
-   🎨 DROPDOWN & THEME HANDLERS
-   ============================================ */
-
-// Get fresh references to dropdown elements
-const dropdownButton = document.getElementById("dropdownBtn");
-const dropdownMenuElement = document.getElementById("dropdownMenu");
-
-dropdownButton?.addEventListener("click", (event) => {
-  event.stopPropagation();
-  dropdownMenuElement?.classList.toggle("show");
-});
-
-dropdownMenuElement?.addEventListener("click", (event) => {
-  event.stopPropagation();
-});
-
-document.addEventListener("click", () => {
-  dropdownMenuElement?.classList.remove("show");
-});
-
-
-
-langToggle?.addEventListener("click", () => {
-  const current = langToggle.textContent.trim();
-  langToggle.textContent = current === "TH" ? "EN" : "TH";
-});
-
 // Initialize the page
 document.addEventListener('DOMContentLoaded', () => {
-  // Check authentication first
-  if (!checkAuthentication()) return;
-  
-  // Update user display in header
-  updateUserDisplay();
+  // Initialize user profile (authentication, dropdown, settings, logout)
+  if (!initializeUserProfile()) return;
   
   // Load users if authenticated
   loadUsers();

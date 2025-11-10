@@ -1,6 +1,10 @@
-initializeUserProfile();
 
 
+// Toggle Language
+const langToggle = document.getElementById("langToggle");
+langToggle.addEventListener("click", () => {
+  langToggle.textContent = langToggle.textContent === "TH" ? "EN" : "TH";
+});
 
 // Fetch patient data using patient ID from sessionStorage
 const patientId = sessionStorage.getItem('selectedPatientId');
@@ -69,3 +73,21 @@ nextBtn.addEventListener("click", () => {
 });
 
 // ปุ่ม Back
+document.querySelector(".back-btn").addEventListener("click", () => {
+  window.electronAPI.navigate('patient');
+});
+
+// User Menu
+const userMenuToggle = document.getElementById("userMenuToggle");
+const userMenu = document.getElementById("userMenu");
+
+userMenuToggle?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  userMenu?.classList.toggle("show");
+});
+
+document.addEventListener("click", (event) => {
+  if (!userMenu?.contains(event.target) && event.target !== userMenuToggle) {
+    userMenu?.classList.remove("show");
+  }
+});

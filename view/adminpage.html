@@ -33,6 +33,7 @@
 			<ul>
 				<li id="admin-btn" class="active">Employee</li>
 				<li id="auditlog-btn" >Audit Log</li>
+				<li id="admin-settings-btn">Admin Settings</li>
 			</ul>
     </aside>
 
@@ -44,15 +45,15 @@
           <p>Add & Edit All Employees</p>
         </div>
         <div class="header-buttons">
-          <button id="themeToggle" class="icon-btn">
+          <button id="themeToggle" class="icon-btn" title="เปลี่ยนธีม">
             <i class="fa fa-moon"></i>
           </button>
-          <button id="langToggle" class="lang-btn">TH</button>
-
-          <!-- Dropdown -->
+          <button id="langToggle" class="lang-btn" title="สลับภาษา">TH</button>
           <div class="dropdown">
             <button class="dropbtn" id="dropdownBtn">
-              <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
+              <i class="fa fa-user-circle"></i>
+              Admin
+              <i class="fa fa-caret-down"></i>
             </button>
             <div id="dropdownMenu" class="dropdown-content">
               <a href="#" id="settingsBtn">Settings</a>
@@ -165,7 +166,67 @@
       </div>
     </div>
 
-    
+    <!-- Edit User Modal -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>แก้ไขข้อมูลผู้ใช้งาน</h2>
+          <button class="close-modal" id="closeModal">&times;</button>
+        </div>
+        <form id="edit-user-form">
+          <input type="hidden" id="edit-user-id">
+          
+          <div class="modal-body">
+            <div id="edit-form-message" class="form-message"></div>
+            
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label for="edit-username">Username</label>
+                <input type="text" id="edit-username" readonly disabled>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label for="edit-password">Password ใหม่ (ถ้าต้องการเปลี่ยน)</label>
+                <div class="password-field">
+                  <input type="password" id="edit-password" placeholder="กรอกเฉพาะต้องการเปลี่ยน">
+                  <button type="button" class="toggle-password" data-target="edit-password">
+                    <i class="fa fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row two-cols">
+              <div class="form-group">
+                <label for="edit-hospital-id">Hospital ID</label>
+                <input type="number" id="edit-hospital-id" required>
+              </div>
+
+              <div class="form-group">
+                <label for="edit-role">Role</label>
+                <select id="edit-role" required>
+                  <option value="">เลือก Role</option>
+                  <option value="pharmacist">Pharmacist</option>
+                  <option value="medtech">MedTech</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-modal btn-cancel" id="cancelEdit">
+              <i class="fa fa-times"></i> ยกเลิก
+            </button>
+            <button type="submit" class="btn-modal btn-save">
+              <i class="fa fa-check"></i> บันทึกการแก้ไข
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
   </div>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>

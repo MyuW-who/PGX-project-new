@@ -3,7 +3,10 @@
 ======================== */
 
 
-
+const langToggle = document.getElementById("langToggle");
+langToggle.addEventListener("click", () => {
+  langToggle.textContent = langToggle.textContent === "TH" ? "EN" : "TH";
+});
 
 /* ========================
    🧬 ดึงข้อมูลจาก Step 1

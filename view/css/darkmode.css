@@ -1,13 +1,14 @@
 /* ============================================
-   🌙 DARK MODE THEME (CONSOLIDATED)
+   🌙 DARK MODE THEME
    ============================================ */
 body.dark {
   /* 1. เปลี่ยน CSS Variables หลักสำหรับ Dark Mode */
   --bg: #111827;
-  --card-bg: #2f2f40; /* ใช้อันนี้เพื่อให้เข้ากับ .case-table */
+  /* ใช้พาเลตเดียวกับหน้า admin/patient */
+  --card-bg: #2f2f40;
   --border: #3b3b4a;
   --text-primary: #f9fafb;
-  --text-secondary: #ffffff; /* ปรับให้สว่างขึ้น */
+  --text-secondary: #ffffff;
   --text-muted: #6b7280;
   --shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   --primary-light: rgba(37, 99, 235, 0.2);
@@ -17,11 +18,13 @@ body.dark {
   --icon-post-bg: rgba(34, 197, 94, 0.15);
    background: var(--bg);
    color: var(--text-primary);
+
+  /* ไม่จำเป็นต้องเปลี่ยนสี --primary, --success, --danger */
 }
 
 /* 2. ปรับแก้ส่วนที่ไม่ได้ใช้ Variable โดยตรง */
 body.dark .sidebar {
-  background: #1f2937;
+  background: #1f2937; /* ทำให้สีเข้ากับ Card */
 }
 
 body.dark .main-content {
@@ -29,9 +32,10 @@ body.dark .main-content {
 }
 
 body.dark .case-table thead {
-  background: #2b3648;
+  background: #2b3648; /* ทำให้หัวตารางมีสีเข้มขึ้นเล็กน้อย */
   color: #ffffff;
 }
+
 
 /* ============================================
    ✨ (แก้ไขส่วนนี้) ทำให้ปุ่มใน Header เป็นสีน้ำเงินตามรูป ✨
@@ -69,7 +73,7 @@ body.dark .dropbtn:active {
    ============================================ */
 
 
-/* ปรับสีพื้นหลัง input และ select */
+/* ปรับสีพื้นหลัง input และ select (ลดความซ้ำซ้อน) */
 body.dark .form-group input,
 body.dark .form-group select {
   background-color: #374151;
@@ -83,26 +87,31 @@ body.dark #searchInput:focus {
 }
 
 body.dark .cancel-btn {
-  background: transparent;
-  color: #fff;
-  border: 1px solid #4b5563;
+  background: transparent;      /* 1. ทำให้พื้นหลังโปร่งใส */
+  color: #fff;                  /* 2. ทำให้ตัวอักษรเป็นสีขาว */
+  border: 1px solid #4b5563;  /* 3. เปลี่ยนสีเส้นขอบให้เข้ากับธีม Dark */
 }
 
 body.dark .cancel-btn:hover {
-  background: rgba(255, 255, 255, 0.951);
+  background: rgba(255, 255, 255, 0.951); /* 4. เมื่อเมาส์ชี้ ให้มีพื้นหลังสีขาวจางๆ */
   border-color: #6b7280;
   color: rgba(0, 0, 0, 0.707);
 }
 
+
+/* (ลบชุดสไตล์ .delete-btn ที่ซ้ำซ้อนเพื่อใช้ชุดตารางด้านล่างแทน) */
+
 /* Popup Form */
 body.dark .popup-box {
-  background: var(--card-bg);
+  background: var(--card-bg); /* ใช้ variable เพื่อความสอดคล้อง */
 }
 
 body.dark .popup-box h3,
 body.dark .popup-box label {
   color: var(--text-primary);
 }
+
+/* (ย้ายไปรวมกับ #searchInput ด้านล่าง) */
 
 /* 🔹 2. ทำให้ Dropdown Menu, Input, Select ใช้สีของ Dark Mode */
 body.dark .dropdown-content {
@@ -118,7 +127,7 @@ body.dark .dropdown-content a:hover {
 }
 
 body.dark :is(#searchInput, #tatFilter) {
-  background-color: #2b3648;
+  background-color: #2b3648; /* ทำให้ช่องค้นหาเข้มกว่า Card เล็กน้อย */
   border-color: var(--border);
   color: var(--text-primary);
 }
@@ -137,27 +146,31 @@ body.dark .data-table-container th {
   color: var(--text-secondary);
 }
 body.dark .data-table-container tbody tr {
+  /* keep borders; add base bg and text color to avoid white rows */
   background-color: #252a39;
   color: var(--text-primary);
 }
 body.dark .data-table-container tbody tr:nth-child(even) {
-  background-color: #2a3042;
+  background-color: #2a3042; /* subtle zebra for dark mode */
 }
 body.dark .data-table-container tbody tr:hover {
   background-color: rgba(59, 130, 246, 0.12);
 }
+/* handle possible "selected/active" utility classes */
 body.dark .data-table-container tbody tr.selected,
 body.dark .data-table-container tbody tr.active,
 body.dark .data-table-container tbody tr.is-selected {
   background-color: rgba(59, 130, 246, 0.18);
 }
 
-/* 🔧 Global table hover fix */
+/* 🔧 Global table hover fix for dark mode (e.g., Admin page list)
+   Some pages style `tbody tr:hover` with a light color in their own CSS.
+   This override ensures hovered rows won’t turn white in dark mode. */
 body.dark table tbody tr:hover {
   background-color: rgba(59, 130, 246, 0.12) !important;
 }
 
-/* case-table */
+/* If another table variant is used (case-table), mirror the same behavior */
 body.dark .case-table tbody tr {
   background-color: #252a39;
   color: var(--text-primary);
@@ -182,7 +195,7 @@ body.dark .no-data-row td {
 body.dark .Edit-btn {
   background-color: #374151;
   color: #a5b4fc;
-  border: 1px solid #60a5fa;
+  border: 1px solid #60a5fa;      /* clearer outline in dark mode */
 }
 body.dark .Edit-btn:hover {
   background-color: #434e61;
@@ -192,7 +205,7 @@ body.dark .Edit-btn:hover {
 body.dark .delete-btn {
   background-color: #374151;
   color: #fca5a5;
-  border: 1px solid #f87171;
+  border: 1px solid #f87171;      /* clearer outline in dark mode */
 }
 body.dark .delete-btn:hover {
   background-color: #434e61;
@@ -213,7 +226,184 @@ body.dark ::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
 
-/* ... (ลบธีม PGX Admin ที่ซ้ำซ้อน) ... */
+body.dark .metric-card {
+  background: #2f2f40;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .metric-card:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.dark .metric-number {
+  color: #ecf0f1;
+}
+
+body.dark .metric-label {
+  color: #94a3b8;
+}
+
+body.dark .metric-change {
+  color: #94a3b8;
+}
+
+body.dark .stat-card {
+  background: #2f2f40;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .stat-card:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.dark .stat-card h4 {
+  color: #ecf0f1;
+}
+
+body.dark .stat-card p {
+  color: #94a3b8;
+}
+
+body.dark .toggle-group .small-btn {
+  background: #3b3b4a;
+  border-color: #4a4a5a;
+  color: #cbd5e1;
+}
+
+body.dark .toggle-group .small-btn:hover {
+  background: #4a4a5a;
+}
+
+body.dark .toggle-group .small-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+body.dark .chart-legend {
+  color: #94a3b8;
+}
+
+body.dark #usage-subtitle {
+  color: #94a3b8;
+}
+
+
+/* =============================
+   🌙 PGX Admin Unified Dark Mode
+   ============================= */
+body.dark {
+  --color-bg: #0f172a;          /* พื้นหลังหลัก */
+  --color-surface: #1e293b;     /* พื้นผิว card */
+  --color-border: #334155;      /* สีเส้นขอบ */
+  --color-text: #e2e8f0;        /* ตัวหนังสือหลัก */
+  --color-muted: #94a3b8;       /* ตัวหนังสือรอง */
+  --color-primary: #3b82f6;     /* ปุ่มหลัก */
+  --color-primary-hover: #2563eb;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* พื้นหลังเนียนแบบ gradient */
+body.dark .main-content {
+  background: linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #111827 100%);
+}
+
+/* Sidebar ให้เข้ากับ theme */
+body.dark .sidebar {
+  background: #111827;
+  color: var(--color-text);
+}
+
+/* Card */
+body.dark .card {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Table */
+body.dark table {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+body.dark thead th {
+  background: #1e293b;
+  color: var(--color-muted);
+}
+
+body.dark tbody tr:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* Input & Select */
+body.dark input,
+body.dark select {
+  background: #273549;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+body.dark input:focus,
+body.dark select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+/* Buttons */
+body.dark .btn.primary {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+body.dark .btn.primary:hover {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+}
+
+/* Dropdown */
+body.dark .dropdown-content {
+  background: #1e293b;
+  border-color: var(--color-border);
+}
+
+body.dark .dropdown-content a {
+  color: var(--color-muted);
+}
+
+body.dark .dropdown-content a:hover {
+  color: var(--color-primary);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Popup */
+body.dark .popup-content {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+/* Table Action Buttons */
+body.dark .table-action.edit {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+body.dark .table-action.delete {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+body.dark .table-action.edit:hover {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+body.dark .table-action.delete:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
 
 
 /* ============================================
