@@ -188,6 +188,18 @@ body.step3-page .summary-box #genotype,
 body.step3-page .summary-box #patientName,
 body.step3-page .summary-box #dnaType,
 body.step3-page .summary-box #phenotype { color:#374151; font-weight:normal; }
+/* Style genotype value as a token so both templates look identical */
+body.step3-page .summary-box #genotype {
+  display:inline-block;
+  padding: 0.4rem 0.85rem;
+  background:#f1f5f9;
+  border:1px solid rgba(148,163,184,0.35);
+  border-radius: 10px;
+  font-weight:600;
+  line-height:1;
+  min-width:80px;
+  text-align:center;
+}
 body.dark.step3-page .summary-box { background: rgba(55,65,81,0.55); border:1px solid #3b4452; }
 body.dark.step3-page .summary-box p { color:#d1d5db; }
 body.dark.step3-page .summary-box strong { color:#ffffff; }
@@ -195,13 +207,15 @@ body.dark.step3-page .summary-box #genotype,
 body.dark.step3-page .summary-box #patientName,
 body.dark.step3-page .summary-box #dnaType,
 body.dark.step3-page .summary-box #phenotype { color:#e5e7eb; }
+body.dark.step3-page .summary-box #genotype { background:#31384a; border-color:#465168; line-height:1; min-width:80px; text-align:center; padding:0.4rem 0.85rem; }
 
 /* ============================================
    📊 RESULT TABLE
    ============================================ */
 body.step3-page .result-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   margin: 1rem 0;
   border: none;
 }
@@ -216,18 +230,35 @@ body.step3-page .result-table td {
   font-size: 0.95rem;
 }
 body.step3-page .result-table thead th {
-  background: transparent;
+  /* Make header look like the dark template's band in both modes */
+  background: #eef2ff; /* light indigo tint */
   color: #1f2937;
-  font-weight: 600;
+  font-weight: 700;
   border-bottom: 2px solid rgba(148,163,184,0.2);
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.5px;
+  padding: 0.9rem 0.5rem;
+  box-shadow: inset 0 -1px 0 rgba(148,163,184,0.25);
 }
+/* Round only the outer edges so the header becomes one continuous bar */
+body.step3-page .result-table thead th:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+body.step3-page .result-table thead th:last-child  { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
 body.step3-page .result-table tbody tr:last-child td { border-bottom: none; }
+/* Add a subtle divider under the table to match the second template */
+body.step3-page .result-table { padding-bottom: 0.25rem; border-bottom: 1px solid rgba(148,163,184,0.25); }
 body.dark.step3-page .result-table th,
 body.dark.step3-page .result-table td { color:#e5e7eb; border-bottom:1px solid rgba(255,255,255,0.12); }
-body.dark.step3-page .result-table thead th { color:#ffffff; border-bottom:2px solid rgba(255,255,255,0.18); }
+body.dark.step3-page .result-table thead th {
+  background:#2b3144; /* dark indigo band */
+  color:#ffffff;
+  font-weight:700;
+  border-bottom:2px solid rgba(255,255,255,0.18);
+  padding: 0.9rem 0.5rem;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.35);
+}
+body.dark.step3-page .result-table thead th:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+body.dark.step3-page .result-table thead th:last-child  { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
 
 /* ============================================
    🔘 BUTTONS
