@@ -27,8 +27,16 @@
 	padding: 12px 14px;
 	border: 1px solid var(--color-border);
 	border-radius: 10px;
-	background: #fff;
+	background: var(--color-surface);
 	color: var(--color-text);
+	transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-group select:focus,
+.filter-group input[type="text"]:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 /* Audit list */
@@ -63,7 +71,8 @@
 
 .audit-item:hover { 
 	transform: translateY(-1px);
-	box-shadow: 0 8px 18px rgba(15,23,42,.08);
+	box-shadow: 0 8px 18px rgba(15,23,42,.12);
+	background: var(--color-primary-light);
 }
 
 .avatar {
@@ -118,13 +127,7 @@
 }
 .empty-state i { font-size: 24px; }
 
-/* Dark mode complements */
-body.dark .filter-group select,
-body.dark .filter-group input[type="text"] {
-	background: #3b3b4a;
-	border-color: var(--color-border);
-	color: var(--color-text);
-}
+
 
 @media (max-width: 768px) {
 	.filters { grid-template-columns: 1fr; }

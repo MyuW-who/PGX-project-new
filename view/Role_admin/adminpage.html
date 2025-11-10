@@ -132,6 +132,53 @@
       </section>
     </main>
 
+    <!-- Edit User Modal -->
+    <div id="editModal" class="popup" style="display: none;">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h3>แก้ไขข้อมูลผู้ใช้งาน</h3>
+          <span class="close" id="closeModal">&times;</span>
+        </div>
+
+        <form id="edit-user-form">
+          <div class="popup-body">
+            <input type="hidden" id="edit-user-id" name="user_id">
+
+            <div class="form-field">
+              <label for="edit-username">Username (ไม่สามารถแก้ไขได้)</label>
+              <input id="edit-username" name="username" type="text" readonly disabled />
+            </div>
+
+            <div class="form-field">
+              <label for="edit-password">Password (กรอกเพื่อเปลี่ยนใหม่)</label>
+              <input id="edit-password" name="password" type="password" />
+            </div>
+
+            <div class="form-field">
+              <label for="edit-hospital-id">Hospital ID</label>
+              <input id="edit-hospital-id" name="hospital_id" type="text" required />
+            </div>
+
+            <div class="form-field">
+              <label for="edit-role">Role</label>
+              <select id="edit-role" name="role" required>
+                <option value="">เลือกบทบาท</option>
+                <option value="pharmacist">Pharmacist</option>
+                <option value="medtech">MedTech</option>
+              </select>
+            </div>
+
+            <div id="edit-form-message" class="form-message" role="alert"></div>
+          </div>
+
+          <div class="popup-footer">
+            <button type="submit" class="btn-primary">บันทึกการเปลี่ยนแปลง</button>
+            <button type="button" class="btn-secondary" id="cancelEdit">ยกเลิก</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Settings Popup -->
     <div id="settingsPopup" class="popup" style="display: none;">
       <div class="popup-content">

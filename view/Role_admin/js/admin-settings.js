@@ -9,6 +9,31 @@ const tatForm = document.getElementById("tatForm");
 const specimenForm = document.getElementById("specimenForm");
 const tatCategorySelect = document.getElementById("tatCategory");
 const specimenCategorySelect = document.getElementById("specimenCategory");
+const categoryTableBody = document.querySelector("#categoryTable tbody");
+
+function renderCategoryTable() {
+  if (!categoryTableBody) return;
+
+  if (!categories.length) {
+    categoryTableBody.innerHTML = '<tr><td colspan="4">ยังไม่มีข้อมูลที่จะแสดง</td></tr>';
+    return;
+  }
+
+  categoryTableBody.innerHTML = categories
+    .map(
+      (cat) => `
+        <tr data-category-id="${cat.id}">
+          <td>${cat.code}</td>
+          <td>${cat.name}</td>
+          <td>${cat.tat}</td>
+          <td class="actions-cell">
+            <button type="button" class="btn ghost" data-action="focus" data-target="${cat.id}">เลือก</button>
+          </td>
+        </tr>
+      `
+    )
+    .join("");
+}
 
 function renderCategoryOptions() {
   if (!tatCategorySelect || !specimenCategorySelect) return;
@@ -28,7 +53,14 @@ function handleCategorySubmit(event) {
     code: formData.get("code"),
     tat: Number(formData.get("tat"))
   };
+  const duplicate = categories.some((cat) => cat.code === newCategory.code || cat.name === newCategory.name);
+  if (duplicate) {
+    alert("มีหมวดหมู่หรือรหัสนี้อยู่แล้ว");
+    return;
+  }
+
   categories.push(newCategory);
+  renderCategoryTable();
   renderCategoryOptions();
   alert("บันทึกหมวดหมู่สำเร็จ");
   categoryForm.reset();
@@ -44,6 +76,7 @@ function handleTatSubmit(event) {
     target.tat = newTat;
     alert(`อัปเดต TAT ของ ${target.name} เป็น ${newTat} วันแล้ว`);
     tatForm.reset();
+    renderCategoryTable();
   } else {
     alert("ไม่พบหมวดหมู่ที่เลือก");
   }
@@ -72,32 +105,21 @@ if (specimenForm) {
   specimenForm.addEventListener("submit", handleSpecimenSubmit);
 }
 
+categoryTableBody?.addEventListener("click", (event) => {
+  const trigger = event.target;
+  if (!(trigger instanceof HTMLButtonElement)) return;
+  if (trigger.dataset.action !== "focus") return;
+
+  const { target: categoryId } = trigger.dataset;
+  if (!categoryId) return;
+
+  if (tatCategorySelect) {
+    tatCategorySelect.value = categoryId;
+  }
+  if (specimenCategorySelect) {
+    specimenCategorySelect.value = categoryId;
+  }
+});
+
+renderCategoryTable();
 renderCategoryOptions();
-
-const themeToggle = document.getElementById("themeToggle");
-
-if (themeToggle) {
-  themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark-theme");
-    const icon = themeToggle.querySelector("i");
-    if (!icon) return;
-    const dark = document.body.classList.contains("dark-theme");
-    icon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
-  });
-}
-
-const accountDropdown = document.getElementById("accountDropdown");
-const accountToggle = accountDropdown?.querySelector(".dropdown-toggle");
-
-if (accountDropdown && accountToggle) {
-  accountToggle.addEventListener("click", (event) => {
-    event.stopPropagation();
-    accountDropdown.classList.toggle("is-open");
-  });
-
-  document.addEventListener("click", (event) => {
-    if (!accountDropdown.contains(event.target)) {
-      accountDropdown.classList.remove("is-open");
-    }
-  });
-}

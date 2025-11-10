@@ -4,16 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Settings</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="./css/admin-settings.css" />
   <link rel="stylesheet" href="../../view_Global/css/navbar.css">
-	<link rel="stylesheet" href="../../view_Global/css/menu.css">
+  <link rel="stylesheet" href="../../view_Global/css/menu.css">
   <link rel="stylesheet" href="../../view_Global/css/darkmode.css" />
   <link rel="stylesheet" href="../../view_Global/css/navbar_hover.css">
   <link rel="stylesheet" href="../../view_Global/css/global.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-  <div class="app-shell">
+  <div class="hover-navbar">
+    <div class="navbar-content">
+      <div class="navbar-left">
+        <span class="logo">Roblox</span>
+      </div>
+      <div class="navbar-right">
+        <button class="nav-btn close"><i class="fa fa-xmark"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
     <aside class="sidebar">
       <h2 class="logo">Logo</h2>
       <ul>
@@ -23,105 +34,160 @@
       </ul>
     </aside>
 
-    <main class="content">
+    <main class="main-content">
       <header class="page-header">
-        <div class="page-heading">
+        <div class="page-title">
           <h1>Admin Settings</h1>
           <p>จัดการหมวดหมู่ สิ่งส่งตรวจ และกำหนดค่า TAT ภายในระบบ</p>
         </div>
-        <div class="toolbar-actions">
-          <button type="button" id="themeToggle" class="chip icon-only" aria-label="Toggle theme">
-            <i class="fa-solid fa-moon"></i>
+        <div class="header-buttons">
+          <button id="themeToggle" class="icon-btn" title="เปลี่ยนธีม">
+            <i class="fa fa-moon"></i>
           </button>
-          <button type="button" class="chip" id="langToggle">TH</button>
-          <div class="dropdown" id="accountDropdown">
-            <button type="button" class="dropdown-toggle">
-              <i class="fa fa-user-circle"></i>
-              Admin
-              <i class="fa fa-caret-down"></i>
+          <button id="langToggle" class="lang-btn" title="สลับภาษา">TH</button>
+          <div class="dropdown">
+            <button class="dropbtn" id="dropdownBtn">
+              <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
             </button>
-            <nav class="dropdown-menu">
+            <div id="dropdownMenu" class="dropdown-content">
               <a href="#" id="settingsBtn">Settings</a>
               <a href="#">About</a>
               <a href="#" id="logout">Logout</a>
-            </nav>
+            </div>
           </div>
         </div>
       </header>
 
       <section class="specimen-layout">
-        <section class="card specimen-form-card">
+        <article class="card specimen-form-card">
           <div class="form-header">
-            <h2>จัดการข้อมูลสิ่งส่งตรวจ</h2>
-            <div id="form-message" class="form-message" role="alert"></div>
+            <h2>เพิ่มหมวดหมู่ใหม่</h2>
+            <p>สร้างหมวดหมู่ใหม่พร้อมกำหนดค่า TAT เริ่มต้น</p>
           </div>
-
-          <form id="specimenForm" class="inline-form">
-            <input id="specimenName" name="name" type="text" placeholder="ชื่อสิ่งส่งตรวจ (เช่น Blood)" required />
-            <input id="specimenTat" name="tat" type="number" min="0" placeholder="TAT (วัน)" required />
-            <div class="form-actions-inline">
-              <button type="submit" class="btn primary" id="submitBtn">
-                <i class="fa fa-plus"></i> เพิ่ม
-              </button>
-              <button type="button" id="cancelBtn" class="btn secondary" style="display: none;">
-                <i class="fa fa-times"></i> ยกเลิก
-              </button>
-            </div>
-          </form>
-        </section>
-
-        <section class="specimen-table-panel">
-          <header class="card specimen-table-header">
-            <div>
-              <h2>รายการสิ่งส่งตรวจ</h2>
-              <p>ตรวจสอบและแก้ไขรายการที่สร้างไว้ทั้งหมด</p>
-            </div>
-          </header>
-          <div class="card specimen-table-card">
-            <div class="scrollable-table-wrapper">
-              <table id="specimen-table" class="specimen-table">
-                <thead>
-                  <tr>
-                    <th>ชื่อสิ่งส่งตรวจ</th>
-                    <th style="width: 110px; text-align: center;">TAT (วัน)</th>
-                    <th style="width: 120px; text-align: center;">จัดการ</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-      </section>
-
-        <article class="card card-specimen">
-          <header>
-            <h2>เพิ่มข้อมูลสิ่งส่งตรวจใหม่</h2>
-            <p>แนบสิ่งส่งตรวจกับหมวดหมู่ที่ต้องการติดตาม</p>
-          </header>
-          <form id="specimenForm" class="form-stack">
+          <form id="categoryForm" class="form-stack">
             <label>
-              <span>ชื่อสิ่งส่งตรวจ</span>
-              <input id="specimenName" name="name" type="text" placeholder="เช่น Blood Sample" required />
+              <span>ชื่อหมวดหมู่</span>
+              <input id="categoryName" name="name" type="text" placeholder="เช่น Pharmacogenomics" required />
             </label>
             <label>
-              <span>หมวดหมู่</span>
-              <select id="specimenCategory" name="category" required>
-                <option value="" selected disabled>เลือกหมวดหมู่...</option>
-              </select>
+              <span>รหัสหมวดหมู่</span>
+              <input id="categoryCode" name="code" type="text" placeholder="เช่น PGX-01" required />
             </label>
             <label>
-              <span>หมายเหตุ</span>
-              <textarea id="specimenRemark" name="remark" placeholder="รายละเอียดเพิ่มเติม"></textarea>
+              <span>TAT (วัน)</span>
+              <input id="categoryTat" name="tat" type="number" min="0" placeholder="เช่น 7" required />
             </label>
             <div class="form-actions">
               <button type="reset" class="btn ghost">ล้างฟอร์ม</button>
-              <button type="submit" class="btn success">เพิ่มข้อมูล</button>
+              <button type="submit" class="btn primary">บันทึกหมวดหมู่</button>
             </div>
           </form>
         </article>
+
+        <article class="card specimen-table-panel">
+          <div class="specimen-table-header">
+            <h2>หมวดหมู่ทั้งหมด</h2>
+            <p>รายการหมวดหมู่และค่า TAT ที่ใช้งานอยู่ในระบบ</p>
+          </div>
+          <div class="card specimen-table-card">
+            <div class="scrollable-table-wrapper">
+              <table class="specimen-table" id="categoryTable">
+                <thead>
+                  <tr>
+                    <th>รหัส</th>
+                    <th>ชื่อหมวดหมู่</th>
+                    <th>TAT (วัน)</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="4">ยังไม่มีข้อมูลที่จะแสดง</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
       </section>
+
+      <section class="card">
+        <header class="form-header">
+          <h2>ปรับปรุงค่า TAT</h2>
+          <p>เลือกหมวดหมู่ที่ต้องการและตั้งค่า TAT ใหม่ให้เหมาะสมกับการทำงาน</p>
+        </header>
+        <form id="tatForm" class="inline-form">
+          <select id="tatCategory" name="category" required>
+            <option value="" selected disabled>เลือกหมวดหมู่...</option>
+          </select>
+          <input id="tatValue" name="tat" type="number" min="0" placeholder="จำนวนวัน" required />
+          <div class="form-actions-inline">
+            <button type="submit" class="btn primary">อัปเดตค่า TAT</button>
+            <button type="reset" class="btn secondary">ล้างข้อมูล</button>
+          </div>
+        </form>
+      </section>
+
+      <article class="card card-specimen">
+        <header>
+          <h2>เพิ่มข้อมูลสิ่งส่งตรวจใหม่</h2>
+          <p>แนบสิ่งส่งตรวจกับหมวดหมู่ที่ต้องการติดตาม</p>
+        </header>
+        <form id="specimenForm" class="form-stack">
+          <label>
+            <span>ชื่อสิ่งส่งตรวจ</span>
+            <input id="specimenName" name="name" type="text" placeholder="เช่น Blood Sample" required />
+          </label>
+          <label>
+            <span>หมวดหมู่</span>
+            <select id="specimenCategory" name="category" required>
+              <option value="" selected disabled>เลือกหมวดหมู่...</option>
+            </select>
+          </label>
+          <label>
+            <span>หมายเหตุ</span>
+            <textarea id="specimenRemark" name="remark" placeholder="รายละเอียดเพิ่มเติม"></textarea>
+          </label>
+          <div class="form-actions">
+            <button type="reset" class="btn ghost">ล้างฟอร์ม</button>
+            <button type="submit" class="btn success">เพิ่มข้อมูล</button>
+          </div>
+        </form>
+      </article>
     </main>
+
+    <div id="settingsPopup" class="popup" style="display: none;">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h3>Settings</h3>
+          <span class="close" id="closeSettings">&times;</span>
+        </div>
+        <div class="popup-body">
+          <div class="setting-item">
+            <label>Language:</label>
+            <select id="languageSetting">
+              <option value="th">ไทย (Thai)</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Theme:</label>
+            <select id="themeSetting">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Notifications:</label>
+            <input type="checkbox" id="notificationsSetting" checked>
+          </div>
+        </div>
+        <div class="popup-footer">
+          <button class="btn-primary" id="saveSettings">Save</button>
+          <button class="btn-secondary" id="cancelSettings">Cancel</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="./js/admin-settings.js"></script>

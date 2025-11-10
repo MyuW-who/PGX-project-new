@@ -8,15 +8,26 @@ body.dark {
   --border: #3b3b4a;
   --text-primary: #f9fafb;
   --text-secondary: #ffffff; /* ปรับให้สว่างขึ้น */
-  --text-muted: #6b7280;
+  --text-muted: #94a3b8;
   --shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   --primary-light: rgba(37, 99, 235, 0.2);
   --icon-all-bg: rgba(59, 130, 246, 0.15);
   --icon-pre-bg: rgba(99, 102, 241, 0.15);
   --icon-analytic-bg: rgba(168, 85, 247, 0.15);
   --icon-post-bg: rgba(34, 197, 94, 0.15);
-   background: var(--bg);
-   color: var(--text-primary);
+  /* 1.1 Support admin-specific tokens */
+  --color-bg: #0f172a;
+  --color-surface: #1e2537;
+  --color-border: #2d364a;
+  --color-text: #e2e8f0;
+  --color-muted: #94a3b8;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-light: rgba(59, 130, 246, 0.18);
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  background: var(--bg);
+  color: var(--text-primary);
 }
 
 /* 2. ปรับแก้ส่วนที่ไม่ได้ใช้ Variable โดยตรง */

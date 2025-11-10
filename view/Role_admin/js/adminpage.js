@@ -121,19 +121,41 @@ function resetEditMessage() {
 
 // Modal functions
 function openEditModal(user) {
-  document.getElementById('edit-user-id').value = user.user_id;
-  document.getElementById('edit-username').value = user.username;
-  document.getElementById('edit-password').value = '';
-  document.getElementById('edit-hospital-id').value = user.hospital_id;
-  document.getElementById('edit-role').value = user.role;
+  if (!editModal) {
+    console.error('❌ Edit modal container not found');
+    return;
+  }
+
+  const idField = document.getElementById('edit-user-id');
+  const usernameField = document.getElementById('edit-username');
+  const passwordField = document.getElementById('edit-password');
+  const hospitalField = document.getElementById('edit-hospital-id');
+  const roleField = document.getElementById('edit-role');
+
+  if (!idField || !usernameField || !passwordField || !hospitalField || !roleField) {
+    console.error('❌ Edit modal fields missing');
+    return;
+  }
+
+  idField.value = user.user_id;
+  usernameField.value = user.username;
+  passwordField.value = '';
+  hospitalField.value = user.hospital_id;
+  roleField.value = user.role;
   
   resetEditMessage();
+  editModal.style.display = 'flex';
   editModal.classList.add('show');
 }
 
 function closeEditModal() {
+  if (!editModal) {
+    return;
+  }
+
   editModal.classList.remove('show');
-  editForm.reset();
+  editModal.style.display = 'none';
+  editForm?.reset();
   resetEditMessage();
 }
 
