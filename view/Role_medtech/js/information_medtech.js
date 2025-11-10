@@ -13,10 +13,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     // 1. ดึงข้อมูล SLA มาเก็บในตัวแปรที่สร้างไว้
     specimenSlaMap = await window.electronAPI.getSpecimenSLA();
     console.log('✅ Fetched SLA Map:', specimenSlaMap);
+    console.log('🔍 SLA Map Keys:', Object.keys(specimenSlaMap));
+    console.log('🔍 SLA Map Values:', Object.values(specimenSlaMap));
 
     // 2. ดึงข้อมูล Test Requests (เหมือนเดิม)
     const testRequests = await window.electronAPI.getTestRequests();
     console.log('📦 Test Requests:', testRequests);
+    console.log('📦 Sample Request:', testRequests[0]);
     renderTestRequests(testRequests);
     await updateStatsFromAPI();
   } catch (e) {
@@ -104,15 +107,39 @@ function calculateTATWarning(requestDate, slaTime, status) {
   const startDate = new Date(requestDate);
   const now = new Date();
   
-  // Use provided SLA time or default to 72 hours (3 days) for PGx tests
-  let slaHours = parseFloat(slaTime) || 72;
+  // Check if date is valid
+  if (isNaN(startDate.getTime())) {
+    console.error('❌ Invalid date:', requestDate);
+    return { warning: false, percentage: 0, overdue: false };
+  }
   
-  // Calculate elapsed time in hours
+  // Use provided SLA time in DAYS (not hours)
+  let slaDays = parseFloat(slaTime);
+  
+  // If no valid SLA time provided, don't show warnings
+  if (!slaDays || slaDays <= 0) {
+    console.warn('⚠️ No valid SLA time:', slaTime);
+    return { warning: false, percentage: 0, overdue: false };
+  }
+  
+  // Calculate elapsed time in days
   const elapsedMs = now - startDate;
-  const elapsedHours = elapsedMs / (1000 * 60 * 60);
+  const elapsedDays = elapsedMs / (1000 * 60 * 60 * 24);
   
   // Calculate percentage
-  const percentage = (elapsedHours / slaHours) * 100;
+  const percentage = (elapsedDays / slaDays) * 100;
+  
+  console.log('📊 TAT Calculation:', {
+    requestDate,
+    startDate: startDate.toISOString(),
+    now: now.toISOString(),
+    elapsedMs,
+    elapsedDays: elapsedDays.toFixed(2),
+    slaDays,
+    percentage: percentage.toFixed(2),
+    warning: percentage > 80 && percentage <= 100,
+    overdue: percentage > 100
+  });
   
   return {
     warning: percentage > 80 && percentage <= 100,
@@ -142,28 +169,33 @@ function renderTestRequests(data) {
 
     const specimen = req.Specimen || '-';
 
+    // Get SLA time from map (case-insensitive lookup)
     const specimenKey = (specimen || '').toLowerCase();
     const slaTime = specimenSlaMap[specimenKey];
-    // Display status as-is from database (already in the format we want)
+    
+    // Display status as-is from database
     const statusDisplay = status;
 
     // Get dot class for color coding
     const dotClass = getTATBadgeClass(status);
     
-    // Calculate TAT warning (will use default 72 hours if slaTime is 0)
+    // Calculate TAT warning with actual SLA time from database
     const tatWarning = calculateTATWarning(requestDate, slaTime, status);
     
-    // Debug logging for first row
-    if (req.request_id === 6) {
-      console.log('🔍 TAT Debug for request_id 6:', {
-        requestDate,
-        status,
+    // Debug logging for request 43
+    if (req.request_id === 43) {
+      console.log(`🔍 DEBUG Request ${req.request_id}:`, {
+        specimen,
+        specimenKey,
         slaTime,
-        tatWarning
+        requestDate,
+        requestDateType: typeof requestDate,
+        status,
+        tatWarning,
+        fullRequest: req,
+        specimenSlaMap
       });
     }
-
-    
 
     const tr = document.createElement('tr');
     tr.setAttribute('data-request-id', req.request_id);
@@ -178,7 +210,7 @@ function renderTestRequests(data) {
     tr.innerHTML = `
       <td>${req.request_id || '-'}</td>
       <td>${hospitalId}</td>
-      <td>${patientName} </td>
+      <td>${patientName}</td>
       <td>${testTarget}</td>
       <td>${received}</td>
       <td>${specimen}</td>
@@ -186,8 +218,8 @@ function renderTestRequests(data) {
         <div class="tat-status">
           <span class="tat-dot ${dotClass}"></span>
           <span>${statusDisplay}</span>
-          ${tatWarning.warning ? '<i class="fas fa-exclamation-triangle tat-warning-icon" title="TAT > 80%"></i>' : ''}
-          ${tatWarning.overdue ? '<i class="fas fa-exclamation-circle tat-overdue-icon" title="TAT > 100% (Overdue!)"></i>' : ''}
+          ${tatWarning.warning ? `<i class="fas fa-exclamation-triangle tat-warning-icon" title="TAT > 80% (${tatWarning.percentage}%)"></i>` : ''}
+          ${tatWarning.overdue ? `<i class="fas fa-exclamation-circle tat-overdue-icon" title="TAT > 100% - Overdue! (${tatWarning.percentage}%)"></i>` : ''}
         </div>
       </td>
       <td>
