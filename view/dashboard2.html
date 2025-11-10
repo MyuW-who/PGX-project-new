@@ -9,7 +9,6 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
   />
   <link rel="stylesheet" href="./css/dashboard.css" />
-  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 <body>
   <div class="dashboard">
@@ -63,40 +62,31 @@
   </div>
 
   <!-- Settings Popup -->
-  <div id="settingsPopup" class="popup" style="display: none;">
-    <div class="popup-content">
-      <div class="popup-header">
-        <h3>Settings</h3>
-        <span class="close" id="closeSettings">&times;</span>
+  <div id="settingsPopup" class="settings-popup">
+    <div class="settings-content">
+      <h3>Settings</h3>
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="themeToggle" />
+          Dark Mode
+        </label>
       </div>
-      <div class="popup-body">
-        <div class="setting-item">
-          <label>Language:</label>
-          <select id="languageSetting">
-            <option value="th">ไทย (Thai)</option>
-            <option value="en">English</option>
-          </select>
-        </div>
-        <div class="setting-item">
-          <label>Theme:</label>
-          <select id="themeSetting">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </div>
-        <div class="setting-item">
-          <label>Notifications:</label>
-          <input type="checkbox" id="notificationsSetting" checked>
-        </div>
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="langToggle" />
+          English Language
+        </label>
       </div>
-      <div class="popup-footer">
-        <button class="btn-primary" id="saveSettings">Save</button>
-        <button class="btn-secondary" id="cancelSettings">Cancel</button>
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="notificationToggle" />
+          Enable Notifications
+        </label>
       </div>
+      <button id="closeSettings" class="btn-close">Close</button>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
   <script src="./js/userProfile.js"></script>
   <script src="./js/dashboard.js"></script>
 </body>

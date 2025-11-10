@@ -53,16 +53,10 @@ async function searchTestRequests(searchTerm) {
     return [];
   }
 
-  // Filter by patient_id or patient name
+  // Filter by request_id only (exact match)
   const filtered = (data || []).filter(req => {
-    const patientId = req.patient?.patient_id?.toString() || '';
-    const firstName = req.patient?.first_name?.toLowerCase() || '';
-    const lastName = req.patient?.last_name?.toLowerCase() || '';
-    const searchLower = cleanSearchTerm.toLowerCase();
-    
-    return patientId.includes(cleanSearchTerm) || 
-           firstName.includes(searchLower) || 
-           lastName.includes(searchLower);
+    const requestId = req.request_id?.toString() || '';
+    return requestId === cleanSearchTerm;
   });
 
   return filtered;

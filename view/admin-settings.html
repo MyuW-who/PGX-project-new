@@ -4,140 +4,130 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Settings</title>
-  <link rel="stylesheet" href="./css/adminpage.css" />
   <link rel="stylesheet" href="./css/admin-settings.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="./css/navbar.css">
-  <link rel="stylesheet" href="./css/menu.css">
-  <link rel="stylesheet" href="./css/darkmode.css" />
-  <link rel="stylesheet" href="./css/navbar_hover.css">
-  <link rel="stylesheet" href="./css/global.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-
-  <!-- แถบ Navbar -->
-  <div class="hover-navbar">
-    <div class="navbar-content">
-      <div class="navbar-left">
-        <span class="logo">Roblox</span>
-      </div>
-      <div class="navbar-right">
-        <button class="nav-btn close"><i class="fa fa-xmark"></i></button>
-      </div>
-    </div>
-  </div>
-
-  <div class="layout">
+  <div class="app-shell">
     <aside class="sidebar">
-      <h2 class="logo">Logo</h2>
-      <ul>
-        <li id="admin-btn">Employee</li>
-        <li id="auditlog-btn">Audit Log</li>
-        <li id="admin-settings-btn" class="active">Admin Settings</li>
-      </ul>
+      <div class="logo">Logo</div>
+      <nav class="nav-links">
+        <a href="./dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+        <a href="./patients.html"><i class="fa-solid fa-user-group"></i> ข้อมูลผู้ป่วย</a>
+        <a href="./information.html"><i class="fa-solid fa-table-list"></i> ตรวจสอบข้อมูล</a>
+        <a class="active" href="./admin-settings.html"><i class="fa-solid fa-sliders"></i> Admin Settings</a>
+      </nav>
     </aside>
 
-    <main class="main-content">
+    <main class="content">
       <header class="page-header">
-        <div class="page-title">
+        <div class="page-heading">
           <h1>Admin Settings</h1>
           <p>จัดการหมวดหมู่ สิ่งส่งตรวจ และกำหนดค่า TAT ภายในระบบ</p>
         </div>
-        <div class="header-buttons">
-          <button id="themeToggle" class="icon-btn" title="เปลี่ยนธีม">
-            <i class="fa fa-moon"></i>
+        <div class="toolbar-actions">
+          <button type="button" id="themeToggle" class="chip icon-only" aria-label="Toggle theme">
+            <i class="fa-solid fa-moon"></i>
           </button>
-          <button id="langToggle" class="lang-btn" title="สลับภาษา">TH</button>
-          <div class="dropdown">
-            <button class="dropbtn" id="dropdownBtn">
-              <i class="fa fa-user-circle"></i>
-              Admin
-              <i class="fa fa-caret-down"></i>
+          <button type="button" class="chip" id="langToggle">TH</button>
+          <div class="chip dropdown">
+            <button type="button" class="dropdown-toggle">
+              <i class="fa-solid fa-user"></i>
+              <span>Admin</span>
+              <i class="fa-solid fa-caret-down"></i>
             </button>
-            <div id="dropdownMenu" class="dropdown-content">
-              <a href="#" id="settingsBtn">Settings</a>
-              <a href="#">About</a>
+            <nav class="dropdown-menu">
+              <a href="./profile.html">Profile</a>
+              <a href="#">Settings</a>
               <a href="#" id="logout">Logout</a>
-            </div>
+            </nav>
           </div>
         </div>
       </header>
 
-      <section class="card compact-form">
-        <div class="form-header">
-          <h2>จัดการข้อมูลสิ่งส่งตรวจ</h2>
-          <div id="form-message" class="form-message" role="alert"></div>
-        </div>
-        
-        <form id="specimenForm" class="inline-form">
-          <input id="specimenName" name="name" type="text" placeholder="ชื่อสิ่งส่งตรวจ (เช่น Blood)" required />
-          <input id="specimenTat" name="tat" type="number" min="0" placeholder="TAT (วัน)" required style="width: 120px;" />
-          <button type="submit" class="btn primary" id="submitBtn">
-            <i class="fa fa-plus"></i> เพิ่ม
-          </button>
-          <button type="button" id="cancelBtn" class="btn secondary" style="display: none;">
-            <i class="fa fa-times"></i> ยกเลิก
-          </button>
-        </form>
+      <section class="settings-grid">
+        <article class="card card-category">
+          <header>
+            <h2>ข้อมูลหมวดหมู่สิ่งส่งตรวจ</h2>
+            <p>สร้างหรืออัปเดตหมวดหมู่เพื่อใช้ในระบบจัดการเคส</p>
+          </header>
+          <form id="categoryForm" class="form-grid">
+            <label>
+              <span>ชื่อหมวดหมู่</span>
+              <input id="categoryName" name="name" type="text" placeholder="เช่น NGS Panel" required />
+            </label>
+            <label>
+              <span>รหัสหมวดหมู่</span>
+              <input id="categoryCode" name="code" type="text" placeholder="เช่น NGS-01" required />
+            </label>
+            <label>
+              <span>TAT (วัน)</span>
+              <input id="tatDays" name="tat" type="number" min="0" placeholder="ระบุจำนวนวัน" required />
+            </label>
+            <label class="span-2">
+              <span>รายละเอียด</span>
+              <textarea id="categoryDesc" name="description" placeholder="รายละเอียดเพิ่มเติม"></textarea>
+            </label>
+            <div class="form-actions span-2">
+              <button type="reset" class="btn ghost">ยกเลิก</button>
+              <button type="submit" class="btn primary">บันทึกหมวดหมู่</button>
+            </div>
+          </form>
+        </article>
 
-        <div class="scrollable-table-wrapper">
-          <table id="specimen-table" class="specimen-table">
-            <thead>
-              <tr>
-                <th>ชื่อสิ่งส่งตรวจ</th>
-                <th style="width: 100px; text-align: center;">TAT (วัน)</th>
-                <th style="width: 100px; text-align: center;">จัดการ</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- จะถูกเติมโดยสคริปต์ -->
-            </tbody>
-          </table>
-        </div>
-      </section>
+        <article class="card card-tat">
+          <header>
+            <h2>ปรับเวลา TAT รายหมวด</h2>
+            <p>ตั้งค่าระยะเวลา SLA ให้ตรงกับการปฏิบัติงานจริง</p>
+          </header>
+          <form id="tatForm" class="form-stack">
+            <label>
+              <span>เลือกหมวดหมู่</span>
+              <select id="tatCategory" name="category" required>
+                <option value="" selected disabled>เลือกหมวดหมู่...</option>
+              </select>
+            </label>
+            <label>
+              <span>TAT ใหม่ (วัน)</span>
+              <input id="tatNewDays" name="tat" type="number" min="0" required />
+            </label>
+            <div class="form-actions">
+              <button type="reset" class="btn ghost">รีเซ็ต</button>
+              <button type="submit" class="btn accent">อัปเดต TAT</button>
+            </div>
+          </form>
+        </article>
 
-      <section class="card compact-form">
-        <div class="form-header">
-          <h2>📊 จัดการ Rulebase</h2>
-          <div id="rulebase-message" class="form-message" role="alert"></div>
-        </div>
-        
-        <div class="rulebase-actions">
-          <div class="rulebase-item">
-            <div class="rulebase-info">
-              <h3>📤 Import Excel to Supabase</h3>
-              <p>นำเข้าข้อมูล pharmacogenomics rulebase จากไฟล์ Excel</p>
+        <article class="card card-specimen">
+          <header>
+            <h2>เพิ่มข้อมูลสิ่งส่งตรวจใหม่</h2>
+            <p>แนบสิ่งส่งตรวจกับหมวดหมู่ที่ต้องการติดตาม</p>
+          </header>
+          <form id="specimenForm" class="form-stack">
+            <label>
+              <span>ชื่อสิ่งส่งตรวจ</span>
+              <input id="specimenName" name="name" type="text" placeholder="เช่น Blood Sample" required />
+            </label>
+            <label>
+              <span>หมวดหมู่</span>
+              <select id="specimenCategory" name="category" required>
+                <option value="" selected disabled>เลือกหมวดหมู่...</option>
+              </select>
+            </label>
+            <label>
+              <span>หมายเหตุ</span>
+              <textarea id="specimenRemark" name="remark" placeholder="รายละเอียดเพิ่มเติม"></textarea>
+            </label>
+            <div class="form-actions">
+              <button type="reset" class="btn ghost">ล้างฟอร์ม</button>
+              <button type="submit" class="btn success">เพิ่มข้อมูล</button>
             </div>
-            <div class="rulebase-controls">
-              <input type="text" id="excelFile" placeholder="pgx_rulebase.xlsx" value="pgx_rulebase.xlsx" style="flex: 1; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: 8px;">
-              <button class="btn primary" onclick="importExcel()">
-                <i class="fa fa-upload"></i> Import
-              </button>
-            </div>
-          </div>
-
-          <div class="rulebase-item">
-            <div class="rulebase-info">
-              <h3>🔄 Refresh Rulebase Cache</h3>
-              <p>โหลดข้อมูล rulebase จาก Supabase เพื่ออัปเดต cache</p>
-            </div>
-            <div class="rulebase-controls">
-              <button class="btn secondary" onclick="refreshCache()" style="margin-left: auto;">
-                <i class="fa fa-refresh"></i> Refresh Cache
-              </button>
-            </div>
-          </div>
-        </div>
+          </form>
+        </article>
       </section>
     </main>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-  <script src="./js/userProfile.js"></script>
-  <script src="./js/darkmode.js"></script>
   <script src="./js/admin-settings.js"></script>
-  <script src="./js/menu.js"></script>
-  <script src="./js/navbar_hover.js"></script>
-
 </body>
 </html>
