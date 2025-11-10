@@ -52,7 +52,19 @@ async function fetchPatientData(patientId) {
 (async () => {
   const patientData = await fetchPatientData(patientId);
 
-  sessionStorage.setItem("patientName" , patientData ? `${patientData.first_name} ${patientData.last_name}` : "สมชาย ใจดี");
+  if (patientData) {
+    // Store all patient data in sessionStorage
+    sessionStorage.setItem("patientName", `${patientData.first_name} ${patientData.last_name}`);
+    sessionStorage.setItem("patientAge", patientData.age || 'N/A');
+    sessionStorage.setItem("patientGender", patientData.gender || 'N/A');
+    sessionStorage.setItem("patientId", patientData.patient_id || patientId);
+    sessionStorage.setItem("patientHospital", patientData.hospital_id || 'N/A');
+    sessionStorage.setItem("patientEthnicity", patientData.ethnicity || 'N/A');
+    sessionStorage.setItem("patientPhone", patientData.phone || 'N/A');
+    sessionStorage.setItem("patientBloodType", patientData.blood_type || 'N/A');
+  } else {
+    sessionStorage.setItem("patientName", "สมชาย ใจดี");
+  }
 
   const patientBox = document.getElementById('patient-info');
   if (patientData) {

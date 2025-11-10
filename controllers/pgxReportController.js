@@ -15,12 +15,20 @@ async function findDiplotype(geneSymbol, genotype) {
     // Clean genotype: remove " or" and anything after it
     const cleanedGenotype = genotype.replace(/\s+or.*/gi, '').trim();
     
-    const { data, error } = await supabase
+    // Set a timeout of 3 seconds for the query
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Query timeout')), 3000)
+    );
+    
+    const queryPromise = supabase
       .from('diplotype')
       .select('*')
       .eq('genesymbol', geneSymbol)
       .eq('diplotype', cleanedGenotype)
+      .limit(1)
       .single();
+    
+    const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
 
     if (error) {
       console.error('❌ Error finding diplotype:', error.message);
@@ -29,7 +37,7 @@ async function findDiplotype(geneSymbol, genotype) {
 
     return data;
   } catch (err) {
-    console.error('❌ Exception in findDiplotype:', err);
+    console.error('❌ Exception in findDiplotype:', err.message);
     return null;
   }
 }
@@ -79,9 +87,10 @@ async function generatePGxPDF(reportInfo) {
       fs.mkdirSync(reportsDir, { recursive: true });
     }
 
-    // Create unique filename
+    // Create unique filename with report_id or request_id
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
-    const fileName = `PGx_${reportInfo.patientId}_${reportInfo.test_target}_${timestamp}.pdf`;
+    const reportId = reportInfo.report_id || reportInfo.request_id || Date.now();
+    const fileName = `PGx_${reportInfo.patientId}_${reportInfo.test_target}_${reportId}_${timestamp}.pdf`;
     const filePath = path.join(reportsDir, fileName);
 
     const doc = new PDFDocument({ margin: 50, size: 'A4' });
@@ -110,169 +119,180 @@ async function generatePGxPDF(reportInfo) {
       doc.font('THSarabun');
     }
 
-    // Header
-    if (hasBoldFont) {
-      doc.fontSize(16).font('THSarabunBold').text(
-        'ห้องปฏิบัติการเภสัชพันธุศาสตร์',
-        { align: 'center' }
-      );
-    } else {
-      doc.fontSize(16).text(
-        'ห้องปฏิบัติการเภสัชพันธุศาสตร์',
-        { align: 'center' }
-      );
-    }
+    // Header - Laboratory Name
+    doc.fontSize(18);
+    if (hasBoldFont) doc.font('THSarabunBold');
+    doc.text('ห้องปฏิบัติการเภสัชพันธุศาสตร์', { align: 'center' });
     
-    if (hasRegularFont) {
-      doc.fontSize(14).font('THSarabun').text(
-        '(Laboratory for Pharmacogenomics)',
-        { align: 'center' }
-      );
-    } else {
-      doc.fontSize(14).text(
-        '(Laboratory for Pharmacogenomics)',
-        { align: 'center' }
-      );
-    }
-    doc.moveDown(0.5);
+    doc.fontSize(16);
+    if (hasRegularFont) doc.font('THSarabun');
+    doc.text('(Laboratory for Pharmacogenomics)', { align: 'center' });
+    doc.moveDown(0.3);
     
-    doc.fontSize(10).text(
-      '6th Floor, Bumrungrat Hospital East tower, Department of Pathology, Faculty of Medicine, Ramathibodi Hospital Tel. +662-200-4321 Fax +662-200-4322',
+    // Contact Information
+    doc.fontSize(9).text(
+      '6th Floor, Bumrungrat Hospital East tower, Department of Pathology, Faculty of Medicine, Ramathibodi Hospital',
       { align: 'center' }
     );
+    doc.text('Tel. +662-200-4321 Fax +662-200-4322', { align: 'center' });
     doc.moveDown(1);
 
     // Title
-    if (hasBoldFont) {
-      doc.fontSize(14).font('THSarabunBold');
-    } else {
-      doc.fontSize(14);
-    }
-    doc.text(
-      'PHARMACOGENOMICS AND PERSONALIZED MEDICINE REPORT',
-      { align: 'center', underline: true }
-    );
-    doc.moveDown(1);
+    doc.fontSize(13);
+    if (hasBoldFont) doc.font('THSarabunBold');
+    doc.text('PHARMACOGENOMICS AND PERSONALIZED MEDICINE REPORT', { 
+      align: 'center', 
+      underline: true 
+    });
+    doc.moveDown(1.2);
 
-    // Patient Information
-    if (hasRegularFont) {
-      doc.font('THSarabun');
-    }
-    doc.fontSize(12);
-    const leftColumn = 50;
-    const rightColumn = 300;
-    let yPos = doc.y;
+    // Patient Information Section
+    if (hasRegularFont) doc.font('THSarabun');
+    doc.fontSize(11);
+    
+    const leftCol = 70;
+    const leftVal = 200;
+    const rightCol = 320;
+    const rightVal = 430;
+    let y = doc.y;
 
-    doc.text(`ชื่อ-สกุล (Name):`, leftColumn, yPos);
-    doc.text(reportInfo.patientName || 'N/A', leftColumn + 120, yPos);
-    doc.text(`อายุ (Age):`, rightColumn, yPos);
-    doc.text(`${reportInfo.patientAge || 'N/A'} ปี (years)`, rightColumn + 80, yPos);
+    // Row 1
+    doc.text('ชื่อ-สกุล (Name):', leftCol, y);
+    doc.text(reportInfo.patientName || 'N/A', leftVal, y);
+    doc.text('อายุ (Age):', rightCol, y);
+    doc.text(`${reportInfo.patientAge || 'N/A'} ปี (years)`, rightVal, y);
 
-    yPos += 20;
-    doc.text(`เลขประจำตัวผู้ป่วย (HN):`, leftColumn, yPos);
-    doc.text(reportInfo.patientId || 'N/A', leftColumn + 120, yPos);
-    doc.text(`เพศ (Gender):`, rightColumn, yPos);
-    doc.text(reportInfo.patientGender || 'N/A', rightColumn + 80, yPos);
+    y += 18;
+    doc.text('เลขประจำตัวผู้ป่วย (HN):', leftCol, y);
+    doc.text(reportInfo.patientId || 'N/A', leftVal, y);
+    doc.text('เพศ (Gender):', rightCol, y);
+    doc.text(reportInfo.patientGender || 'N/A', rightVal, y);
 
-    yPos += 20;
-    doc.text(`ชนิดสิ่งส่งตรวจ (Specimen):`, leftColumn, yPos);
-    doc.text(reportInfo.specimen || 'Blood', leftColumn + 120, yPos);
-    doc.text(`เลขที่รับผล (Patient#):`, rightColumn, yPos);
-    doc.text(reportInfo.patientNumber || 'N/A', rightColumn + 80, yPos);
+    y += 18;
+    doc.text('ชนิดสิ่งส่งตรวจ (Specimen):', leftCol, y);
+    doc.text(reportInfo.specimen || 'Blood', leftVal, y);
+    doc.text('เลขที่รับผล (Patient#):', rightCol, y);
+    doc.text(reportInfo.patientNumber || 'N/A', rightVal, y);
 
-    yPos += 20;
-    doc.text(`โรงพยาบาล (Hospital):`, leftColumn, yPos);
-    doc.text(reportInfo.hospital || 'N/A', leftColumn + 120, yPos);
-    doc.text(`วันที่รับตัวอย่าง (Create date):`, rightColumn, yPos);
-    doc.text(reportInfo.createDate || new Date().toLocaleDateString('th-TH'), rightColumn + 80, yPos);
+    y += 18;
+    doc.text('โรงพยาบาล (Hospital):', leftCol, y);
+    doc.text(reportInfo.hospital || 'N/A', leftVal, y);
+    doc.text('วันที่รับตัวอย่าง (Create date):', rightCol, y);
+    doc.text(reportInfo.createDate || new Date().toLocaleDateString('th-TH'), rightVal, y);
 
-    yPos += 20;
-    doc.text(`แพทย์ผู้ส่งตรวจ (Clinician):`, leftColumn, yPos);
-    doc.text(reportInfo.doctorName || 'N/A', leftColumn + 120, yPos);
-    doc.text(`วันที่รายงานผล (Update date):`, rightColumn, yPos);
-    doc.text(reportInfo.updateDate || new Date().toLocaleDateString('th-TH'), rightColumn + 80, yPos);
+    y += 18;
+    doc.text('แพทย์ผู้ส่งตรวจ (Clinician):', leftCol, y);
+    doc.text(reportInfo.doctorName || 'N/A', leftVal, y);
+    doc.text('วันที่รายงานผล (Update date):', rightCol, y);
+    doc.text(reportInfo.updateDate || new Date().toLocaleDateString('th-TH'), rightVal, y);
 
-    yPos += 20;
-    doc.text(`แพทย์ผู้รับผิดชอบ (Physician) / doc.name:`, leftColumn, yPos);
-    doc.text(reportInfo.responsibleDoctor || reportInfo.doctorName || 'N/A', leftColumn + 120, yPos);
+    y += 18;
+    doc.text('แพทย์ผู้รับผิดชอบ (Physician) / doc.name:', leftCol, y);
+    doc.text(reportInfo.responsibleDoctor || reportInfo.doctorName || 'N/A', leftVal, y);
 
-    doc.moveDown(1.5);
+    doc.moveDown(2);
 
     // Test Results Section
-    doc.fontSize(14);
+    doc.fontSize(13);
     if (hasBoldFont) doc.font('THSarabunBold');
     doc.text(
-      `${reportInfo.test_target} genotyping: ${reportInfo.activityScore || 'N/A'}`,
+      `${reportInfo.test_target} genotyping: ${reportInfo.activityScore || 'n/a'}`,
       { underline: true }
     );
-    doc.moveDown(0.5);
+    doc.moveDown(0.8);
 
-    doc.fontSize(12);
+    // Gene name
+    doc.fontSize(11);
     if (hasBoldFont) doc.font('THSarabunBold');
     doc.text(`${reportInfo.test_target} gene`);
     if (hasRegularFont) doc.font('THSarabun');
+    doc.moveDown(0.3);
 
-    // Allele table
+    // Allele table - formatted horizontally
     if (reportInfo.alleles && reportInfo.alleles.length > 0) {
-      reportInfo.alleles.forEach(allele => {
-        doc.text(`${allele.name}    ${allele.value}`);
+      let alleleText = '';
+      reportInfo.alleles.forEach((allele, index) => {
+        alleleText += `${allele.name}  ${allele.value}`;
+        if (index < reportInfo.alleles.length - 1) {
+          alleleText += '     ';
+        }
       });
+      doc.text(alleleText);
     }
 
-    doc.moveDown(0.5);
+    doc.moveDown(0.8);
+    
+    // Genotype
     if (hasBoldFont) doc.font('THSarabunBold');
-    doc.text(`Genotype:`, { continued: true });
+    doc.text('Genotype:', { continued: true });
     if (hasRegularFont) doc.font('THSarabun');
     doc.text(`  ${reportInfo.genotype || 'N/A'}`);
 
+    // Total activity score
     if (hasBoldFont) doc.font('THSarabunBold');
-    doc.text(`Total activity score:`, { continued: true });
+    doc.text('Total activity score:', { continued: true });
     if (hasRegularFont) doc.font('THSarabun');
-    doc.text(`  ${reportInfo.activityScore || 'N/A'}`);
+    doc.text(`  ${reportInfo.activityScore || 'n/a'}`);
 
+    // Predicted Phenotype
     if (hasBoldFont) doc.font('THSarabunBold');
-    doc.text(`Predicted Phenotype:`, { continued: true });
+    doc.text('Predicted Phenotype:', { continued: true });
     if (hasRegularFont) doc.font('THSarabun');
     doc.text(`  ${reportInfo.predicted_phenotype || 'N/A'}`);
 
-    doc.moveDown(0.5);
+    doc.moveDown(1);
+
+    // Genotype Summary
     if (hasBoldFont) doc.font('THSarabunBold');
-    doc.text(`Genotype Summary:`);
+    doc.text('Genotype Summary:');
     if (hasRegularFont) doc.font('THSarabun');
-    doc.text(reportInfo.genotype_summary || 'N/A', {
-      align: 'justify',
-      width: 500
+    doc.text(reportInfo.genotype_summary || 'An individual carrying two normal function alleles', {
+      align: 'left',
+      width: 480,
+      lineGap: 2
     });
 
     doc.moveDown(1);
 
     // Recommendation section
     if (hasBoldFont) doc.font('THSarabunBold');
-    doc.text(`recommendation:`);
+    doc.text('recommendation:');
     if (hasRegularFont) doc.font('THSarabun');
-    doc.text(reportInfo.recommendation || 'N/A', {
-      align: 'justify',
-      width: 500
+    doc.text(reportInfo.recommendation || 'This result signifies that the patient has two copies of a normal function allele. Patients with this genotype are expected to require higher starting tacrolimus dosing (1.5 to 3 times the standard dose-maximum starting dose not to exceed 0.3mg/kg/day). Dosage adjustments or selection of alternative therapy may be necessary due to other factors (e.g., medication interactions, or hepatic function). Please consult a clinical pharmacist for more specific dosing information.', {
+      align: 'left',
+      width: 480,
+      lineGap: 2
     });
+
+    doc.moveDown(3);
+
+    // Signature section
+    doc.fontSize(10);
+    if (hasRegularFont) doc.font('THSarabun');
+    doc.text('วิธีการในการตรวจและผลทดลอง', { align: 'center' });
+    doc.text('วิธีการในการทดลองผลการทดลอง', { align: 'center' });
 
     doc.moveDown(2);
 
-    // Signature section
-    doc.fontSize(10).text('วิธีการในการตรวจและผลทดลอง', { align: 'center' });
-    doc.text('วิธีการในการทดลองผลการทดลอง', { align: 'center' });
-
-    // Footer
-    doc.fontSize(8).text(
-      `สร้างรายงานเมื่อ: ${new Date().toLocaleString('th-TH')}`,
-      50,
-      doc.page.height - 50,
-      { align: 'left' }
-    );
+    // Footer - positioned at bottom of page
+    const footerY = doc.page.height - 60;
+    doc.fontSize(8);
+    if (hasRegularFont) doc.font('THSarabun');
+    
+    // Left side - report date
     doc.text(
-      `Page 1 of 2`,
+      `สร้างรายงาน-04-${reportInfo.createDate || new Date().toLocaleDateString('th-TH').replace(/\//g, '-')}`,
       50,
-      doc.page.height - 50,
-      { align: 'right' }
+      footerY,
+      { align: 'left', width: 250 }
+    );
+    
+    // Right side - page number
+    doc.text(
+      'Page 1 of 2',
+      doc.page.width - 150,
+      footerY,
+      { align: 'right', width: 100 }
     );
 
     doc.end();
@@ -331,14 +351,22 @@ async function uploadPDFToStorage(filePath, fileName) {
  */
 async function processCompleteReport(testData) {
   try {
-    // Step 1: Find diplotype match (for validation only)
-    const diplotype = await findDiplotype(testData.test_target, testData.genotype);
+    // Step 1: Try to find diplotype match (optional, with timeout)
+    let diplotype = null;
+    try {
+      diplotype = await Promise.race([
+        findDiplotype(testData.test_target, testData.genotype),
+        new Promise(resolve => setTimeout(() => resolve(null), 2000))
+      ]);
+    } catch (err) {
+      console.log('⚠️ Diplotype lookup skipped:', err.message);
+    }
     
     // Get description and consultation from diplotype if available, otherwise use provided data
-    const genotypeDescription = diplotype?.description || testData.genotype_summary || 'N/A';
-    const consultationText = diplotype?.consultationtext || testData.recommendation || 'N/A';
+    const genotypeDescription = diplotype?.description || testData.genotype_summary || 'An individual carrying normal function alleles';
+    const consultationText = diplotype?.consultationtext || testData.recommendation || 'Please consult a clinical pharmacist for more specific dosing information.';
 
-    // Step 2: Prepare report data
+    // Step 2: Prepare report data (without PDF path first)
     const reportData = {
       request_id: testData.request_id,
       test_target: testData.test_target,
@@ -348,9 +376,19 @@ async function processCompleteReport(testData) {
       recommendation: consultationText
     };
 
-    // Step 3: Generate PDF
+    // Step 3: Create report first to get report_id
+    const reportResult = await createReport(reportData);
+    
+    if (!reportResult.success) {
+      return reportResult;
+    }
+
+    const reportId = reportResult.data.report_id;
+
+    // Step 4: Generate PDF with report_id in filename
     const pdfInfo = {
       ...testData,
+      report_id: reportId,
       genotype_summary: genotypeDescription,
       recommendation: consultationText,
       activityScore: diplotype?.totalactivityscore || testData.activityScore || 'N/A'
@@ -358,13 +396,12 @@ async function processCompleteReport(testData) {
 
     const localPdfPath = await generatePGxPDF(pdfInfo);
 
-    // Step 4: Upload to Supabase storage
+    // Step 5: Upload to Supabase storage
     const fileName = path.basename(localPdfPath);
     const publicUrl = await uploadPDFToStorage(localPdfPath, fileName);
 
     if (!publicUrl) {
-      // Still save report even if PDF upload fails
-      const reportResult = await createReport(reportData);
+      // Report already created, just return without PDF URL
       return {
         success: true,
         warning: 'รายงานถูกสร้างแล้ว แต่ไม่สามารถอัพโหลด PDF ได้',
@@ -376,16 +413,17 @@ async function processCompleteReport(testData) {
       };
     }
 
-    // Step 5: Save report to database with PDF path
-    reportData.pdf_path = publicUrl;
-    
-    const reportResult = await createReport(reportData);
+    // Step 6: Update report with PDF path
+    const { error: updateError } = await supabase
+      .from('report')
+      .update({ pdf_path: publicUrl })
+      .eq('report_id', reportId);
 
-    if (!reportResult.success) {
-      return reportResult;
+    if (updateError) {
+      console.error('❌ Error updating PDF path:', updateError.message);
     }
 
-    // Step 6: Clean up local file (optional)
+    // Step 7: Clean up local file (optional)
     // fs.unlinkSync(localPdfPath);
 
     return {
