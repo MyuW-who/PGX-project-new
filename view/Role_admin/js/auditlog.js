@@ -14,27 +14,8 @@ const auditList = document.getElementById('auditList');
 const auditCount = document.getElementById('auditCount');
 const emptyState = document.getElementById('emptyState');
 
-// --- Mock data ---
-const MOCK_LOGS = [
-	{ id: 1,  actor: 'admin1', action: 'updated',      target: 'admin1',        at: nowMinus({ minutes: 3 }),               group: 'user' },
-		{ id: 2,  actor: 'admin1', action: 'moved',        target: 'ห้องประชุมใหญ่', at: nowMinus({ minutes: 5 }),               group: 'room' },
-		{ id: 3,  actor: 'admin1', action: 'moved',        target: 'ฝ่ายสนับสนุน',   at: nowMinus({ minutes: 7 }),               group: 'room' },
-	{ id: 4,  actor: 'admin1', action: 'updated',      target: 'admin2',        at: nowMinus({ minutes: 10 }),              group: 'user' },
-	{ id: 5,  actor: 'admin2', action: 'updated',      target: 'ห้องเรียน',       at: nowMinus({ hours: 1, minutes: 20 }),    group: 'room' },
-	{ id: 6,  actor: 'admin3', action: 'updated',      target: 'admin3',        at: nowMinus({ days: 1, hours: 2 }),        group: 'user' },
-	{ id: 7,  actor: 'admin2', action: 'role-updated', target: 'admin4',        at: nowMinus({ days: 2, hours: 1 }),        group: 'user' },
-	{ id: 8,  actor: 'admin4', action: 'invited',      target: 'Qm8bcDwa',      at: nowMinus({ days: 2, hours: 2 }),        group: 'invite' },
-		{ id: 9,  actor: 'admin5', action: 'moved',        target: 'โซนทำงานรวม',   at: nowMinus({ days: 3, hours: 3 }),        group: 'room' },
-	{ id: 10, actor: 'admin1', action: 'login',        target: 'System',        at: nowMinus({ hours: 4 }),                 group: 'auth' },
-];
-
-function nowMinus({ minutes = 0, hours = 0, days = 0 }) {
-	const d = new Date();
-	if (minutes) d.setMinutes(d.getMinutes() - minutes);
-	if (hours) d.setHours(d.getHours() - hours);
-	if (days) d.setDate(d.getDate() - days);
-	return d.toISOString();
-}
+// --- Real data from database ---
+let logs = [];
 
 const actionMeta = {
 	'created':      { icon: 'fa-circle-plus',  color: '#10b981', status: 'status-success', label: 'created' },
@@ -71,11 +52,28 @@ function pickAvatarClass(name) {
 	return `fallback-${idx + 1}`;
 }
 
-let logs = [...MOCK_LOGS];
+// --- Load audit logs from database ---
+async function loadAuditLogs() {
+	try {
+		const data = await window.electronAPI.fetchAuditLogs({});
+		logs = data || [];
+		console.log('✅ Loaded audit logs:', logs.length);
+	} catch (err) {
+		console.error('❌ Failed to load audit logs:', err);
+		logs = [];
+	}
+}
 
-function populateFilters() {
-	const users = Array.from(new Set(logs.map(l => l.actor)));
-	filterUser.innerHTML = '<option value="all">All</option>' + users.map(u => `<option value="${u}">${u}</option>`).join('');
+async function populateFilters() {
+	// Get unique users from audit logs
+	try {
+		const users = await window.electronAPI.getAuditUsers();
+		filterUser.innerHTML = '<option value="all">All</option>' + 
+			users.map(u => `<option value="${u}">${u}</option>`).join('');
+	} catch (err) {
+		console.error('❌ Failed to load users:', err);
+		filterUser.innerHTML = '<option value="all">All</option>';
+	}
 }
 
 function applyFilters() {
@@ -84,10 +82,12 @@ function applyFilters() {
 	const query = searchInput.value.trim().toLowerCase();
 
 	const filtered = logs.filter(l => {
-		if (fUser !== 'all' && l.actor !== fUser) return false;
+		const actor = l.username || l.actor; // Support both database field names
+		if (fUser !== 'all' && actor !== fUser) return false;
 		if (fAction !== 'all' && l.action !== fAction) return false;
 		if (query) {
-			const hay = `${l.actor} ${l.action} ${l.target}`.toLowerCase();
+			const target = l.description || l.target || l.record_id || '';
+			const hay = `${actor} ${l.action} ${target}`.toLowerCase();
 			if (!hay.includes(query)) return false;
 		}
 		return true;
@@ -99,21 +99,25 @@ function applyFilters() {
 function renderList(items) {
 	auditList.innerHTML = items.map(item => {
 		const meta = actionMeta[item.action] || actionMeta.updated;
-		const avClass = pickAvatarClass(item.actor);
+		const actor = item.username || item.actor || 'Unknown';
+		const avClass = pickAvatarClass(actor);
 		const actLabel = meta.label || item.action;
+		const target = item.description || item.target || item.record_id || 'N/A';
+		const timestamp = item.created_at || item.at || new Date().toISOString();
+		
 		return `
 			<li class="audit-item" data-id="${item.id}">
-				<div class="avatar ${avClass}">${initials(item.actor)}</div>
+				<div class="avatar ${avClass}">${initials(actor)}</div>
 				<div class="audit-content">
 					<div class="audit-line">
 						<i class="fa ${meta.icon} action-icon" style="color:${meta.color}"></i>
-						<span class="actor">${item.actor}</span>
+						<span class="actor">${actor}</span>
 						<span class="action">${actLabel}</span>
-						<span class="target">${item.target}</span>
+						<span class="target">${target}</span>
 					</div>
 					<div class="audit-meta">
 						<span class="status-dot ${meta.status}"></span>
-						${timeAgo(item.at)}
+						${timeAgo(timestamp)}
 					</div>
 				</div>
 				<div class="chevron"><i class="fa fa-angle-right"></i></div>
@@ -132,13 +136,19 @@ searchInput?.addEventListener('input', applyFilters);
 /* ============================================
    🚀 PAGE INITIALIZATION
    ============================================ */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
 	// Initialize user profile (includes auth check and UI setup)
 	if (!initializeUserProfile()) {
 		return; // User not authenticated, redirected to login
 	}
 	
-	populateFilters();
+	// Load audit logs from database
+	await loadAuditLogs();
+	
+	// Populate filter dropdowns
+	await populateFilters();
+	
+	// Apply initial filters and render
 	applyFilters();
 });
 

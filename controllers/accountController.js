@@ -1,4 +1,5 @@
 const supabase = require('../supabase');
+const { logAuditEvent } = require('./auditLogController');
 
 async function fetchAccountDetails(userId) {
   const { data, error } = await supabase
@@ -29,7 +30,7 @@ async function fetchAllAccounts() {
   return data;
 }
 
-async function createAccount(userData) {
+async function createAccount(userData, currentUser) {
   // First check if username already exists
   const { data: existingUser } = await supabase
     .from('system_users')
@@ -86,11 +87,33 @@ async function createAccount(userData) {
   }
 
   console.log('✅ Created user with ID:', data.user_id);
+
+  // Log audit event
+  if (currentUser) {
+    await logAuditEvent({
+      user_id: currentUser.user_id,
+      username: currentUser.username,
+      role: currentUser.role,
+      action: 'create',
+      table_name: 'system_users',
+      record_id: String(data.user_id),
+      new_data: { username: data.username, role: data.role },
+      description: `สร้างบัญชีผู้ใช้ใหม่: ${data.username} (${data.role})`
+    });
+  }
+
   return data;
 }
 
-async function updateAccount(userData) {
-  // First check if username already exists for other users
+async function updateAccount(userData, currentUser) {
+  // First get the old data for audit log
+  const { data: oldData } = await supabase
+    .from('system_users')
+    .select('username, role, hospital_id')
+    .eq('user_id', userData.user_id)
+    .single();
+
+  // Check if username already exists for other users
   const { data: existingUser } = await supabase
     .from('system_users')
     .select('user_id')
@@ -123,6 +146,26 @@ async function updateAccount(userData) {
 
   if (error) {
     throw new Error('Error updating account: ' + error.message);
+  }
+
+  // Log audit event
+  if (currentUser && oldData) {
+    const changes = [];
+    if (oldData.username !== data.username) changes.push(`username: ${oldData.username} → ${data.username}`);
+    if (oldData.role !== data.role) changes.push(`role: ${oldData.role} → ${data.role}`);
+    if (userData.password_hash) changes.push('password changed');
+
+    await logAuditEvent({
+      user_id: currentUser.user_id,
+      username: currentUser.username,
+      role: currentUser.role,
+      action: 'update',
+      table_name: 'system_users',
+      record_id: String(userData.user_id),
+      old_data: oldData,
+      new_data: { username: data.username, role: data.role },
+      description: `แก้ไขบัญชีผู้ใช้: ${data.username} (${changes.join(', ')})`
+    });
   }
 
   return data;
