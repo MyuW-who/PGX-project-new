@@ -1,5 +1,6 @@
 // controllers/add_patient_controller.js
 const supabase = require('../supabase');
+const { logAuditEvent } = require('./auditLogController');
 
 // ดึงข้อมูลผู้ป่วยทั้งหมด
 async function fetchPatients() {
@@ -17,9 +18,31 @@ async function fetchPatients() {
 }
 
 // เพิ่มข้อมูลผู้ป่วย
-async function addPatient(patientData) {
+async function addPatient(patientData, currentUser) {
   const { data, error } = await supabase.from('patient').insert([patientData]).select();
-  if (error) console.error('❌ Insert Error:', error.message);
+  if (error) {
+    console.error('❌ Insert Error:', error.message);
+    return data;
+  }
+
+  // Log audit event
+  if (currentUser && data && data[0]) {
+    await logAuditEvent({
+      user_id: currentUser.user_id,
+      username: currentUser.username,
+      role: currentUser.role,
+      action: 'create',
+      table_name: 'patient',
+      record_id: String(data[0].patient_id),
+      new_data: { 
+        patient_id: data[0].patient_id,
+        first_name: data[0].first_name,
+        last_name: data[0].last_name
+      },
+      description: `เพิ่มผู้ป่วยใหม่: ${data[0].first_name} ${data[0].last_name} (ID: ${data[0].patient_id})`
+    });
+  }
+
   return data;
 }
 
@@ -65,7 +88,10 @@ async function getPatientById(patientId) {
 }
 
 // อัปเดตข้อมูลผู้ป่วย
-async function updatePatient(patientId, updatedData) {
+async function updatePatient(patientId, updatedData, currentUser) {
+  // Get old data first
+  const oldPatient = await getPatientById(patientId);
+
   const { data, error } = await supabase
     .from('patient')
     .update(updatedData)
@@ -77,14 +103,47 @@ async function updatePatient(patientId, updatedData) {
     console.error('❌ Update Error:', error.message);
     return null;
   }
+
+  // Log audit event
+  if (currentUser && oldPatient && data) {
+    const changes = [];
+    if (oldPatient.first_name !== data.first_name) changes.push('ชื่อ');
+    if (oldPatient.last_name !== data.last_name) changes.push('นามสกุล');
+    if (oldPatient.age !== data.age) changes.push('อายุ');
+    if (oldPatient.gender !== data.gender) changes.push('เพศ');
+
+    await logAuditEvent({
+      user_id: currentUser.user_id,
+      username: currentUser.username,
+      role: currentUser.role,
+      action: 'update',
+      table_name: 'patient',
+      record_id: String(patientId),
+      old_data: {
+        first_name: oldPatient.first_name,
+        last_name: oldPatient.last_name,
+        age: oldPatient.age
+      },
+      new_data: {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        age: data.age
+      },
+      description: `แก้ไขข้อมูลผู้ป่วย: ${data.first_name} ${data.last_name} (ID: ${patientId})${changes.length ? ' - ' + changes.join(', ') : ''}`
+    });
+  }
+
   return data;
 }
 
 
 
 // ลบข้อมูลผู้ป่วย (with cascading delete for test_request)
-async function deletePatient(patientId) {
+async function deletePatient(patientId, currentUser) {
   try {
+    // Get patient info before deleting
+    const patient = await getPatientById(patientId);
+
     // Step 1: Delete all test_request records for this patient first
     const { error: testRequestError } = await supabase
       .from('test_request')
@@ -105,6 +164,24 @@ async function deletePatient(patientId) {
     if (patientError) {
       console.error('❌ Delete Patient Error:', patientError.message);
       return { success: false, message: 'ไม่สามารถลบข้อมูลผู้ป่วยได้' };
+    }
+
+    // Log audit event
+    if (currentUser && patient) {
+      await logAuditEvent({
+        user_id: currentUser.user_id,
+        username: currentUser.username,
+        role: currentUser.role,
+        action: 'delete',
+        table_name: 'patient',
+        record_id: String(patientId),
+        old_data: {
+          first_name: patient.first_name,
+          last_name: patient.last_name,
+          patient_id: patient.patient_id
+        },
+        description: `ลบข้อมูลผู้ป่วย: ${patient.first_name} ${patient.last_name} (ID: ${patientId})`
+      });
     }
 
     return { success: true, message: 'ลบข้อมูลผู้ป่วยและการตรวจที่เกี่ยวข้องสำเร็จ' };

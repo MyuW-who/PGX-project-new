@@ -1,10 +1,4 @@
-// verify_information.js
-// Responsibilities:
-// - Determine the PDF URL (from ?pdf= query) or fallback to a default local file path
-// - Render it into the iframe viewer
-// - Wire up Confirm/Reject buttons to proceed accordingly
-
-(function () {
+(function() {
     const $ = (sel) => document.querySelector(sel);
 
     // 🔹 ID ทั้งหมดนี้มีอยู่ใน index.html ใหม่แล้ว

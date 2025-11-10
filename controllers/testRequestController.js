@@ -90,17 +90,30 @@ async function getTestRequestById(requestId) {
 
 // เพิ่ม test request ใหม่
 async function addTestRequest(requestData) {
-  const { data, error } = await supabase
-    .from('test_request')
-    .insert([requestData])
-    .select()
-    .single();
+  try {
+    // Remove request_id if it exists (let database auto-increment)
+    const { request_id, created_at, ...cleanData } = requestData;
+    
+    console.log('📝 Inserting test request:', cleanData);
+    
+    const { data, error } = await supabase
+      .from('test_request')
+      .insert([cleanData])
+      .select()
+      .single();
 
-  if (error) {
-    console.error('❌ Add Test Request Error:', error.message);
+    if (error) {
+      console.error('❌ Add Test Request Error:', error.message);
+      console.error('❌ Error details:', error);
+      return null;
+    }
+    
+    console.log('✅ Test request inserted:', data);
+    return data;
+  } catch (err) {
+    console.error('❌ Exception in addTestRequest:', err);
     return null;
   }
-  return data;
 }
 
 // อัปเดต test request
