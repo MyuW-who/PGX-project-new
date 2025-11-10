@@ -137,8 +137,10 @@
           <td>${p.first_name ?? ''} ${p.last_name ?? ''}</td>
           <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
           <td>${p.hospital_id ?? '-'}</td>
-          <td><button class="Edit-btn" onclick="event.stopPropagation(); editPatient(${p.patient_id})"><i class="fas fa-edit"></i></button></td>
-          <td><button class="delete-btn" onclick="event.stopPropagation(); deletePatient(${p.patient_id})"><i class="fas fa-trash-alt"></i></button></td>
+          <td>
+            <button class="delete-btn" onclick="event.stopPropagation(); deletePatient(${p.patient_id})"><i class="fas fa-trash-alt"></i></button>
+            <button class="Edit-btn" onclick="event.stopPropagation(); editPatient(${p.patient_id})"><i class="fas fa-edit"></i></button>
+          </td>
         </tr>`;
       tbody.insertAdjacentHTML('beforeend', row);
     });

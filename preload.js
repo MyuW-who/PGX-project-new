@@ -23,14 +23,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateAccount: (data) => ipcRenderer.invoke('update-account', data),
   deleteAccount: (userId) => ipcRenderer.invoke('delete-account', userId),
   hashPassword: (password) => ipcRenderer.invoke('hash-password', password),
-  // Test Request functions
   getTestRequests: () => ipcRenderer.invoke('get-test-requests'),
   searchTestRequests: (searchTerm) => ipcRenderer.invoke('search-test-requests', searchTerm),
   getTestRequestById: (requestId) => ipcRenderer.invoke('get-test-request-by-id', requestId),
   addTestRequest: (data) => ipcRenderer.invoke('add-test-request', data),
   updateTestRequest: (requestId, data) => ipcRenderer.invoke('update-test-request', { requestId, data }),
   deleteTestRequest: (requestId) => ipcRenderer.invoke('delete-test-request', requestId),
-  getTestRequestStats: () => ipcRenderer.invoke('get-test-request-stats'),
+  getTestRequestStats: (timeFilter) => ipcRenderer.invoke('get-test-request-stats',timeFilter),
+  getSpecimenSLA: () => ipcRenderer.invoke('get-specimen-sla'),
+  predictPhenotype: (dnaType, alleles) => ipcRenderer.invoke('predict-phenotype', dnaType, alleles),
+  getAvailableAlleles: (dnaType) => ipcRenderer.invoke('get-available-alleles', dnaType),
+  getAllelePossibleValues: (dnaType, alleleName) => ipcRenderer.invoke('get-allele-possible-values', dnaType, alleleName),
+  getSupportedDnaTypes: () => ipcRenderer.invoke('get-supported-dna-types'),
+  getRulebase: () => ipcRenderer.invoke('get-rulebase'),
+  importExcelToSupabase: (excelFileName) => ipcRenderer.invoke('import-excel-to-supabase', excelFileName),
+  refreshRulebase: () => ipcRenderer.invoke('refresh-rulebase'),
   closeApp: () => ipcRenderer.send('window-close'),
 });
 
