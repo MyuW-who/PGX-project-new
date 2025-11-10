@@ -41,6 +41,7 @@
 			<ul>
 				<li id="admin-btn" >Employee</li>
 				<li id="auditlog-btn" class="active">Audit Log</li>
+				<li id="admin-settings-btn">Admin Settings</li>
 			</ul>
     	</aside>
 
@@ -86,13 +87,23 @@
 						<label for="filterAction">Filter by Action</label>
 						<select id="filterAction">
 							<option value="all">All</option>
-							<option value="created">Created</option>
-							<option value="updated">Updated</option>
-							<option value="moved">Moved</option>
-							<option value="deleted">Deleted</option>
-							<option value="role-updated">Role Updated</option>
-							<option value="invited">Invited</option>
+							<option value="create">Create</option>
+							<option value="update">Update</option>
+							<option value="delete">Delete</option>
+							<option value="role-update">Role Update</option>
 							<option value="login">Login</option>
+							<option value="logout">Logout</option>
+						</select>
+					</div>
+					<div class="filter-group">
+						<label for="filterTime">Filter by Time</label>
+						<select id="filterTime">
+							<option value="all">All Time</option>
+							<option value="today">Today</option>
+							<option value="yesterday">Yesterday</option>
+							<option value="7days">Last 7 Days</option>
+							<option value="30days">Last 30 Days</option>
+							<option value="90days">Last 90 Days</option>
 						</select>
 					</div>
 					<div class="filter-group grow">

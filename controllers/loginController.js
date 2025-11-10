@@ -1,6 +1,7 @@
 // controllers/loginController.js
 const bcrypt = require('bcryptjs');
 const supabase = require('../supabase');
+const { logAuditEvent } = require('./auditLogController');
 
 async function handleLogin(event, { username, password }) {
   try {
@@ -36,6 +37,15 @@ async function handleLogin(event, { username, password }) {
       hospital_id: data.hospital_id,
       created_at: data.created_at
     };
+
+    // ✅ Log successful login
+    await logAuditEvent({
+      user_id: data.user_id,
+      username: data.username,
+      role: data.role,
+      action: 'login',
+      description: `เข้าสู่ระบบสำเร็จ`
+    });
 
     return { 
       success: true, 
