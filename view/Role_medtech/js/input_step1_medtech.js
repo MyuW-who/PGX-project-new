@@ -70,15 +70,15 @@ async function fetchPatientData(patientId) {
   if (patientData) {
     patientBox.innerHTML = `
       <table>
-        <tr><td class="label">เลขประจำตัวผู้ป่วย:</td><td>${patientData.patient_id}</td></tr>
-        <tr><td class="label">ชื่อ-สกุล:</td><td>${patientData.first_name} ${patientData.last_name}</td></tr>
-        <tr><td class="label">อายุ:</td><td>${patientData.age} ปี</td></tr>
-        <tr><td class="label">โรงพยาบาล:</td><td>${patientData.hospital_id}</td></tr>
-        <tr><td class="label">เชื้อชาติ:</td><td>${patientData.ethnicity}</td></tr>
-        <tr><td class="label">เพศ:</td><td>${patientData.gender}</td></tr>
-        <tr><td class="label">เบอร์โทรศัพท์:</td><td>${patientData.phone}</td></tr>
-        <tr><td class="label">กรุ๊ปเลือด:</td><td>${patientData.blood_type}</td></tr>
-        <tr><td class="label">วันที่ส่งผลตรวจ:</td><td>${new Date().toLocaleDateString()}</td></tr>
+        <tr><td class="label">เลขประจำตัวผู้ป่วย:</td><td class="value">${patientData.patient_id}</td></tr>
+        <tr><td class="label">ชื่อ-สกุล:</td><td class="value">${patientData.first_name} ${patientData.last_name}</td></tr>
+        <tr><td class="label">อายุ:</td><td class="value">${patientData.age} ปี</td></tr>
+        <tr><td class="label">โรงพยาบาล:</td><td class="value">${patientData.hospital_id}</td></tr>
+        <tr><td class="label">เชื้อชาติ:</td><td class="value">${patientData.ethnicity}</td></tr>
+        <tr><td class="label">เพศ:</td><td class="value">${patientData.gender}</td></tr>
+        <tr><td class="label">เบอร์โทรศัพท์:</td><td class="value">${patientData.phone}</td></tr>
+        <tr><td class="label">กรุ๊ปเลือด:</td><td class="value">${patientData.blood_type}</td></tr>
+        <tr><td class="label">วันที่ส่งผลตรวจ:</td><td class="value">${new Date().toLocaleDateString()}</td></tr>
       </table>
     `;
   } else {

@@ -24,8 +24,9 @@ body.dark .sidebar {
   background: #1f2937;
 }
 
+/* Simplify main-content: use variable background to avoid unintended gradient overrides */
 body.dark .main-content {
-  background: linear-gradient(165deg, #111827 0%, #161f30 45%, #1b263b 100%);
+  background: var(--bg);
 }
 
 body.dark .case-table thead {
@@ -42,32 +43,29 @@ body.dark .case-table thead th {
    ✨ (แก้ไขส่วนนี้) ทำให้ปุ่มใน Header เป็นสีน้ำเงินตามรูป ✨
    ============================================
 */
+/* Use variable-based styling for header buttons instead of forcing blue everywhere */
 body.dark .icon-btn,
 body.dark .lang-btn,
 body.dark .dropbtn {
-  /* สีและฟอนต์ (จากรูปตัวอย่าง) */
-  background-color: #2563eb; /* สีน้ำเงินสดใส */
-  color: #ffffff; /* ตัวอักษรสีขาว */
-  font-weight: 600; /* ความหนาตัวอักษร */
-  
-  /* รูปทรง (จากรูปตัวอย่าง) */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); /* เงาปุ่ม */
-  /* (สไตล์อื่นๆ เช่น border-radius, width, height จะถูกดึงมาจาก navbar.css) */
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
 }
-
 body.dark .icon-btn:hover,
 body.dark .lang-btn:hover,
 body.dark .dropbtn:hover {
-  background-color: #1d4ed8; /* สีน้ำเงินเข้มขึ้น */
+  background: var(--primary);
+  color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
 }
-
 body.dark .icon-btn:active,
 body.dark .lang-btn:active,
 body.dark .dropbtn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow);
 }
 /* ============================================
    (จบส่วนแก้ไขปุ่ม Header)
@@ -777,3 +775,381 @@ body.dark .form-message {
 body.dark .scrollable-table-wrapper {
   background-color: transparent;
 }
+
+/* ============================================
+   🧬 INPUT STEP 1 MEDTECH PAGE DARK MODE
+   ============================================ */
+
+/* Container (scoped to Step 1 page) */
+body.dark.step1-page .container {
+  width: 760px !important;
+  margin: 2.8rem auto !important;
+  border-radius: 22px !important;
+  padding: 2.5rem 3rem !important;
+  background: linear-gradient(180deg, rgba(55, 58, 74, 0.98), rgba(45, 48, 64, 0.98)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark.step1-page .container h3 {
+  color: #ffffff !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  margin-top: 0 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Patient Box */
+body.dark .patient-box {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 14px !important;
+  background: rgba(60, 63, 82, 0.7) !important;
+  padding: 1.6rem !important;
+  margin-top: 1.2rem !important;
+  margin-bottom: 1.4rem !important;
+  box-shadow: none !important;
+}
+
+body.dark .patient-box table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  line-height: 1.5 !important;
+}
+
+body.dark .patient-box td {
+  padding: 6px 5px !important;
+  vertical-align: top !important;
+  line-height: 1.6 !important;
+  color: #cbd5e1 !important;
+}
+
+body.dark .patient-box td.label {
+  color: #cbd5e1 !important;
+  font-weight: 600 !important;
+  width: 35% !important;
+}
+
+body.dark .patient-box td.value {
+  color: #cbd5e1 !important;
+}
+
+/* DNA Section */
+body.dark .dna-section {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0 !important;
+}
+
+body.dark .dna-section label {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+}
+
+body.dark .dna-section select {
+  padding: 0.55rem 1rem !important;
+  border-radius: 12px !important;
+  background: rgba(60, 63, 82, 0.9) !important;
+  color: #cbd5e1 !important;
+  border: 1.6px solid rgba(255, 255, 255, 0.15) !important;
+  font-size: 0.96rem !important;
+  min-width: 190px !important;
+}
+
+body.dark .dna-section select:hover {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+body.dark .dna-section select:focus {
+  border-color: rgba(37, 99, 235, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+}
+
+/* Button Area */
+body.dark .btn-area {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.8rem !important;
+  margin-top: 1.8rem !important;
+  margin-bottom: 0 !important;
+}
+
+body.dark .back-btn,
+body.dark .next-btn {
+  border-radius: 12px !important;
+  padding: 0.75rem 1.6rem !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  border: 1px solid transparent !important;
+  cursor: pointer !important;
+}
+
+body.dark .back-btn {
+  background: rgba(60, 63, 82, 0.9) !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+body.dark .back-btn:hover {
+  background: rgba(70, 73, 92, 1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+body.dark .next-btn {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+body.dark .next-btn:hover {
+  background: #1d4ed8 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Steps */
+body.dark .steps {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  gap: 18px !important;
+  margin: 2.4rem 0 2rem !important;
+}
+
+body.dark .step,
+body.dark .step.done {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 20px !important;
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
+  background: rgba(45, 48, 64, 0.95) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 20px 38px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark .step.active {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  transform: translateY(-3px) !important;
+}
+
+body.dark .line {
+  width: 68px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  position: relative !important;
+  top: 25px !important;
+}
+
+body.dark .step.done + .line {
+  background: rgba(37, 99, 235, 0.4) !important;
+}
+
+/* ============================================
+   🧬 INPUT STEP 2 MEDTECH PAGE DARK MODE
+   ============================================ */
+
+/* Container (scoped to Step 2 page) */
+body.dark.step2-page .container {
+  width: 760px !important;
+  margin: 2.8rem auto !important;
+  border-radius: 22px !important;
+  padding: 2.5rem 3rem !important;
+  background: linear-gradient(180deg, rgba(55, 58, 74, 0.98), rgba(45, 48, 64, 0.98)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark.step2-page .container h3 {
+  color: #ffffff !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  margin-top: 0 !important;
+  margin-bottom: 1rem !important;
+}
+
+/* DNA Box */
+body.dark .dna-box {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 14px !important;
+  background: rgba(60, 63, 82, 0.7) !important;
+  padding: 1.8rem 2rem !important;
+  margin-top: 1.2rem !important;
+}
+
+body.dark .dna-box .info p {
+  color: #cbd5e1 !important;
+  line-height: 1.6 !important;
+}
+
+body.dark .dna-box .info strong {
+  color: #e5e7eb !important;
+  font-weight: 600 !important;
+}
+
+body.dark .dna-box hr {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Select Area */
+body.dark .select-area {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+}
+
+body.dark .select-row {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 1.5rem !important;
+}
+
+body.dark .select-row label {
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  min-width: 60px !important;
+  text-align: right !important;
+}
+
+body.dark .select-row select {
+  padding: 0.55rem 1rem !important;
+  border-radius: 12px !important;
+  background: rgba(60, 63, 82, 0.9) !important;
+  color: #cbd5e1 !important;
+  border: 1.6px solid rgba(255, 255, 255, 0.15) !important;
+  transition: border-color 0.18s, box-shadow 0.18s !important;
+}
+
+body.dark .select-row select:hover {
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+body.dark .select-row select:focus {
+  border-color: rgba(37, 99, 235, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+}
+
+/* Button Area */
+body.dark .btn-area {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.9rem !important;
+  margin-top: 1.8rem !important;
+}
+
+body.dark .back-btn,
+body.dark .confirm-btn {
+  border-radius: 12px !important;
+  padding: 0.75rem 1.6rem !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: transform 0.18s, box-shadow 0.18s !important;
+}
+
+body.dark .back-btn {
+  background: rgba(60, 63, 82, 0.9) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+body.dark .back-btn:hover {
+  background: rgba(70, 73, 92, 1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+body.dark .confirm-btn {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 0.78rem 1.8rem !important;
+}
+
+body.dark .confirm-btn:hover {
+  background: #1d4ed8 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Steps - ใช้ร่วมกับ step1 */
+body.dark .steps {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  gap: 18px !important;
+  margin: 2.4rem 0 2rem !important;
+}
+
+body.dark .step,
+body.dark .step.done {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 20px !important;
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
+  background: rgba(45, 48, 64, 0.95) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 20px 38px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark .step.active {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  transform: translateY(-3px) !important;
+}
+
+body.dark .step.done {
+  background: rgba(53, 53, 139, 0.95) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+body.dark .line {
+  width: 68px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  position: relative !important;
+  top: 25px !important;
+}
+
+body.dark .step.done + .line {
+  background: rgba(37, 99, 235, 0.4) !important;
+}
+
+/* Genotype Display - Step 2 */
+body.dark .dna-box p {
+  color: #cbd5e1 !important;
+}
+
+body.dark #genotype-display,
+body.dark [id*="genotype"] {
+  background: rgba(248, 249, 252, 0.15) !important;
+  color: #1f2937 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  display: inline-block !important;
+  min-width: 100px !important;
+  text-align: center !important;
+}
+
