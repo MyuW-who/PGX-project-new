@@ -5,18 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Settings</title>
   <link rel="stylesheet" href="./css/admin-settings.css" />
+  <link rel="stylesheet" href="../../view_Global/css/navbar.css">
+	<link rel="stylesheet" href="../../view_Global/css/menu.css">
+  <link rel="stylesheet" href="../../view_Global/css/darkmode.css" />
+  <link rel="stylesheet" href="../../view_Global/css/navbar_hover.css">
+  <link rel="stylesheet" href="../../view_Global/css/global.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar">
-      <div class="logo">Logo</div>
-      <nav class="nav-links">
-        <a href="./dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-        <a href="./patients.html"><i class="fa-solid fa-user-group"></i> ข้อมูลผู้ป่วย</a>
-        <a href="./information.html"><i class="fa-solid fa-table-list"></i> ตรวจสอบข้อมูล</a>
-        <a class="active" href="./admin-settings.html"><i class="fa-solid fa-sliders"></i> Admin Settings</a>
-      </nav>
+      <h2 class="logo">Logo</h2>
+      <ul>
+        <li id="admin-btn">Employee</li>
+        <li id="auditlog-btn">Audit Log</li>
+        <li id="admin_settings-btn" class="active">Settings</li>
+      </ul>
     </aside>
 
     <main class="content">
@@ -30,15 +34,15 @@
             <i class="fa-solid fa-moon"></i>
           </button>
           <button type="button" class="chip" id="langToggle">TH</button>
-          <div class="chip dropdown">
+          <div class="dropdown" id="accountDropdown">
             <button type="button" class="dropdown-toggle">
-              <i class="fa-solid fa-user"></i>
-              <span>Admin</span>
-              <i class="fa-solid fa-caret-down"></i>
+              <i class="fa fa-user-circle"></i>
+              Admin
+              <i class="fa fa-caret-down"></i>
             </button>
             <nav class="dropdown-menu">
-              <a href="./profile.html">Profile</a>
-              <a href="#">Settings</a>
+              <a href="#" id="settingsBtn">Settings</a>
+              <a href="#">About</a>
               <a href="#" id="logout">Logout</a>
             </nav>
           </div>
@@ -121,5 +125,9 @@
   </div>
 
   <script src="./js/admin-settings.js"></script>
+  <script src="../../view_Global/js/userProfile.js"></script>
+  <script src="../../view_Global/js/darkmode.js"></script>
+  <script src="../../view_Global/js/menu.js"></script>
+  <script src="../../view_Global/js/navbar_hover.js"></script>
 </body>
 </html>
