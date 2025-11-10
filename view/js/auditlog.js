@@ -49,6 +49,7 @@ const settingsBtn = document.getElementById('settingsBtn');
 // Filters and list
 const filterUser = document.getElementById('filterUser');
 const filterAction = document.getElementById('filterAction');
+const filterTime = document.getElementById('filterTime');
 const searchInput = document.getElementById('searchInput');
 const auditList = document.getElementById('auditList');
 const auditCount = document.getElementById('auditCount');
@@ -94,35 +95,21 @@ saveSettings?.addEventListener('click', () => {
 settingsPopup?.addEventListener('click', (e) => { if (e.target === settingsPopup) settingsPopup.style.display = 'none'; });
 
 // --- Mock data ---
-const MOCK_LOGS = [
-	{ id: 1,  actor: 'admin1', action: 'updated',      target: 'admin1',        at: nowMinus({ minutes: 3 }),               group: 'user' },
-		{ id: 2,  actor: 'admin1', action: 'moved',        target: 'ห้องประชุมใหญ่', at: nowMinus({ minutes: 5 }),               group: 'room' },
-		{ id: 3,  actor: 'admin1', action: 'moved',        target: 'ฝ่ายสนับสนุน',   at: nowMinus({ minutes: 7 }),               group: 'room' },
-	{ id: 4,  actor: 'admin1', action: 'updated',      target: 'admin2',        at: nowMinus({ minutes: 10 }),              group: 'user' },
-	{ id: 5,  actor: 'admin2', action: 'updated',      target: 'ห้องเรียน',       at: nowMinus({ hours: 1, minutes: 20 }),    group: 'room' },
-	{ id: 6,  actor: 'admin3', action: 'updated',      target: 'admin3',        at: nowMinus({ days: 1, hours: 2 }),        group: 'user' },
-	{ id: 7,  actor: 'admin2', action: 'role-updated', target: 'admin4',        at: nowMinus({ days: 2, hours: 1 }),        group: 'user' },
-	{ id: 8,  actor: 'admin4', action: 'invited',      target: 'Qm8bcDwa',      at: nowMinus({ days: 2, hours: 2 }),        group: 'invite' },
-		{ id: 9,  actor: 'admin5', action: 'moved',        target: 'โซนทำงานรวม',   at: nowMinus({ days: 3, hours: 3 }),        group: 'room' },
-	{ id: 10, actor: 'admin1', action: 'login',        target: 'System',        at: nowMinus({ hours: 4 }),                 group: 'auth' },
-];
-
-function nowMinus({ minutes = 0, hours = 0, days = 0 }) {
-	const d = new Date();
-	if (minutes) d.setMinutes(d.getMinutes() - minutes);
-	if (hours) d.setHours(d.getHours() - hours);
-	if (days) d.setDate(d.getDate() - days);
-	return d.toISOString();
-}
+// REMOVED: Using real database instead
+// const MOCK_LOGS = [...]
 
 const actionMeta = {
-	'created':      { icon: 'fa-circle-plus',  color: '#10b981', status: 'status-success', label: 'created' },
+	'create':       { icon: 'fa-circle-plus',  color: '#10b981', status: 'status-success', label: 'created' },
 	'updated':      { icon: 'fa-pen-to-square',color: '#3b82f6', status: 'status-info',    label: 'updated' },
+	'update':       { icon: 'fa-pen-to-square',color: '#3b82f6', status: 'status-info',    label: 'updated' },
 	'moved':        { icon: 'fa-person-walking-arrow-right', color: '#f59e0b', status: 'status-warning', label: 'moved' },
+	'delete':       { icon: 'fa-trash',        color: '#ef4444', status: 'status-danger',  label: 'deleted' },
 	'deleted':      { icon: 'fa-trash',        color: '#ef4444', status: 'status-danger',  label: 'deleted' },
+	'role-update':  { icon: 'fa-user-gear',    color: '#a855f7', status: 'status-info',    label: 'updated roles' },
 	'role-updated': { icon: 'fa-user-gear',    color: '#a855f7', status: 'status-info',    label: 'updated roles' },
 	'invited':      { icon: 'fa-paper-plane',  color: '#14b8a6', status: 'status-success', label: 'invited' },
 	'login':        { icon: 'fa-right-to-bracket', color: '#22c55e', status: 'status-success', label: 'signed in' },
+	'logout':       { icon: 'fa-right-from-bracket', color: '#ef4444', status: 'status-danger', label: 'signed out' },
 };
 
 function timeAgo(iso) {
@@ -150,49 +137,113 @@ function pickAvatarClass(name) {
 	return `fallback-${idx + 1}`;
 }
 
-let logs = [...MOCK_LOGS];
+let logs = [];
 
-function populateFilters() {
-	const users = Array.from(new Set(logs.map(l => l.actor)));
-	filterUser.innerHTML = '<option value="all">All</option>' + users.map(u => `<option value="${u}">${u}</option>`).join('');
+async function loadAuditLogs(filters = {}) {
+	try {
+		logs = await window.electronAPI.fetchAuditLogs(filters);
+		console.log('📋 Loaded audit logs:', logs.length);
+		return logs;
+	} catch (err) {
+		console.error('❌ Error loading audit logs:', err);
+		logs = [];
+		return [];
+	}
 }
 
-function applyFilters() {
+async function populateFilters() {
+	try {
+		const users = await window.electronAPI.getAuditUsers();
+		filterUser.innerHTML = '<option value="all">All</option>' + 
+			users.map(u => `<option value="${u}">${u}</option>`).join('');
+	} catch (err) {
+		console.error('❌ Error loading users:', err);
+		filterUser.innerHTML = '<option value="all">All</option>';
+	}
+}
+
+// Calculate time range based on filter selection
+function getTimeRange(filterValue) {
+	const now = new Date();
+	let startDate = null;
+
+	switch (filterValue) {
+		case 'today':
+			startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+			break;
+		case 'yesterday':
+			startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+			const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+			return { startDate: startDate.toISOString(), endDate: endDate.toISOString() };
+		case '7days':
+			startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+			break;
+		case '30days':
+			startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+			break;
+		case '90days':
+			startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+			break;
+		default:
+			return { startDate: null, endDate: null };
+	}
+
+	return { startDate: startDate ? startDate.toISOString() : null, endDate: null };
+}
+
+async function applyFilters() {
 	const fUser = filterUser.value;
 	const fAction = filterAction.value;
+	const fTime = filterTime.value;
 	const query = searchInput.value.trim().toLowerCase();
 
-	const filtered = logs.filter(l => {
-		if (fUser !== 'all' && l.actor !== fUser) return false;
-		if (fAction !== 'all' && l.action !== fAction) return false;
-		if (query) {
-			const hay = `${l.actor} ${l.action} ${l.target}`.toLowerCase();
-			if (!hay.includes(query)) return false;
-		}
-		return true;
-	});
+	// Get time range
+	const timeRange = getTimeRange(fTime);
 
-	renderList(filtered);
+	// Build filter object for backend
+	const filters = {
+		username: fUser !== 'all' ? fUser : null,
+		action: fAction !== 'all' ? fAction : null,
+		search: query || null,
+		startDate: timeRange.startDate,
+		endDate: timeRange.endDate,
+		limit: 100,
+		offset: 0
+	};
+
+	// Fetch filtered data from database
+	await loadAuditLogs(filters);
+	renderList(logs);
 }
 
 function renderList(items) {
 	auditList.innerHTML = items.map(item => {
-		const meta = actionMeta[item.action] || actionMeta.updated;
-		const avClass = pickAvatarClass(item.actor);
+		const meta = actionMeta[item.action] || actionMeta['update'];
+		const avClass = pickAvatarClass(item.username);
 		const actLabel = meta.label || item.action;
+		
+		// Determine target display text
+		let targetText = item.description || '';
+		if (!targetText && item.table_name) {
+			targetText = `${item.table_name} (ID: ${item.record_id})`;
+		}
+		if (!targetText) {
+			targetText = item.record_id || 'System';
+		}
+		
 		return `
 			<li class="audit-item" data-id="${item.id}">
-				<div class="avatar ${avClass}">${initials(item.actor)}</div>
+				<div class="avatar ${avClass}">${initials(item.username)}</div>
 				<div class="audit-content">
 					<div class="audit-line">
 						<i class="fa ${meta.icon} action-icon" style="color:${meta.color}"></i>
-						<span class="actor">${item.actor}</span>
+						<span class="actor">${item.username}</span>
 						<span class="action">${actLabel}</span>
-						<span class="target">${item.target}</span>
+						<span class="target">${targetText}</span>
 					</div>
 					<div class="audit-meta">
 						<span class="status-dot ${meta.status}"></span>
-						${timeAgo(item.at)}
+						${timeAgo(item.created_at)}
 					</div>
 				</div>
 				<div class="chevron"><i class="fa fa-angle-right"></i></div>
@@ -206,13 +257,14 @@ function renderList(items) {
 // Wire filters
 filterUser?.addEventListener('change', applyFilters);
 filterAction?.addEventListener('change', applyFilters);
+filterTime?.addEventListener('change', applyFilters);
 searchInput?.addEventListener('input', applyFilters);
 
 // Init
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
 	if (!checkAuthentication()) return; // ensure login first
 	updateUserDisplay();
-	populateFilters();
-	applyFilters();
+	await populateFilters();
+	await applyFilters();
 });
 

@@ -32,6 +32,12 @@ const {
   importExcelToSupabase,
   getRulebaseFromSupabase
 } = require('./controllers/rulebaseImportController');
+const {
+  fetchAuditLogs,
+  getUniqueUsers,
+  getAuditLogDetail,
+  getAuditStats
+} = require('./controllers/auditLogController');
 
 // Password hashing configuration
 const SALT_ROUNDS = 10;
@@ -78,9 +84,9 @@ ipcMain.handle('get-patients', async () => {
   }
 });
 
-ipcMain.handle('add-patient', async (event, patientData) => {
+ipcMain.handle('add-patient', async (event, patientData, currentUser) => {
   try {
-    await addPatient(patientData);
+    await addPatient(patientData, currentUser);
     return { success: true, message: 'บันทึกข้อมูลสำเร็จ!' };
   } catch (err) {
     console.error('❌ Insert Error:', err.message);
@@ -110,8 +116,8 @@ ipcMain.handle('get-patient-by-id', async (event, patientId) => {
 // 👤 Patient CRUD - update
 ipcMain.handle('update-patient', async (event, payload) => {
   try {
-    const { patientId, data } = payload || {};
-    const result = await updatePatient(patientId, data);
+    const { patientId, data, currentUser } = payload || {};
+    const result = await updatePatient(patientId, data, currentUser);
     return { success: true, data: result, message: 'อัปเดตข้อมูลสำเร็จ!' };
   } catch (err) {
     console.error('❌ Update Patient Error:', err.message);
@@ -120,9 +126,9 @@ ipcMain.handle('update-patient', async (event, payload) => {
 });
 
 // 👤 Patient CRUD - delete
-ipcMain.handle('delete-patient', async (event, patientId) => {
+ipcMain.handle('delete-patient', async (event, patientId, currentUser) => {
   try {
-    const result = await deletePatient(patientId);
+    const result = await deletePatient(patientId, currentUser);
     return result; // result already contains { success, message }
   } catch (err) {
     console.error('❌ Delete Patient Error:', err.message);
@@ -159,9 +165,9 @@ ipcMain.handle('hash-password', async (event, password) => {
   }
 });
 
-ipcMain.handle('create-account', async (event, userData) => {
+ipcMain.handle('create-account', async (event, userData, currentUser) => {
   try {
-    const result = await createAccount(userData);
+    const result = await createAccount(userData, currentUser);
     return { success: true, data: result, message: 'บันทึกข้อมูลผู้ใช้สำเร็จ!' };
   } catch (err) {
     console.error('❌ Account Creation Error:', err.message);
@@ -169,9 +175,9 @@ ipcMain.handle('create-account', async (event, userData) => {
   }
 });
 
-ipcMain.handle('update-account', async (event, userData) => {
+ipcMain.handle('update-account', async (event, userData, currentUser) => {
   try {
-    const result = await updateAccount(userData);
+    const result = await updateAccount(userData, currentUser);
     return { success: true, data: result, message: 'อัปเดตข้อมูลผู้ใช้สำเร็จ!' };
   } catch (err) {
     console.error('❌ Account Update Error:', err.message);
@@ -340,7 +346,44 @@ ipcMain.handle('refresh-rulebase', async () => {
   }
 });
 
-// 🚀 เริ่มต้น
+// � Audit Log Handlers
+ipcMain.handle('fetch-audit-logs', async (event, filters) => {
+  try {
+    return await fetchAuditLogs(filters);
+  } catch (err) {
+    console.error('❌ Fetch Audit Logs Error:', err.message);
+    return [];
+  }
+});
+
+ipcMain.handle('get-audit-users', async () => {
+  try {
+    return await getUniqueUsers();
+  } catch (err) {
+    console.error('❌ Get Audit Users Error:', err.message);
+    return [];
+  }
+});
+
+ipcMain.handle('get-audit-detail', async (event, logId) => {
+  try {
+    return await getAuditLogDetail(logId);
+  } catch (err) {
+    console.error('❌ Get Audit Detail Error:', err.message);
+    return null;
+  }
+});
+
+ipcMain.handle('get-audit-stats', async () => {
+  try {
+    return await getAuditStats();
+  } catch (err) {
+    console.error('❌ Get Audit Stats Error:', err.message);
+    return { total: 0, byAction: {}, last24Hours: 0 };
+  }
+});
+
+// �🚀 เริ่มต้น
 app.whenReady().then(createWindow);
 
 // ❌ ปิดโปรแกรมเมื่อปิดหน้าต่าง (Windows/Linux)
