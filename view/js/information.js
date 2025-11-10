@@ -163,18 +163,7 @@ function renderTestRequests(data) {
       });
     }
 
-    // Calculate TAT warning (will use default 72 hours if slaTime is 0)
-    const tatWarning = calculateTATWarning(requestDate, slaTime, status);
     
-    // Debug logging for first row
-    if (req.request_id === 6) {
-      console.log('🔍 TAT Debug for request_id 6:', {
-        requestDate,
-        status,
-        slaTime,
-        tatWarning
-      });
-    }
 
     const tr = document.createElement('tr');
     tr.setAttribute('data-request-id', req.request_id);
