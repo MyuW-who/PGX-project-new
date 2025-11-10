@@ -11,6 +11,7 @@ const tatCategorySelect = document.getElementById("tatCategory");
 const specimenCategorySelect = document.getElementById("specimenCategory");
 
 function renderCategoryOptions() {
+  if (!tatCategorySelect || !specimenCategorySelect) return;
   const options = categories
     .map(cat => `<option value="${cat.id}">${cat.name}</option>`)
     .join("");
@@ -61,26 +62,17 @@ function handleSpecimenSubmit(event) {
   specimenForm.reset();
 }
 
-renderCategoryOptions();
-categoryForm.addEventListener("submit", handleCategorySubmit);
-tatForm.addEventListener("submit", handleTatSubmit);
-specimenForm.addEventListener("submit", handleSpecimenSubmit);
-
-const profileDropdown = document.querySelector('.dropdown');
-const profileToggle = document.querySelector('.dropdown-toggle');
-
-if (profileDropdown && profileToggle) {
-  profileToggle.addEventListener('click', (event) => {
-    event.stopPropagation();
-    profileDropdown.classList.toggle('open');
-  });
-
-  document.addEventListener('click', (event) => {
-    if (!profileDropdown.contains(event.target)) {
-      profileDropdown.classList.remove('open');
-    }
-  });
+if (categoryForm) {
+  categoryForm.addEventListener("submit", handleCategorySubmit);
 }
+if (tatForm) {
+  tatForm.addEventListener("submit", handleTatSubmit);
+}
+if (specimenForm) {
+  specimenForm.addEventListener("submit", handleSpecimenSubmit);
+}
+
+renderCategoryOptions();
 
 const themeToggle = document.getElementById("themeToggle");
 
@@ -91,5 +83,21 @@ if (themeToggle) {
     if (!icon) return;
     const dark = document.body.classList.contains("dark-theme");
     icon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+  });
+}
+
+const accountDropdown = document.getElementById("accountDropdown");
+const accountToggle = accountDropdown?.querySelector(".dropdown-toggle");
+
+if (accountDropdown && accountToggle) {
+  accountToggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    accountDropdown.classList.toggle("is-open");
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!accountDropdown.contains(event.target)) {
+      accountDropdown.classList.remove("is-open");
+    }
   });
 }
