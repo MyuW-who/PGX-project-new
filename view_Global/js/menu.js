@@ -20,6 +20,11 @@ dashboard_btn_medtech?.addEventListener('click', () => {
   window.electronAPI.navigate('dashboard_medtech');
 });
 
+const viewpdf_btn_medtech = document.getElementById('viewpdf-btn-medtech');
+viewpdf_btn_medtech?.addEventListener('click', () => {
+  window.electronAPI.navigate('showpdf_medtech');
+}); 
+
 // Pharmacy navigation
 const information_btn_pharmacy = document.getElementById('information-btn-pharmacy');
 information_btn_pharmacy?.addEventListener('click', () => {

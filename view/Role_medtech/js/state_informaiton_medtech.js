@@ -260,7 +260,7 @@ function renderTableRows(tbody, data) {
       </td>
       <td>
         ${status?.toLowerCase() === 'done' ? `
-          <button class="pdf-btn" onclick="viewPDF(${req.request_id}, '${patientName}')">
+          <button class="pdf-btn" onclick="viewPDF(${req.request_id}, '${patientName}')" id="viewpdf-btn-medtech${req.request_id}">
             <i class="fas fa-file-pdf"></i> ดู PDF
           </button>
         ` : ''}
