@@ -200,6 +200,7 @@ function renderTableRows(tbody, data) {
   data.forEach(req => {
     const patient = req.patient || {};
     const patientName = `${patient.first_name ?? ''} ${patient.last_name ?? ''}`.trim() || '-';
+    const encodedPatientName = encodeURIComponent(patientName);
     const patientId = patient.patient_id || req.patient_id || '-';
     const hospitalId = patient.hospital_id || '-';
     const requestDate = req.request_date || req.created_at;
@@ -260,7 +261,11 @@ function renderTableRows(tbody, data) {
       </td>
       <td>
         ${status?.toLowerCase() === 'done' ? `
-          <button class="pdf-btn" onclick="viewPDF(${req.request_id}, '${patientName}')" id="viewpdf-btn-medtech${req.request_id}">
+          <button
+            class="pdf-btn viewpdf-btn-medtech"
+            data-request-id="${req.request_id || ''}"
+            data-patient-name="${encodedPatientName}"
+          >
             <i class="fas fa-file-pdf"></i> ดู PDF
           </button>
         ` : ''}
@@ -357,4 +362,15 @@ function showPage(pageName, patientId) {
 
 document.getElementById('langToggle')?.addEventListener('click', (e) => {
   e.target.textContent = e.target.textContent === 'TH' ? 'EN' : 'TH';
+});
+
+document.addEventListener('click', (event) => {
+  const pdfButton = event.target.closest('.viewpdf-btn-medtech');
+  if (!pdfButton) return;
+
+  const requestId = Number(pdfButton.dataset.requestId);
+  const patientName = decodeURIComponent(pdfButton.dataset.patientName || '');
+  sessionStorage.setItem('selectedRequestId', requestId);
+  sessionStorage.setItem('selectedPatientName', patientName);
+  window.electronAPI.navigate('showpdf_medtech');
 });
