@@ -873,8 +873,8 @@ body *::selection {
 
 .rulebase-actions {
   display: flex;
-  gap: 30px;
-  margin-bottom: 20px;
+  gap: 20px;
+  margin-bottom: 0;
   flex-wrap: wrap;
 }
 
@@ -883,10 +883,10 @@ body *::selection {
   align-items: center;
   gap: 15px;
   background: rgba(37, 99, 235, 0.02);
-  padding: 15px 20px;
+  padding: 18px 20px;
   border-radius: var(--radius-m);
   flex: 1;
-  min-width: 300px;
+  min-width: 450px;
   border: 1px solid var(--color-border);
   transition: all var(--transition-mid);
 }
@@ -899,61 +899,85 @@ body *::selection {
 
 .rulebase-info {
   flex: 1;
+  min-width: 0;
+  margin-right: 15px;
+}
+
+.rulebase-info h3 {
+  margin: 0 0 5px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .rulebase-info p {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-muted);
-  line-height: 1.5;
-}
-
-.rulebase-info p:first-child {
-  font-weight: 600;
-  color: var(--color-text);
-  font-size: 15px;
-  margin-bottom: 5px;
+  line-height: 1.4;
 }
 
 .rulebase-controls {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .rulebase-controls input[type="text"] {
-  padding: 10px 14px;
+  padding: 9px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-s);
-  font-size: 14px;
-  width: 200px;
+  font-size: 13px;
+  width: 280px;
   background: var(--color-surface);
   color: var(--color-text);
   transition: all var(--transition-fast);
 }
 
 .rulebase-controls input[type="text"]:focus {
+  outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+.rulebase-controls input[type="text"][readonly] {
+  cursor: pointer;
+  background: rgba(37, 99, 235, 0.02);
+}
+
 .rulebase-controls button {
-  padding: 10px 24px;
-  font-size: 14px;
+  padding: 9px 18px;
+  font-size: 13px;
   font-weight: 600;
   border: none;
   border-radius: var(--radius-s);
   cursor: pointer;
   transition: all var(--transition-mid);
   white-space: nowrap;
+}
+
+.rulebase-controls button.primary {
   background: var(--color-primary);
   color: white;
 }
 
-.rulebase-controls button:hover {
+.rulebase-controls button.primary:hover {
   background: #1d4ed8;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.rulebase-controls button.secondary {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+}
+
+.rulebase-controls button.secondary:hover {
+  background: rgba(37, 99, 235, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .rulebase-controls button:active {

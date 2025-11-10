@@ -109,7 +109,11 @@
               <p>นำเข้าข้อมูล pharmacogenomics rulebase จากไฟล์ Excel</p>
             </div>
             <div class="rulebase-controls">
-              <input type="text" id="excelFile" placeholder="pgx_rulebase.xlsx" value="pgx_rulebase.xlsx" style="flex: 1; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: 8px;">
+              <input type="file" id="excelFile" accept=".xlsx,.xls" style="display: none;">
+              <input type="text" id="excelFilePath" placeholder="เลือกไฟล์ Excel..." readonly style="flex: 1; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: 8px; cursor: pointer; background: var(--color-surface);">
+              <button class="btn secondary" onclick="document.getElementById('excelFile').click()">
+                <i class="fa fa-folder-open"></i> เลือกไฟล์
+              </button>
               <button class="btn primary" onclick="importExcel()">
                 <i class="fa fa-upload"></i> Import
               </button>

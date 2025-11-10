@@ -273,12 +273,28 @@ document.addEventListener('DOMContentLoaded', async () => {
    📊 RULEBASE MANAGEMENT
    ============================================ */
 
+// Handle file selection
+document.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.getElementById('excelFile');
+  const filePathInput = document.getElementById('excelFilePath');
+  
+  if (fileInput && filePathInput) {
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        filePathInput.value = file.path;
+      }
+    });
+  }
+});
+
 async function importExcel() {
-  const excelFile = document.getElementById('excelFile').value.trim();
-  const messageDiv = document.getElementById('rulebase-message');
+  const fileInput = document.getElementById('excelFile');
+  const filePathInput = document.getElementById('excelFilePath');
+  const excelFile = filePathInput.value.trim();
   
   if (!excelFile) {
-    showRulebaseMessage('กรุณาระบุชื่อไฟล์ Excel', 'error');
+    showRulebaseMessage('กรุณาเลือกไฟล์ Excel', 'error');
     return;
   }
   
@@ -294,6 +310,9 @@ async function importExcel() {
         message += summary;
       }
       showRulebaseMessage(message, 'success');
+      // Clear selection
+      fileInput.value = '';
+      filePathInput.value = '';
     } else {
       showRulebaseMessage(`ไม่สามารถนำเข้าข้อมูลได้: ${result.error}`, 'error');
     }
