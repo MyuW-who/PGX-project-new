@@ -40,50 +40,49 @@
       phone: document.getElementById('phone').value.trim(),
     };
 
-    try {
-      if (isEditMode) {
-        // Edit existing patient
-        await window.electronAPI.updatePatient(editingPatientId, patientData);
-        await Swal.fire({
-          icon: 'success',
-          title: 'บันทึกสำเร็จ!',
-          text: 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว',
-          confirmButtonColor: '#3b82f6',
-          customClass: {
-            popup: 'swal-dark'
-          }
-        });
-      } else {
-        // Add new patient
-        await window.electronAPI.addPatient(patientData);
-        await Swal.fire({
-          icon: 'success',
-          title: 'เพิ่มสำเร็จ!',
-          text: 'เพิ่มข้อมูลผู้ป่วยเรียบร้อยแล้ว',
-          confirmButtonColor: '#3b82f6',
-          customClass: {
-            popup: 'swal-dark'
-          }
-        });
-      }
-
-      // รีโหลดหน้าเว็บหลังจากกด OK
-      location.reload();
-
-    } catch (err) {
-      console.error('❌ Error saving patient data:', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'บันทึกไม่สำเร็จ',
-        text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
-        confirmButtonColor: '#3b82f6', 
-        cancelButtonColor: '#ef4444',
-        customClass: {
-          popup: 'swal-dark'
-        }
-      });
+  try {
+    let response;
+    
+    if (isEditMode && editingPatientId) {
+      // Update existing patient
+      response = await window.electronAPI.updatePatient(editingPatientId, baseData);
+      console.log('✅ Patient updated:', response);
+    } else {
+      // Add new patient
+      response = await window.electronAPI.addPatient(baseData);
+      console.log('✅ Patient added:', response);
     }
-  }  form?.addEventListener('submit', handleFormSubmit);
+
+    // Show success message
+    await Swal.fire({
+      icon: 'success',
+      title: 'บันทึกสำเร็จ!',
+      text: isEditMode ? 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว' : 'เพิ่มข้อมูลผู้ป่วยสำเร็จ',
+      background: '#1f2937',
+      color: '#f9fafb',
+      confirmButtonColor: '#3b82f6'
+    });
+
+    // Close popup and reload data
+    closePopup();
+    const patients = await window.electronAPI.getPatients();
+    renderPatients(patients);
+
+  } catch (err) {
+    console.error('❌ Error saving patient data:', err);
+    // Show error message
+    Swal.fire({
+      icon: 'error',
+      title: 'บันทึกไม่สำเร็จ',
+      text: err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+      background: '#1f2937',
+      color: '#f9fafb',
+      confirmButtonColor: '#3b82f6'
+    });
+  }
+}
+
+form?.addEventListener('submit', handleFormSubmit);
 
   /* --------------------------------------------
     🔍 ระบบค้นหาผู้ป่วยด้วย patient_id, ชื่อ, หรือนามสกุล
