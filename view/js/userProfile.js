@@ -101,46 +101,38 @@ async function handleLogout(e) {
     customClass: {
       popup: 'swal-dark'
     }
-  });
+  });
 
-  // ⭐️ ใช้ 'result.isConfirmed' จาก Swal.fire() ตรงนี้
-  if (result.isConfirmed) {
-    try {
-      // Call logout handler if available
-      if (window.electronAPI.handleLogout) {
-        await window.electronAPI.handleLogout({ username });
-      }
-      
-      // Clear all session data
-      clearUserSession();
-      
-      console.log('👋 User logged out:', username);
-      
-      // Navigate to login page
-      window.electronAPI.navigate('login');
-      
-      // Force reload the page after a short delay to refresh the login page
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
-      
-    } catch (error) {
-      console.error('❌ Logout error:', error);
-      // Still logout even if API call fails
-      clearUserSession();
-      window.electronAPI.navigate('login');
-      
-      // Force reload even on error
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
-    }
-  }
-  // ถ้าผู้ใช้กด "ยกเลิก" (result.isDismissed) โค้ดใน if ก็จะไม่ทำงาน
+  // ⭐️ ใช้ 'result.isConfirmed' จาก Swal.fire() ตรงนี้
+  if (result.isConfirmed) {
+    try {
+      // Call logout handler if available
+      if (window.electronAPI.handleLogout) {
+        await window.electronAPI.handleLogout({ username });
+      }
+      
+      // Clear all session data
+      clearUserSession();
+      
+      console.log('👋 User logged out:', username);
+      
+      // Navigate to login page
+      window.electronAPI.navigate('login');
+      
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      // Still logout even if API call fails
+      clearUserSession();
+      window.electronAPI.navigate('login');
+    }
+  }
+  // ถ้าผู้ใช้กด "ยกเลิก" (result.isDismissed) โค้ดใน if ก็จะไม่ทำงาน
 }
 /* --------------------------------------------
    📱 DROPDOWN MENU HANDLER
--------------------------------------------- */// Initialize dropdown menu
+-------------------------------------------- */
+
+// Initialize dropdown menu
 function initializeDropdown() {
   const dropdownBtn = document.getElementById("dropdownBtn");
   const dropdownMenu = document.getElementById("dropdownMenu");

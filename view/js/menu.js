@@ -29,8 +29,3 @@ auditlog_btn?.addEventListener('click', () => {
   window.electronAPI.navigate('auditlog');
 });
 
-const admin_settings_btn = document.getElementById('admin-settings-btn');
-admin_settings_btn?.addEventListener('click', () => {
-  window.electronAPI.navigate('admin-settings');
-});
-

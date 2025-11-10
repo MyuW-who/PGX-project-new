@@ -51,8 +51,8 @@ async function getTestRequestsByTimeFilter(timeFilter = 'today') {
     const { data, error } = await supabase
       .from('test_request')
       .select('*')
-      .gte('request_date', startDateStr)
-      .order('request_date', { ascending: false });
+      .gte('created_at', startDateStr)
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('❌ Error fetching test requests by time:', error.message);
@@ -339,8 +339,8 @@ async function getTATStats(timeFilter = 'today') {
       if (status === 'done' || status === 'completed') {
         // Calculate TAT
         const createdAt = new Date(request.created_at);
-        const now = new Date();
-        const hoursDiff = (now - createdAt) / (1000 * 60 * 60);
+        const completedAt = new Date(request.updated_at); // <-- หรือคอลัมน์ที่เก็บเวลาที่เสร็จ
+        const hoursDiff = (completedAt - createdAt) / (1000 * 60 * 60);
         
         if (hoursDiff <= defaultSLA) {
           stats.inSLA++;

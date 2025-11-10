@@ -1,5 +1,4 @@
 const supabase = require('../supabase');
-const { logAuditEvent } = require('./auditLogController');
 
 async function fetchAccountDetails(userId) {
   const { data, error } = await supabase
@@ -30,7 +29,7 @@ async function fetchAllAccounts() {
   return data;
 }
 
-async function createAccount(userData, currentUser = null) {
+async function createAccount(userData) {
   // First check if username already exists
   const { data: existingUser } = await supabase
     .from('system_users')
@@ -87,33 +86,10 @@ async function createAccount(userData, currentUser = null) {
   }
 
   console.log('✅ Created user with ID:', data.user_id);
-  
-  // ✅ Log audit event (exclude password_hash from log)
-  if (data && currentUser) {
-    const { password_hash, ...dataWithoutPassword } = data;
-    await logAuditEvent({
-      user_id: currentUser.user_id,
-      username: currentUser.username,
-      role: currentUser.role,
-      action: 'create',
-      table_name: 'system_users',
-      record_id: data.user_id,
-      new_data: dataWithoutPassword,
-      description: `สร้างบัญชีผู้ใช้: ${data.username} (${data.role})`
-    });
-  }
-  
   return data;
 }
 
-async function updateAccount(userData, currentUser = null) {
-  // Get old data first for audit log
-  const { data: oldData } = await supabase
-    .from('system_users')
-    .select('user_id, username, role, hospital_id')
-    .eq('user_id', userData.user_id)
-    .single();
-
+async function updateAccount(userData) {
   // First check if username already exists for other users
   const { data: existingUser } = await supabase
     .from('system_users')
@@ -147,30 +123,6 @@ async function updateAccount(userData, currentUser = null) {
 
   if (error) {
     throw new Error('Error updating account: ' + error.message);
-  }
-
-  // ✅ Log audit event (exclude password_hash from log)
-  if (data && currentUser) {
-    const { password_hash: oldPwd, ...oldDataWithoutPassword } = oldData || {};
-    const { password_hash: newPwd, ...newDataWithoutPassword } = data;
-    
-    // Check if role was changed
-    const roleChanged = oldData?.role !== data.role;
-    const action = roleChanged ? 'role-update' : 'update';
-    
-    await logAuditEvent({
-      user_id: currentUser.user_id,
-      username: currentUser.username,
-      role: currentUser.role,
-      action: action,
-      table_name: 'system_users',
-      record_id: data.user_id,
-      old_data: oldDataWithoutPassword,
-      new_data: newDataWithoutPassword,
-      description: roleChanged 
-        ? `เปลี่ยนบทบาทของ ${data.username}: ${oldData.role} → ${data.role}`
-        : `แก้ไขบัญชีผู้ใช้: ${data.username}`
-    });
   }
 
   return data;
