@@ -79,46 +79,48 @@ async function createReport(reportData) {
 }
 
 /**
- * Generate PDF report for PGx test
+ * Generate PDF report for PGx test (in memory, no local file)
  * @param {Object} reportInfo - Complete report information
- * @returns {Promise<string>} PDF file path
+ * @returns {Promise<{buffer: Buffer, fileName: string}>} PDF buffer and filename
  */
 async function generatePGxPDF(reportInfo) {
-  try {
-    const reportsDir = path.join(__dirname, '..', 'reports');
-    if (!fs.existsSync(reportsDir)) {
-      fs.mkdirSync(reportsDir, { recursive: true });
-    }
+  return new Promise((resolve, reject) => {
+    try {
+      // Create unique filename with report_id or request_id
+      const timestamp = Date.now();
+      const reportId = reportInfo.report_id || reportInfo.request_id || timestamp;
+      const fileName = `PGx_${reportInfo.patientId}_${reportInfo.test_target}_${reportId}.pdf`;
 
-    // Create unique filename with report_id or request_id
-    const timestamp = Date.now();
-    const reportId = reportInfo.report_id || reportInfo.request_id || timestamp;
-    const fileName = `PGx_${reportInfo.patientId}_${reportInfo.test_target}_${reportId}.pdf`;
-    const filePath = path.join(reportsDir, fileName);
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      
+      // Collect PDF data in memory instead of writing to file
+      const chunks = [];
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => {
+        const pdfBuffer = Buffer.concat(chunks);
+        resolve({ buffer: pdfBuffer, fileName });
+      });
+      doc.on('error', reject);
 
-    const doc = new PDFDocument({ margin: 50, size: 'A4' });
-    const stream = fs.createWriteStream(filePath);
-    doc.pipe(stream);
-
-    // Load Thai font once
-    const fontPath = path.join(__dirname, '..', 'fonts', 'Sarabun-Regular.ttf');
-    const fontBoldPath = path.join(__dirname, '..', 'fonts', 'Sarabun-Bold.ttf');
-    
-    const hasRegularFont = fs.existsSync(fontPath);
-    const hasBoldFont = fs.existsSync(fontBoldPath);
-    
-    if (hasRegularFont) {
-      doc.registerFont('THSarabun', fontPath);
-      doc.font('THSarabun');
-    }
-    
-    if (hasBoldFont) {
-      doc.registerFont('THSarabunBold', fontBoldPath);
-    }
-    
-    // Helper function for bold text
-    const setBold = () => hasBoldFont && doc.font('THSarabunBold');
-    const setRegular = () => hasRegularFont && doc.font('THSarabun');
+      // Load Thai font once
+      const fontPath = path.join(__dirname, '..', 'fonts', 'Sarabun-Regular.ttf');
+      const fontBoldPath = path.join(__dirname, '..', 'fonts', 'Sarabun-Bold.ttf');
+      
+      const hasRegularFont = fs.existsSync(fontPath);
+      const hasBoldFont = fs.existsSync(fontBoldPath);
+      
+      if (hasRegularFont) {
+        doc.registerFont('THSarabun', fontPath);
+        doc.font('THSarabun');
+      }
+      
+      if (hasBoldFont) {
+        doc.registerFont('THSarabunBold', fontBoldPath);
+      }
+      
+      // Helper function for bold text
+      const setBold = () => hasBoldFont && doc.font('THSarabunBold');
+      const setRegular = () => hasRegularFont && doc.font('THSarabun');
 
     // Header - Laboratory Name
     doc.fontSize(18);
@@ -257,28 +259,21 @@ async function generatePGxPDF(reportInfo) {
     doc.text('Page 1 of 2', doc.page.width - 150, footerY, { align: 'right', width: 100 });
 
     doc.end();
-
-    // Wait for PDF to finish writing
-    return new Promise((resolve, reject) => {
-      stream.on('finish', () => resolve(filePath));
-      stream.on('error', reject);
-    });
-  } catch (err) {
-    console.error('❌ Exception in generatePGxPDF:', err);
-    throw err;
-  }
+    } catch (err) {
+      console.error('❌ Exception in generatePGxPDF:', err);
+      reject(err);
+    }
+  });
 }
 
 /**
  * Upload PDF to Supabase storage
- * @param {string} filePath - Local file path
+ * @param {Buffer} fileBuffer - PDF buffer
  * @param {string} fileName - Desired file name in storage
  * @returns {Promise<string>} Public URL of uploaded file
  */
-async function uploadPDFToStorage(filePath, fileName) {
+async function uploadPDFToStorage(fileBuffer, fileName) {
   try {
-    const fileBuffer = fs.readFileSync(filePath);
-    
     // Try PDF_Bucket first, then fall back to checking available buckets
     let bucketName = 'PDF_Bucket';
     
@@ -381,7 +376,7 @@ async function processCompleteReport(testData) {
 
     const reportId = reportResult.data.report_id;
 
-    // Step 4: Generate PDF with report_id in filename
+    // Step 4: Generate PDF with report_id in filename (in memory)
     const pdfInfo = {
       ...testData,
       report_id: reportId,
@@ -390,11 +385,10 @@ async function processCompleteReport(testData) {
       activityScore: diplotype?.totalactivityscore || testData.activityScore || 'N/A'
     };
 
-    const localPdfPath = await generatePGxPDF(pdfInfo);
+    const { buffer: pdfBuffer, fileName } = await generatePGxPDF(pdfInfo);
 
     // Step 5: Upload to Supabase storage
-    const fileName = path.basename(localPdfPath);
-    const publicUrl = await uploadPDFToStorage(localPdfPath, fileName);
+    const publicUrl = await uploadPDFToStorage(pdfBuffer, fileName);
 
     if (!publicUrl) {
       // Report already created, just return without PDF URL
