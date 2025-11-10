@@ -50,6 +50,13 @@ const {
   getTATStats
 } = require('./controllers/reportController');
 
+const {
+  getSpecimens,
+  addSpecimen,
+  updateSpecimen,
+  deleteSpecimen
+} = require('./controllers/specimenController');
+
 // Password hashing configuration
 const SALT_ROUNDS = 10;
 
@@ -206,6 +213,43 @@ ipcMain.handle('delete-account', async (event, userId) => {
   } catch (err) {
     console.error('❌ Account Deletion Error:', err.message);
     return { success: false, message: 'เกิดข้อผิดพลาดในการลบบัญชีผู้ใช้' };
+  }
+});
+
+// 📋 Specimen Management Handlers
+ipcMain.handle('get-specimens', async () => {
+  try {
+    return await getSpecimens();
+  } catch (err) {
+    console.error('❌ Get Specimens Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการดึงข้อมูลสิ่งส่งตรวจ' };
+  }
+});
+
+ipcMain.handle('add-specimen', async (event, specimenData) => {
+  try {
+    return await addSpecimen(specimenData);
+  } catch (err) {
+    console.error('❌ Add Specimen Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการเพิ่มสิ่งส่งตรวจ' };
+  }
+});
+
+ipcMain.handle('update-specimen', async (event, specimenId, specimenData) => {
+  try {
+    return await updateSpecimen(specimenId, specimenData);
+  } catch (err) {
+    console.error('❌ Update Specimen Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการแก้ไขสิ่งส่งตรวจ' };
+  }
+});
+
+ipcMain.handle('delete-specimen', async (event, specimenId) => {
+  try {
+    return await deleteSpecimen(specimenId);
+  } catch (err) {
+    console.error('❌ Delete Specimen Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการลบสิ่งส่งตรวจ' };
   }
 });
 

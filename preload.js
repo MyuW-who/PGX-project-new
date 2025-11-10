@@ -23,6 +23,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateAccount: (data, currentUser) => ipcRenderer.invoke('update-account', data, currentUser),
   deleteAccount: (userId) => ipcRenderer.invoke('delete-account', userId),
   hashPassword: (password) => ipcRenderer.invoke('hash-password', password),
+  
+  // Specimen Management
+  getSpecimens: () => ipcRenderer.invoke('get-specimens'),
+  addSpecimen: (specimenData) => ipcRenderer.invoke('add-specimen', specimenData),
+  updateSpecimen: (specimenId, specimenData) => ipcRenderer.invoke('update-specimen', specimenId, specimenData),
+  deleteSpecimen: (specimenId) => ipcRenderer.invoke('delete-specimen', specimenId),
+  
   getTestRequests: () => ipcRenderer.invoke('get-test-requests'),
   searchTestRequests: (searchTerm) => ipcRenderer.invoke('search-test-requests', searchTerm),
   getTestRequestById: (requestId) => ipcRenderer.invoke('get-test-request-by-id', requestId),
