@@ -70,22 +70,13 @@
         </div>
       </header>
 
-      <!-- Time Filter Buttons -->
-      <section class="time-filter-section" style="margin: 20px 0; text-align: center;">
-        <div class="toggle-group" style="display: inline-flex; gap: 10px; background: var(--card-bg); padding: 8px; border-radius: 12px; box-shadow: var(--shadow);">
-          <button class="time-filter-btn active" data-time="today" style="padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;">วันนี้</button>
-          <button class="time-filter-btn" data-time="week" style="padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;">7 วันล่าสุด</button>
-          <button class="time-filter-btn" data-time="month" style="padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;">เดือนนี้</button>
-        </div>
-      </section>
-
       <!-- Top metrics -->
       <section class="metrics-row">
         <div class="metric-card">
           <div class="metric-icon bg-primary"><i class="fa fa-list-check"></i></div>
           <div>
             <div class="metric-number" id="m-total">0</div>
-            <div class="metric-label" id="total-label">จำนวนเคสทั้งหมดวันนี้</div>
+            <div class="metric-label">จำนวนเคสทั้งหมดวันนี้</div>
             <div class="metric-change" id="percent-total">100.00%</div>
           </div>
         </div>
@@ -109,7 +100,7 @@
           <div class="metric-icon bg-danger"><i class="fa fa-triangle-exclamation"></i></div>
           <div>
             <div class="metric-number" id="m-error">0</div>
-            <div class="metric-label">เคสที่ปฏิเสธ</div>
+            <div class="metric-label">เคสที่ผิดพลาด</div>
             <div class="metric-change" id="percent-error">0.00%</div>
           </div>
         </div>
@@ -235,7 +226,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
   
-  <script src="./js/userProfile.js"></script>
+    <script src="./js/userProfile.js"></script>
   <script src="./js/darkmode.js"></script>
   <script src="./js/dashboard.js"></script>
   <script src="./js/menu.js"></script>

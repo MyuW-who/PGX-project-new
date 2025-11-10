@@ -5,6 +5,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
 }
 
 .header-buttons {
@@ -62,7 +63,7 @@ header {
    ============================================ */
 .dropdown { 
   position: relative; 
-  z-index: 50;
+  z-index: 50; /* ให้ dropdown อยู่ชั้นบน */
 }
 
 .dropbtn {
@@ -110,6 +111,7 @@ header {
   color: var(--primary);
 }
 
+/* เปิดเมนูเมื่อมี class .show */
 .dropdown-content.show {
   display: block;
 }
@@ -237,8 +239,23 @@ header {
   background: #d1d5db;
 }
 
-/* 🔹
-   🔹 (ลบสไตล์ body.dark ... ที่ซ้ำซ้อนจากตรงนี้)
-   🔹 (ไฟล์ darkmode.css จัดการส่วนนี้แทนแล้ว)
-   🔹
-*/
+/* Dark theme for popup */
+body.dark .popup-content {
+  background: #1e293b;
+}
+
+body.dark .popup-header,
+body.dark .popup-footer {
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+body.dark .setting-item select {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+body.dark .popup-header h3,
+body.dark .setting-item label {
+  color: #e2e8f0;
+}
