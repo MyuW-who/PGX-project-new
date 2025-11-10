@@ -10,7 +10,7 @@ html, body {
 body {
     display: flex;
     flex-direction: column; 
-    padding: 80px ;
+    padding: 20px 40px ;
 }
     
 
