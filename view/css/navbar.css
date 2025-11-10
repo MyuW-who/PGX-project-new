@@ -121,7 +121,7 @@ body {
    ============================================ */
 .dropdown { 
   position: relative; 
-  z-index: 50; /* ให้ dropdown อยู่ชั้นบน */
+  z-index: 50;
 }
 
 .dropdown-content {
@@ -153,7 +153,6 @@ body {
   color: var(--primary);
 }
 
-/* เปิดเมนูเมื่อมี class .show */
 .dropdown-content.show {
   display: block;
 }

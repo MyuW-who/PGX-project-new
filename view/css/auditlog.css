@@ -2,7 +2,7 @@
 
 .filters {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(140px, 200px)) 1fr;
+	grid-template-columns: repeat(2, minmax(160px, 220px)) 1fr;
 	gap: 16px clamp(12px, 2vw, 20px);
 	align-items: end;
 }

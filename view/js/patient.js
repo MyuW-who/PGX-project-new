@@ -40,38 +40,33 @@
       phone: document.getElementById('phone').value.trim(),
     };
 
-    // Get current user for audit logging
-    const currentUser = getCurrentUser();
+  try {
+    let response;
     
-    try {
-      if (isEditMode) {
-        // Edit existing patient
-        await window.electronAPI.updatePatient(editingPatientId, patientData, currentUser);
-        await Swal.fire({
-          icon: 'success',
-          title: 'บันทึกสำเร็จ!',
-          text: 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว',
-          confirmButtonColor: '#3b82f6',
-          customClass: {
-            popup: 'swal-dark'
-          }
-        });
-      } else {
-        // Add new patient
-        await window.electronAPI.addPatient(patientData, currentUser);
-        await Swal.fire({
-          icon: 'success',
-          title: 'เพิ่มสำเร็จ!',
-          text: 'เพิ่มข้อมูลผู้ป่วยเรียบร้อยแล้ว',
-          confirmButtonColor: '#3b82f6',
-          customClass: {
-            popup: 'swal-dark'
-          }
-        });
-      }
+    if (isEditMode && editingPatientId) {
+      // Update existing patient
+      response = await window.electronAPI.updatePatient(editingPatientId, baseData);
+      console.log('✅ Patient updated:', response);
+    } else {
+      // Add new patient
+      response = await window.electronAPI.addPatient(baseData);
+      console.log('✅ Patient added:', response);
+    }
 
-      // รีโหลดหน้าเว็บหลังจากกด OK
-      location.reload();
+    // Show success message
+    await Swal.fire({
+      icon: 'success',
+      title: 'บันทึกสำเร็จ!',
+      text: isEditMode ? 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว' : 'เพิ่มข้อมูลผู้ป่วยสำเร็จ',
+      background: '#1f2937',
+      color: '#f9fafb',
+      confirmButtonColor: '#3b82f6'
+    });
+
+    // Close popup and reload data
+    closePopup();
+    const patients = await window.electronAPI.getPatients();
+    renderPatients(patients);
 
   } catch (err) {
     console.error('❌ Error saving patient data:', err);
@@ -141,8 +136,10 @@ form?.addEventListener('submit', handleFormSubmit);
           <td>${p.first_name ?? ''} ${p.last_name ?? ''}</td>
           <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
           <td>${p.hospital_id ?? '-'}</td>
-          <td><button class="Edit-btn" onclick="event.stopPropagation(); editPatient(${p.patient_id})"><i class="fas fa-edit"></i></button></td>
-          <td><button class="delete-btn" onclick="event.stopPropagation(); deletePatient(${p.patient_id})"><i class="fas fa-trash-alt"></i></button></td>
+          <td>
+            <button class="delete-btn" onclick="event.stopPropagation(); deletePatient(${p.patient_id})"><i class="fas fa-trash-alt"></i></button>
+            <button class="Edit-btn" onclick="event.stopPropagation(); editPatient(${p.patient_id})"><i class="fas fa-edit"></i></button>
+          </td>
         </tr>`;
       tbody.insertAdjacentHTML('beforeend', row);
     });
@@ -263,9 +260,7 @@ form?.addEventListener('submit', handleFormSubmit);
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // Get current user for audit logging
-          const currentUser = getCurrentUser();
-          const response = await window.electronAPI.deletePatient(patientId, currentUser);
+          const response = await window.electronAPI.deletePatient(patientId);
           
           if (response.success) {
             // แสดง Pop-up แจ้งว่าลบสำเร็จ
