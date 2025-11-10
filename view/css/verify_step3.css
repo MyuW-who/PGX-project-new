@@ -3,6 +3,27 @@ body {
   color: #1f2937;
   margin: 0;
   transition: background 0.3s, color 0.3s;
+  padding: 20px 40px;
+
+}
+
+/* ==========================
+   💠 GLOBAL LAYOUT (วางบนสุด)
+   ========================== */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0; /* ลบ margin ที่ browser ตั้งมา */
+  min-height: 100vh; /* 100vh = ความสูงเต็ม 100% ของหน้าจอ */
+  
+  /* สั่งให้ body เป็น Flex Container */
+  display: flex;
+  flex-direction: column; /* จัดเรียงลูก (header, section, main) ในแนวตั้ง */
 }
 
 body.dark {

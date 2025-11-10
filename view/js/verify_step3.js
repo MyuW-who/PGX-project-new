@@ -1,13 +1,7 @@
 /* ========================
    Theme & Language
 ======================== */
-document.getElementById("themeToggle").addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-});
-const langToggle = document.getElementById("langToggle");
-langToggle.addEventListener("click", () => {
-  langToggle.textContent = langToggle.textContent === "TH" ? "EN" : "TH";
-});
+
 
 /* ========================
    ดึงข้อมูลจาก sessionStorage

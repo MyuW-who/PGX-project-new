@@ -73,20 +73,21 @@
       // รีโหลดหน้าเว็บหลังจากกด OK
       location.reload();
 
-    } catch (err) {
-      console.error('❌ Error saving patient data:', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'บันทึกไม่สำเร็จ',
-        text: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
-        confirmButtonColor: '#3b82f6', 
-        cancelButtonColor: '#ef4444',
-        customClass: {
-          popup: 'swal-dark'
-        }
-      });
-    }
-  }  form?.addEventListener('submit', handleFormSubmit);
+  } catch (err) {
+    console.error('❌ Error saving patient data:', err);
+    // Show error message
+    Swal.fire({
+      icon: 'error',
+      title: 'บันทึกไม่สำเร็จ',
+      text: err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+      background: '#1f2937',
+      color: '#f9fafb',
+      confirmButtonColor: '#3b82f6'
+    });
+  }
+}
+
+form?.addEventListener('submit', handleFormSubmit);
 
   /* --------------------------------------------
     🔍 ระบบค้นหาผู้ป่วยด้วย patient_id, ชื่อ, หรือนามสกุล
@@ -140,8 +141,10 @@
           <td>${p.first_name ?? ''} ${p.last_name ?? ''}</td>
           <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
           <td>${p.hospital_id ?? '-'}</td>
-          <td><button class="Edit-btn" onclick="event.stopPropagation(); editPatient(${p.patient_id})"><i class="fas fa-edit"></i></button></td>
-          <td><button class="delete-btn" onclick="event.stopPropagation(); deletePatient(${p.patient_id})"><i class="fas fa-trash-alt"></i></button></td>
+          <td>
+            <button class="delete-btn" onclick="event.stopPropagation(); deletePatient(${p.patient_id})"><i class="fas fa-trash-alt"></i></button>
+            <button class="Edit-btn" onclick="event.stopPropagation(); editPatient(${p.patient_id})"><i class="fas fa-edit"></i></button>
+          </td>
         </tr>`;
       tbody.insertAdjacentHTML('beforeend', row);
     });
