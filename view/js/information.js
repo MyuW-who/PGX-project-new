@@ -50,6 +50,22 @@ document.getElementById('tatFilter')?.addEventListener('change', async e => {
 });
 
  
+/* --------------------------------------------
+   📷 Popup Scan Barcode (ใช้โค้ดใหม่ส่วนนี้)
+-------------------------------------------- */
+const scannerOverlay = document.getElementById('scannerOverlay');
+const scanBtn = document.getElementById('scanBarcodeBtn');
+const closeScannerBtn = document.getElementById('closeScannerBtn');
+
+// เมื่อกดปุ่ม "สแกนบาร์โค้ด"
+scanBtn?.addEventListener('click', () => {
+  scannerOverlay.style.display = 'flex'; // ให้แสดง scanner popup
+});
+
+// เมื่อกดปุ่ม "ปิด" ใน scanner popup
+closeScannerBtn?.addEventListener('click', () => {
+  scannerOverlay.style.display = 'none'; // ให้ซ่อน scanner popup
+});
 
 /* ========= Table Renderer (แสดงข้อมูล Test Requests) ========= */
 
@@ -77,6 +93,7 @@ function getTATBadgeClass(status) {
   return 'status-default';
 }
 
+/* ========= TAT Warning Calculation ========= */
 function calculateTATWarning(requestDate, slaTime, status) {
   // Only calculate for non-done and non-reject cases
   const statusLower = status?.toLowerCase() || '';
@@ -132,7 +149,7 @@ function renderTestRequests(data) {
 
     // Get dot class for color coding
     const dotClass = getTATBadgeClass(status);
-
+    
     // Calculate TAT warning (will use default 72 hours if slaTime is 0)
     const tatWarning = calculateTATWarning(requestDate, slaTime, status);
     
@@ -146,6 +163,8 @@ function renderTestRequests(data) {
       });
     }
 
+    
+
     const tr = document.createElement('tr');
     tr.setAttribute('data-request-id', req.request_id);
 
@@ -155,7 +174,7 @@ function renderTestRequests(data) {
     } else if (tatWarning.warning) {
       tr.classList.add('tat-warning');
     }
-
+    
     tr.innerHTML = `
       <td>${req.request_id || '-'}</td>
       <td>${hospitalId}</td>
@@ -182,7 +201,7 @@ function renderTestRequests(data) {
     tr.addEventListener('click', (e) => {
       // ไม่ให้คลิกที่ปุ่มทำให้เปลี่ยนหน้า
       if (!e.target.closest('button')) {
-        showPage('verify_step1', patientId);
+        showPage('verify_information', patientId);
       }
     });
     tbody.appendChild(tr);
@@ -194,8 +213,8 @@ async function updateStatsFromAPI() {
   try {
     const stats = await window.electronAPI.getTestRequestStats('all');
     document.getElementById('statAll').textContent = stats.all || 0;
-    document.getElementById('statPre').textContent = stats.need2Confirmation || 0;
-    document.getElementById('statAnalytic').textContent = stats.need1Confirmation || 0;
+    document.getElementById('statPre').textContent = stats.need2 || stats.need2Confirmation || 0;
+    document.getElementById('statAnalytic').textContent = stats.need1 || stats.need1Confirmation || 0;
     document.getElementById('statPost').textContent = stats.done || 0;
   } catch (e) {
     console.error('Error fetching stats:', e);
@@ -207,7 +226,7 @@ async function updateStatsFromAPI() {
   }
 }
 
-/* ========= Edit / Delete / Navigate ========= */
+/* ========= Edit / View PDF / Navigate ========= */
 async function editTestRequest(requestId) {
   try {
     const req = await window.electronAPI.getTestRequestById(requestId);
@@ -221,48 +240,52 @@ async function editTestRequest(requestId) {
   }
 }
 
-async function deleteTestRequest(requestId) {
-  Swal.fire({
-    title: 'คุณแน่ใจหรือไม่?',
-    text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'ใช่, ลบเลย!',
-    cancelButtonText: 'ยกเลิก',
-    reverseButtons: true,
-    customClass: {
-      popup: 'swal-dark' // 👈 ใช้คลาสสำหรับ Dark Mode
+async function viewPDF(requestId, patientName) {
+  try {
+    // Get the test request details
+    const req = await window.electronAPI.getTestRequestById(requestId);
+    if (!req) {
+      alert('ไม่พบข้อมูล Test Request');
+      return;
     }
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        const res = await window.electronAPI.deleteTestRequest(requestId);
-        
-        Swal.fire({
-          title: 'ลบสำเร็จ!',
-          text: res.message || 'ลบข้อมูลสำเร็จ',
-          icon: 'success',
-          customClass: { popup: 'swal-dark' }
-        });
-
-        // โหลดข้อมูลใหม่ (ตามโค้ดเดิม)
-        const data = await window.electronAPI.getTestRequests();
-        renderTestRequests(data);
-        await updateStatsFromAPI();
-
-      } catch (e) { 
-        console.error(e); 
-        Swal.fire({
-          title: 'เกิดข้อผิดพลาด!',
-          text: 'เกิดข้อผิดพลาดในการลบข้อมูล',
-          icon: 'error',
-          customClass: { popup: 'swal-dark' }
-        });
-      }
+    
+    // Check if PDF exists (you can add a field in database to track this)
+    if (req.Doc_Name) {
+      // If there's a PDF file path in the database
+      alert(`เปิดไฟล์ PDF: ${req.Doc_Name}`);
+      // TODO: Implement actual PDF viewing/opening
+      // window.electronAPI.openPDF(req.Doc_Name);
+    } else {
+      // Generate PDF if it doesn't exist
+      const reportData = {
+        name: patientName,
+        age: req.patient?.age || '-',
+        gender: req.patient?.gender || '-',
+        hn: req.patient?.patient_id || '-',
+        hospital: req.patient?.hospital_id || '-',
+        testTarget: req.test_target || '-',
+        specimen: req.Specimen || '-'
+      };
+      
+      const pdfPath = await window.electron.generatePDF(reportData);
+      alert(`สร้าง PDF สำเร็จ: ${pdfPath}`);
     }
-  });
+  } catch (e) {
+    console.error('❌ Error viewing PDF:', e);
+    alert('เกิดข้อผิดพลาดในการดู PDF');
+  }
 }
 
+function showPage(pageName, patientId) {
+  sessionStorage.setItem('selectedPatientId', patientId);
+  window.electronAPI?.navigate(pageName);
+}
+
+/* ========= Light/Dark toggle (ตัวอย่าง) ========= */
+
+document.getElementById('langToggle')?.addEventListener('click', (e) => {
+  e.target.textContent = e.target.textContent === 'TH' ? 'EN' : 'TH';
+});
 
 async function viewPDF(requestId, patientName) {
   try {

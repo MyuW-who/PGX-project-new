@@ -64,6 +64,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      webSecurity: false // 👈 เพิ่มบรรทัดนี้
     },
     autoHideMenuBar: true,
     fullscreen: true,
