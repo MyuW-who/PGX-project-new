@@ -32,6 +32,30 @@ const {
   importExcelToSupabase,
   getRulebaseFromSupabase
 } = require('./controllers/rulebaseImportController');
+const {
+  fetchAuditLogs,
+  getUniqueUsers,
+  getAuditLogDetail,
+  getAuditStats
+} = require('./controllers/auditLogController');
+
+const {
+  getDashboardSummary,
+  getTestRequestStats: getReportStats,
+  getTopDNATypes,
+  getTopSpecimens,
+  getRejectedSpecimens,
+  getErrorRateTimeSeries,
+  getTestRequestsTimeSeries,
+  getTATStats
+} = require('./controllers/reportController');
+
+const {
+  getSpecimens,
+  addSpecimen,
+  updateSpecimen,
+  deleteSpecimen
+} = require('./controllers/specimenController');
 
 // Password hashing configuration
 const SALT_ROUNDS = 10;
@@ -79,9 +103,9 @@ ipcMain.handle('get-patients', async () => {
   }
 });
 
-ipcMain.handle('add-patient', async (event, patientData) => {
+ipcMain.handle('add-patient', async (event, patientData, currentUser) => {
   try {
-    await addPatient(patientData);
+    await addPatient(patientData, currentUser);
     return { success: true, message: 'บันทึกข้อมูลสำเร็จ!' };
   } catch (err) {
     console.error('❌ Insert Error:', err.message);
@@ -111,8 +135,8 @@ ipcMain.handle('get-patient-by-id', async (event, patientId) => {
 // 👤 Patient CRUD - update
 ipcMain.handle('update-patient', async (event, payload) => {
   try {
-    const { patientId, data } = payload || {};
-    const result = await updatePatient(patientId, data);
+    const { patientId, data, currentUser } = payload || {};
+    const result = await updatePatient(patientId, data, currentUser);
     return { success: true, data: result, message: 'อัปเดตข้อมูลสำเร็จ!' };
   } catch (err) {
     console.error('❌ Update Patient Error:', err.message);
@@ -121,9 +145,9 @@ ipcMain.handle('update-patient', async (event, payload) => {
 });
 
 // 👤 Patient CRUD - delete
-ipcMain.handle('delete-patient', async (event, patientId) => {
+ipcMain.handle('delete-patient', async (event, patientId, currentUser) => {
   try {
-    const result = await deletePatient(patientId);
+    const result = await deletePatient(patientId, currentUser);
     return result; // result already contains { success, message }
   } catch (err) {
     console.error('❌ Delete Patient Error:', err.message);
@@ -160,9 +184,9 @@ ipcMain.handle('hash-password', async (event, password) => {
   }
 });
 
-ipcMain.handle('create-account', async (event, userData) => {
+ipcMain.handle('create-account', async (event, userData, currentUser) => {
   try {
-    const result = await createAccount(userData);
+    const result = await createAccount(userData, currentUser);
     return { success: true, data: result, message: 'บันทึกข้อมูลผู้ใช้สำเร็จ!' };
   } catch (err) {
     console.error('❌ Account Creation Error:', err.message);
@@ -170,9 +194,9 @@ ipcMain.handle('create-account', async (event, userData) => {
   }
 });
 
-ipcMain.handle('update-account', async (event, userData) => {
+ipcMain.handle('update-account', async (event, userData, currentUser) => {
   try {
-    const result = await updateAccount(userData);
+    const result = await updateAccount(userData, currentUser);
     return { success: true, data: result, message: 'อัปเดตข้อมูลผู้ใช้สำเร็จ!' };
   } catch (err) {
     console.error('❌ Account Update Error:', err.message);
@@ -190,6 +214,43 @@ ipcMain.handle('delete-account', async (event, userId) => {
   } catch (err) {
     console.error('❌ Account Deletion Error:', err.message);
     return { success: false, message: 'เกิดข้อผิดพลาดในการลบบัญชีผู้ใช้' };
+  }
+});
+
+// 📋 Specimen Management Handlers
+ipcMain.handle('get-specimens', async () => {
+  try {
+    return await getSpecimens();
+  } catch (err) {
+    console.error('❌ Get Specimens Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการดึงข้อมูลสิ่งส่งตรวจ' };
+  }
+});
+
+ipcMain.handle('add-specimen', async (event, specimenData) => {
+  try {
+    return await addSpecimen(specimenData);
+  } catch (err) {
+    console.error('❌ Add Specimen Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการเพิ่มสิ่งส่งตรวจ' };
+  }
+});
+
+ipcMain.handle('update-specimen', async (event, specimenId, specimenData) => {
+  try {
+    return await updateSpecimen(specimenId, specimenData);
+  } catch (err) {
+    console.error('❌ Update Specimen Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการแก้ไขสิ่งส่งตรวจ' };
+  }
+});
+
+ipcMain.handle('delete-specimen', async (event, specimenId) => {
+  try {
+    return await deleteSpecimen(specimenId);
+  } catch (err) {
+    console.error('❌ Delete Specimen Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการลบสิ่งส่งตรวจ' };
   }
 });
 
@@ -341,7 +402,111 @@ ipcMain.handle('refresh-rulebase', async () => {
   }
 });
 
-// 🚀 เริ่มต้น
+// � Audit Log Handlers
+ipcMain.handle('fetch-audit-logs', async (event, filters) => {
+  try {
+    return await fetchAuditLogs(filters);
+  } catch (err) {
+    console.error('❌ Fetch Audit Logs Error:', err.message);
+    return [];
+  }
+});
+
+ipcMain.handle('get-audit-users', async () => {
+  try {
+    return await getUniqueUsers();
+  } catch (err) {
+    console.error('❌ Get Audit Users Error:', err.message);
+    return [];
+  }
+});
+
+ipcMain.handle('get-audit-detail', async (event, logId) => {
+  try {
+    return await getAuditLogDetail(logId);
+  } catch (err) {
+    console.error('❌ Get Audit Detail Error:', err.message);
+    return null;
+  }
+});
+
+ipcMain.handle('get-audit-stats', async () => {
+  try {
+    return await getAuditStats();
+  } catch (err) {
+    console.error('❌ Get Audit Stats Error:', err.message);
+    return { total: 0, byAction: {}, last24Hours: 0 };
+  }
+});
+
+// �🚀 เริ่มต้น
+// � Dashboard Report Handlers
+ipcMain.handle('get-dashboard-summary', async (event, timeFilter = 'today') => {
+  try {
+    console.log('📊 Getting dashboard summary for:', timeFilter);
+    const summary = await getDashboardSummary(timeFilter);
+    return { success: true, data: summary };
+  } catch (err) {
+    console.error('❌ Get Dashboard Summary Error:', err.message);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('get-top-dna-types', async (event, limit = 5, timeFilter = 'month') => {
+  try {
+    return await getTopDNATypes(limit, timeFilter);
+  } catch (err) {
+    console.error('❌ Get Top DNA Types Error:', err.message);
+    return { labels: [], values: [] };
+  }
+});
+
+ipcMain.handle('get-top-specimens', async (event, limit = 5, timeFilter = 'month') => {
+  try {
+    return await getTopSpecimens(limit, timeFilter);
+  } catch (err) {
+    console.error('❌ Get Top Specimens Error:', err.message);
+    return { labels: [], values: [] };
+  }
+});
+
+ipcMain.handle('get-rejected-specimens', async (event, timeFilter = 'month') => {
+  try {
+    return await getRejectedSpecimens(timeFilter);
+  } catch (err) {
+    console.error('❌ Get Rejected Specimens Error:', err.message);
+    return { labels: [], values: [] };
+  }
+});
+
+ipcMain.handle('get-error-rate-series', async (event, range = 'week') => {
+  try {
+    return await getErrorRateTimeSeries(range);
+  } catch (err) {
+    console.error('❌ Get Error Rate Series Error:', err.message);
+    return { labels: [], values: [] };
+  }
+});
+
+ipcMain.handle('get-usage-time-series', async (event, range = 'daily', timeFilter = 'week') => {
+  try {
+    return await getTestRequestsTimeSeries(range, timeFilter);
+  } catch (err) {
+    console.error('❌ Get Usage Time Series Error:', err.message);
+    return { labels: [], values: [] };
+  }
+});
+
+ipcMain.handle('get-tat-stats', async (event, timeFilter = 'today') => {
+  try {
+    return await getTATStats(timeFilter);
+  } catch (err) {
+    console.error('❌ Get TAT Stats Error:', err.message);
+    return { inSLA: 0, inProgress: 0, overSLA: 0 };
+  }
+});
+
+// �🚀 เริ่มต้น
 app.whenReady().then(createWindow);
 
 // ❌ ปิดโปรแกรมเมื่อปิดหน้าต่าง (Windows/Linux)

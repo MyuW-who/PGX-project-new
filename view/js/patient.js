@@ -40,10 +40,13 @@
       phone: document.getElementById('phone').value.trim(),
     };
 
+    // Get current user for audit logging
+    const currentUser = getCurrentUser();
+    
     try {
       if (isEditMode) {
         // Edit existing patient
-        await window.electronAPI.updatePatient(editingPatientId, patientData);
+        await window.electronAPI.updatePatient(editingPatientId, patientData, currentUser);
         await Swal.fire({
           icon: 'success',
           title: 'บันทึกสำเร็จ!',
@@ -55,7 +58,7 @@
         });
       } else {
         // Add new patient
-        await window.electronAPI.addPatient(patientData);
+        await window.electronAPI.addPatient(patientData, currentUser);
         await Swal.fire({
           icon: 'success',
           title: 'เพิ่มสำเร็จ!',
@@ -261,7 +264,9 @@
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await window.electronAPI.deletePatient(patientId);
+          // Get current user for audit logging
+          const currentUser = getCurrentUser();
+          const response = await window.electronAPI.deletePatient(patientId, currentUser);
           
           if (response.success) {
             // แสดง Pop-up แจ้งว่าลบสำเร็จ
