@@ -19,8 +19,193 @@
     const btnReject = $("#btnReject");
     const btnBack = $("#btnBack");
 
-    const params = new URLSearchParams(window.location.search);
-    const pdfParam = params.get("pdf");
+    // Stepper elements
+    const stepperStatus = $(".stepper-status");
+    const subtitleEl = $(".subtitle");
+    const step1 = $(".step:nth-child(1)");
+    const step2 = $(".step:nth-child(2)");
+
+    // Get request_id from sessionStorage
+    const requestId = sessionStorage.getItem('selectedRequestId');
+    let currentRequest = null;
+    let pdfUrl = null;
+
+    // Function to update confirmation status display
+    const updateConfirmationStatus = async () => {
+        if (!currentRequest) return;
+
+        const { confirmed_by_1, confirmed_by_2, status } = currentRequest;
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+
+        // Count confirmations
+        let confirmCount = 0;
+        if (confirmed_by_1) confirmCount++;
+        if (confirmed_by_2) confirmCount++;
+
+        // Update stepper
+        if (confirmCount >= 1) {
+            step1?.classList.add('active', 'completed');
+        }
+        if (confirmCount >= 2) {
+            step2?.classList.add('active', 'completed');
+        }
+
+        // Update status text
+        if (status === 'done') {
+            if (stepperStatus) stepperStatus.textContent = 'เสร็จสมบูรณ์ - ยืนยันครบ 2 คน';
+            if (subtitleEl) subtitleEl.textContent = 'เอกสารได้รับการยืนยันแล้ว';
+            btnConfirm.disabled = true;
+        } else if (status === 'reject') {
+            if (stepperStatus) stepperStatus.textContent = 'ถูกปฏิเสธ';
+            if (subtitleEl) subtitleEl.textContent = 'เอกสารถูกปฏิเสธ';
+            btnConfirm.disabled = true;
+            btnReject.disabled = true;
+        } else if (confirmCount === 1) {
+            if (stepperStatus) stepperStatus.textContent = 'รอการยืนยันจากอีก 1 คน';
+            if (subtitleEl) subtitleEl.textContent = `เจ้าหน้าที่ ${confirmCount} / 2 ยืนยันแล้ว`;
+            
+            // Check if current user already confirmed
+            if (currentUser.user_id === confirmed_by_1) {
+                btnConfirm.disabled = true;
+                if (stepperStatus) stepperStatus.textContent = 'คุณยืนยันแล้ว - รอผู้อื่นยืนยัน';
+            } else {
+                btnConfirm.disabled = false;
+            }
+        } else {
+            // No confirmations yet
+            if (stepperStatus) stepperStatus.textContent = 'รอการยืนยันจาก 2 คน';
+            if (subtitleEl) subtitleEl.textContent = 'เจ้าหน้าที่ 0 / 2 กำลังตรวจสอบไฟล์ PDF';
+            btnConfirm.disabled = false;
+        }
+
+        console.log('📊 Confirmation status:', { confirmCount, status, confirmed_by_1, confirmed_by_2 });
+    };
+
+    // Fetch test request data and PDF
+    const fetchRequestData = async () => {
+        if (!requestId) {
+            console.error('❌ No request ID found in sessionStorage');
+            showFallback();
+            await Swal.fire({
+                icon: 'error',
+                title: 'ไม่พบข้อมูล',
+                text: 'กรุณาเลือกรายการที่ต้องการตรวจสอบ',
+            });
+            return false;
+        }
+
+        try {
+            // Get test request data
+            currentRequest = await window.electronAPI.getTestRequestById(requestId);
+            
+            if (!currentRequest) {
+                console.error('❌ Request not found for ID:', requestId);
+                showFallback();
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่พบข้อมูล',
+                    text: 'ไม่พบข้อมูลคำขอนี้ในระบบ',
+                });
+                return false;
+            }
+
+            console.log('📦 Current Request:', currentRequest);
+
+            // Check if report data exists with pdf_path
+            const report = currentRequest.report?.[0] || currentRequest.report;
+            const pdfPath = report?.pdf_path;
+
+            console.log('📄 Report data:', report);
+            console.log('📄 PDF Path from report:', pdfPath);
+
+            if (pdfPath) {
+                console.log('🔍 Original pdf_path:', pdfPath);
+                
+                // Check if it's already a full URL (from Supabase Storage)
+                if (pdfPath.startsWith('http://') || pdfPath.startsWith('https://')) {
+                    pdfUrl = pdfPath; // Use URL directly
+                    console.log('✅ Using Supabase URL:', pdfUrl);
+                } 
+                // Check if it's a Supabase storage path format
+                else if (pdfPath.includes('PDF_Bucket') || pdfPath.includes('storage/v1')) {
+                    // It's a partial storage path, construct full URL
+                    // Extract just the filename from the path
+                    let fileName = pdfPath;
+                    if (pdfPath.includes('/')) {
+                        fileName = pdfPath.split('/').pop();
+                    }
+                    // Try different bucket configurations
+                    pdfUrl = `https://vdktousokseslnzfhnzc.supabase.co/storage/v1/object/public/PDF_Bucket/${fileName}`;
+                    console.log('✅ Constructed Supabase URL:', pdfUrl);
+                    console.log('🔍 Extracted filename:', fileName);
+                }
+                // Check if it's just a filename
+                else if (!pdfPath.includes('/')) {
+                    // Just a filename, construct Supabase URL
+                    // Try common bucket name variations
+                    pdfUrl = `https://vdktousokseslnzfhnzc.supabase.co/storage/v1/object/public/pdf_bucket/${pdfPath}`;
+                    console.log('✅ Constructed URL from filename (trying lowercase):', pdfUrl);
+                    console.log('💡 If this fails, check bucket name in Supabase Storage dashboard');
+                }
+                // Otherwise treat as local file
+                else {
+                    if (pdfPath.includes('reports/')) {
+                        pdfUrl = resolvePdfUrl(`../../${pdfPath}`);
+                    } else {
+                        pdfUrl = resolvePdfUrl(`../../reports/${pdfPath}`);
+                    }
+                    console.log('✅ Using local path:', pdfUrl);
+                }
+                
+                // Test if URL is accessible
+                console.log('🧪 Testing PDF URL accessibility...');
+                return true;
+            } 
+            // Fallback: check Doc_Name if pdf_path doesn't exist
+            else if (currentRequest.Doc_Name) {
+                const docName = currentRequest.Doc_Name;
+                
+                console.log('⚠️ No pdf_path, using Doc_Name:', docName);
+                
+                if (docName.startsWith('http://') || docName.startsWith('https://')) {
+                    pdfUrl = docName;
+                    console.log('✅ Using Supabase URL from Doc_Name:', pdfUrl);
+                } 
+                else if (docName.includes('PDF_Bucket') || docName.includes('storage/v1')) {
+                    const fileName = docName.split('/').pop();
+                    pdfUrl = `https://vdktousokseslnzfhnzc.supabase.co/storage/v1/object/public/PDF_Bucket/${fileName}`;
+                    console.log('✅ Constructed Supabase URL from Doc_Name:', pdfUrl);
+                }
+                else {
+                    if (docName.includes('reports/')) {
+                        pdfUrl = resolvePdfUrl(`../../${docName}`);
+                    } else {
+                        pdfUrl = resolvePdfUrl(`../../reports/${docName}`);
+                    }
+                    console.log('✅ Using local path from Doc_Name:', pdfUrl);
+                }
+                return true;
+            } else {
+                console.error('❌ No PDF path found in database');
+                showFallback();
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'ไม่พบไฟล์ PDF',
+                    text: 'ยังไม่มีการอัปโหลดไฟล์ PDF สำหรับคำขอนี้',
+                });
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ Error fetching request data:', error);
+            showFallback();
+            await Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถดึงข้อมูลได้: ' + error.message,
+            });
+            return false;
+        }
+    };
 
     const resolvePdfUrl = (input) => {
         if (!input) return null;
@@ -31,10 +216,6 @@
             return input;
         }
     };
-
-    // 🔹 คุณอาจต้องแก้ Path นี้ให้ถูกต้อง
-    const defaultPdf = resolvePdfUrl("../reports/ada_PGx.pdf");
-    const pdfUrl = resolvePdfUrl(pdfParam) || defaultPdf;
 
     const hideAll = () => {
         // 🔹 ใน HTML ใหม่
@@ -169,45 +350,167 @@
 
     btnReload?.addEventListener("click", () => window.location.reload());
 
+    // Main initialization
     (async () => {
-        // 🔽 [จุดแก้ไขที่ 3: ปรับแก้ตรรกะการเรียก]
-        // 1. ลอง PDF.js
-        const ok = await initPdfJs(pdfUrl);
+        try {
+            // 1. Fetch request data and PDF URL from database
+            const hasData = await fetchRequestData();
+            
+            if (!hasData || !pdfUrl) {
+                console.error('❌ No PDF URL available');
+                showFallback();
+                return;
+            }
 
-        if (ok) {
-            // 2. ถ้า PDF.js สำเร็จ: เปิดปุ่ม
-            // (initPdfJs จะจัดการซ่อน Loader และแสดงผลเอง)
-             btnConfirm.disabled = false;
-        } else {
-            // 3. ถ้า PDF.js ล้มเหลว:
-            // (initPdfJs จะเรียก hideAll() เพื่อซ่อน Loader แล้ว)
-            // ให้ลองเปิดด้วย Iframe ต่อ
-            enableIframe(pdfUrl);
+            console.log('📄 Loading PDF:', pdfUrl);
+
+            // 2. Update confirmation status display
+            await updateConfirmationStatus();
+
+            // 3. Try to load PDF with PDF.js
+            const ok = await initPdfJs(pdfUrl);
+
+            if (ok) {
+                // PDF.js successful - confirmation button state already set by updateConfirmationStatus
+                console.log('✅ PDF.js loaded successfully');
+            } else {
+                // PDF.js failed - try iframe
+                console.log('📄 Trying iframe fallback');
+                enableIframe(pdfUrl);
+            }
+        } catch (error) {
+            console.error('❌ Initialization error:', error);
+            showFallback();
         }
     })();
 
-    btnConfirm?.addEventListener("click", () => {
-        if (confirm("ยืนยันว่าข้อมูลในเอกสารถูกต้องใช่หรือไม่?")) {
-            // Navigate back to pharmacy dashboard
-            window.electronAPI?.navigate('dashboard_pharmacy');
+    btnConfirm?.addEventListener("click", async () => {
+        if (!currentRequest) {
+            Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลคำขอ', 'error');
+            return;
+        }
+
+        // Get current user from session
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.user_id) {
+            Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่', 'error');
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: 'ยืนยันการตรวจสอบ',
+            html: `
+                <p>ยืนยันว่าข้อมูลในเอกสารถูกต้องใช่หรือไม่?</p>
+                <div style="text-align: left; margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                    <strong>รหัสคำขอ:</strong> ${currentRequest.request_id}<br>
+                    <strong>ผู้ป่วย:</strong> ${currentRequest.patient?.first_name || ''} ${currentRequest.patient?.last_name || ''}<br>
+                    <strong>การตรวจ:</strong> ${currentRequest.test_target || '-'}
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ใช่, ยืนยัน',
+            cancelButtonText: 'ยกเลิก'
+        });
+
+        if (result.isConfirmed) {
+            // Call API to confirm
+            const confirmResult = await window.electronAPI.confirmTestRequest(
+                currentRequest.request_id,
+                currentUser.user_id
+            );
+
+            if (confirmResult.success) {
+                await Swal.fire({
+                    title: 'สำเร็จ!',
+                    text: confirmResult.message,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                // Navigate back to information page
+                window.electronAPI?.navigate('information_pharmacy');
+            } else {
+                Swal.fire({
+                    title: 'ไม่สามารถยืนยันได้',
+                    text: confirmResult.message,
+                    icon: 'warning'
+                });
+            }
         }
     });
 
-    btnReject?.addEventListener("click", () => {
-        const reason = prompt("โปรดระบุเหตุผลในการปฏิเสธ (ไม่บังคับ)", "");
-        // TODO: ส่ง reason ไปยัง backend หากต้องการ
-        if (reason !== null) { // เช็คว่าผู้ใช้ไม่กดยกเลิก
-            // TODO: เปลี่ยน URL ปลายทางตามที่คุณต้องการ
-            window.location.href = "information.html";
+    btnReject?.addEventListener("click", async () => {
+        if (!currentRequest) {
+            Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลคำขอ', 'error');
+            return;
+        }
+
+        // Get current user from session
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.user_id) {
+            Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่', 'error');
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: 'ปฏิเสธเอกสาร',
+            html: `
+                <div style="text-align: left; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                    <strong>รหัสคำขอ:</strong> ${currentRequest.request_id}<br>
+                    <strong>ผู้ป่วย:</strong> ${currentRequest.patient?.first_name || ''} ${currentRequest.patient?.last_name || ''}
+                </div>
+            `,
+            input: 'textarea',
+            inputLabel: 'โปรดระบุเหตุผลในการปฏิเสธ',
+            inputPlaceholder: 'กรอกเหตุผล...',
+            inputAttributes: {
+                'aria-label': 'กรอกเหตุผลในการปฏิเสธ'
+            },
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'ปฏิเสธ',
+            cancelButtonText: 'ยกเลิก',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'กรุณาระบุเหตุผล'
+                }
+            }
+        });
+
+        if (result.isConfirmed && result.value) {
+            // Call API to reject
+            const rejectResult = await window.electronAPI.rejectTestRequest(
+                currentRequest.request_id,
+                currentUser.user_id,
+                result.value
+            );
+
+            if (rejectResult.success) {
+                await Swal.fire({
+                    title: 'ปฏิเสธแล้ว',
+                    text: rejectResult.message,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                // Navigate back to information page
+                window.electronAPI?.navigate('information_pharmacy');
+            } else {
+                Swal.fire({
+                    title: 'ข้อผิดพลาด',
+                    text: rejectResult.message || 'ไม่สามารถปฏิเสธได้',
+                    icon: 'error'
+                });
+            }
         }
     });
 
     btnBack?.addEventListener("click", () => {
-        if (document.referrer && window.history.length > 1) {
-            window.history.back();
-        } else {
-            // TODO: เปลี่ยน URL ปลายทางตามที่คุณต้องการ
-            window.location.href = "information.html";
-        }
+        // Navigate back to information page
+        window.electronAPI?.navigate('information_pharmacy');
     });
 })();

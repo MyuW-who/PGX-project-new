@@ -64,28 +64,50 @@ async function searchTestRequests(searchTerm) {
 
 // ดึงข้อมูล test request รายบุคคล
 async function getTestRequestById(requestId) {
-  const { data, error } = await supabase
-    .from('test_request')
-    .select(`
-      *,
-      patient:patient_id (
-        patient_id,
-        first_name,
-        last_name,
-        hospital_id,
-        age,
-        gender,
-        phone
-      )
-    `)
-    .eq('request_id', requestId)
-    .single();
+  try {
+    // First, get the test request
+    const { data: requestData, error: requestError } = await supabase
+      .from('test_request')
+      .select(`
+        *,
+        patient:patient_id (
+          patient_id,
+          first_name,
+          last_name,
+          hospital_id,
+          age,
+          gender,
+          phone
+        )
+      `)
+      .eq('request_id', requestId)
+      .single();
 
-  if (error) {
-    console.error('❌ Get Test Request Error:', error.message);
+    if (requestError) {
+      console.error('❌ Get Test Request Error:', requestError.message);
+      return null;
+    }
+
+    // Then, get the report separately using request_id
+    const { data: reportData, error: reportError } = await supabase
+      .from('report')
+      .select('*')
+      .eq('request_id', requestId)
+      .maybeSingle(); // Use maybeSingle to handle cases where report doesn't exist
+
+    if (reportError && reportError.code !== 'PGRST116') {
+      console.error('❌ Get Report Error:', reportError.message);
+    }
+
+    // Combine the data
+    return {
+      ...requestData,
+      report: reportData
+    };
+  } catch (error) {
+    console.error('❌ Exception in getTestRequestById:', error);
     return null;
   }
-  return data;
 }
 
 // เพิ่ม test request ใหม่
@@ -271,6 +293,102 @@ async function getSpecimenSLA() {
   }
 }
 
+// ยืนยัน test request (confirmation)
+async function confirmTestRequest(requestId, userId) {
+  try {
+    // Get current test request
+    const { data: currentRequest, error: fetchError } = await supabase
+      .from('test_request')
+      .select('confirmed_by_1, confirmed_by_2, status')
+      .eq('request_id', requestId)
+      .single();
+
+    if (fetchError) {
+      console.error('❌ Error fetching request:', fetchError.message);
+      return { success: false, message: 'ไม่พบข้อมูลคำขอ' };
+    }
+
+    // Check if this user already confirmed
+    if (currentRequest.confirmed_by_1 === userId || currentRequest.confirmed_by_2 === userId) {
+      return { success: false, message: 'คุณได้ยืนยันแล้ว ไม่สามารถยืนยันซ้ำได้' };
+    }
+
+    // Determine which confirmation slot to use
+    let updateData = {};
+    let newStatus = '';
+
+    if (!currentRequest.confirmed_by_1) {
+      // First confirmation
+      updateData = {
+        confirmed_by_1: userId,
+        confirmed_at_1: new Date().toISOString(),
+        status: 'need 1 confirmation'
+      };
+      newStatus = 'need 1 confirmation';
+    } else if (!currentRequest.confirmed_by_2) {
+      // Second confirmation - mark as done
+      updateData = {
+        confirmed_by_2: userId,
+        confirmed_at_2: new Date().toISOString(),
+        status: 'done'
+      };
+      newStatus = 'done';
+    } else {
+      return { success: false, message: 'เอกสารนี้ได้รับการยืนยันครบแล้ว' };
+    }
+
+    // Update the request
+    const { error: updateError } = await supabase
+      .from('test_request')
+      .update(updateData)
+      .eq('request_id', requestId);
+
+    if (updateError) {
+      console.error('❌ Error updating request:', updateError.message);
+      return { success: false, message: 'เกิดข้อผิดพลาดในการบันทึก' };
+    }
+
+    console.log('✅ Confirmed by user:', userId, '→ New status:', newStatus);
+    return { 
+      success: true, 
+      message: newStatus === 'done' ? 'ยืนยันสำเร็จ! เอกสารผ่านการตรวจสอบครบถ้วน' : 'ยืนยันสำเร็จ! รอการยืนยันจากเจ้าหน้าที่อีก 1 คน',
+      newStatus 
+    };
+
+  } catch (error) {
+    console.error('❌ Exception in confirmTestRequest:', error);
+    return { success: false, message: 'เกิดข้อผิดพลาด' };
+  }
+}
+
+// ปฏิเสธ test request (rejection)
+async function rejectTestRequest(requestId, userId, reason) {
+  try {
+    // Update status to reject
+    const { error } = await supabase
+      .from('test_request')
+      .update({
+        status: 'reject',
+        rejected_by: userId,
+        rejected_at: new Date().toISOString(),
+        rejection_reason: reason
+      })
+      .eq('request_id', requestId);
+
+    if (error) {
+      console.error('❌ Error rejecting request:', error.message);
+      return { success: false, message: 'เกิดข้อผิดพลาดในการบันทึก' };
+    }
+
+    console.log('✅ Rejected by user:', userId);
+    return { success: true, message: 'ปฏิเสธเอกสารสำเร็จ' };
+
+  } catch (error) {
+    console.error('❌ Exception in rejectTestRequest:', error);
+    return { success: false, message: 'เกิดข้อผิดพลาด' };
+  }
+}
+
 module.exports = {
   fetchAllTestRequests,
   searchTestRequests,
@@ -279,5 +397,8 @@ module.exports = {
   updateTestRequest,
   deleteTestRequest,
   getTestRequestStats,
-  getSpecimenSLA
+  getSpecimenSLA,
+  confirmTestRequest,
+  rejectTestRequest
 };
+
