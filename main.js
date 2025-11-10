@@ -83,7 +83,34 @@ function createWindow() {
 // 📩 ฟัง event จาก renderer เพื่อเปลี่ยนหน้า
 ipcMain.on('navigate', (event, page) => {
   console.log(` Navigate to: ${page}`);
-  mainWindow.loadFile(path.resolve(__dirname, 'view', `${page}.html`));
+  
+  // Handle role-specific navigation
+  const rolePages = {
+    // Medtech pages
+    'dashboard_medtech': 'view/Role_medtech/dashboard_medtech.html',
+    'patient_medtech': 'view/Role_medtech/patient_medtech.html',
+    'information_medtech': 'view/Role_medtech/information_medtech.html',
+    'input_step1_medtech': 'view/Role_medtech/input_step1_medtech.html',
+    'input_step2_medtech': 'view/Role_medtech/input_step2_medtech.html',
+    'input_step3_medtech': 'view/Role_medtech/input_step3_medtech.html',
+    'profile_medtech': 'view/Role_medtech/profile_medtech.html',
+    
+    // Pharmacy pages
+    'dashboard_pharmacy': 'view/Role_pharmacy/dashboard_pharmacy.html',
+    'information_pharmacy': 'view/Role_pharmacy/information_pharmacy.html',
+    'verify_pharmacy': 'view/Role_pharmacy/verify_pharmacy.html',
+    
+    // Admin pages (backward compatibility)
+    'adminpage': 'view/Role_admin/adminpage.html',
+    'auditlog': 'view/Role_admin/auditlog.html',
+    'admin-settings': 'view/Role_admin/admin-settings.html',
+    
+    // Login page
+    'login': 'view/login.html'
+  };
+  
+  const filePath = rolePages[page] || `view/${page}.html`;
+  mainWindow.loadFile(path.resolve(__dirname, filePath));
 });
 
 // 🔑 ฟังก์ชันตรวจสอบ Login (เรียกจาก controller)

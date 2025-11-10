@@ -1,0 +1,760 @@
+/* ============================================
+   1. 🌍 GLOBAL & VARIABLES
+   (นำตัวแปรจากไฟล์ global.css มารวมไว้ที่นี่)
+   ============================================ */
+@charset "UTF-8";
+
+/* * คุณต้องเอาตัวแปร :root และ :root.dark 
+ * จากไฟล์ global.css หรือ darkmode.css
+ * มาวางไว้ตรงนี้ครับ 
+ */
+:root {
+  --font-family: "Prompt", "Segoe UI", Tahoma, sans-serif;
+  --color-bg: #f4f6fb;
+  --color-surface: #ffffff;
+  --color-surface-strong: #1f2937;
+  --color-surface-muted: #374151;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-primary: #2563eb;
+  --color-accent: #7c3aed;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-border: #e5e7eb;
+  --color-sidebar: #111827;
+  --color-sidebar-text: #e5e7eb;
+  --shadow-card: 0 18px 36px -18px rgba(15, 23, 42, 0.35);
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 18px;
+  --transition-fast: 150ms ease;
+  --transition-mid: 250ms ease;
+}
+
+:root.dark {
+  --color-bg: #0f172a;
+  --color-surface: #111827;
+  --color-text: #f3f4f6;
+  --color-text-muted: #cbd5f5;
+  --color-border: #1f2937;
+  --color-sidebar: #020817;
+  --color-sidebar-text: #e5e7ff;
+  --shadow-card: 0 20px 40px -20px rgba(2, 6, 23, 0.65);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  transition: background var(--transition-mid), color var(--transition-mid);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+}
+
+/* ============================================
+   2. 🏛️ APP LAYOUT
+   (สไตล์จาก navbar.css / menu.css)
+   ============================================ */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px; /* ปรับความกว้างตามชอบ */
+  padding: 24px 20px;
+  background: var(--color-sidebar);
+  color: var(--color-sidebar-text);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  transition: background var(--transition-mid), color var(--transition-mid);
+}
+
+.sidebar .logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar ul li {
+  padding: 12px 14px;
+  border-radius: var(--radius-s);
+  color: rgba(229, 231, 235, 0.86);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar ul li:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.sidebar ul li.active {
+  background: rgba(37, 99, 235, 0.28);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.25);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 36px clamp(24px, 5vw, 56px);
+  gap: 32px;
+}
+
+/* ============================================
+   3. 🧭 PAGE HEADER & CONTROLS
+   (สไตล์จาก navbar.css / menu.css)
+   ============================================ */
+.page-header {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.page-header .page-title h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 2vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.page-header .page-title p {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.98rem;
+}
+
+.header-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-btn, .lang-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.icon-btn:hover, .lang-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -12px rgba(37, 99, 235, 0.65);
+}
+
+.lang-btn {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* --- Dropdown (User Menu) --- */
+.dropdown {
+  position: relative;
+}
+
+.dropdown .dropbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dropdown .dropbtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -12px rgba(37, 99, 235, 0.65);
+}
+
+.dropdown .dropdown-content {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-s);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  display: none;
+  min-width: 168px;
+  padding: 6px 0;
+  z-index: 20;
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 10px 18px;
+  color: var(--color-text);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.dropdown-content a:hover {
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--color-primary);
+}
+
+.dropdown.open .dropdown-content {
+  display: block;
+}
+
+/* --- Hover Navbar (จาก navbar_hover.css) --- */
+.hover-navbar {
+  /* ใส่สไตล์ .hover-navbar ที่คุณต้องการที่นี่ */
+  /* เช่น... */
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-surface-strong);
+  color: var(--color-sidebar-text);
+  border-radius: var(--radius-m);
+  padding: 10px 20px;
+  z-index: 1000;
+  display: none; /* ปกติซ่อนไว้ */
+}
+.hover-navbar .navbar-content {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+/* ... (สไตล์อื่นๆ ตามไฟล์ navbar_hover.css) ... */
+
+
+/* ============================================
+   4. 🧩 CORE COMPONENTS
+   (สไตล์กลางจาก global.css / adminpage.css)
+   ============================================ */
+
+/* --- Card --- */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-l);
+  padding: 28px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: background var(--transition-mid), border var(--transition-mid);
+}
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 20px;
+  border-radius: var(--radius-m);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.btn.primary {
+  background: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 14px 26px -18px rgba(37, 99, 235, 0.65);
+}
+.btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px -20px rgba(37, 99, 235, 0.55);
+}
+
+.btn.secondary {
+  background: var(--color-surface-muted);
+  color: #ffffff;
+  box-shadow: 0 14px 26px -18px rgba(55, 65, 81, 0.65);
+}
+.btn.secondary:hover {
+  background: var(--color-surface-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px -20px rgba(55, 65, 81, 0.55);
+}
+
+/* --- Forms & Inputs --- */
+input[type="text"],
+input[type="number"],
+select {
+  padding: 12px 14px;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.6);
+  color: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+:root.dark input[type="text"],
+:root.dark input[type="number"],
+:root.dark select {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+input:focus,
+select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  background: var(--color-surface);
+}
+
+/* --- Form Messages --- */
+.form-message {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  display: none;
+  animation: slideIn 0.3s ease;
+}
+
+.form-message.success {
+  display: block;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.form-message.error {
+  display: block;
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   5. 📄 PAGE LAYOUT: ADMIN SETTINGS
+   (สไตล์จาก admin-settings.css)
+   ============================================ */
+.specimen-layout {
+  display: grid;
+  gap: 24px;
+}
+
+/* --- Layout นี้จะแบ่ง 2 คอลัมน์บนจอใหญ่ --- */
+@media (min-width: 960px) {
+  .specimen-layout {
+    /* * นี่คือ layout 2 คอลัมน์ของคุณ
+     * ซ้าย 360px (สำหรับฟอร์ม), ขวายืดเต็ม (สำหรับตาราง)
+     */
+    grid-template-columns: minmax(320px, 360px) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/* ============================================
+   6. 📦 PAGE COMPONENTS: ADMIN SETTINGS
+   (สไตล์จาก admin-settings.css / compact-form)
+   ============================================ */
+
+/* --- 6.1) Specimen Form Card --- */
+.specimen-form-card {
+  padding: 26px;
+  gap: 18px;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.inline-form input[type="text"] {
+  flex: 1 1 160px; /* ยืดได้ แต่หดสุด 160px */
+}
+
+.inline-form input[type="number"] {
+  flex: 0 0 100px; /* กว้าง 100px เสมอ */
+}
+
+.form-actions-inline {
+  display: flex;
+  gap: 10px;
+  flex-basis: 100%; /* ให้ปุ่มอยู่แถวใหม่ */
+  justify-content: flex-end;
+}
+/* Style สำหรับปุ่มในฟอร์ม */
+.inline-form .btn {
+  padding: 10px 18px;
+  font-size: 0.9rem;
+}
+
+
+/* --- 6.2) Specimen Table Panel --- */
+.specimen-table-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.specimen-table-header {
+  padding: 22px 26px;
+}
+.specimen-table-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.specimen-table-header p {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.specimen-table-card {
+  padding: 0; /* ตารางต้องชิดขอบการ์ด */
+  overflow: hidden;
+}
+
+.scrollable-table-wrapper {
+  display: block;
+  max-height: 360px; /* ความสูงของตาราง */
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 0; /* ไม่ต้องมีขอบมนใน wrapper */
+  background: var(--color-surface);
+  position: relative;
+  scroll-behavior: smooth;
+  border: none; /* เอาเส้นขอบ wrapper ออก */
+}
+
+/* --- สไตล์ Scrollbar (ที่เราทำ) --- */
+.scrollable-table-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollable-table-wrapper::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 3px;
+}
+.scrollable-table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(37, 99, 235, 0.25);
+  border-radius: 3px;
+}
+
+/* --- ตารางและ Sticky Header (ที่เราทำ) --- */
+.specimen-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* สำคัญสำหรับ sticky header */
+}
+
+.specimen-table thead th {
+  position: sticky; /* ตรึงหัวตารางไว้ */
+  top: 0;           /* ให้อยู่บนสุดเสมอ */
+  
+  /* ตัวแก้ปัญหา "ทะลุ" */
+  background-color: var(--color-surface); 
+  
+  z-index: 10;      /* ทำให้หัวตารางลอยอยู่ "เหนือ" เนื้อหา */
+  
+  /* ตกแต่งเงา (จากที่เราทำล่าสุด) */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  
+  /* สไตล์หัวตาราง */
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--color-border);
+  text-align: left;
+}
+.specimen-table th:first-child {
+  padding-left: 26px; /* ให้ตรงกับ padding การ์ด */
+}
+.specimen-table th:last-child {
+  padding-right: 26px; /* ให้ตรงกับ padding การ์ด */
+}
+
+.specimen-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.95rem;
+}
+.specimen-table td:first-child {
+  padding-left: 26px;
+}
+.specimen-table td:last-child {
+  padding-right: 26px;
+}
+
+.specimen-table tbody tr:hover {
+  background: rgba(37, 99, 235, 0.02);
+}
+
+.specimen-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* --- ปุ่ม Action ในตาราง --- */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0 4px;
+}
+
+.btn-icon:hover {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.btn-icon.edit-btn:hover {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--color-primary);
+}
+
+.btn-icon.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+
+/* --- 6.3) Rulebase Section --- */
+.compact-form {
+  padding: 20px 24px !important; /* !important เพื่อ override padding card หลัก */
+}
+
+.rulebase-actions {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr; /* 1 คอลัมน์บนจอเล็ก */
+}
+/* 2 คอลัมน์บนจอใหญ่ */
+@media (min-width: 768px) {
+  .rulebase-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.rulebase-item {
+  display: flex;
+  flex-direction: column; /* เรียงบน-ล่าง */
+  gap: 15px;
+  background: rgba(37, 99, 235, 0.02);
+  padding: 15px 20px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-mid);
+}
+
+@media (min-width: 1024px) {
+  .rulebase-item {
+    flex-direction: row; /* กลับเป็นเรียงซ้าย-ขวาบนจอใหญ่ */
+    align-items: center;
+  }
+}
+
+.rulebase-item:hover {
+  background: rgba(37, 99, 235, 0.04);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.rulebase-info {
+  flex: 1;
+}
+
+.rulebase-info h3 {
+  margin: 0 0 5px 0;
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.rulebase-info p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.rulebase-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%; /* ให้เต็มความกว้างในโหมด Column */
+}
+@media (min-width: 1024px) {
+  .rulebase-controls {
+    width: auto; /* กลับเป็น auto บนจอใหญ่ */
+    flex: 1; /* ให้ยืดได้ */
+    max-width: 400px; /* จำกัดความกว้างสูงสุด */
+  }
+}
+
+.rulebase-controls input[type="text"] {
+  flex: 1; /* ให้ input ยืดเต็มพื้นที่ */
+}
+
+.rulebase-controls button {
+  padding: 10px 24px;
+  font-size: 14px;
+}
+
+
+/* ============================================
+   7. 📱 RESPONSIVE & DARK MODE
+   (ส่วนนี้ควรอยู่ท้ายสุด)
+   ============================================ */
+   
+/* --- Dark Mode (ถ้าคุณใช้ class .dark-mode บน body) --- */
+/*
+body.dark-mode {
+  --color-bg: #0f172a;
+  --color-surface: #111827;
+  --color-text: #f3f4f6;
+  --color-text-muted: #cbd5f5;
+  --color-border: #1f2937;
+  --color-sidebar: #020817;
+  --color-sidebar-text: #e5e7ff;
+  --shadow-card: 0 20px 40px -20px rgba(2, 6, 23, 0.65);
+}
+*/
+
+/* --- Responsive (จากไฟล์ adminpage.css) --- */
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px clamp(16px, 4vw, 28px);
+  }
+
+  .sidebar .logo {
+    font-size: 1.25rem;
+  }
+
+  .sidebar ul {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  
+  .sidebar ul li {
+    padding: 10px 12px;
+  }
+
+  .main-content {
+    padding: 28px clamp(20px, 4vw, 42px);
+  }
+}
+
+@media (max-width: 540px) {
+  .page-header {
+    align-items: flex-start;
+  }
+  .header-buttons {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .dropdown .dropbtn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .inline-form input,
+  .inline-form .btn {
+    flex-basis: 100%; /* ทุกอย่าง 100% บนจอมือถือ */
+    width: 100%;
+  }
+  .form-actions-inline {
+    flex-direction: column;
+  }
+}

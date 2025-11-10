@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Settings</title>
+  <link rel="stylesheet" href="./css/admin-settings.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="logo">Logo</div>
+      <nav class="nav-links">
+        <a href="./dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+        <a href="./patients.html"><i class="fa-solid fa-user-group"></i> ข้อมูลผู้ป่วย</a>
+        <a href="./information.html"><i class="fa-solid fa-table-list"></i> ตรวจสอบข้อมูล</a>
+        <a class="active" href="./admin-settings.html"><i class="fa-solid fa-sliders"></i> Admin Settings</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="page-header">
+        <div class="page-heading">
+          <h1>Admin Settings</h1>
+          <p>จัดการหมวดหมู่ สิ่งส่งตรวจ และกำหนดค่า TAT ภายในระบบ</p>
+        </div>
+        <div class="toolbar-actions">
+          <button type="button" id="themeToggle" class="chip icon-only" aria-label="Toggle theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button type="button" class="chip" id="langToggle">TH</button>
+          <div class="chip dropdown">
+            <button type="button" class="dropdown-toggle">
+              <i class="fa-solid fa-user"></i>
+              <span>Admin</span>
+              <i class="fa-solid fa-caret-down"></i>
+            </button>
+            <nav class="dropdown-menu">
+              <a href="./profile.html">Profile</a>
+              <a href="#">Settings</a>
+              <a href="#" id="logout">Logout</a>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      <section class="specimen-layout">
+        <section class="card specimen-form-card">
+          <div class="form-header">
+            <h2>จัดการข้อมูลสิ่งส่งตรวจ</h2>
+            <div id="form-message" class="form-message" role="alert"></div>
+          </div>
+
+          <form id="specimenForm" class="inline-form">
+            <input id="specimenName" name="name" type="text" placeholder="ชื่อสิ่งส่งตรวจ (เช่น Blood)" required />
+            <input id="specimenTat" name="tat" type="number" min="0" placeholder="TAT (วัน)" required />
+            <div class="form-actions-inline">
+              <button type="submit" class="btn primary" id="submitBtn">
+                <i class="fa fa-plus"></i> เพิ่ม
+              </button>
+              <button type="button" id="cancelBtn" class="btn secondary" style="display: none;">
+                <i class="fa fa-times"></i> ยกเลิก
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="specimen-table-panel">
+          <header class="card specimen-table-header">
+            <div>
+              <h2>รายการสิ่งส่งตรวจ</h2>
+              <p>ตรวจสอบและแก้ไขรายการที่สร้างไว้ทั้งหมด</p>
+            </div>
+          </header>
+          <div class="card specimen-table-card">
+            <div class="scrollable-table-wrapper">
+              <table id="specimen-table" class="specimen-table">
+                <thead>
+                  <tr>
+                    <th>ชื่อสิ่งส่งตรวจ</th>
+                    <th style="width: 110px; text-align: center;">TAT (วัน)</th>
+                    <th style="width: 120px; text-align: center;">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </section>
+
+        <article class="card card-specimen">
+          <header>
+            <h2>เพิ่มข้อมูลสิ่งส่งตรวจใหม่</h2>
+            <p>แนบสิ่งส่งตรวจกับหมวดหมู่ที่ต้องการติดตาม</p>
+          </header>
+          <form id="specimenForm" class="form-stack">
+            <label>
+              <span>ชื่อสิ่งส่งตรวจ</span>
+              <input id="specimenName" name="name" type="text" placeholder="เช่น Blood Sample" required />
+            </label>
+            <label>
+              <span>หมวดหมู่</span>
+              <select id="specimenCategory" name="category" required>
+                <option value="" selected disabled>เลือกหมวดหมู่...</option>
+              </select>
+            </label>
+            <label>
+              <span>หมายเหตุ</span>
+              <textarea id="specimenRemark" name="remark" placeholder="รายละเอียดเพิ่มเติม"></textarea>
+            </label>
+            <div class="form-actions">
+              <button type="reset" class="btn ghost">ล้างฟอร์ม</button>
+              <button type="submit" class="btn success">เพิ่มข้อมูล</button>
+            </div>
+          </form>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="./js/admin-settings.js"></script>
+</body>
+</html>
