@@ -33,19 +33,41 @@ body.dark .case-table thead {
   color: #ffffff;
 }
 
+/* ============================================
+   ✨ (แก้ไขส่วนนี้) ทำให้ปุ่มใน Header เป็นสีน้ำเงินตามรูป ✨
+   ============================================
+*/
 body.dark .icon-btn,
 body.dark .lang-btn,
 body.dark .dropbtn {
-  background: #3b3b4a;
-  color: #ecf0f1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  /* สีและฟอนต์ (จากรูปตัวอย่าง) */
+  background-color: #2563eb; /* สีน้ำเงินสดใส */
+  color: #ffffff; /* ตัวอักษรสีขาว */
+  font-weight: 600; /* ความหนาตัวอักษร */
+  
+  /* รูปทรง (จากรูปตัวอย่าง) */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); /* เงาปุ่ม */
+  /* (สไตล์อื่นๆ เช่น border-radius, width, height จะถูกดึงมาจาก navbar.css) */
 }
 
 body.dark .icon-btn:hover,
 body.dark .lang-btn:hover,
 body.dark .dropbtn:hover {
-  background: #4a4a5a;
+  background-color: #1d4ed8; /* สีน้ำเงินเข้มขึ้น */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+body.dark .icon-btn:active,
+body.dark .lang-btn:active,
+body.dark .dropbtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+/* ============================================
+   (จบส่วนแก้ไขปุ่ม Header)
+   ============================================ */
+
 
 /* ปรับสีพื้นหลัง input และ select */
 body.dark .form-group input,
@@ -206,3 +228,4 @@ body.dark .swal-dark .swal2-title,
 body.dark .swal-dark .swal2-html-container {
   color: var(--text-primary) !important;
 }
+/* ❌ (ลบวงเล็บปีกกา '}' ที่เกินมาตรงนี้) */
