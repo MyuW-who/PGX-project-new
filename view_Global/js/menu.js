@@ -51,3 +51,10 @@ const admin_settings_btn = document.getElementById('admin_settings-btn');
 admin_settings_btn?.addEventListener('click', () => {
   window.electronAPI.navigate('admin-settings');
 });
+
+const state_btn = document.getElementById('state-btn-medtech');
+state_btn?.addEventListener('click', () => {
+  window.electronAPI.navigate('state_medtech');
+});
+
+

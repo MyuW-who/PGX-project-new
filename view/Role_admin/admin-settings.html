@@ -13,6 +13,19 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
+
+  <!-- แถบ Navbar -->
+  <div class="hover-navbar">
+    <div class="navbar-content">
+      <div class="navbar-left">
+        <span class="logo">Roblox</span>
+      </div>
+      <div class="navbar-right">
+        <button class="nav-btn close"><i class="fa fa-xmark"></i></button>
+      </div>
+    </div>
+  </div>
+
   <div class="app-shell">
     <aside class="sidebar">
       <h2 class="logo">Logo</h2>
@@ -25,26 +38,26 @@
 
     <main class="content">
       <header class="page-header">
-        <div class="page-heading">
+        <div class="page-title">
           <h1>Admin Settings</h1>
           <p>จัดการหมวดหมู่ สิ่งส่งตรวจ และกำหนดค่า TAT ภายในระบบ</p>
         </div>
-        <div class="toolbar-actions">
-          <button type="button" id="themeToggle" class="chip icon-only" aria-label="Toggle theme">
-            <i class="fa-solid fa-moon"></i>
+        <div class="header-buttons">
+          <button id="themeToggle" class="icon-btn" title="เปลี่ยนธีม">
+            <i class="fa fa-moon"></i>
           </button>
-          <button type="button" class="chip" id="langToggle">TH</button>
-          <div class="dropdown" id="accountDropdown">
-            <button type="button" class="dropdown-toggle">
+          <button id="langToggle" class="lang-btn" title="สลับภาษา">TH</button>
+          <div class="dropdown">
+            <button class="dropbtn" id="dropdownBtn">
               <i class="fa fa-user-circle"></i>
               Admin
               <i class="fa fa-caret-down"></i>
             </button>
-            <nav class="dropdown-menu">
+            <div id="dropdownMenu" class="dropdown-content">
               <a href="#" id="settingsBtn">Settings</a>
               <a href="#">About</a>
               <a href="#" id="logout">Logout</a>
-            </nav>
+            </div>
           </div>
         </div>
       </header>

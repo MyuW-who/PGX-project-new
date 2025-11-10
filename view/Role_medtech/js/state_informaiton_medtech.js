@@ -19,12 +19,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     // 2. ดึงข้อมูล Test Requests (เหมือนเดิม)
     const testRequests = await window.electronAPI.getTestRequests();
     console.log('📦 Test Requests:', testRequests);
-    console.log('📦 Sample Request:', testRequests[0]);
-    renderTestRequests(testRequests);
+    
+    // 🚩 [แก้ไขจุดที่ 1]
+    renderAllTables(testRequests); 
+    
     await updateStatsFromAPI();
   } catch (e) {
     console.error('fetch test requests error', e);
-    renderTestRequests([]);
+    
+    // 🚩 [แก้ไขจุดที่ 2]
+    renderAllTables([]);
   }
 });
 
@@ -36,21 +40,18 @@ document.getElementById('searchInput')?.addEventListener('input', async e => {
   const kw = e.target.value.trim();
   try {
     const data = kw ? await window.electronAPI.searchTestRequests(kw) : await window.electronAPI.getTestRequests();
-    renderTestRequests(data);
+    
+    // 🚩 [แก้ไขจุดที่ 3]
+    renderAllTables(data); 
+
     await updateStatsFromAPI();
   } catch (err) {
     console.error('search error', err);
-    renderTestRequests([]);
+    renderAllTables([]); // ⭐️ เพิ่มบรรทัดนี้ด้วยเผื่อ search error
   }
 });
 
-document.getElementById('tatFilter')?.addEventListener('change', async e => {
-  const all = await window.electronAPI.getTestRequests();
-  const v = e.target.value;
-  const filtered = v === 'all' ? all : all.filter(r => r.status === v);
-  renderTestRequests(filtered);
-  await updateStatsFromAPI();
-});
+
 
  
 /* --------------------------------------------
@@ -148,15 +149,54 @@ function calculateTATWarning(requestDate, slaTime, status) {
   };
 }
 
-function renderTestRequests(data) {
-  const tbody = document.querySelector('#patientTable tbody');
-  tbody.innerHTML = '';
+/* ==================================================
+   ✅ RENDERER ใหม่สำหรับ 4 ตาราง
+   ================================================== */
 
+/**
+ * ฟังก์ชันหลัก: รับข้อมูลทั้งหมด แล้วกรองเพื่อส่งไป render ลง 4 ตาราง
+ */
+function renderAllTables(allRequests) {
+  // 1. กรองข้อมูลตามสถานะ (ใช้ .toLowerCase() เพื่อความแน่นอน)
+  const need2List = allRequests.filter(r => (r.status || '').toLowerCase() === 'need 2 confirmation');
+  const need1List = allRequests.filter(r => (r.status || '').toLowerCase() === 'need 1 confirmation');
+  const doneList = allRequests.filter(r => (r.status || '').toLowerCase() === 'done');
+  const rejectList = allRequests.filter(r => (r.status || '').toLowerCase() === 'reject');
+
+  // 2. ดึง Element ของ tbody ทั้ง 4 (จาก HTML)
+  const tbodyNeed2 = document.querySelector('#tableNeed2 tbody');
+  const tbodyNeed1 = document.querySelector('#tableNeed1 tbody');
+  const tbodyDone = document.querySelector('#tableDone tbody');
+  const tbodyReject = document.querySelector('#tableReject tbody');
+
+  // 3. ส่งข้อมูลไป render แต่ละตาราง
+  renderTableRows(tbodyNeed2, need2List);
+  renderTableRows(tbodyNeed1, need1List);
+  renderTableRows(tbodyDone, doneList);
+  renderTableRows(tbodyReject, rejectList);
+}
+
+/**
+ * ฟังก์ชันช่วย: รับ tbody และ list ข้อมูล เพื่อสร้างแถว (tr)
+ * (โค้ดส่วนนี้เกือบทั้งหมดมาจากฟังก์ชัน renderTestRequests เดิมของคุณ)
+ */
+function renderTableRows(tbody, data) {
+  // 0. ตรวจสอบว่า tbody มีจริงหรือไม่
+  if (!tbody) {
+    console.error('ไม่พบ tbody element');
+    return;
+  }
+  
+  tbody.innerHTML = ''; // ล้างข้อมูลเก่า
+
+  // 1. แสดงผลว่า "ไม่พบข้อมูล" ถ้า data ว่าง
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr class="no-data-row"><td colspan="8">ไม่พบข้อมูลที่ตรงกับการค้นหา</td></tr>`;
+    // ต้องใช้ colspan="8" เพราะตารางใหม่มี 8 คอลัมน์
+    tbody.innerHTML = `<tr class="no-data-row"><td colspan="8">ไม่พบข้อมูล</td></tr>`;
     return;
   }
 
+  // 2. วนลูปสร้างแถว
   data.forEach(req => {
     const patient = req.patient || {};
     const patientName = `${patient.first_name ?? ''} ${patient.last_name ?? ''}`.trim() || '-';
@@ -166,23 +206,19 @@ function renderTestRequests(data) {
     const received = requestDate ? new Date(requestDate).toLocaleDateString('th-TH') : '-';
     const testTarget = req.test_target || '-';
     const status = req.status || '-';
-
     const specimen = req.Specimen || '-';
 
     // Get SLA time from map (case-insensitive lookup)
     const specimenKey = (specimen || '').toLowerCase();
     const slaTime = specimenSlaMap[specimenKey];
-    
-    // Display status as-is from database
     const statusDisplay = status;
 
-    // Get dot class for color coding
     const dotClass = getTATBadgeClass(status);
     
     // Calculate TAT warning with actual SLA time from database
     const tatWarning = calculateTATWarning(requestDate, slaTime, status);
     
-    // Debug logging
+    // Debug logging for request 43
     if (req.request_id === 43) {
       console.log(`🔍 DEBUG Request ${req.request_id}:`, {
         specimen,
@@ -196,17 +232,17 @@ function renderTestRequests(data) {
         specimenSlaMap
       });
     }
-
+    
     const tr = document.createElement('tr');
     tr.setAttribute('data-request-id', req.request_id);
 
-    // Add warning class to row if overdue or warning
     if (tatWarning.overdue) {
       tr.classList.add('tat-overdue');
     } else if (tatWarning.warning) {
       tr.classList.add('tat-warning');
     }
     
+    // 3. สร้าง HTML ของแถว (เช็คให้แน่ใจว่าครบ 8 <td>)
     tr.innerHTML = `
       <td>${req.request_id || '-'}</td>
       <td>${hospitalId}</td>
@@ -231,9 +267,8 @@ function renderTestRequests(data) {
       </td>
     `;
     tr.addEventListener('click', (e) => {
-      // ไม่ให้คลิกที่ปุ่มทำให้เปลี่ยนหน้า
       if (!e.target.closest('button')) {
-        showPage('verify_pharmacy', patientId);
+        //showPage('input_step1_medtech', patientId);
       }
     });
     tbody.appendChild(tr);
@@ -244,17 +279,21 @@ function renderTestRequests(data) {
 async function updateStatsFromAPI() {
   try {
     const stats = await window.electronAPI.getTestRequestStats('all');
-    document.getElementById('statAll').textContent = stats.all || 0;
+    
+    document.getElementById('statAll').textContent = stats.all || 0; 
+    document.getElementById('statPost').textContent = stats.done || 0;
+    document.getElementById('statReject').textContent = stats.reject || 0; // ✅ เปิดบรรทัดนี้
     document.getElementById('statPre').textContent = stats.need2 || stats.need2Confirmation || 0;
     document.getElementById('statAnalytic').textContent = stats.need1 || stats.need1Confirmation || 0;
-    document.getElementById('statPost').textContent = stats.done || 0;
+
   } catch (e) {
     console.error('Error fetching stats:', e);
     // Set to 0 if error
     document.getElementById('statAll').textContent = 0;
+    document.getElementById('statPost').textContent = 0;
+    document.getElementById('statReject').textContent = 0; // ✅ เปิดบรรทัดนี้
     document.getElementById('statPre').textContent = 0;
     document.getElementById('statAnalytic').textContent = 0;
-    document.getElementById('statPost').textContent = 0;
   }
 }
 
@@ -272,6 +311,7 @@ async function editTestRequest(requestId) {
   }
 }
 
+// ⭐️ (ส่วนนี้ขาดหายไปจากไฟล์ที่คุณส่งมา ผมเติมให้)
 async function viewPDF(requestId, patientName) {
   try {
     // Get the test request details
@@ -318,45 +358,3 @@ function showPage(pageName, patientId) {
 document.getElementById('langToggle')?.addEventListener('click', (e) => {
   e.target.textContent = e.target.textContent === 'TH' ? 'EN' : 'TH';
 });
-
-async function viewPDF(requestId, patientName) {
-  try {
-    // Get the test request details
-    const req = await window.electronAPI.getTestRequestById(requestId);
-    if (!req) {
-      alert('ไม่พบข้อมูล Test Request');
-      return;
-    }
-    
-    // Check if PDF exists (you can add a field in database to track this)
-    if (req.Doc_Name) {
-      // If there's a PDF file path in the database
-      alert(`เปิดไฟล์ PDF: ${req.Doc_Name}`);
-      // TODO: Implement actual PDF viewing/opening
-      // window.electronAPI.openPDF(req.Doc_Name);
-    } else {
-      // Generate PDF if it doesn't exist
-      const reportData = {
-        name: patientName,
-        age: req.patient?.age || '-',
-        gender: req.patient?.gender || '-',
-        hn: req.patient?.patient_id || '-',
-        hospital: req.patient?.hospital_id || '-',
-        testTarget: req.test_target || '-',
-        specimen: req.Specimen || '-'
-      };
-      
-      const pdfPath = await window.electron.generatePDF(reportData);
-      alert(`สร้าง PDF สำเร็จ: ${pdfPath}`);
-    }
-  } catch (e) {
-    console.error('❌ Error viewing PDF:', e);
-    alert('เกิดข้อผิดพลาดในการดู PDF');
-  }
-}
-
-function showPage(pageName, patientId) {
-  sessionStorage.setItem('selectedPatientId', patientId);
-  window.electronAPI?.navigate(pageName);
-}
-
