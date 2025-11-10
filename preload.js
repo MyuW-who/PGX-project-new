@@ -30,6 +30,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateSpecimen: (specimenId, specimenData) => ipcRenderer.invoke('update-specimen', specimenId, specimenData),
   deleteSpecimen: (specimenId) => ipcRenderer.invoke('delete-specimen', specimenId),
   
+  // User Profile Management
+  getUserProfile: (userId) => ipcRenderer.invoke('get-user-profile', userId),
+  updateUserProfile: (userId, profileData) => ipcRenderer.invoke('update-user-profile', userId, profileData),
+  uploadSignature: (userId, fileBuffer, fileName) => ipcRenderer.invoke('upload-signature', userId, fileBuffer, fileName),
+  deleteSignatureFile: (signatureUrl) => ipcRenderer.invoke('delete-signature', signatureUrl),
+  
   getTestRequests: () => ipcRenderer.invoke('get-test-requests'),
   searchTestRequests: (searchTerm) => ipcRenderer.invoke('search-test-requests', searchTerm),
   getTestRequestById: (requestId) => ipcRenderer.invoke('get-test-request-by-id', requestId),

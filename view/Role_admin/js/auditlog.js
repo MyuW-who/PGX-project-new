@@ -14,8 +14,20 @@ const auditList = document.getElementById('auditList');
 const auditCount = document.getElementById('auditCount');
 const emptyState = document.getElementById('emptyState');
 
+// Pagination
+const paginationContainer = document.getElementById('paginationContainer');
+const btnFirstPage = document.getElementById('btnFirstPage');
+const btnPrevPage = document.getElementById('btnPrevPage');
+const btnNextPage = document.getElementById('btnNextPage');
+const btnLastPage = document.getElementById('btnLastPage');
+const pageInfo = document.getElementById('pageInfo');
+const itemsPerPageSelect = document.getElementById('itemsPerPage');
+
 // --- Real data from database ---
 let logs = [];
+let filteredLogs = [];
+let currentPage = 1;
+let itemsPerPage = 10;
 
 const actionMeta = {
 	'created':      { icon: 'fa-circle-plus',  color: '#10b981', status: 'status-success', label: 'created' },
@@ -81,7 +93,7 @@ function applyFilters() {
 	const fAction = filterAction.value;
 	const query = searchInput.value.trim().toLowerCase();
 
-	const filtered = logs.filter(l => {
+	filteredLogs = logs.filter(l => {
 		const actor = l.username || l.actor; // Support both database field names
 		if (fUser !== 'all' && actor !== fUser) return false;
 		if (fAction !== 'all' && l.action !== fAction) return false;
@@ -93,11 +105,30 @@ function applyFilters() {
 		return true;
 	});
 
-	renderList(filtered);
+	// Reset to first page when filters change
+	currentPage = 1;
+	renderList();
 }
 
-function renderList(items) {
-	auditList.innerHTML = items.map(item => {
+function renderList() {
+	const totalItems = filteredLogs.length;
+	const totalPages = Math.ceil(totalItems / itemsPerPage);
+	
+	// Ensure current page is valid
+	if (currentPage > totalPages && totalPages > 0) {
+		currentPage = totalPages;
+	}
+	if (currentPage < 1) {
+		currentPage = 1;
+	}
+
+	// Calculate slice indices
+	const startIndex = (currentPage - 1) * itemsPerPage;
+	const endIndex = startIndex + itemsPerPage;
+	const itemsToShow = filteredLogs.slice(startIndex, endIndex);
+
+	// Render items
+	auditList.innerHTML = itemsToShow.map(item => {
 		const meta = actionMeta[item.action] || actionMeta.updated;
 		const actor = item.username || item.actor || 'Unknown';
 		const avClass = pickAvatarClass(actor);
@@ -124,14 +155,59 @@ function renderList(items) {
 			</li>`;
 	}).join('');
 
-	auditCount.textContent = `${items.length} items`;
-	emptyState.style.display = items.length ? 'none' : 'grid';
+	// Update count and pagination
+	const showingStart = totalItems > 0 ? startIndex + 1 : 0;
+	const showingEnd = Math.min(endIndex, totalItems);
+	auditCount.textContent = `แสดง ${showingStart}-${showingEnd} จาก ${totalItems} รายการ`;
+	
+	emptyState.style.display = totalItems === 0 ? 'grid' : 'none';
+
+	// Show/hide pagination
+	if (totalItems > itemsPerPage) {
+		paginationContainer.style.display = 'flex';
+		updatePaginationControls(totalPages);
+	} else {
+		paginationContainer.style.display = 'none';
+	}
+}
+
+function updatePaginationControls(totalPages) {
+	pageInfo.textContent = `หน้า ${currentPage} / ${totalPages}`;
+	
+	// Enable/disable buttons
+	btnFirstPage.disabled = currentPage === 1;
+	btnPrevPage.disabled = currentPage === 1;
+	btnNextPage.disabled = currentPage === totalPages;
+	btnLastPage.disabled = currentPage === totalPages;
+}
+
+function goToPage(page) {
+	const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+	if (page >= 1 && page <= totalPages) {
+		currentPage = page;
+		renderList();
+	}
 }
 
 // Wire filters
 filterUser?.addEventListener('change', applyFilters);
 filterAction?.addEventListener('change', applyFilters);
 searchInput?.addEventListener('input', applyFilters);
+
+// Wire pagination controls
+btnFirstPage?.addEventListener('click', () => goToPage(1));
+btnPrevPage?.addEventListener('click', () => goToPage(currentPage - 1));
+btnNextPage?.addEventListener('click', () => goToPage(currentPage + 1));
+btnLastPage?.addEventListener('click', () => {
+	const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+	goToPage(totalPages);
+});
+
+itemsPerPageSelect?.addEventListener('change', (e) => {
+	itemsPerPage = parseInt(e.target.value);
+	currentPage = 1; // Reset to first page
+	renderList();
+});
 
 /* ============================================
    🚀 PAGE INITIALIZATION

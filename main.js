@@ -57,6 +57,13 @@ const {
   deleteSpecimen
 } = require('./controllers/specimenController');
 
+const {
+  getUserProfile,
+  updateUserProfile,
+  uploadSignature,
+  deleteSignature
+} = require('./controllers/userProfileController');
+
 // Password hashing configuration
 const SALT_ROUNDS = 10;
 
@@ -71,6 +78,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      webSecurity: false, // Allow loading external resources (Supabase PDFs)
     },
     autoHideMenuBar: true,
     fullscreen: true,
@@ -278,6 +286,45 @@ ipcMain.handle('delete-specimen', async (event, specimenId) => {
   } catch (err) {
     console.error('❌ Delete Specimen Error:', err.message);
     return { success: false, message: 'เกิดข้อผิดพลาดในการลบสิ่งส่งตรวจ' };
+  }
+});
+
+// 👤 User Profile Handlers
+ipcMain.handle('get-user-profile', async (event, userId) => {
+  try {
+    return await getUserProfile(userId);
+  } catch (err) {
+    console.error('❌ Get User Profile Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์' };
+  }
+});
+
+ipcMain.handle('update-user-profile', async (event, userId, profileData) => {
+  try {
+    return await updateUserProfile(userId, profileData);
+  } catch (err) {
+    console.error('❌ Update User Profile Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการอัปเดตโปรไฟล์' };
+  }
+});
+
+ipcMain.handle('upload-signature', async (event, userId, fileBuffer, fileName) => {
+  try {
+    // Convert ArrayBuffer to Buffer in main process (Node.js has Buffer)
+    const buffer = Buffer.from(fileBuffer);
+    return await uploadSignature(userId, buffer, fileName);
+  } catch (err) {
+    console.error('❌ Upload Signature Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการอัปโหลดลายเซ็น' };
+  }
+});
+
+ipcMain.handle('delete-signature', async (event, signatureUrl) => {
+  try {
+    return await deleteSignature(signatureUrl);
+  } catch (err) {
+    console.error('❌ Delete Signature Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาดในการลบลายเซ็น' };
   }
 });
 

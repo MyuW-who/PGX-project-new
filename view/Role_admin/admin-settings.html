@@ -107,36 +107,11 @@
         </section>
       </section>
 
-        <article class="card card-specimen">
-          <header>
-            <h2>เพิ่มข้อมูลสิ่งส่งตรวจใหม่</h2>
-            <p>แนบสิ่งส่งตรวจกับหมวดหมู่ที่ต้องการติดตาม</p>
-          </header>
-          <form id="specimenForm" class="form-stack">
-            <label>
-              <span>ชื่อสิ่งส่งตรวจ</span>
-              <input id="specimenName" name="name" type="text" placeholder="เช่น Blood Sample" required />
-            </label>
-            <label>
-              <span>หมวดหมู่</span>
-              <select id="specimenCategory" name="category" required>
-                <option value="" selected disabled>เลือกหมวดหมู่...</option>
-              </select>
-            </label>
-            <label>
-              <span>หมายเหตุ</span>
-              <textarea id="specimenRemark" name="remark" placeholder="รายละเอียดเพิ่มเติม"></textarea>
-            </label>
-            <div class="form-actions">
-              <button type="reset" class="btn ghost">ล้างฟอร์ม</button>
-              <button type="submit" class="btn success">เพิ่มข้อมูล</button>
-            </div>
-          </form>
-        </article>
-      </section>
+
     </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
   <script src="./js/admin-settings.js"></script>
   <script src="../../view_Global/js/userProfile.js"></script>
   <script src="../../view_Global/js/darkmode.js"></script>

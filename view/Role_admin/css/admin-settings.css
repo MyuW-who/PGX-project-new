@@ -495,3 +495,44 @@ textarea:focus {
   padding-top: 1rem;
   border-top: 1px solid var(--color-border);
 }
+
+/* Action Buttons in Table */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.btn-icon.edit {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.btn-icon.edit:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-icon.delete {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.btn-icon.delete:hover {
+  background: #ef4444;
+  color: white;
+}

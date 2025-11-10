@@ -233,16 +233,65 @@
     };
 
     const enableIframe = (url) => {
+        console.log('🖼️ Loading PDF in iframe:', url);
+        
+        // Test if URL is accessible before loading
+        fetch(url, { method: 'HEAD' })
+            .then(response => {
+                console.log('📡 URL accessibility check:', {
+                    status: response.status,
+                    ok: response.ok,
+                    statusText: response.statusText,
+                    contentType: response.headers.get('content-type')
+                });
+                
+                if (!response.ok) {
+                    console.error('❌ URL is not accessible:', response.status, response.statusText);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่พบไฟล์ PDF',
+                        text: `ไม่สามารถเข้าถึงไฟล์ได้ (${response.status}: ${response.statusText})\n\nURL: ${url}`,
+                        footer: 'กรุณาตรวจสอบว่าไฟล์มีอยู่ใน Supabase Storage'
+                    });
+                    showFallback();
+                }
+            })
+            .catch(err => {
+                console.error('❌ Failed to check URL accessibility:', err);
+            });
+        
         hideAll();
         pdfFrame.hidden = false;
         pdfFrame.src = url;
 
-        const onFail = () => showFallback();
+        // Add download and open in new tab functionality
+        if (openExternal) openExternal.href = url;
+        if (btnDownload) {
+            btnDownload.onclick = () => {
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = url.split("/").pop() || "document.pdf";
+                a.click();
+            };
+        }
+
+        const onFail = (e) => {
+            console.error('❌ Iframe failed to load:', e);
+            Swal.fire({
+                icon: 'error',
+                title: 'ไม่สามารถแสดง PDF',
+                html: `ไม่สามารถโหลดไฟล์ PDF ได้<br><br><small>${url}</small>`,
+                footer: 'ลองคลิก "เปิดแท็บใหม่" เพื่อดูในเบราว์เซอร์'
+            });
+            showFallback();
+        };
+        
         const onLoad = () => {
+            console.log('✅ Iframe loaded successfully');
             // 🔹 เมื่อ Iframe โหลดเสร็จ ก็ซ่อน Loader และเปิดปุ่ม
             hideAll();
             pdfFrame.hidden = false;
-            btnConfirm.disabled = false;
+            // Don't enable confirm button here - let updateConfirmationStatus handle it
         };
 
         pdfFrame.addEventListener("error", onFail, { once: true });
@@ -251,6 +300,12 @@
 
     const initPdfJs = async (url) => {
         if (!canvas || !ctx) return false;
+
+        // 🔹 Skip PDF.js for Supabase URLs - use iframe instead for better compatibility
+        if (url.includes('supabase.co')) {
+            console.log('🔄 Supabase URL detected - skipping PDF.js, will use iframe');
+            return false;
+        }
 
         // 🔹 ใช้ CDN ของ PDF.js เหมือนเดิม
         const CDN_BASE = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105";
@@ -514,3 +569,12 @@
         window.electronAPI?.navigate('information_pharmacy');
     });
 })();
+// Initialize user profile features (dropdown, logout, profile link, etc.)
+if (typeof initializeUserProfile === 'function') {
+    initializeUserProfile();
+}
+
+// Initialize user profile features (dropdown, logout, profile link, etc.)
+if (typeof initializeUserProfile === 'function') {
+    initializeUserProfile();
+}
