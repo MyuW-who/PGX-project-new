@@ -1,5 +1,21 @@
 # PGx-project
 
+## Verify PDF page (ตรวจสอบไฟล์ PDF)
+
+หน้า `view/verify_information.html` ใช้สำหรับแสดงไฟล์ PDF เพื่อให้ผู้ใช้ตรวจสอบและกดยืนยัน/ปฏิเสธ
+
+- เปิดหน้า: `view/verify_information.html`
+- ค่าเริ่มต้นจะพยายามโหลดไฟล์: `view/mockuppdf.pdf` (อ้างอิงแบบ relative จาก HTML)
+- สามารถระบุไฟล์เองผ่านพารามิเตอร์ `?pdf=` ได้ เช่น:
+
+		- ไฟล์ภายในโปรเจกต์ (relative):
+			`verify_information.html?pdf=mockuppdf.pdf`
+
+	- File URL:
+		`verify_information.html?pdf=file:///C:/Users/<you>/Downloads/mockuppdf.pdf`
+
+ปุ่ม “ยืนยัน” จะไปที่ `verify_step1.html` และปุ่ม “ปฏิเสธ” จะกลับไปที่ `information.html` (สามารถปรับเส้นทางได้ใน `view/js/verify_information.js`)
+
 
 
 ## Getting started

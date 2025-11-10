@@ -29,8 +29,13 @@ body.dark .main-content {
 }
 
 body.dark .case-table thead {
-  background: #2b3648;
+  background: #1f2937;
   color: #ffffff;
+}
+
+body.dark .case-table thead th {
+  color: #ffffff;
+  background-color: #1f2937;
 }
 
 /* ============================================
@@ -104,6 +109,61 @@ body.dark .popup-box label {
   color: var(--text-primary);
 }
 
+/* ============================================
+   🎨 Card & Form Sections (Admin Page)
+   ============================================ */
+body.dark .card,
+body.dark section.card,
+body.dark .user-list-card,
+body.dark .table-container,
+body.dark .user-table-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 8px;
+}
+
+body.dark .card h2,
+body.dark section.card h2,
+body.dark .card h3,
+body.dark section.card h3 {
+  color: var(--text-primary);
+}
+
+body.dark .card label,
+body.dark section.card label,
+body.dark .form-field label {
+  color: var(--text-secondary);
+}
+
+/* Input fields in dark mode */
+body.dark .card input[type="text"],
+body.dark .card input[type="password"],
+body.dark .card input[type="email"],
+body.dark .card select,
+body.dark .form-field input,
+body.dark .form-field select,
+body.dark .form-grid input,
+body.dark .form-grid select {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: var(--text-primary);
+}
+
+body.dark .card input:focus,
+body.dark .form-field input:focus,
+body.dark .form-grid input:focus,
+body.dark .card select:focus,
+body.dark .form-field select:focus,
+body.dark .form-grid select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+body.dark .card input::placeholder {
+  color: #9ca3af;
+}
+
 /* 🔹 2. ทำให้ Dropdown Menu, Input, Select ใช้สีของ Dark Mode */
 body.dark .dropdown-content {
   background-color: var(--card-bg);
@@ -134,7 +194,8 @@ body.dark .btn.primary {
 
 /* 🔹 4. ปรับสีตารางให้สวยงาม */
 body.dark .data-table-container th {
-  color: var(--text-secondary);
+  background-color: #1f2937;
+  color: var(--text-primary);
 }
 body.dark .data-table-container tbody tr {
   background-color: #252a39;
@@ -150,6 +211,73 @@ body.dark .data-table-container tbody tr.selected,
 body.dark .data-table-container tbody tr.active,
 body.dark .data-table-container tbody tr.is-selected {
   background-color: rgba(59, 130, 246, 0.18);
+}
+
+/* Table in admin page */
+body.dark table {
+  background-color: transparent !important;
+  color: var(--text-primary);
+  border-color: var(--border);
+  width: 100%;
+  border-collapse: collapse;
+}
+
+body.dark #user-table {
+  background-color: transparent !important;
+}
+
+body.dark .table-wrapper {
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+body.dark table thead {
+  background-color: var(--card-bg) !important;
+}
+
+body.dark table thead th {
+  background-color: var(--card-bg) !important;
+  color: var(--text-muted);
+  border-color: var(--border);
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  padding: 16px 18px;
+  text-align: left;
+}
+
+body.dark #user-table thead,
+body.dark #user-table thead th {
+  background-color: var(--card-bg) !important;
+}
+
+body.dark table tbody {
+  background-color: transparent;
+}
+
+body.dark table tbody tr {
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--border);
+}
+
+body.dark #user-table tbody tr {
+  background-color: transparent !important;
+}
+
+body.dark table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.05) !important;
+}
+
+body.dark table tbody td {
+  border-color: var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 16px 18px;
+  text-align: left;
 }
 
 /* 🔧 Global table hover fix */
@@ -229,3 +357,251 @@ body.dark .swal-dark .swal2-html-container {
   color: var(--text-primary) !important;
 }
 /* ❌ (ลบวงเล็บปีกกา '}' ที่เกินมาตรงนี้) */
+
+/* ============================================
+   🎨 AUDIT LOG PAGE DARK MODE
+   ============================================ */
+
+/* Audit log cards and sections */
+body.dark .audit-header {
+  color: #f9fafb;
+}
+
+body.dark .audit-header h2 {
+  color: #f9fafb;
+  font-weight: 600;
+}
+
+body.dark .audit-header .muted {
+  color: #d1d5db;
+}
+
+/* Filters section */
+body.dark .filters {
+  background-color: transparent;
+}
+
+body.dark .filter-group label {
+  color: #e5e7eb;
+  font-weight: 500;
+}
+
+body.dark .filter-group select,
+body.dark .filter-group input {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+body.dark .filter-group select option {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+body.dark .filter-group select,
+body.dark select {
+  color: #f9fafb !important;
+}
+
+body.dark .filter-group select:focus,
+body.dark .filter-group input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+body.dark #searchInput::placeholder {
+  color: #d1d5db;
+}
+
+/* Audit list items */
+body.dark .audit-list {
+  background-color: transparent;
+}
+
+body.dark .audit-item {
+  background-color: rgba(55, 65, 81, 0.3);
+  border-color: var(--border);
+  color: #f9fafb;
+}
+
+body.dark .audit-item:hover {
+  background-color: rgba(59, 130, 246, 0.08);
+  border-color: #60a5fa;
+}
+
+body.dark .audit-item .action-badge {
+  background-color: #374151;
+  color: #f9fafb !important;
+  border-color: #4b5563;
+  font-weight: 600;
+}
+
+body.dark .audit-item .action-badge span,
+body.dark .audit-item .action-badge strong {
+  color: #f9fafb !important;
+}
+
+body.dark .audit-item .timestamp {
+  color: #d1d5db;
+}
+
+body.dark .audit-item .user-name {
+  color: #93c5fd;
+  font-weight: 600;
+}
+
+body.dark .audit-item .target {
+  color: #e5e7eb;
+}
+
+body.dark .audit-item .description,
+body.dark .audit-item p {
+  color: #f3f4f6;
+}
+
+body.dark .audit-line .actor,
+body.dark .audit-line .target,
+body.dark .audit-line .action {
+  color: #f9fafb !important;
+}
+
+body.dark .audit-line .action {
+  color: #93c5fd !important;
+  font-weight: 700;
+}
+
+body.dark .audit-content {
+  color: #f9fafb !important;
+}
+
+body.dark .audit-meta {
+  color: #d1d5db !important;
+}
+
+/* Empty state */
+body.dark .empty-state {
+  color: #d1d5db;
+  background-color: transparent;
+}
+
+body.dark .empty-state i {
+  color: #9ca3af;
+  font-size: 3rem;
+}
+
+body.dark .empty-state p {
+  color: #d1d5db;
+  font-size: 1rem;
+}
+
+/* Popup settings */
+body.dark .popup {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+body.dark .popup-content {
+  background-color: var(--card-bg);
+  border-color: var(--border);
+}
+
+body.dark .popup-header h3 {
+  color: #f9fafb;
+  font-weight: 600;
+}
+
+body.dark .popup-body label {
+  color: #e5e7eb;
+  font-weight: 500;
+}
+
+body.dark .popup-body select,
+body.dark .popup-body input {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+body.dark .btn-primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+body.dark .btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+body.dark .btn-secondary {
+  background-color: #374151;
+  color: var(--text-primary);
+  border-color: #4b5563;
+}
+
+body.dark .btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+/* ============================================
+   🎨 ADMIN PAGE TABLE FIX - FORCE OVERRIDE
+   ============================================ */
+body.dark table,
+body.dark #user-table,
+body.dark table#user-table {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+body.dark table thead,
+body.dark #user-table thead,
+body.dark table#user-table thead {
+  background-color: #2f2f40 !important;
+  background: #2f2f40 !important;
+}
+
+body.dark table thead th,
+body.dark #user-table thead th,
+body.dark table#user-table thead th {
+  background-color: #2f2f40 !important;
+  background: #2f2f40 !important;
+  color: #9ca3af !important;
+  text-transform: uppercase !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.05em !important;
+  font-weight: 700 !important;
+  padding: 16px 18px !important;
+}
+
+body.dark table tbody,
+body.dark #user-table tbody,
+body.dark table#user-table tbody {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+body.dark table tbody tr,
+body.dark #user-table tbody tr,
+body.dark table#user-table tbody tr {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+body.dark table tbody tr:hover,
+body.dark #user-table tbody tr:hover,
+body.dark table#user-table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.08) !important;
+  background: rgba(59, 130, 246, 0.08) !important;
+}
+
+body.dark table tbody td,
+body.dark #user-table tbody td,
+body.dark table#user-table tbody td {
+  color: #f9fafb !important;
+  padding: 16px 18px !important;
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+body.dark .table-wrapper {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+}
