@@ -276,7 +276,6 @@ async function getSpecimenSLA() {
       }
     });
     
-    console.log('✅ Specimen SLA Map:', slaMap);
     return Object.keys(slaMap).length > 0 ? slaMap : {
       'blood': 5,
       'hair': 7,

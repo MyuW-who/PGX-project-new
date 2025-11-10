@@ -66,6 +66,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getErrorRateSeries: (range) => ipcRenderer.invoke('get-error-rate-series', range),
   getUsageTimeSeries: (range, timeFilter) => ipcRenderer.invoke('get-usage-time-series', range, timeFilter),
   getTATStats: (timeFilter) => ipcRenderer.invoke('get-tat-stats', timeFilter),
+  
+  // PGx Report APIs
+  findDiplotype: (geneSymbol, genotype) => ipcRenderer.invoke('find-diplotype', geneSymbol, genotype),
+  createPgxReport: (testData) => ipcRenderer.invoke('create-pgx-report', testData),
+  
   closeApp: () => ipcRenderer.send('window-close'),
 });
 
