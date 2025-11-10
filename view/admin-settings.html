@@ -4,54 +4,69 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Settings</title>
+  <link rel="stylesheet" href="./css/adminpage.css" />
   <link rel="stylesheet" href="./css/admin-settings.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="./css/navbar.css">
+  <link rel="stylesheet" href="./css/menu.css">
+  <link rel="stylesheet" href="./css/darkmode.css" />
+  <link rel="stylesheet" href="./css/navbar_hover.css">
+  <link rel="stylesheet" href="./css/global.css">
 </head>
 <body>
-  <div class="app-shell">
+
+  <!-- แถบ Navbar -->
+  <div class="hover-navbar">
+    <div class="navbar-content">
+      <div class="navbar-left">
+        <span class="logo">Roblox</span>
+      </div>
+      <div class="navbar-right">
+        <button class="nav-btn close"><i class="fa fa-xmark"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
     <aside class="sidebar">
-      <div class="logo">Logo</div>
-      <nav class="nav-links">
-        <a href="./dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-        <a href="./patients.html"><i class="fa-solid fa-user-group"></i> ข้อมูลผู้ป่วย</a>
-        <a href="./information.html"><i class="fa-solid fa-table-list"></i> ตรวจสอบข้อมูล</a>
-        <a class="active" href="./admin-settings.html"><i class="fa-solid fa-sliders"></i> Admin Settings</a>
-      </nav>
+      <h2 class="logo">Logo</h2>
+      <ul>
+        <li id="admin-btn">Employee</li>
+        <li id="auditlog-btn">Audit Log</li>
+        <li id="admin-settings-btn" class="active">Admin Settings</li>
+      </ul>
     </aside>
 
-    <main class="content">
+    <main class="main-content">
       <header class="page-header">
-        <div class="page-heading">
+        <div class="page-title">
           <h1>Admin Settings</h1>
           <p>จัดการหมวดหมู่ สิ่งส่งตรวจ และกำหนดค่า TAT ภายในระบบ</p>
         </div>
-        <div class="toolbar-actions">
-          <button type="button" id="themeToggle" class="chip icon-only" aria-label="Toggle theme">
-            <i class="fa-solid fa-moon"></i>
+        <div class="header-buttons">
+          <button id="themeToggle" class="icon-btn" title="เปลี่ยนธีม">
+            <i class="fa fa-moon"></i>
           </button>
-          <button type="button" class="chip" id="langToggle">TH</button>
-          <div class="chip dropdown">
-            <button type="button" class="dropdown-toggle">
-              <i class="fa-solid fa-user"></i>
-              <span>Admin</span>
-              <i class="fa-solid fa-caret-down"></i>
+          <button id="langToggle" class="lang-btn" title="สลับภาษา">TH</button>
+          <div class="dropdown">
+            <button class="dropbtn" id="dropdownBtn">
+              <i class="fa fa-user-circle"></i>
+              Admin
+              <i class="fa fa-caret-down"></i>
             </button>
-            <nav class="dropdown-menu">
-              <a href="./profile.html">Profile</a>
-              <a href="#">Settings</a>
+            <div id="dropdownMenu" class="dropdown-content">
+              <a href="#" id="settingsBtn">Settings</a>
+              <a href="#">About</a>
               <a href="#" id="logout">Logout</a>
-            </nav>
+            </div>
           </div>
         </div>
       </header>
 
-      <section class="settings-grid">
-        <article class="card card-category">
-          <header>
-            <h2>ข้อมูลหมวดหมู่สิ่งส่งตรวจ</h2>
-            <p>สร้างหรืออัปเดตหมวดหมู่เพื่อใช้ในระบบจัดการเคส</p>
-          </header>
-          <form id="categoryForm" class="form-grid">
+      <section class="card">
+        <h2>ข้อมูลหมวดหมู่สิ่งส่งตรวจ</h2>
+        <p>สร้างหรืออัปเดตหมวดหมู่เพื่อใช้ในระบบจัดการเคส</p>
+        <form id="categoryForm" class="form-grid">
             <label>
               <span>ชื่อหมวดหมู่</span>
               <input id="categoryName" name="name" type="text" placeholder="เช่น NGS Panel" required />
@@ -73,13 +88,11 @@
               <button type="submit" class="btn primary">บันทึกหมวดหมู่</button>
             </div>
           </form>
-        </article>
+        </section>
 
-        <article class="card card-tat">
-          <header>
-            <h2>ปรับเวลา TAT รายหมวด</h2>
-            <p>ตั้งค่าระยะเวลา SLA ให้ตรงกับการปฏิบัติงานจริง</p>
-          </header>
+        <section class="card">
+          <h2>ปรับเวลา TAT รายหมวด</h2>
+          <p>ตั้งค่าระยะเวลา SLA ให้ตรงกับการปฏิบัติงานจริง</p>
           <form id="tatForm" class="form-stack">
             <label>
               <span>เลือกหมวดหมู่</span>
@@ -96,13 +109,11 @@
               <button type="submit" class="btn accent">อัปเดต TAT</button>
             </div>
           </form>
-        </article>
+        </section>
 
-        <article class="card card-specimen">
-          <header>
-            <h2>เพิ่มข้อมูลสิ่งส่งตรวจใหม่</h2>
-            <p>แนบสิ่งส่งตรวจกับหมวดหมู่ที่ต้องการติดตาม</p>
-          </header>
+        <section class="card">
+          <h2>เพิ่มข้อมูลสิ่งส่งตรวจใหม่</h2>
+          <p>แนบสิ่งส่งตรวจกับหมวดหมู่ที่ต้องการติดตาม</p>
           <form id="specimenForm" class="form-stack">
             <label>
               <span>ชื่อสิ่งส่งตรวจ</span>
@@ -123,11 +134,16 @@
               <button type="submit" class="btn success">เพิ่มข้อมูล</button>
             </div>
           </form>
-        </article>
-      </section>
+        </section>
     </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+  <script src="./js/userProfile.js"></script>
+  <script src="./js/darkmode.js"></script>
   <script src="./js/admin-settings.js"></script>
+  <script src="./js/menu.js"></script>
+  <script src="./js/navbar_hover.js"></script>
+
 </body>
 </html>

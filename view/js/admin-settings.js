@@ -1,3 +1,65 @@
+/* ============================================
+   🔐 SESSION MANAGEMENT FUNCTIONS
+   ============================================ */
+
+// Get current user from session
+function getCurrentUser() {
+  try {
+    const sessionData = sessionStorage.getItem('currentUser');
+    return sessionData ? JSON.parse(sessionData) : null;
+  } catch (error) {
+    console.error('❌ Error reading current user:', error);
+    return null;
+  }
+}
+
+// Check authentication and redirect if not logged in
+function checkAuthentication() {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    console.log('🚫 No authenticated user found, redirecting to login...');
+    window.electronAPI.navigate('login');
+    return false;
+  }
+  return true;
+}
+
+// Update user display in header
+function updateUserDisplay() {
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    if (dropdownBtn) {
+      dropdownBtn.innerHTML = `
+        <i class="fa fa-user-circle"></i> ${currentUser.username} (${currentUser.role}) <i class="fa fa-caret-down"></i>
+      `;
+    }
+    
+    if (currentUser.hospital_id) {
+      console.log('🏥 Hospital:', currentUser.hospital_id);
+    }
+  }
+}
+
+/* ============================================
+   🧭 NAVIGATION HANDLERS
+   ============================================ */
+
+// Logout handler
+const logoutBtn = document.getElementById('logout');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    sessionStorage.clear();
+    console.log('🚪 User logged out');
+    window.electronAPI.navigate('login');
+  });
+}
+
+/* ============================================
+   📋 CATEGORY MANAGEMENT
+   ============================================ */
+
 const categories = [
   { id: "ngs", name: "NGS Panel", code: "NGS-01", tat: 7 },
   { id: "qpcr", name: "qPCR", code: "QPCR-02", tat: 3 },
@@ -60,6 +122,21 @@ function handleSpecimenSubmit(event) {
   alert("เพิ่มข้อมูลสิ่งส่งตรวจเรียบร้อย");
   specimenForm.reset();
 }
+
+/* ============================================
+   🚀 INITIALIZATION
+   ============================================ */
+
+// Check authentication on page load
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 Admin Settings page loaded');
+  
+  if (!checkAuthentication()) {
+    return;
+  }
+  
+  updateUserDisplay();
+});
 
 renderCategoryOptions();
 categoryForm.addEventListener("submit", handleCategorySubmit);

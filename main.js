@@ -38,6 +38,7 @@ const {
   getAuditLogDetail,
   getAuditStats
 } = require('./controllers/auditLogController');
+
 const {
   getDashboardSummary,
   getTestRequestStats: getReportStats,
