@@ -2,12 +2,19 @@
    📊 INFORMATION PAGE - PATIENT TRACKING
    ============================================ */
 
+let specimenSlaMap = {};
+
 /* ========= Bootstrap ========= */
 window.addEventListener('DOMContentLoaded', async () => {
   // Initialize user profile (from userProfile.js)
   if (!initializeUserProfile()) return;
   
   try {
+    // 1. ดึงข้อมูล SLA มาเก็บในตัวแปรที่สร้างไว้
+    specimenSlaMap = await window.electronAPI.getSpecimenSLA();
+    console.log('✅ Fetched SLA Map:', specimenSlaMap);
+
+    // 2. ดึงข้อมูล Test Requests (เหมือนเดิม)
     const testRequests = await window.electronAPI.getTestRequests();
     console.log('📦 Test Requests:', testRequests);
     renderTestRequests(testRequests);
@@ -86,6 +93,34 @@ function getTATBadgeClass(status) {
   return 'status-default';
 }
 
+/* ========= TAT Warning Calculation ========= */
+function calculateTATWarning(requestDate, slaTime, status) {
+  // Only calculate for non-done and non-reject cases
+  const statusLower = status?.toLowerCase() || '';
+  if (!requestDate || statusLower === 'done' || statusLower === 'reject') {
+    return { warning: false, percentage: 0, overdue: false };
+  }
+
+  const startDate = new Date(requestDate);
+  const now = new Date();
+  
+  // Use provided SLA time or default to 72 hours (3 days) for PGx tests
+  let slaHours = parseFloat(slaTime) || 72;
+  
+  // Calculate elapsed time in hours
+  const elapsedMs = now - startDate;
+  const elapsedHours = elapsedMs / (1000 * 60 * 60);
+  
+  // Calculate percentage
+  const percentage = (elapsedHours / slaHours) * 100;
+  
+  return {
+    warning: percentage > 80 && percentage <= 100,
+    overdue: percentage > 100,
+    percentage: Math.round(percentage)
+  };
+}
+
 function renderTestRequests(data) {
   const tbody = document.querySelector('#patientTable tbody');
   tbody.innerHTML = '';
@@ -104,37 +139,69 @@ function renderTestRequests(data) {
     const received = requestDate ? new Date(requestDate).toLocaleDateString('th-TH') : '-';
     const testTarget = req.test_target || '-';
     const status = req.status || '-';
-    
+
+    const specimen = req.Specimen || '-';
+
+    const specimenKey = (specimen || '').toLowerCase();
+    const slaTime = specimenSlaMap[specimenKey];
     // Display status as-is from database (already in the format we want)
     const statusDisplay = status;
-    
+
     // Get dot class for color coding
     const dotClass = getTATBadgeClass(status);
+    
+    // Calculate TAT warning (will use default 72 hours if slaTime is 0)
+    const tatWarning = calculateTATWarning(requestDate, slaTime, status);
+    
+    // Debug logging for first row
+    if (req.request_id === 6) {
+      console.log('🔍 TAT Debug for request_id 6:', {
+        requestDate,
+        status,
+        slaTime,
+        tatWarning
+      });
+    }
+
+    
 
     const tr = document.createElement('tr');
     tr.setAttribute('data-request-id', req.request_id);
+
+    // Add warning class to row if overdue or warning
+    if (tatWarning.overdue) {
+      tr.classList.add('tat-overdue');
+    } else if (tatWarning.warning) {
+      tr.classList.add('tat-warning');
+    }
+    
     tr.innerHTML = `
-      <td>${patientId}</td>
+      <td>${req.request_id || '-'}</td>
       <td>${hospitalId}</td>
       <td>${patientName} </td>
       <td>${testTarget}</td>
       <td>${received}</td>
-      <td>${req.Specimen || '-'}</td>
+      <td>${specimen}</td>
       <td>
         <div class="tat-status">
           <span class="tat-dot ${dotClass}"></span>
           <span>${statusDisplay}</span>
+          ${tatWarning.warning ? '<i class="fas fa-exclamation-triangle tat-warning-icon" title="TAT > 80%"></i>' : ''}
+          ${tatWarning.overdue ? '<i class="fas fa-exclamation-circle tat-overdue-icon" title="TAT > 100% (Overdue!)"></i>' : ''}
         </div>
       </td>
       <td>
-        <button class="Edit-btn" onclick="editTestRequest(${req.request_id})"><i class="fas fa-edit"></i> แก้ไข</button>
-        <button class="delete-btn" onclick="deleteTestRequest(${req.request_id})"><i class="fas fa-trash-alt"></i></button>
+        ${status?.toLowerCase() === 'done' ? `
+          <button class="pdf-btn" onclick="viewPDF(${req.request_id}, '${patientName}')">
+            <i class="fas fa-file-pdf"></i> ดู PDF
+          </button>
+        ` : ''}
       </td>
     `;
     tr.addEventListener('click', (e) => {
       // ไม่ให้คลิกที่ปุ่มทำให้เปลี่ยนหน้า
       if (!e.target.closest('button')) {
-        showPage('verify_step1', patientId);
+        showPage('verify_information', patientId);
       }
     });
     tbody.appendChild(tr);
@@ -144,18 +211,22 @@ function renderTestRequests(data) {
 /* ========= Stats (ดึงจาก API) ========= */
 async function updateStatsFromAPI() {
   try {
-    const stats = await window.electronAPI.getTestRequestStats();
-    console.log('📊 Stats received in frontend:', stats);
+    const stats = await window.electronAPI.getTestRequestStats('all');
     document.getElementById('statAll').textContent = stats.all || 0;
-    document.getElementById('statPre').textContent = stats.need2Confirmation || 0;
-    document.getElementById('statAnalytic').textContent = stats.need1Confirmation || 0;
+    document.getElementById('statPre').textContent = stats.need2 || stats.need2Confirmation || 0;
+    document.getElementById('statAnalytic').textContent = stats.need1 || stats.need1Confirmation || 0;
     document.getElementById('statPost').textContent = stats.done || 0;
   } catch (e) {
     console.error('Error fetching stats:', e);
+    // Set to 0 if error
+    document.getElementById('statAll').textContent = 0;
+    document.getElementById('statPre').textContent = 0;
+    document.getElementById('statAnalytic').textContent = 0;
+    document.getElementById('statPost').textContent = 0;
   }
 }
 
-/* ========= Edit / Delete / Navigate ========= */
+/* ========= Edit / View PDF / Navigate ========= */
 async function editTestRequest(requestId) {
   try {
     const req = await window.electronAPI.getTestRequestById(requestId);
@@ -169,17 +240,39 @@ async function editTestRequest(requestId) {
   }
 }
 
-async function deleteTestRequest(requestId) {
-  if (!confirm('คุณแน่ใจที่จะลบข้อมูล Test Request หรือไม่?')) return;
+async function viewPDF(requestId, patientName) {
   try {
-    const res = await window.electronAPI.deleteTestRequest(requestId);
-    alert(res.message || 'ลบข้อมูลสำเร็จ');
-    const data = await window.electronAPI.getTestRequests();
-    renderTestRequests(data);
-    await updateStatsFromAPI();
-  } catch (e) { 
-    console.error(e); 
-    alert('เกิดข้อผิดพลาดในการลบข้อมูล'); 
+    // Get the test request details
+    const req = await window.electronAPI.getTestRequestById(requestId);
+    if (!req) {
+      alert('ไม่พบข้อมูล Test Request');
+      return;
+    }
+    
+    // Check if PDF exists (you can add a field in database to track this)
+    if (req.Doc_Name) {
+      // If there's a PDF file path in the database
+      alert(`เปิดไฟล์ PDF: ${req.Doc_Name}`);
+      // TODO: Implement actual PDF viewing/opening
+      // window.electronAPI.openPDF(req.Doc_Name);
+    } else {
+      // Generate PDF if it doesn't exist
+      const reportData = {
+        name: patientName,
+        age: req.patient?.age || '-',
+        gender: req.patient?.gender || '-',
+        hn: req.patient?.patient_id || '-',
+        hospital: req.patient?.hospital_id || '-',
+        testTarget: req.test_target || '-',
+        specimen: req.Specimen || '-'
+      };
+      
+      const pdfPath = await window.electron.generatePDF(reportData);
+      alert(`สร้าง PDF สำเร็จ: ${pdfPath}`);
+    }
+  } catch (e) {
+    console.error('❌ Error viewing PDF:', e);
+    alert('เกิดข้อผิดพลาดในการดู PDF');
   }
 }
 
@@ -194,76 +287,44 @@ document.getElementById('langToggle')?.addEventListener('click', (e) => {
   e.target.textContent = e.target.textContent === 'TH' ? 'EN' : 'TH';
 });
 
-/* --------------------------------------------
-   ⚙️ Settings Popup Handler
--------------------------------------------- */
-const settingsPopup = document.getElementById('settingsPopup');
-const closeSettings = document.getElementById('closeSettings');
-const saveSettings = document.getElementById('saveSettings');
-const cancelSettings = document.getElementById('cancelSettings');
-const settingsBtn = document.getElementById('settingsBtn');
-
-// Open settings popup
-settingsBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  settingsPopup.style.display = 'flex';
-  dropdownMenu?.classList.remove('show');
-});
-
-// Close settings popup
-closeSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
-
-cancelSettings?.addEventListener('click', () => {
-  settingsPopup.style.display = 'none';
-});
-
-// Save settings
-saveSettings?.addEventListener('click', () => {
-  const language = document.getElementById('languageSetting').value;
-  const theme = document.getElementById('themeSetting').value;
-  const notifications = document.getElementById('notificationsSetting').checked;
-  
-  localStorage.setItem('appLanguage', language);
-  localStorage.setItem('appTheme', theme);
-  localStorage.setItem('appNotifications', notifications);
-  
-  if (theme === 'dark') {
-    document.body.classList.add('dark');
-  } else {
-    document.body.classList.remove('dark');
-  }
-  
-  alert('Settings saved successfully!');
-  settingsPopup.style.display = 'none';
-});
-
-// Close popup when clicking outside
-settingsPopup?.addEventListener('click', (e) => {
-  if (e.target === settingsPopup) {
-    settingsPopup.style.display = 'none';
-  }
-});
-
-// Load saved settings
-setTimeout(() => {
-  const savedTheme = localStorage.getItem('appTheme');
-  const savedLanguage = localStorage.getItem('appLanguage');
-  const savedNotifications = localStorage.getItem('appNotifications');
-  
-  if (savedTheme && document.getElementById('themeSetting')) {
-    document.getElementById('themeSetting').value = savedTheme;
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark');
+async function viewPDF(requestId, patientName) {
+  try {
+    // Get the test request details
+    const req = await window.electronAPI.getTestRequestById(requestId);
+    if (!req) {
+      alert('ไม่พบข้อมูล Test Request');
+      return;
     }
+    
+    // Check if PDF exists (you can add a field in database to track this)
+    if (req.Doc_Name) {
+      // If there's a PDF file path in the database
+      alert(`เปิดไฟล์ PDF: ${req.Doc_Name}`);
+      // TODO: Implement actual PDF viewing/opening
+      // window.electronAPI.openPDF(req.Doc_Name);
+    } else {
+      // Generate PDF if it doesn't exist
+      const reportData = {
+        name: patientName,
+        age: req.patient?.age || '-',
+        gender: req.patient?.gender || '-',
+        hn: req.patient?.patient_id || '-',
+        hospital: req.patient?.hospital_id || '-',
+        testTarget: req.test_target || '-',
+        specimen: req.Specimen || '-'
+      };
+      
+      const pdfPath = await window.electron.generatePDF(reportData);
+      alert(`สร้าง PDF สำเร็จ: ${pdfPath}`);
+    }
+  } catch (e) {
+    console.error('❌ Error viewing PDF:', e);
+    alert('เกิดข้อผิดพลาดในการดู PDF');
   }
-  
-  if (savedLanguage && document.getElementById('languageSetting')) {
-    document.getElementById('languageSetting').value = savedLanguage;
-  }
-  
-  if (savedNotifications !== null && document.getElementById('notificationsSetting')) {
-    document.getElementById('notificationsSetting').checked = savedNotifications === 'true';
-  }
-}, 100);
+}
+
+function showPage(pageName, patientId) {
+  sessionStorage.setItem('selectedPatientId', patientId);
+  window.electronAPI?.navigate(pageName);
+}
+

@@ -1,180 +1,213 @@
-// verify_information.js
-// Responsibilities:
-// - Determine the PDF URL (from ?pdf= query) or fallback to a default local file path
-// - Render it into the iframe viewer
-// - Wire up Confirm/Reject buttons to proceed accordingly
+(function() {
+    const $ = (sel) => document.querySelector(sel);
 
-(function () {
-	const $ = (sel) => document.querySelector(sel);
+    // 🔹 ID ทั้งหมดนี้มีอยู่ใน index.html ใหม่แล้ว
+    const loader = $("#viLoader");
+    const pdfFrame = $("#pdfViewer");
+    const pdfjsContainer = $("#pdfjsViewer");
+    const canvas = $("#pdfCanvas");
+    const ctx = canvas?.getContext("2d");
+    const pdfFallback = $("#pdfFallback");
+    const btnPrevPage = $("#btnPrevPage");
+    const btnNextPage = $("#btnNextPage");
+    const pageNumEl = $("#pageNum");
+    const pageCountEl = $("#pageCount");
+    const btnReload = $("#btnReload");
+    const openExternal = $("#openExternal");
+    const btnDownload = $("#btnDownload");
+    const btnConfirm = $("#btnConfirm");
+    const btnReject = $("#btnReject");
+    const btnBack = $("#btnBack");
 
-		const pdfFrame = $("#pdfViewer");
-		const pdfjsContainer = $("#pdfjsViewer");
-		const canvas = $("#pdfCanvas");
-		const ctx = canvas?.getContext("2d");
-	const pdfFallback = $("#pdfFallback");
-	const btnConfirm = $("#btnConfirm");
-	const btnReject = $("#btnReject");
-		const btnBack = $("#btnBack");
-		const btnPrevPage = $("#btnPrevPage");
-		const btnNextPage = $("#btnNextPage");
-		const pageNumEl = $("#pageNum");
-		const pageCountEl = $("#pageCount");
+    const params = new URLSearchParams(window.location.search);
+    const pdfParam = params.get("pdf");
 
-	// Parse query params
-	const params = new URLSearchParams(window.location.search);
-	let pdfParam = params.get("pdf");
+    const resolvePdfUrl = (input) => {
+        if (!input) return null;
+        if (/^(file|https?):\/\//i.test(input)) return input;
+        try {
+            return new URL(input.replace(/\\/g, "/"), window.location.href).href;
+        } catch {
+            return input;
+        }
+    };
 
-	// If provided as a Windows path (e.g., C:\\Users\\...\\file.pdf), convert to file:/// URL
-	const toFileUrl = (input) => {
-		if (!input) return input;
-		// Already a URL (http/https/file)
-		if (/^(file|https?):\/\//i.test(input)) return input;
-		// Convert Windows path -> file URL
-		const normalized = input.replace(/\\/g, "/");
-		if (/^[a-zA-Z]:\//.test(normalized)) {
-			return `file:///${normalized}`;
-		}
-		// Treat as relative URL
-		return input;
-	};
+    // 🔹 คุณอาจต้องแก้ Path นี้ให้ถูกต้อง
+    const defaultPdf = resolvePdfUrl("../reports/ada_PGx.pdf");
+    const pdfUrl = resolvePdfUrl(pdfParam) || defaultPdf;
 
-		// Default PDF: use the bundled mockup placed next to this HTML file
-		// Path is relative to verify_information.html (view/verify_information.html)
-		// You can still override via ?pdf=
-		let defaultPdf = "mockuppdf.pdf";
+    const hideAll = () => {
+        // 🔹 ใน HTML ใหม่
+        // pdfjsContainer, pdfFrame, pdfFallback ทั้งหมดถูกซ่อนไว้โดย 'hidden' อยู่แล้ว
+        // และ loader ก็จะถูกซ่อนโดยฟังก์ชันนี้
+        pdfjsContainer.hidden = true;
+        pdfFrame.hidden = true;
+        pdfFallback.hidden = true;
+        if (loader) loader.hidden = true;
+    };
 
-	const pdfUrl = toFileUrl(pdfParam) || defaultPdf;
+    const showFallback = () => {
+        hideAll();
+        pdfFallback.hidden = false;
+    };
 
-		const setPdfIframe = (url) => {
-		try {
-			pdfFrame.src = url;
-			// Small sanity: if it fails to load (blocked/404), show fallback after a timeout
-			const timer = setTimeout(() => {
-				// When embedded viewers are blocked, the frame may stay blank
-				// Show help instead. Users can try providing ?pdf= URL/path.
-				if (!pdfFrame.contentDocument) {
-					pdfFallback.hidden = false;
-				}
-			}, 1500);
-			pdfFrame.addEventListener("load", () => {
-				clearTimeout(timer);
-				// If contentDocument exists, keep fallback hidden
-				pdfFallback.hidden = true;
-			});
-		} catch (err) {
-			console.error("Failed to set PDF src:", err);
-			pdfFallback.hidden = false;
-		}
-	};
+    const enableIframe = (url) => {
+        hideAll();
+        pdfFrame.hidden = false;
+        pdfFrame.src = url;
 
-		// Try to use PDF.js single-page viewer first; fallback to iframe if fails
-		const initPdfJs = async (url) => {
-			const CDN_BASE = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105";
-			const loadScript = (src) => new Promise((resolve, reject) => {
-				const s = document.createElement("script");
-				s.src = src;
-				s.onload = resolve;
-				s.onerror = reject;
-				document.head.appendChild(s);
-			});
+        const onFail = () => showFallback();
+        const onLoad = () => {
+            // 🔹 เมื่อ Iframe โหลดเสร็จ ก็ซ่อน Loader และเปิดปุ่ม
+            hideAll();
+            pdfFrame.hidden = false;
+            btnConfirm.disabled = false;
+        };
 
-			try {
-				if (!window.pdfjsLib) {
-					await loadScript(`${CDN_BASE}/pdf.min.js`);
-				}
-				if (!window.pdfjsLib) throw new Error("PDF.js not loaded");
-				window.pdfjsLib.GlobalWorkerOptions.workerSrc = `${CDN_BASE}/pdf.worker.min.js`;
+        pdfFrame.addEventListener("error", onFail, { once: true });
+        pdfFrame.addEventListener("load", onLoad, { once: true });
+    };
 
-				const pdf = await window.pdfjsLib.getDocument(url).promise;
-				let currentPage = 1;
-				const totalPages = pdf.numPages;
-				pageCountEl.textContent = String(totalPages);
+    const initPdfJs = async (url) => {
+        if (!canvas || !ctx) return false;
 
-				const renderPage = async (num, fit = true) => {
-					const page = await pdf.getPage(num);
-					let scale = 1;
-					const container = canvas.parentElement;
-					const viewport = page.getViewport({ scale: 1 });
-					if (fit && container && container.clientWidth) {
-						scale = Math.max(0.1, (container.clientWidth - 24) / viewport.width); // padding margin
-					}
-					const vp = page.getViewport({ scale });
-					canvas.width = Math.floor(vp.width);
-					canvas.height = Math.floor(vp.height);
-					const renderTask = page.render({ canvasContext: ctx, viewport: vp });
-					await renderTask.promise;
-					pageNumEl.textContent = String(num);
-				};
+        // 🔹 ใช้ CDN ของ PDF.js เหมือนเดิม
+        const CDN_BASE = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105";
+        const loadScript = (src) =>
+            new Promise((resolve, reject) => {
+                const s = document.createElement("script");
+                s.src = src;
+                s.onload = resolve;
+                s.onerror = reject;
+                document.head.appendChild(s);
+            });
 
-				// Controls
-				btnPrevPage?.addEventListener("click", () => {
-					if (currentPage > 1) {
-						currentPage -= 1;
-						renderPage(currentPage);
-					}
-				});
-				btnNextPage?.addEventListener("click", () => {
-					if (currentPage < totalPages) {
-						currentPage += 1;
-						renderPage(currentPage);
-					}
-				});
+        try {
+            if (!window.pdfjsLib) {
+                await loadScript(`${CDN_BASE}/pdf.min.js`);
+            }
+            // 🔹 แก้ไข: ตรวจสอบ worker ให้ถูกต้อง
+            if (!window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
+                await loadScript(`${CDN_BASE}/pdf.worker.min.js`);
+                window.pdfjsLib.GlobalWorkerOptions.workerSrc = `${CDN_BASE}/pdf.worker.min.js`;
+            }
 
-				// Re-render on resize (debounced)
-				let resizeTimer;
-				window.addEventListener("resize", () => {
-					clearTimeout(resizeTimer);
-					resizeTimer = setTimeout(() => renderPage(currentPage, true), 150);
-				});
+            const pdf = await window.pdfjsLib.getDocument(url).promise;
+            let currentPage = 1;
+            const totalPages = pdf.numPages;
+            pageCountEl.textContent = String(totalPages);
 
-				// Show pdfjs viewer, hide iframe
-				pdfjsContainer.hidden = false;
-				pdfFrame.hidden = true;
-				pdfFallback.hidden = true;
+            const renderPage = async (num) => {
+                // 🔹 ทำให้ปุ่ม Active/Inactive
+                btnPrevPage.disabled = (num <= 1);
+                btnNextPage.disabled = (num >= totalPages);
 
-				await renderPage(currentPage);
-				return true;
-			} catch (err) {
-				console.warn("PDF.js viewer failed, falling back to iframe:", err);
-				return false;
-			}
-		};
+                const page = await pdf.getPage(num);
 
-		(async () => {
-			const ok = await initPdfJs(pdfUrl);
-			if (!ok) {
-				pdfjsContainer.hidden = true;
-				pdfFrame.hidden = false;
-				setPdfIframe(pdfUrl);
-			}
-		})();
+                // 🔹 ปรับปรุง: ใช้ clientWidth ของ parent shell
+                const containerWidth = canvas.parentElement.clientWidth - 30; // 30 = padding
+                const viewport = page.getViewport({ scale: 1 });
+                const scale = Math.max(0.35, containerWidth / viewport.width);
+                const scaledViewport = page.getViewport({ scale });
+                canvas.width = Math.floor(scaledViewport.width);
+                canvas.height = Math.floor(scaledViewport.height);
+                await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
+                pageNumEl.textContent = String(num);
+            };
 
-	// Actions
-	btnConfirm?.addEventListener("click", () => {
-		// Assumption: proceed to the first verification step
-		// You can adapt this to your actual flow or dispatch IPC to main process.
-		const go = () => (window.location.href = "verify_step1.html");
-		if (confirm("ยืนยันว่าข้อมูลในเอกสารถูกต้องใช่หรือไม่?")) {
-			go();
-		}
-	});
+            btnPrevPage?.addEventListener("click", () => {
+                if (currentPage > 1) {
+                    currentPage -= 1;
+                    renderPage(currentPage);
+                }
+            });
 
-	btnReject?.addEventListener("click", () => {
-		// Assumption: navigate back to information input page
-		const go = () => (window.location.href = "information.html");
-		const reason = prompt("โปรดระบุเหตุผลในการปฏิเสธ (ไม่บังคับ)", "");
-		// You can forward 'reason' to your backend or audit log via IPC/supabase here.
-		go();
-	});
+            btnNextPage?.addEventListener("click", () => {
+                if (currentPage < totalPages) {
+                    currentPage += 1;
+                    renderPage(currentPage);
+                }
+            });
 
-		btnBack?.addEventListener("click", () => {
-			// Prefer browser history back, with a safe fallback route
-			if (document.referrer && window.history.length > 1) {
-				window.history.back();
-			} else {
-				// Fallback: back to previous page in your flow
-				window.location.href = "information.html";
-			}
-		});
+            let resizeTimer;
+            window.addEventListener("resize", () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => renderPage(currentPage), 160);
+            });
+
+            // 🔽 [จุดแก้ไขที่ 1: ตรรกะการแสดงผล]
+            // เราจะสั่งให้ render หน้าแรกให้เสร็จ *ก่อน*
+            // ถ้าสำเร็จ ค่อยซ่อน Loader และแสดงผล
+            
+
+            // ถ้า render สำเร็จ:
+            hideAll(); // ซ่อน Loader
+            pdfjsContainer.hidden = false; // แสดง PDF.js
+
+            await renderPage(currentPage); // ลอง render ก่อน
+            
+            // ย้ายมาไว้ตรงนี้
+            openExternal.href = url;
+            btnDownload?.addEventListener("click", () => {
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = url.split("/").pop() ?? "document.pdf";
+                a.click();
+            });
+
+            return true;
+
+        } catch (error) {
+            console.warn("PDF.js failed, fallback to iframe", error);
+            
+            // 🔽 [จุดแก้ไขที่ 2: เพิ่ม hideAll() ใน catch]
+            // ถ้าล้มเหลว (ไม่ว่าจะขั้นตอนไหน) สั่งซ่อนทุกอย่าง
+            hideAll();
+            return false;
+        }
+    };
+
+    btnReload?.addEventListener("click", () => window.location.reload());
+
+    (async () => {
+        // 🔽 [จุดแก้ไขที่ 3: ปรับแก้ตรรกะการเรียก]
+        // 1. ลอง PDF.js
+        const ok = await initPdfJs(pdfUrl);
+
+        if (ok) {
+            // 2. ถ้า PDF.js สำเร็จ: เปิดปุ่ม
+            // (initPdfJs จะจัดการซ่อน Loader และแสดงผลเอง)
+             btnConfirm.disabled = false;
+        } else {
+            // 3. ถ้า PDF.js ล้มเหลว:
+            // (initPdfJs จะเรียก hideAll() เพื่อซ่อน Loader แล้ว)
+            // ให้ลองเปิดด้วย Iframe ต่อ
+            enableIframe(pdfUrl);
+        }
+    })();
+
+    btnConfirm?.addEventListener("click", () => {
+        if (confirm("ยืนยันว่าข้อมูลในเอกสารถูกต้องใช่หรือไม่?")) {
+            // TODO: เปลี่ยน URL ปลายทางตามที่คุณต้องการ
+            window.location.href = "verify_step1.html";
+        }
+    });
+
+    btnReject?.addEventListener("click", () => {
+        const reason = prompt("โปรดระบุเหตุผลในการปฏิเสธ (ไม่บังคับ)", "");
+        // TODO: ส่ง reason ไปยัง backend หากต้องการ
+        if (reason !== null) { // เช็คว่าผู้ใช้ไม่กดยกเลิก
+            // TODO: เปลี่ยน URL ปลายทางตามที่คุณต้องการ
+            window.location.href = "information.html";
+        }
+    });
+
+    btnBack?.addEventListener("click", () => {
+        if (document.referrer && window.history.length > 1) {
+            window.history.back();
+        } else {
+            // TODO: เปลี่ยน URL ปลายทางตามที่คุณต้องการ
+            window.location.href = "information.html";
+        }
+    });
 })();
-

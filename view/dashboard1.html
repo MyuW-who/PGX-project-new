@@ -6,23 +6,30 @@
   <title>Dashboard</title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="./css/dashboard.css" />
-  <link rel="stylesheet" href="./css/menu.css">
-  <link rel="stylesheet" href="./css/darkmode.css">
-  <link rel="stylesheet" href="./css/navbar.css">
+  <link rel="stylesheet" href="./css/global.css"> 
+  <link rel="stylesheet" href="./css/dashboard.css" />
+  <link rel="stylesheet" href="./css/menu.css">
+  <link rel="stylesheet" href="./css/darkmode.css">
+  <link rel="stylesheet" href="./css/navbar.css">
+  <link rel="stylesheet" href="./css/navbar_hover.css">
 
-  <!-- Font Awesome -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-  />
-  
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+  
 </head>
 <body>
-  
+  <!-- แถบ Navbar -->
+  <div class="hover-navbar">
+    <div class="navbar-content">
+      <div class="navbar-left">
+        <span class="logo">Roblox</span>
+      </div>
+      <div class="navbar-right">
+        <button class="nav-btn close"><i class="fa fa-xmark"></i></button>
+      </div>
+    </div>
+  </div>
 
   <!-- Container หลัก -->
   <div class="container">
@@ -55,7 +62,7 @@
               <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
             </button>
             <div id="dropdownMenu" class="dropdown-content">
-              <a href="#" id="settingsBtn">Settings</a>
+              <a href="./profile.html" class="dropdown-item">Profile</a>
               <a href="#">About</a>
               <a href="#" id="logout">Logout</a>
             </div>
@@ -63,13 +70,22 @@
         </div>
       </header>
 
+      <!-- Time Filter Buttons -->
+      <section class="time-filter-section" style="margin: 20px 0; text-align: center;">
+        <div class="toggle-group" style="display: inline-flex; gap: 10px; background: var(--card-bg); padding: 8px; border-radius: 12px; box-shadow: var(--shadow);">
+          <button class="time-filter-btn active" data-time="today" style="padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;">วันนี้</button>
+          <button class="time-filter-btn" data-time="week" style="padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;">7 วันล่าสุด</button>
+          <button class="time-filter-btn" data-time="month" style="padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;">เดือนนี้</button>
+        </div>
+      </section>
+
       <!-- Top metrics -->
       <section class="metrics-row">
         <div class="metric-card">
           <div class="metric-icon bg-primary"><i class="fa fa-list-check"></i></div>
           <div>
             <div class="metric-number" id="m-total">0</div>
-            <div class="metric-label">จำนวนเคสทั้งหมดวันนี้</div>
+            <div class="metric-label" id="total-label">จำนวนเคสทั้งหมดวันนี้</div>
             <div class="metric-change" id="percent-total">100.00%</div>
           </div>
         </div>
@@ -93,7 +109,7 @@
           <div class="metric-icon bg-danger"><i class="fa fa-triangle-exclamation"></i></div>
           <div>
             <div class="metric-number" id="m-error">0</div>
-            <div class="metric-label">เคสที่ผิดพลาด</div>
+            <div class="metric-label">เคสที่ปฏิเสธ</div>
             <div class="metric-change" id="percent-error">0.00%</div>
           </div>
         </div>
@@ -216,11 +232,14 @@
   </div>
 
   <!-- Script -->
-  <script src="./js/userProfile.js"></script>
-  <script src="./js/dashboard.js"></script>
-  <script src="./js/darkmode.js"></script>
-  <script src="./js/menu.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+  
+  <script src="./js/userProfile.js"></script>
+  <script src="./js/darkmode.js"></script>
+  <script src="./js/dashboard.js"></script>
+  <script src="./js/menu.js"></script>
+  <script src="./js/navbar_hover.js"></script>
 </body>
 </html>
 

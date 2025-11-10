@@ -2,5 +2,5 @@
 .gitignore
 package-lock.json
 package.json
-/reports
 /.github
+/.md

@@ -7,6 +7,29 @@ let chartInstances = {};
 
 
 
+/* ============================================================
+   2️⃣ LANGUAGE TOGGLE (สลับภาษา TH / EN)
+   ------------------------------------------------------------
+   ▶️ ปุ่มเปลี่ยนข้อความใน UI ระหว่างภาษาไทย ↔ อังกฤษ
+============================================================ */
+const langBtn = document.getElementById("langToggle");
+langBtn?.addEventListener("click", () => {
+  langBtn.textContent = langBtn.textContent === "TH" ? "EN" : "TH";
+});
+
+/* ============================================================
+   6️⃣ USER DROPDOWN MENU (เมนูผู้ใช้)
+   ------------------------------------------------------------
+   ▶️ เปิด/ปิดเมนูผู้ใช้ (Profile / Setting / Logout)
+============================================================ */
+
+
+const patientPageBtn = document.getElementById('patient-btn');
+patientPageBtn?.addEventListener('click', () => {
+  window.electronAPI.navigate('patient');
+});
+
+
 
 /* ============================================================
    7️⃣ MOCK DATA & DASHBOARD WIDGETS (ยังคงสไตล์เดิม)
@@ -14,7 +37,6 @@ let chartInstances = {};
    ▶️ ข้อมูลจำลอง + วาดกราฟ 3 แบบ: Line, Donut TAT, Gauge KPI
 ============================================================ */
 
-const isDark = document.body.classList.contains('dark');
 
 // ฟังก์ชันอัปเดตสีกราฟ
 function updateChartsForTheme() {
@@ -91,25 +113,128 @@ function updateChartsForTheme() {
 
 
 
+/* ============================================================
+   🔐 AUTHENTICATION & USER SESSION
+   ------------------------------------------------------------
+   ▶️ Check authentication and update user display on page load
+============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  // Check authentication first
+  if (!checkAuthentication()) {
+    return; // Stop execution if not authenticated
+  }
+  
+  // Update user display in header
+  updateUserDisplay();
+});
+
 // ใช้เฉพาะในหน้า Dashboard เท่านั้น (กัน error ถ้า element ไม่มี)
 const hasDashboard = !!document.getElementById('usageChart') || !!document.getElementById('tatDonut') || !!document.getElementById('kpiGauge');
 
 if (hasDashboard) {
-  // ── 1) ข้อมูลจำลอง ───────────────────────────────────────
-  const mockData = {
-    totals: { today: 128, inProgress: 23, done: 98, error: 7 },
+  // Current time filter
+  let currentTimeFilter = 'today';
+  
+  // ── Function to fetch and calculate real data ───────────────────
+  async function fetchRealData(timeFilter = 'today') {
+    try {
+      const testRequests = await window.electronAPI.getTestRequests();
+      const stats = await window.electronAPI.getTestRequestStats(timeFilter);
+      const specimenSLA = await window.electronAPI.getSpecimenSLA();
+      
+      console.log('📊 Dashboard Data:', { testRequests, stats, specimenSLA });
+      
+      // Calculate totals
+      const allCases = stats.all || 0;
+      const doneCases = stats.done || 0;
+      const rejectedCases = stats.reject || 0;
+      const need1 = stats.need1 || 0;
+      const need2 = stats.need2 || 0;
+      const inProgressCases = need1 + need2;
+      
+      // Calculate TAT breakdown based on specimen-specific SLA
+      // Green: Done cases + cases under 80% SLA
+      // Blue: 80-100% SLA (warning zone)
+      // Red: >100% SLA (overdue)
+      let doneInSLA = 0, warning80to100 = 0, overdue100 = 0;
+      
+      testRequests.forEach(req => {
+        const statusLower = (req.status || '').toLowerCase();
+        
+        // Skip rejected cases
+        if (statusLower === 'reject') {
+          return;
+        }
+        
+        // Done cases count as in SLA
+        if (statusLower === 'done') {
+          doneInSLA++;
+          return;
+        }
+        
+        // Get SLA hours for this specimen type
+        const specimenName = (req.Specimen || '').toLowerCase();
+        const slaHours = specimenSLA[specimenName] || specimenSLA[req.Specimen] || 72; // Default 72 hours
+        const warning80Threshold = slaHours * 0.8;
+        
+        // For in-progress cases, check TAT
+        const requestDate = new Date(req.request_date || req.created_at);
+        const now = new Date();
+        const elapsedHours = (now - requestDate) / (1000 * 60 * 60);
+        
+        if (elapsedHours > slaHours) {
+          // Over 100% SLA - RED
+          overdue100++;
+        } else if (elapsedHours > warning80Threshold) {
+          // 80-100% SLA - BLUE
+          warning80to100++;
+        } else {
+          // Under 80% SLA - GREEN
+          doneInSLA++;
+        }
+      });
+      
+      // Calculate rejection rate (as number, not string)
+      const rejectionRate = allCases > 0 ? parseFloat(((rejectedCases / allCases) * 100).toFixed(2)) : 0;
+      
+      return {
+        totals: {
+          today: allCases,
+          inProgress: inProgressCases,
+          done: doneCases,
+          error: rejectedCases
+        },
+        tat: {
+          doneInSLA: doneInSLA,
+          warning80to100: warning80to100,
+          overdue100: overdue100
+        },
+        kpi: {
+          rejectionRate: parseFloat(rejectionRate)
+        },
+        testRequests: testRequests
+      };
+    } catch (error) {
+      console.error('❌ Error fetching dashboard data:', error);
+      return null;
+    }
+  }
+  
+  // ── 1) Real Data from API ───────────────────────────────────────
+  let realData = {
+    totals: { today: 0, inProgress: 0, done: 0, error: 0 },
     line: {
       daily: {
         labels: ['00:00','04:00','08:00','12:00','16:00','20:00'],
-        values: [12, 25, 40, 60, 50, 30]
+        values: [0, 0, 0, 0, 0, 0]
       },
       weekly: {
         labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-        values: [120, 150, 170, 160, 180, 90, 140]
+        values: [0, 0, 0, 0, 0, 0, 0]
       }
     },
-    tat: { inSLA: 68, inProgress: 23, overSLA: 9 },
-    kpi: { rejectionRate: 2.4 }, // %
+    tat: { doneInSLA: 0, warning80to100: 0, overdue100: 0 },
+    kpi: { rejectionRate: 0 }, // %
     errorRate: {
       week: {
         labels: ['วันนี้-6','วันนี้-5','วันนี้-4','วันนี้-3','วันนี้-2','เมื่อวาน','วันนี้'],
@@ -135,7 +260,7 @@ if (hasDashboard) {
   };
 
   // ── 2) กล่องตัวเลขด้านบน ────────────────────────────────
-  function renderMetrics() {
+  function renderMetrics(data = realData) {
     const elTotal = document.getElementById('m-total');
     const elProg  = document.getElementById('m-progress');
     const elDone  = document.getElementById('m-done');
@@ -146,10 +271,10 @@ if (hasDashboard) {
     const elPercentDone  = document.getElementById('percent-done');
     const elPercentErr   = document.getElementById('percent-error');
     
-    const total = mockData.totals.today;
-    const progress = mockData.totals.inProgress;
-    const done = mockData.totals.done;
-    const error = mockData.totals.error;
+    const total = data.totals.today;
+    const progress = data.totals.inProgress;
+    const done = data.totals.done;
+    const error = data.totals.error;
     
     if (elTotal) elTotal.textContent = total;
     if (elProg)  elProg.textContent  = progress;
@@ -162,7 +287,6 @@ if (hasDashboard) {
     if (elPercentDone)  elPercentDone.textContent  = total > 0 ? ((done / total) * 100).toFixed(2) + '%' : '0.00%';
     if (elPercentErr)   elPercentErr.textContent   = total > 0 ? ((error / total) * 100).toFixed(2) + '%' : '0.00%';
   }
-  renderMetrics();
 
   // ── 3) กราฟเส้น Usage (รายวัน/รายสัปดาห์) ───────────────
   const usageCanvas = document.getElementById('usageChart');
@@ -171,10 +295,10 @@ if (hasDashboard) {
     chartInstances.usageChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: mockData.line.daily.labels,
+        labels: realData.line.daily.labels,
         datasets: [{
           label: 'จำนวนเคส',
-          data: mockData.line.daily.values,
+          data: realData.line.daily.values,
           borderColor: '#2563eb',
           backgroundColor: 'rgba(37, 99, 235, 0.12)',
           tension: 0.3,
@@ -196,7 +320,7 @@ if (hasDashboard) {
         btn.classList.add('active');
         const range = btn.dataset.range;
         if (!range) return;
-        const data = mockData.line[range];
+        const data = realData.line[range];
         if (!data) return;
         chartInstances.usageChart.data.labels = data.labels;
         chartInstances.usageChart.data.datasets[0].data = data.values;
@@ -210,7 +334,6 @@ if (hasDashboard) {
   // ── 4) Donut ติดตาม TAT ─────────────────────────────────
   const tatCanvas = document.getElementById('tatDonut');
   if (tatCanvas && window.Chart) {
-    const total = mockData.tat.inSLA + mockData.tat.inProgress + mockData.tat.overSLA;
     
     // Plugin แสดงตัวเลขตรงกลาง
     const tatCenterText = {
@@ -224,6 +347,9 @@ if (hasDashboard) {
         const centerY = (chartArea.top + chartArea.bottom) / 2;
         
         const isDark = document.body.classList.contains('dark');
+        
+        // Calculate total from actual data
+        const total = chart.data.datasets[0].data.reduce((sum, val) => sum + val, 0);
         
         ctx.save();
         ctx.textAlign = 'center';
@@ -247,9 +373,9 @@ if (hasDashboard) {
     chartInstances.tatChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['ปกติ (ใน SLA)', 'กำลังดำเนินการ', 'เสี่ยงเกิน SLA'],
+        labels: ['ปกติ (ใน SLA)', 'กำลังดำเนินการ (80% SLA)', 'เสี่ยงเกิน SLA (>100%)'],
         datasets: [{
-          data: [mockData.tat.inSLA, mockData.tat.inProgress, mockData.tat.overSLA],
+          data: [realData.tat.doneInSLA, realData.tat.warning80to100, realData.tat.overdue100],
           backgroundColor: ['#16a34a', '#2563eb', '#dc2626'],
           borderWidth: 0
         }]
@@ -268,7 +394,7 @@ if (hasDashboard) {
   // ── 5) Gauge KPI (Semi Donut) ────────────────────────────
   const gaugeCanvas = document.getElementById('kpiGauge');
   if (gaugeCanvas && window.Chart) {
-    const rate = mockData.kpi.rejectionRate; // 0-100
+    const rate = realData.kpi.rejectionRate; // 0-100
     const rateText = document.getElementById('rejectionRateText');
     if (rateText) rateText.textContent = rate + '%';
 
@@ -279,6 +405,9 @@ if (hasDashboard) {
         const arc = meta?.data?.[0];
         if (!arc) return;
         
+        // Get current rate from chart data dynamically
+        const currentRate = chart.data.datasets[0].data[0] || 0;
+        
         const isDark = document.body.classList.contains('dark');
         const {ctx} = chart;
         
@@ -287,7 +416,7 @@ if (hasDashboard) {
         ctx.fillStyle = isDark ? '#ecf0f1' : '#333';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`${rate}%`, arc.x, arc.y + 5);
+        ctx.fillText(`${currentRate.toFixed(1)}%`, arc.x, arc.y + 5);
         ctx.restore();
       }
     };
@@ -321,10 +450,10 @@ if (hasDashboard) {
     chartInstances.errorRateChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: mockData.errorRate.week.labels,
+        labels: realData.errorRate.week.labels,
         datasets: [{
           label: 'อัตราการปฏิเสธ (%)',
-          data: mockData.errorRate.week.values,
+          data: realData.errorRate.week.values,
           borderColor: '#dc2626',
           backgroundColor: 'rgba(220, 38, 38, 0.1)',
           tension: 0.3,
@@ -352,7 +481,7 @@ if (hasDashboard) {
         document.querySelectorAll('[data-error-range]').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const range = btn.dataset.errorRange;
-        const data = mockData.errorRate[range];
+        const data = realData.errorRate[range];
         chartInstances.errorRateChart.data.labels = data.labels;
         chartInstances.errorRateChart.data.datasets[0].data = data.values;
         chartInstances.errorRateChart.update();
@@ -366,16 +495,16 @@ if (hasDashboard) {
   const topRejectsCanvas = document.getElementById('topRejectsChart');
   if (topRejectsCanvas && window.Chart) {
     const ctx = topRejectsCanvas.getContext('2d');
-    const colors = mockData.topRejects.values.map(() => 'rgba(220, 38, 38, 0.9)');
-    const bgColors = mockData.topRejects.values.map(() => 'rgba(220, 38, 38, 0.18)');
+    const colors = realData.topRejects.values.map(() => 'rgba(220, 38, 38, 0.9)');
+    const bgColors = realData.topRejects.values.map(() => 'rgba(220, 38, 38, 0.18)');
 
     chartInstances.topRejectsChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: mockData.topRejects.labels,
+        labels: realData.topRejects.labels,
         datasets: [{
           label: 'จำนวนที่ถูกปฏิเสธ',
-          data: mockData.topRejects.values,
+          data: realData.topRejects.values,
           backgroundColor: bgColors,
           borderColor: colors,
           borderWidth: 1.5,
@@ -406,16 +535,16 @@ if (hasDashboard) {
   const topDnaCanvas = document.getElementById('topDnaChart');
   if (topDnaCanvas && window.Chart) {
     const ctx = topDnaCanvas.getContext('2d');
-    const colors = mockData.topDNA.values.map(() => 'rgba(34, 197, 94, 0.9)'); // green
-    const bgColors = mockData.topDNA.values.map(() => 'rgba(34, 197, 94, 0.18)');
+    const colors = realData.topDNA.values.map(() => 'rgba(34, 197, 94, 0.9)'); // green
+    const bgColors = realData.topDNA.values.map(() => 'rgba(34, 197, 94, 0.18)');
 
     chartInstances.topDnaChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: mockData.topDNA.labels,
+        labels: realData.topDNA.labels,
         datasets: [{
           label: 'จำนวนครั้งที่พบ',
-          data: mockData.topDNA.values,
+          data: realData.topDNA.values,
           backgroundColor: bgColors,
           borderColor: colors,
           borderWidth: 1.5,
@@ -446,16 +575,16 @@ if (hasDashboard) {
   const topHospitalsCanvas = document.getElementById('topHospitalsChart');
   if (topHospitalsCanvas && window.Chart) {
     const ctx = topHospitalsCanvas.getContext('2d');
-    const colors = mockData.topHospitals.values.map(() => 'rgba(37, 99, 235, 0.9)'); // blue
-    const bgColors = mockData.topHospitals.values.map(() => 'rgba(37, 99, 235, 0.18)');
+    const colors = realData.topHospitals.values.map(() => 'rgba(37, 99, 235, 0.9)'); // blue
+    const bgColors = realData.topHospitals.values.map(() => 'rgba(37, 99, 235, 0.18)');
 
     chartInstances.topHospitalsChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: mockData.topHospitals.labels,
+        labels: realData.topHospitals.labels,
         datasets: [{
           label: 'จำนวนส่งตรวจ',
-          data: mockData.topHospitals.values,
+          data: realData.topHospitals.values,
           backgroundColor: bgColors,
           borderColor: colors,
           borderWidth: 1.5,
@@ -481,16 +610,102 @@ if (hasDashboard) {
       }
     });
   }
+  
+  // ── Initialize dashboard with real data (after all charts are created) ───
+  (async function initDashboard() {
+    const data = await fetchRealData();
+    if (data) {
+      // Update realData with fetched data
+      realData.totals = data.totals;
+      realData.tat = data.tat;
+      realData.kpi = data.kpi;
+      
+      // Render metrics with real data
+      renderMetrics(realData);
+      
+      // Update TAT chart
+      if (chartInstances.tatChart) {
+        chartInstances.tatChart.data.datasets[0].data = [data.tat.doneInSLA, data.tat.warning80to100, data.tat.overdue100];
+        chartInstances.tatChart.update();
+        console.log('✅ TAT Chart updated:', data.tat);
+      }
+      
+      // Update KPI gauge
+      if (chartInstances.gaugeChart) {
+        const rejectionValue = data.kpi.rejectionRate;
+        const remainingValue = 100 - rejectionValue;
+        chartInstances.gaugeChart.data.datasets[0].data = [rejectionValue, remainingValue];
+        
+        // Update center text
+        const gaugeText = document.querySelector('.gauge-text h2');
+        if (gaugeText) gaugeText.textContent = rejectionValue.toFixed(1) + '%';
+        
+        chartInstances.gaugeChart.update();
+        console.log('✅ KPI Gauge updated:', rejectionValue + '%');
+      }
+      
+      console.log('✅ Dashboard initialized with real data');
+    } else {
+      console.error('❌ Failed to fetch dashboard data');
+    }
+  })();
+  
+  // ── Time Filter Button Handlers ───────────────────
+  document.querySelectorAll('.time-filter-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      // Update active button
+      document.querySelectorAll('.time-filter-btn').forEach(b => {
+        b.classList.remove('active');
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-secondary)';
+      });
+      btn.classList.add('active');
+      btn.style.background = 'var(--primary)';
+      btn.style.color = '#fff';
+      
+      // Get time filter
+      const timeFilter = btn.dataset.time;
+      currentTimeFilter = timeFilter;
+      
+      // Update label
+      const totalLabel = document.getElementById('total-label');
+      if (totalLabel) {
+        const labels = {
+          'today': 'จำนวนเคสทั้งหมดวันนี้',
+          'week': 'จำนวนเคส 7 วันล่าสุด',
+          'month': 'จำนวนเคสเดือนนี้'
+        };
+        totalLabel.textContent = labels[timeFilter] || 'จำนวนเคสทั้งหมดวันนี้';
+      }
+      
+      // Fetch and update data
+      const data = await fetchRealData(timeFilter);
+      if (data) {
+        realData.totals = data.totals;
+        realData.tat = data.tat;
+        realData.kpi = data.kpi;
+        
+        renderMetrics(realData);
+        
+        if (chartInstances.tatChart) {
+          chartInstances.tatChart.data.datasets[0].data = [data.tat.doneInSLA, data.tat.warning80to100, data.tat.overdue100];
+          chartInstances.tatChart.update();
+        }
+        
+        if (chartInstances.gaugeChart) {
+          const rejectionValue = data.kpi.rejectionRate;
+          const remainingValue = 100 - rejectionValue;
+          chartInstances.gaugeChart.data.datasets[0].data = [rejectionValue, remainingValue];
+          const gaugeText = document.querySelector('.gauge-text h2');
+          if (gaugeText) gaugeText.textContent = rejectionValue.toFixed(1) + '%';
+          chartInstances.gaugeChart.update();
+        }
+      }
+    });
+  });
+  
+  // Style active button on load
+  document.querySelector('.time-filter-btn.active')?.setAttribute('style', 
+    'padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; background: var(--primary); color: #fff;');
 }
 
-/* ============================================================
-   🔄 PAGE INITIALIZATION
-   ------------------------------------------------------------
-   ▶️ Initialize page when DOM is loaded
-============================================================ */
-window.addEventListener('DOMContentLoaded', () => {
-  // Initialize user profile (from userProfile.js)
-  if (!initializeUserProfile()) {
-    return; // Stop execution if not authenticated
-  }
-});

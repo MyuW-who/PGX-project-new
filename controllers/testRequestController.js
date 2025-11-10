@@ -53,16 +53,10 @@ async function searchTestRequests(searchTerm) {
     return [];
   }
 
-  // Filter by patient_id or patient name
+  // Filter by request_id only (exact match)
   const filtered = (data || []).filter(req => {
-    const patientId = req.patient?.patient_id?.toString() || '';
-    const firstName = req.patient?.first_name?.toLowerCase() || '';
-    const lastName = req.patient?.last_name?.toLowerCase() || '';
-    const searchLower = cleanSearchTerm.toLowerCase();
-    
-    return patientId.includes(cleanSearchTerm) || 
-           firstName.includes(searchLower) || 
-           lastName.includes(searchLower);
+    const requestId = req.request_id?.toString() || '';
+    return requestId === cleanSearchTerm;
   });
 
   return filtered;
@@ -142,23 +136,45 @@ async function deleteTestRequest(requestId) {
   return true;
 }
 
-// ดึงสถิติตามสถานะ
-async function getTestRequestStats() {
-  const { data, error } = await supabase
+// ดึงสถิติตามสถานะ with time filter (today/week/month/all)
+async function getTestRequestStats(timeFilter = 'today') {
+  // Build query
+  let query = supabase
     .from('test_request')
-    .select('status');
+    .select('status, created_at');
+  
+  // Add time filter only if not 'all'
+  if (timeFilter !== 'all') {
+    let startDate;
+    const now = new Date();
+    
+    switch(timeFilter) {
+      case 'today':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case 'week':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      default:
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+    
+    query = query.gte('created_at', startDate.toISOString());
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('❌ Get Stats Error:', error.message);
-    return { all: 0, need2Confirmation: 0, need1Confirmation: 0, done: 0 };
+    return { all: 0, need2Confirmation: 0, need1Confirmation: 0, done: 0, reject: 0 };
   }
-
-  console.log('📊 Raw status data:', data);
 
   const all = data?.length || 0;
   const need2Confirmation = data?.filter(r => {
     const status = r.status?.toLowerCase().trim();
-    console.log('Checking status:', status, '=== need 2 confirmation?', status === 'need 2 confirmation');
     return status === 'need 2 confirmation';
   })?.length || 0;
   
@@ -171,11 +187,76 @@ async function getTestRequestStats() {
     const status = r.status?.toLowerCase().trim();
     return status === 'done';
   })?.length || 0;
-
-  const stats = { all, need2Confirmation, need1Confirmation, done };
-  console.log('✅ Calculated stats:', stats);
   
-  return stats;
+  const reject = data?.filter(r => {
+    const status = r.status?.toLowerCase().trim();
+    return status === 'reject';
+  })?.length || 0;
+
+  return { 
+    all, 
+    need2Confirmation, 
+    need1Confirmation, 
+    done,
+    reject,
+    // Aliases for compatibility
+    need2: need2Confirmation,
+    need1: need1Confirmation,
+    timeFilter
+  };
+}
+
+// ดึงข้อมูล SLA time ของแต่ละ specimen
+async function getSpecimenSLA() {
+  try {
+    // Try to query the Specimen table
+    const { data, error } = await supabase
+      .from('Specimen')
+      .select('*')
+      .limit(10);
+
+    // If table doesn't exist or has errors, use default values
+    if (error) {
+      console.log('⚠️ Specimen table not found, using default SLA values');
+      return {
+        'blood': 5,
+        'hair': 7,
+        'cheek septum': 3,
+        'saliva': 2
+      };
+    }
+
+    // If we got data, try to map it
+    const slaMap = {};
+    (data || []).forEach(spec => {
+      const name = (spec.Specimen_Name || spec.specimen_name)?.toLowerCase();
+      const slaHours = parseFloat(spec.SLA_time || spec.sla_time) || 72;
+      const id = spec.Specimen_ID || spec.specimen_id || spec.id;
+      
+      if (name) {
+        slaMap[name] = slaHours;
+      }
+      if (id) {
+        slaMap[id] = slaHours;
+      }
+    });
+    
+    console.log('✅ Specimen SLA Map:', slaMap);
+    return Object.keys(slaMap).length > 0 ? slaMap : {
+      'blood': 5,
+      'hair': 7,
+      'cheek septum': 3,
+      'saliva': 2
+    };
+  } catch (err) {
+    console.log('⚠️ Error fetching specimen SLA, using defaults');
+    return {
+      'blood': 5,
+      'hair': 7,
+      'cheek septum': 3,
+      'saliva': 2
+    };
+  }
 }
 
 module.exports = {
@@ -185,5 +266,6 @@ module.exports = {
   addTestRequest,
   updateTestRequest,
   deleteTestRequest,
-  getTestRequestStats
+  getTestRequestStats,
+  getSpecimenSLA
 };

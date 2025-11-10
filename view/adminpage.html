@@ -5,24 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Page</title>
   <link rel="stylesheet" href="./css/adminpage.css" />
-  <link rel="stylesheet" href="./css/darkmode.css" />
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="./css/navbar.css">
+	<link rel="stylesheet" href="./css/menu.css">
+  <link rel="stylesheet" href="./css/darkmode.css" />
+  <link rel="stylesheet" href="./css/navbar_hover.css">
+  <link rel="stylesheet" href="./css/global.css">
 </head>
 <body>
+
+  <!-- แถบ Navbar -->
+  <div class="hover-navbar">
+    <div class="navbar-content">
+      <div class="navbar-left">
+        <span class="logo">Roblox</span>
+      </div>
+      <div class="navbar-right">
+        <button class="nav-btn close"><i class="fa fa-xmark"></i></button>
+      </div>
+    </div>
+  </div>
+
   <div class="layout">
     <aside class="sidebar">
-      <div class="brand">PGX Admin</div>
-      <nav class="nav-menu">
-        <a href="#" class="nav-item" id="dashboard-btn">
-          <span>Menu</span>
-        </a>
-        <a href="#" class="nav-item" id="patient-btn">
-          <span>Audit Log</span>
-        </a>
-        <a href="#" class="nav-item active" id="admin-btn">
-          <span>Employee</span>
-        </a>
-      </nav>
+      		<h2 class="logo">Logo</h2>
+			<ul>
+				<li id="admin-btn" class="active">Employee</li>
+				<li id="auditlog-btn" >Audit Log</li>
+			</ul>
     </aside>
 
     <!-- ...existing code... -->
@@ -33,15 +44,15 @@
           <p>Add & Edit All Employees</p>
         </div>
         <div class="header-buttons">
-          <button id="themeToggle" class="icon-btn" title="เปลี่ยนธีม">
+          <button id="themeToggle" class="icon-btn">
             <i class="fa fa-moon"></i>
           </button>
-          <button id="langToggle" class="lang-btn" title="สลับภาษา">TH</button>
+          <button id="langToggle" class="lang-btn">TH</button>
+
+          <!-- Dropdown -->
           <div class="dropdown">
             <button class="dropbtn" id="dropdownBtn">
-              <i class="fa fa-user-circle"></i>
-              Admin
-              <i class="fa fa-caret-down"></i>
+              <i class="fa fa-user-circle"></i> Admin <i class="fa fa-caret-down"></i>
             </button>
             <div id="dropdownMenu" class="dropdown-content">
               <a href="#" id="settingsBtn">Settings</a>
@@ -154,9 +165,15 @@
       </div>
     </div>
 
-  </div>
+    
 
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
   <script src="./js/userProfile.js"></script>
+  <script src="./js/darkmode.js"></script>
   <script src="./js/adminpage.js"></script>
+	<script src="./js/menu.js"></script>
+  <script src="./js/navbar_hover.js"></script>
+
 </body>
 </html>

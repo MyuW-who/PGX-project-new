@@ -20,6 +20,18 @@ const {
   deleteTestRequest,
   getTestRequestStats
 } = require('./controllers/testRequestController');
+const {
+  predictPhenotype,
+  getAvailableAlleles,
+  getAllelePossibleValues,
+  getSupportedDnaTypes,
+  getRulebase,
+  refreshRulebase
+} = require('./controllers/rulebaseController');
+const {
+  importExcelToSupabase,
+  getRulebaseFromSupabase
+} = require('./controllers/rulebaseImportController');
 
 // Password hashing configuration
 const SALT_ROUNDS = 10;
@@ -35,6 +47,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      webSecurity: false // 👈 เพิ่มบรรทัดนี้
     },
     autoHideMenuBar: true,
     fullscreen: true,
@@ -110,8 +123,8 @@ ipcMain.handle('update-patient', async (event, payload) => {
 // 👤 Patient CRUD - delete
 ipcMain.handle('delete-patient', async (event, patientId) => {
   try {
-    const ok = await deletePatient(patientId);
-    return { success: ok, message: ok ? 'ลบข้อมูลสำเร็จ!' : 'ไม่สามารถลบข้อมูลได้' };
+    const result = await deletePatient(patientId);
+    return result; // result already contains { success, message }
   } catch (err) {
     console.error('❌ Delete Patient Error:', err.message);
     return { success: false, message: 'เกิดข้อผิดพลาดในการลบข้อมูลผู้ป่วย' };
@@ -239,12 +252,92 @@ ipcMain.handle('delete-test-request', async (event, requestId) => {
   }
 });
 
-ipcMain.handle('get-test-request-stats', async () => {
+ipcMain.handle('get-test-request-stats', async (event, timeFilter = 'today') => {
   try {
-    return await getTestRequestStats();
+    return await getTestRequestStats(timeFilter);
   } catch (err) {
     console.error('❌ Get Stats Error:', err.message);
-    return { all: 0, preAnalytic: 0, analytic: 0, postAnalytic: 0 };
+    return { all: 0, need2Confirmation: 0, need1Confirmation: 0, done: 0, reject: 0 };
+  }
+});
+
+ipcMain.handle('get-specimen-sla', async () => {
+  try {
+    const { getSpecimenSLA } = require('./controllers/testRequestController');
+    return await getSpecimenSLA();
+  } catch (err) {
+    console.error('❌ Get Specimen SLA Error:', err.message);
+    return {};
+  }
+});
+
+// 🧬 Rulebase handlers
+ipcMain.handle('predict-phenotype', async (event, dnaType, alleles) => {
+  try {
+    return predictPhenotype(dnaType, alleles);
+  } catch (err) {
+    console.error('❌ Predict Phenotype Error:', err.message);
+    return { genotype: '-', phenotype: '-', activity_score: 0, matched: false, error: err.message };
+  }
+});
+
+ipcMain.handle('get-available-alleles', async (event, dnaType) => {
+  try {
+    return getAvailableAlleles(dnaType);
+  } catch (err) {
+    console.error('❌ Get Available Alleles Error:', err.message);
+    return [];
+  }
+});
+
+ipcMain.handle('get-allele-possible-values', async (event, dnaType, alleleName) => {
+  try {
+    return getAllelePossibleValues(dnaType, alleleName);
+  } catch (err) {
+    console.error('❌ Get Allele Possible Values Error:', err.message);
+    return [];
+  }
+});
+
+ipcMain.handle('get-supported-dna-types', async () => {
+  try {
+    return getSupportedDnaTypes();
+  } catch (err) {
+    console.error('❌ Get Supported DNA Types Error:', err.message);
+    return [];
+  }
+});
+
+ipcMain.handle('get-rulebase', async () => {
+  try {
+    return await getRulebase();
+  } catch (err) {
+    console.error('❌ Get Rulebase Error:', err.message);
+    return {};
+  }
+});
+
+// 🔄 Import Excel to Supabase
+ipcMain.handle('import-excel-to-supabase', async (event, excelFileName) => {
+  try {
+    console.log('📤 Importing Excel to Supabase:', excelFileName);
+    const result = await importExcelToSupabase(excelFileName);
+    return result;
+  } catch (err) {
+    console.error('❌ Import Excel Error:', err.message);
+    return { success: false, error: err.message };
+  }
+});
+
+// 🔄 Refresh Rulebase Cache
+ipcMain.handle('refresh-rulebase', async () => {
+  try {
+    console.log('🔄 Refreshing rulebase cache...');
+    const result = await refreshRulebase();
+    return { success: true, data: result };
+  } catch (err) {
+    console.error('❌ Refresh Rulebase Error:', err.message);
+    return { success: false, error: err.message };
   }
 });
 
@@ -255,3 +348,17 @@ app.whenReady().then(createWindow);
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+
+
+// 🟥 ปิดแอปเมื่อได้รับ event จาก renderer
+// 🟥 ปิดแอปเมื่อได้รับ event จาก renderer
+ipcMain.on('window-close', () => {
+  console.log("🟥 IPC received: window-close");
+  if (mainWindow) {
+    console.log("🟢 Closing mainWindow...");
+    mainWindow.close();
+  } else {
+    console.error("❌ mainWindow not found");
+  }
+});
+

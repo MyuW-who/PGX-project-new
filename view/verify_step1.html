@@ -3,24 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <title>ยืนยันการตรวจ - ขั้นตอนที่ 1</title>
+  
+  <link rel="stylesheet" href="./css/navbar.css">
   <link rel="stylesheet" href="./css/verify_step1.css" />
   <link rel="stylesheet" href="./css/darkmode.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
   <!-- Navbar -->
-  <nav class="navbar">
-    <div class="nav-left">
-      <h2>ยืนยันการตรวจ</h2>
-    </div>
-    <div class="nav-right">
-      <button id="themeToggle" title="เปลี่ยนธีม">
-        <i class="fa-solid fa-moon"></i>
-      </button>
-      <button id="langToggle" title="สลับภาษา">TH</button>
-      <div class="user-icon" title="บัญชีผู้ใช้">👤</div>
-    </div>
-  </nav>
+  <header class="page-header">
+        <h2>Input information</h2>
+        <div class="header-buttons">
+          <button id="themeToggle" class="icon-btn">
+            <i class="fa fa-moon"></i>
+          </button>
+        </div>
+  </header>
 
   <!-- Progress bar -->
   <section class="steps">
@@ -47,10 +45,10 @@
         <option value="CYP2C9">CYP2C9</option>
         <option value="CYP2C19">CYP2C19</option>
         <option value="VKORC1">VKORC1</option>
-        <option value="TPMP">TPMP</option>
-        <option value="3A5">CYP3A5</option>
+        <option value="TPMT">TPMT</option>
+        <option value="CYP3A5">CYP3A5</option>
       </select>
-    </div>
+    </div>x
 
    <div class="btn-area">
       <button class="back-btn">Back</button>
@@ -58,10 +56,48 @@
       <button class="next-btn">Next</button>
        
    </div>
-
   </main>
 
+  <!-- Settings Popup -->
+    <div id="settingsPopup" class="popup" style="display: none;">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h3>Settings</h3>
+          <span class="close" id="closeSettings">&times;</span>
+        </div>
+        <div class="popup-body">
+          <div class="setting-item">
+            <label>Language:</label>
+            <select id="languageSetting">
+              <option value="th">ไทย (Thai)</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Theme:</label>
+            <select id="themeSetting">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label>Notifications:</label>
+            <input type="checkbox" id="notificationsSetting" checked>
+          </div>
+        </div>
+        <div class="popup-footer">
+          <button class="btn-primary" id="saveSettings">Save</button>
+          <button class="btn-secondary" id="cancelSettings">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="./js/userProfile.js"></script>
   <script src="./js/verify_step1.js"></script>
   <script src="./js/darkmode.js"></script>
+  
 </body>
 </html>
