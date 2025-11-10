@@ -233,7 +233,7 @@ function renderTestRequests(data) {
     tr.addEventListener('click', (e) => {
       // ไม่ให้คลิกที่ปุ่มทำให้เปลี่ยนหน้า
       if (!e.target.closest('button')) {
-        showPage('verify_pharmacy', patientId);
+        showPage('verify_pharmacy', req.request_id);
       }
     });
     tbody.appendChild(tr);
@@ -308,8 +308,8 @@ async function viewPDF(requestId, patientName) {
   }
 }
 
-function showPage(pageName, patientId) {
-  sessionStorage.setItem('selectedPatientId', patientId);
+function showPage(pageName, requestId) {
+  sessionStorage.setItem('selectedRequestId', requestId);
   window.electronAPI?.navigate(pageName);
 }
 
@@ -353,10 +353,5 @@ async function viewPDF(requestId, patientName) {
     console.error('❌ Error viewing PDF:', e);
     alert('เกิดข้อผิดพลาดในการดู PDF');
   }
-}
-
-function showPage(pageName, patientId) {
-  sessionStorage.setItem('selectedPatientId', patientId);
-  window.electronAPI?.navigate(pageName);
 }
 

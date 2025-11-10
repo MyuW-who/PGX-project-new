@@ -327,6 +327,28 @@ ipcMain.handle('add-test-request', async (event, requestData) => {
   }
 });
 
+// Confirm test request
+ipcMain.handle('confirm-test-request', async (event, requestId, userId) => {
+  try {
+    const { confirmTestRequest } = require('./controllers/testRequestController');
+    return await confirmTestRequest(requestId, userId);
+  } catch (err) {
+    console.error('❌ Confirm Test Request Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาด' };
+  }
+});
+
+// Reject test request
+ipcMain.handle('reject-test-request', async (event, requestId, userId, reason) => {
+  try {
+    const { rejectTestRequest } = require('./controllers/testRequestController');
+    return await rejectTestRequest(requestId, userId, reason);
+  } catch (err) {
+    console.error('❌ Reject Test Request Error:', err.message);
+    return { success: false, message: 'เกิดข้อผิดพลาด' };
+  }
+});
+
 ipcMain.handle('update-test-request', async (event, payload) => {
   try {
     const { requestId, data } = payload || {};
