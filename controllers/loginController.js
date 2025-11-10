@@ -1,6 +1,7 @@
 // controllers/loginController.js
 const bcrypt = require('bcryptjs');
 const supabase = require('../supabase');
+const { logAuditEvent } = require('./auditLogController');
 
 async function handleLogin(event, { username, password }) {
   try {
@@ -14,11 +15,27 @@ async function handleLogin(event, { username, password }) {
       .maybeSingle();
 
     if (error || !data) {
+      // Log failed login attempt
+      await logAuditEvent({
+        username: u,
+        action: 'login_failed',
+        description: 'ไม่พบบัญชีผู้ใช้',
+        table_name: 'system_users'
+      });
       return { success: false, message: 'ไม่พบบัญชีผู้ใช้' };
     }
 
     const ok = await bcrypt.compare(p, String(data.password_hash || '').trim());
     if (!ok) {
+      // Log failed password attempt
+      await logAuditEvent({
+        user_id: data.user_id,
+        username: data.username,
+        role: data.role,
+        action: 'login_failed',
+        description: 'รหัสผ่านไม่ถูกต้อง',
+        table_name: 'system_users'
+      });
       return { success: false, message: 'รหัสผ่านไม่ถูกต้อง' };
     }
 
@@ -27,6 +44,16 @@ async function handleLogin(event, { username, password }) {
       .from('system_users')
       .update({ updated_at: new Date().toISOString() })
       .eq('user_id', data.user_id);
+
+    // Log successful login
+    await logAuditEvent({
+      user_id: data.user_id,
+      username: data.username,
+      role: data.role,
+      action: 'login',
+      description: `เข้าสู่ระบบสำเร็จ - ${data.role}`,
+      table_name: 'system_users'
+    });
 
     // Return complete user data for session storage (excluding password_hash)
     const userData = {
