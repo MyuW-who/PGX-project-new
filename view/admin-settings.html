@@ -63,78 +63,72 @@
         </div>
       </header>
 
-      <section class="card">
-        <h2>ข้อมูลหมวดหมู่สิ่งส่งตรวจ</h2>
-        <p>สร้างหรืออัปเดตหมวดหมู่เพื่อใช้ในระบบจัดการเคส</p>
-        <form id="categoryForm" class="form-grid">
-            <label>
-              <span>ชื่อหมวดหมู่</span>
-              <input id="categoryName" name="name" type="text" placeholder="เช่น NGS Panel" required />
-            </label>
-            <label>
-              <span>รหัสหมวดหมู่</span>
-              <input id="categoryCode" name="code" type="text" placeholder="เช่น NGS-01" required />
-            </label>
-            <label>
-              <span>TAT (วัน)</span>
-              <input id="tatDays" name="tat" type="number" min="0" placeholder="ระบุจำนวนวัน" required />
-            </label>
-            <label class="span-2">
-              <span>รายละเอียด</span>
-              <textarea id="categoryDesc" name="description" placeholder="รายละเอียดเพิ่มเติม"></textarea>
-            </label>
-            <div class="form-actions span-2">
-              <button type="reset" class="btn ghost">ยกเลิก</button>
-              <button type="submit" class="btn primary">บันทึกหมวดหมู่</button>
-            </div>
-          </form>
-        </section>
+      <section class="card compact-form">
+        <div class="form-header">
+          <h2>จัดการข้อมูลสิ่งส่งตรวจ</h2>
+          <div id="form-message" class="form-message" role="alert"></div>
+        </div>
+        
+        <form id="specimenForm" class="inline-form">
+          <input id="specimenName" name="name" type="text" placeholder="ชื่อสิ่งส่งตรวจ (เช่น Blood)" required />
+          <input id="specimenTat" name="tat" type="number" min="0" placeholder="TAT (วัน)" required style="width: 120px;" />
+          <button type="submit" class="btn primary" id="submitBtn">
+            <i class="fa fa-plus"></i> เพิ่ม
+          </button>
+          <button type="button" id="cancelBtn" class="btn secondary" style="display: none;">
+            <i class="fa fa-times"></i> ยกเลิก
+          </button>
+        </form>
 
-        <section class="card">
-          <h2>ปรับเวลา TAT รายหมวด</h2>
-          <p>ตั้งค่าระยะเวลา SLA ให้ตรงกับการปฏิบัติงานจริง</p>
-          <form id="tatForm" class="form-stack">
-            <label>
-              <span>เลือกหมวดหมู่</span>
-              <select id="tatCategory" name="category" required>
-                <option value="" selected disabled>เลือกหมวดหมู่...</option>
-              </select>
-            </label>
-            <label>
-              <span>TAT ใหม่ (วัน)</span>
-              <input id="tatNewDays" name="tat" type="number" min="0" required />
-            </label>
-            <div class="form-actions">
-              <button type="reset" class="btn ghost">รีเซ็ต</button>
-              <button type="submit" class="btn accent">อัปเดต TAT</button>
-            </div>
-          </form>
-        </section>
+        <div class="scrollable-table-wrapper">
+          <table id="specimen-table" class="specimen-table">
+            <thead>
+              <tr>
+                <th>ชื่อสิ่งส่งตรวจ</th>
+                <th style="width: 100px; text-align: center;">TAT (วัน)</th>
+                <th style="width: 100px; text-align: center;">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- จะถูกเติมโดยสคริปต์ -->
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-        <section class="card">
-          <h2>เพิ่มข้อมูลสิ่งส่งตรวจใหม่</h2>
-          <p>แนบสิ่งส่งตรวจกับหมวดหมู่ที่ต้องการติดตาม</p>
-          <form id="specimenForm" class="form-stack">
-            <label>
-              <span>ชื่อสิ่งส่งตรวจ</span>
-              <input id="specimenName" name="name" type="text" placeholder="เช่น Blood Sample" required />
-            </label>
-            <label>
-              <span>หมวดหมู่</span>
-              <select id="specimenCategory" name="category" required>
-                <option value="" selected disabled>เลือกหมวดหมู่...</option>
-              </select>
-            </label>
-            <label>
-              <span>หมายเหตุ</span>
-              <textarea id="specimenRemark" name="remark" placeholder="รายละเอียดเพิ่มเติม"></textarea>
-            </label>
-            <div class="form-actions">
-              <button type="reset" class="btn ghost">ล้างฟอร์ม</button>
-              <button type="submit" class="btn success">เพิ่มข้อมูล</button>
+      <section class="card compact-form">
+        <div class="form-header">
+          <h2>📊 จัดการ Rulebase</h2>
+          <div id="rulebase-message" class="form-message" role="alert"></div>
+        </div>
+        
+        <div class="rulebase-actions">
+          <div class="rulebase-item">
+            <div class="rulebase-info">
+              <h3>📤 Import Excel to Supabase</h3>
+              <p>นำเข้าข้อมูล pharmacogenomics rulebase จากไฟล์ Excel</p>
             </div>
-          </form>
-        </section>
+            <div class="rulebase-controls">
+              <input type="text" id="excelFile" placeholder="pgx_rulebase.xlsx" value="pgx_rulebase.xlsx" style="flex: 1; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: 8px;">
+              <button class="btn primary" onclick="importExcel()">
+                <i class="fa fa-upload"></i> Import
+              </button>
+            </div>
+          </div>
+
+          <div class="rulebase-item">
+            <div class="rulebase-info">
+              <h3>🔄 Refresh Rulebase Cache</h3>
+              <p>โหลดข้อมูล rulebase จาก Supabase เพื่ออัปเดต cache</p>
+            </div>
+            <div class="rulebase-controls">
+              <button class="btn secondary" onclick="refreshCache()" style="margin-left: auto;">
+                <i class="fa fa-refresh"></i> Refresh Cache
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
