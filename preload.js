@@ -38,6 +38,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteTestRequest: (requestId) => ipcRenderer.invoke('delete-test-request', requestId),
   getTestRequestStats: (timeFilter) => ipcRenderer.invoke('get-test-request-stats',timeFilter),
   getSpecimenSLA: () => ipcRenderer.invoke('get-specimen-sla'),
+  confirmTestRequest: (requestId, userId) => ipcRenderer.invoke('confirm-test-request', requestId, userId),
+  rejectTestRequest: (requestId, userId, reason) => ipcRenderer.invoke('reject-test-request', requestId, userId, reason),
   predictPhenotype: (dnaType, alleles) => ipcRenderer.invoke('predict-phenotype', dnaType, alleles),
   getAvailableAlleles: (dnaType) => ipcRenderer.invoke('get-available-alleles', dnaType),
   getAllelePossibleValues: (dnaType, alleleName) => ipcRenderer.invoke('get-allele-possible-values', dnaType, alleleName),
