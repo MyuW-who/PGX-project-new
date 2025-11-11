@@ -48,7 +48,27 @@
       response = await window.electronAPI.updatePatient(editingPatientId, patientData);
       console.log('✅ Patient updated:', response);
     } else {
-      // Add new patient
+      // Add new patient - check for duplicate patient_id first
+      // Get all patients to check for duplicates
+      const existingPatients = await window.electronAPI.getPatients();
+      const duplicatePatient = existingPatients.find(p => p.patient_id === patientData.patient_id);
+      
+      if (duplicatePatient) {
+        // Show warning for duplicate patient ID
+        await Swal.fire({
+          icon: 'warning',
+          title: 'เลขผู้ป่วยซ้ำ!',
+          html: `เลขผู้ป่วย <strong>${patientData.patient_id}</strong> มีอยู่ในระบบแล้ว<br><br>` +
+                `ชื่อ: ${duplicatePatient.first_name} ${duplicatePatient.last_name}<br>` +
+                `อายุ: ${duplicatePatient.age} ปี`,
+          background: '#1f2937',
+          color: '#f9fafb',
+          confirmButtonColor: '#ef4444',
+          confirmButtonText: 'ตกลง'
+        });
+        return; // Stop form submission
+      }
+      
       response = await window.electronAPI.addPatient(patientData);
       console.log('✅ Patient added:', response);
     }
@@ -70,15 +90,42 @@
 
   } catch (err) {
     console.error('❌ Error saving patient data:', err);
-    // Show error message
-    Swal.fire({
-      icon: 'error',
-      title: 'บันทึกไม่สำเร็จ',
-      text: err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
-      background: '#1f2937',
-      color: '#f9fafb',
-      confirmButtonColor: '#3b82f6'
-    });
+    
+    // Convert error to string for checking
+    const errorString = String(err);
+    const errorMessage = err?.message || err?.error || errorString || '';
+    
+    console.log('🔍 Error details:', { errorString, errorMessage, fullError: err });
+    
+    // Check if it's a duplicate key error from database
+    if (errorString.includes('duplicate key') || 
+        errorString.includes('patient_pkey') || 
+        errorString.includes('unique constraint') ||
+        errorMessage.includes('duplicate key') ||
+        errorMessage.includes('patient_pkey') ||
+        errorMessage.includes('unique constraint')) {
+      // Show specific warning for duplicate patient ID
+      await Swal.fire({
+        icon: 'warning',
+        title: 'เลขผู้ป่วยซ้ำ!',
+        html: `เลขผู้ป่วย <strong>${patientData.patient_id}</strong> มีอยู่ในระบบแล้ว<br><br>` +
+              'กรุณาใช้เลขผู้ป่วยที่ไม่ซ้ำกัน',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'ตกลง'
+      });
+    } else {
+      // Show general error message
+      await Swal.fire({
+        icon: 'error',
+        title: 'บันทึกไม่สำเร็จ',
+        text: errorMessage || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#3b82f6'
+      });
+    }
   }
 }
 

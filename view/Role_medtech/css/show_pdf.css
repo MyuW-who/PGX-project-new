@@ -178,3 +178,55 @@ html {
   background: #fff;
   box-shadow: inset 0 0 0 1px rgba(15, 20, 32, 0.16);
 }
+/* ============================================
+    LIGHT MODE STYLES
+   ============================================ */
+
+body:not(.dark) {
+  --dark-bg: #f5f7fa;
+  --dark-gradient: linear-gradient(160deg, #ffffff 0%, #f0f3f7 120%);
+  --panel-bg: #ffffff;
+  --panel-border: rgba(0, 0, 0, 0.08);
+  --accent: #4f6fff;
+  --accent-hover: #3d5ce8;
+  --text-primary: #1a202c;
+  --text-muted: rgba(26, 32, 44, 0.65);
+  --shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.15);
+}
+
+body:not(.dark) .pdf-top-bar {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body:not(.dark) .pdf-icon-btn {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(240, 243, 247, 0.9);
+  color: var(--text-primary);
+}
+
+body:not(.dark) .pdf-icon-btn:hover {
+  background: rgba(226, 232, 240, 1);
+}
+
+body:not(.dark) .pdf-top-dots span {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+body:not(.dark) .pdf-toolbar {
+  background: rgba(249, 250, 251, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body:not(.dark) .pdf-download {
+  background: rgba(240, 243, 247, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body:not(.dark) .pdf-download:hover {
+  background: rgba(226, 232, 240, 1);
+}
+
+body:not(.dark) .pdf-frame-wrap {
+  background: #f8f9fa;
+}
