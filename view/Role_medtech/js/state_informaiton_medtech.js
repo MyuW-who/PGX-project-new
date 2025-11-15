@@ -20,14 +20,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     const testRequests = await window.electronAPI.getTestRequests();
     console.log('📦 Test Requests:', testRequests);
     
-    // 🚩 [แก้ไขจุดที่ 1]
     renderAllTables(testRequests); 
     
     await updateStatsFromAPI();
   } catch (e) {
     console.error('fetch test requests error', e);
     
-    // 🚩 [แก้ไขจุดที่ 2]
     renderAllTables([]);
   }
 });
@@ -319,21 +317,21 @@ async function editTestRequest(requestId) {
 // ⭐️ (ส่วนนี้ขาดหายไปจากไฟล์ที่คุณส่งมา ผมเติมให้)
 async function viewPDF(requestId, patientName) {
   try {
-    // Get the test request details
+    // Get the test request details with report
     const req = await window.electronAPI.getTestRequestById(requestId);
     if (!req) {
       alert('ไม่พบข้อมูล Test Request');
       return;
     }
     
-    // Check if PDF exists (you can add a field in database to track this)
-    if (req.Doc_Name) {
-      // If there's a PDF file path in the database
-      alert(`เปิดไฟล์ PDF: ${req.Doc_Name}`);
-      // TODO: Implement actual PDF viewing/opening
-      // window.electronAPI.openPDF(req.Doc_Name);
-    } else {
-      // Generate PDF if it doesn't exist
+    // Check if report exists and has PDF path
+    if (req.report?.pdf_path) {
+      // If there's a PDF URL from Supabase Storage
+      alert(`เปิดไฟล์ PDF: ${req.report.pdf_path}`);
+      // TODO: Implement actual PDF viewing/opening in browser
+      // window.open(req.report.pdf_path, '_blank');
+    } else if (req.report) {
+      // Report exists but no PDF, regenerate with full report data
       const reportData = {
         name: patientName,
         age: req.patient?.age || '-',
@@ -341,11 +339,22 @@ async function viewPDF(requestId, patientName) {
         hn: req.patient?.patient_id || '-',
         hospital: req.patient?.hospital_id || '-',
         testTarget: req.test_target || '-',
-        specimen: req.Specimen || '-'
+        specimen: req.Specimen || '-',
+        // Add rulebase data from report
+        genotype: req.report.genotype,
+        predicted_phenotype: req.report.predicted_phenotype,
+        recommendation: req.report.recommendation,
+        genotype_summary: req.report.genotype_summary,
+        // Parse alleles if stored as JSON string
+        alleles: typeof req.alleles === 'string' ? JSON.parse(req.alleles) : (req.alleles || []),
+        activityScore: req.activity_score || 'N/A'
       };
       
       const pdfPath = await window.electron.generatePDF(reportData);
       alert(`สร้าง PDF สำเร็จ: ${pdfPath}`);
+    } else {
+      // No report yet, can't generate PDF
+      alert('ยังไม่มีรายงานผลการตรวจสำหรับ Test Request นี้');
     }
   } catch (e) {
     console.error('❌ Error viewing PDF:', e);

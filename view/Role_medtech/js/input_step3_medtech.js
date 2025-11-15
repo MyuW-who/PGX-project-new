@@ -1,7 +1,3 @@
-/* ========================
-   Theme & Language
-======================== */
-
 
 /* ========================
    ดึงข้อมูลจาก sessionStorage
@@ -44,7 +40,7 @@ function showAlleles(type) {
 showAlleles(dnaType);
 
 /* ========================
-   แสดง Predicted Phenotype จาก Rulebase
+   แสดง Phenotype และ Recommendation จาก Rulebase
 ======================== */
 function predictPhenotype(geno) {
   const g = geno.toLowerCase();
@@ -56,24 +52,47 @@ function predictPhenotype(geno) {
   return "-";
 }
 
+// Display Phenotype Label (DNA type specific)
+const phenotypeLabel = sessionStorage.getItem('phenotypeLabel') || 'Predicted Phenotype';
+document.getElementById("phenotypeLabel").textContent = phenotypeLabel;
+
+// Display Likely Phenotype
 document.getElementById("phenotype").textContent = phenotype || predictPhenotype(genotype);
 
-/* ========================
-   ปุ่มต่าง ๆ
-======================== */
+// Display Activity Score (if available)
+const activityScore = sessionStorage.getItem('activityScore');
+if (activityScore) {
+  document.getElementById("activityScore").textContent = activityScore;
+}
+
+// Display Genotype Summary
+const genotypeSummary = sessionStorage.getItem('genotypeSummary');
+if (genotypeSummary) {
+  document.getElementById("genotypeSummary").textContent = genotypeSummary;
+} else {
+  document.getElementById("genotypeSummary").textContent = `Genotype ${genotype} for ${dnaType}`;
+}
+
+// Display Therapeutic Recommendation
+const recommendation = sessionStorage.getItem('recommendation');
+if (recommendation) {
+  document.getElementById("recommendation").textContent = recommendation;
+} else {
+  document.getElementById("recommendation").textContent = 'Please consult with clinical pharmacist for medication dosing.';
+}
+
 document.querySelector(".back-btn").addEventListener("click", () => {
   window.electronAPI.navigate('input_step2_medtech');
 });
 
 document.querySelector(".confirm-btn").addEventListener("click", async () => {
   try {
-    // Check if module is loaded
+
     if (!window.testRequestModule) {
       alert('โมดูลไม่ถูกโหลด กรุณารีเฟรชหน้าเว็บ');
       return;
     }
-    
-    // Get current user from session
+
     const currentUser = getCurrentUser();
     
     if (!currentUser) {
@@ -86,10 +105,8 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
       return;
     }
 
-    // Load data from session using the module
     const sessionData = window.testRequestModule.loadTestRequestFromSession();
 
-    // Validate required data
     if (!sessionData.selectedPatientId || !sessionData.selectedDnaType || !sessionData.selectedSpecimen) {
       await Swal.fire({
         icon: 'error',

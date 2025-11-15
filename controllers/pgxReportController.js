@@ -294,7 +294,7 @@ async function generatePGxPDF(reportInfo) {
       doc.y = tableY + cellHeight * 2 + 8;
     }
 
-    // === GENOTYPE, ACTIVITY SCORE, PHENOTYPE ===
+    // === GENOTYPE, ACTIVITY SCORE, GENOTYPE SUMMARY, PHENOTYPE ===
     setRegular();
     doc.fontSize(7.5);
     let resultY = doc.y;
@@ -307,30 +307,34 @@ async function generatePGxPDF(reportInfo) {
     doc.text(String(reportInfo.activityScore || 'N/A'), 180, resultY, { width: doc.page.width - 220 });
     
     resultY += 11;
+    
+    // === GENOTYPE SUMMARY (moved before Phenotype) ===
+    doc.fontSize(7.5);
+    setBold();
+    doc.text('Genotype Summary:', 48, resultY);
+    
+    setRegular();
+    const summaryText = reportInfo.genotype_summary || 'An individual carrying two normal function alleles';
+    const summaryTextHeight = doc.heightOfString(summaryText, { width: doc.page.width - 228, lineGap: 0 });
+    doc.text(summaryText, 180, resultY, {
+      width: doc.page.width - 228,
+      align: 'left',
+      lineGap: 0
+    });
+    
+    resultY += summaryTextHeight + 11;
+    
+    // === PREDICTED PHENOTYPE (moved after Genotype Summary) ===
+    setBold();
     doc.text('Predicted Phenotype:', 48, resultY);
+    
+    setRegular();
     const phenotypeText = reportInfo.predicted_phenotype || 'N/A';
     doc.text(phenotypeText, 180, resultY, { width: doc.page.width - 220, lineGap: 0 });
     
     // Calculate how much vertical space the phenotype text took
     const textHeight = doc.heightOfString(phenotypeText, { width: doc.page.width - 220, lineGap: 0 });
     doc.y = resultY + textHeight + 10;
-
-    // === GENOTYPE SUMMARY ===
-    doc.fontSize(7.5);
-    setBold();
-    const summaryY = doc.y;
-    doc.text('Genotype Summary:', 48, summaryY);
-    
-    setRegular();
-    const summaryText = reportInfo.genotype_summary || 'An individual carrying two normal function alleles';
-    const summaryTextHeight = doc.heightOfString(summaryText, { width: doc.page.width - 228, lineGap: 0 });
-    doc.text(summaryText, 180, summaryY, {
-      width: doc.page.width - 228,
-      align: 'left',
-      lineGap: 0
-    });
-    
-    doc.y = summaryY + summaryTextHeight + 8;
 
     // === RECOMMENDATION ===
     const recY = doc.y;

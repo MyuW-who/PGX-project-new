@@ -1,5 +1,61 @@
 # PGx-project
 
+## 🧬 Pharmacogenomics Rulebase (Updated 2025)
+
+This project now supports **6 pharmacogenomic genes** with comprehensive Thai therapeutic recommendations:
+
+| Gene | Alleles Tested | Rules | Status |
+|------|---------------|-------|--------|
+| **CYP2D6** | *4, *10, *41, CNV intron 2, CNV exon 9 | 33 | ✅ Updated (NEW FORMAT) |
+| **CYP2C9** | *2, *3 | 6 | ✅ Active |
+| **CYP2C19** | *2, *3, *17 | 10 | ✅ Active |
+| **VKORC1** | 1173C>T, -1639G>A | 3 | ✅ Active |
+| **CYP3A5** | *3 | 3 | ✅ Active |
+| **TPMT** | *3C | 3 | ✅ Active |
+
+### Key Changes
+- **CYP2D6** now uses CNV (Copy Number Variation) analysis for intron 2 and exon 9
+- All rules include Thai therapeutic recommendations
+- Prediction engine supports both Supabase and local JSON fallback
+
+### 🛠️ Quick Management Commands
+```powershell
+# View current data
+node scripts/showRulebaseInfo.js
+
+# Backup from Supabase to JSON
+node scripts/backupSupabaseToJson.js
+
+# Upload from JSON to Supabase
+node scripts/importJsonToSupabase.js
+
+# Test predictions
+node scripts/testRulebase.js
+
+# Test PDF generation with rulebase data
+node scripts/testPdfGeneration.js
+node scripts/testPdfGeneration.js --all  # Test all DNA types
+
+# Initialize specimen data (Blood, Nails, Hair, Saliva with 7-day SLA)
+node scripts/initializeSpecimens.js
+```
+
+For detailed documentation, see:
+- **[System Status](docs/SYSTEM_STATUS.md)** - Current configuration and status
+- **[Management Guide](docs/RULEBASE_MANAGEMENT.md)** - Complete management instructions
+- **[Update Guide](docs/RULEBASE_UPDATE.md)** - Implementation details
+- [AI Coding Instructions](.github/copilot-instructions.md) - Architecture overview
+
+## 🧪 Specimen Management
+
+The system supports multiple specimen types with configurable TAT (Turnaround Time):
+- **Blood** - Default: 5 days
+- **Nails** - Default: 10 days  
+- **Hair** - Default: 5 days
+- **Saliva** - Default: 7 days
+
+Manage specimens through Admin Settings page or use the initialization script.
+
 ## Verify PDF page (ตรวจสอบไฟล์ PDF)
 
 หน้า `view/verify_information.html` ใช้สำหรับแสดงไฟล์ PDF เพื่อให้ผู้ใช้ตรวจสอบและกดยืนยัน/ปฏิเสธ

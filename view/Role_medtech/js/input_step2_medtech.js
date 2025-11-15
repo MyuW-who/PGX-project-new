@@ -21,6 +21,7 @@ const selectArea = document.getElementById("selectArea");
 let currentAlleles = {};
 let autoGenotype = "-";
 let autoPhenotype = "-";
+let autoRecommendation = null; // Store therapeutic recommendation from rulebase
 let isUpdatingOptions = false; // Flag to prevent recursive updates
 
 /* ========================
@@ -45,30 +46,42 @@ async function renderDNAForm(type) {
   // Load rulebase first
   await loadRulebaseData();
   
+  // Save phenotype label for this DNA type
+  const phenotypeLabel = rulebaseData[type]?.phenotype_label || 'Predicted Phenotype';
+  sessionStorage.setItem('phenotypeLabel', phenotypeLabel);
+  console.log(`📋 Phenotype label for ${type}: ${phenotypeLabel}`);
+  
   let html = "";
 
   if (type === "CYP2D6") {
     html = `
       <div class="select-row">
-        <label for="allele10">*10:</label>
-        <select id="allele10" class="allele-select" data-allele="allele10">
+        <label for="allele4">*4 (1847G>A):</label>
+        <select id="allele4" class="allele-select" data-allele="allele4">
           <option value="" disabled selected>เลือกประเภท DNA</option>
         </select>
 
-        <label for="allele41">*41:</label>
-        <select id="allele41" class="allele-select" data-allele="allele41">
+        <label for="allele10">*10 (100C>T):</label>
+        <select id="allele10" class="allele-select" data-allele="allele10">
           <option value="" disabled selected>เลือกประเภท DNA</option>
         </select>
       </div>
 
       <div class="select-row">
-        <label for="allele4">*4:</label>
-        <select id="allele4" class="allele-select" data-allele="allele4">
+        <label for="allele41">*41 (2989G>A):</label>
+        <select id="allele41" class="allele-select" data-allele="allele41">
           <option value="" disabled selected>เลือกประเภท DNA</option>
         </select>
 
-        <label for="allele5">*5:</label>
-        <select id="allele5" class="allele-select" data-allele="allele5">
+        <label for="cnvIntron2">CNV intron 2:</label>
+        <select id="cnvIntron2" class="allele-select" data-allele="cnvIntron2">
+          <option value="" disabled selected>เลือกประเภท DNA</option>
+        </select>
+      </div>
+
+      <div class="select-row">
+        <label for="cnvExon9">CNV exon 9:</label>
+        <select id="cnvExon9" class="allele-select" data-allele="cnvExon9">
           <option value="" disabled selected>เลือกประเภท DNA</option>
         </select>
       </div>
@@ -447,6 +460,11 @@ async function predictFromAlleles() {
         autoGenotype = result.genotype;
         autoPhenotype = result.phenotype;
         
+        // Save therapeutic recommendation for later use
+        if (result.therapeutic_recommendation) {
+          autoRecommendation = result.therapeutic_recommendation;
+        }
+        
         // Update genotype field
         const genotypeInput = document.getElementById('genotype');
         if (genotypeInput) {
@@ -456,6 +474,7 @@ async function predictFromAlleles() {
       } else {
         autoGenotype = result.genotype || "-";
         autoPhenotype = result.phenotype || "-";
+        autoRecommendation = null;
         
         const genotypeInput = document.getElementById('genotype');
         if (genotypeInput) {
@@ -565,10 +584,25 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
     sessionStorage.setItem(sel.id, sel.value || "-");
   });
   
-  // Save auto-predicted genotype and phenotype
+  // Save auto-predicted genotype, phenotype, and recommendation
   sessionStorage.setItem("genotype", autoGenotype);
   sessionStorage.setItem("phenotype", autoPhenotype);
   sessionStorage.setItem("alleles", JSON.stringify(currentAlleles));
+  
+  // Save activity score from rulebase
+  if (result.activity_score !== undefined && result.activity_score !== null) {
+    sessionStorage.setItem("activityScore", result.activity_score);
+  }
+  
+  // Save therapeutic recommendation from rulebase (CRITICAL for PDF)
+  if (result.therapeutic_recommendation) {
+    sessionStorage.setItem("recommendation", result.therapeutic_recommendation);
+  }
+  
+  // Save genotype summary if available
+  if (result.genotype_summary) {
+    sessionStorage.setItem("genotypeSummary", result.genotype_summary);
+  }
 
   // ไปหน้า Step 3 (only if exact match found)
   window.electronAPI.navigate('input_step3_medtech');

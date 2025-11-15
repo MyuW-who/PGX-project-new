@@ -89,6 +89,7 @@ async function predictPhenotype(dnaType, alleles) {
         genotype: rule.genotype,
         phenotype: rule.phenotype,
         activity_score: rule.activity_score,
+        therapeutic_recommendation: rule.therapeutic_recommendation || '',
         matched: true
       };
     }
@@ -99,6 +100,7 @@ async function predictPhenotype(dnaType, alleles) {
     genotype: typeRules.default.genotype,
     phenotype: typeRules.default.phenotype,
     activity_score: typeRules.default.activity_score,
+    therapeutic_recommendation: '',
     matched: false,
     warning: 'No exact match found in rulebase, using default values'
   };

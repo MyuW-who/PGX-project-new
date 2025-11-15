@@ -1,0 +1,688 @@
+{
+  "CYP2C9": {
+    "description": "CYP2C9 Pharmacogenomics Rules",
+    "alleles": [
+      "*2",
+      "*3"
+    ],
+    "rules": [
+      {
+        "allele2": "C/C",
+        "allele3": "A/A",
+        "genotype": "*1/*1",
+        "phenotype": "เอนไซม์ CYP2C9 มีอัตราการทำงานปกติ (Normal metabolizer, NM)",
+        "therapeutic_recommendation": "สามารถใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ได้ในขนาดมาตรฐาน",
+        "activity_score": 2
+      },
+      {
+        "allele2": "C/T",
+        "allele3": "A/A",
+        "genotype": "*1/*2",
+        "phenotype": "เอนไซม์ CYP2C9 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "การใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง",
+        "activity_score": 1
+      },
+      {
+        "allele2": "C/C",
+        "allele3": "A/C",
+        "genotype": "*1/*3",
+        "phenotype": "เอนไซม์ CYP2C9 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "การใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง",
+        "activity_score": 1
+      },
+      {
+        "allele2": "C/T",
+        "allele3": "A/C",
+        "genotype": "*2/*3",
+        "phenotype": "เอนไซม์ CYP2C9 มีอัตราการทำงานต่ำ (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "ผู้ป่วยมีโอกาสเกิดผลข้างเคียงจากการใช้ยาเนื่องจากมีการย่อยสลายยาในร่างกายน้อยกว่าคนทั่วไป ดังนั้นจึงควรพิจารณาปรับลดขนาดยาลง",
+        "activity_score": 0.5
+      },
+      {
+        "allele2": "T/T",
+        "allele3": "A/A",
+        "genotype": "*2/*2",
+        "phenotype": "เอนไซม์ CYP2C9 มีอัตราการทำงานต่ำ (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "ผู้ป่วยมีโอกาสเกิดผลข้างเคียงจากการใช้ยาเนื่องจากมีการย่อยสลายยาในร่างกายน้อยกว่าคนทั่วไป ดังนั้นจึงควรพิจารณาปรับลดขนาดยาลง",
+        "activity_score": 0.5
+      },
+      {
+        "allele2": "C/C",
+        "allele3": "C/C",
+        "genotype": "*3/*3",
+        "phenotype": "เอนไซม์ CYP2C9 มีอัตราการทำงานต่ำ (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "ผู้ป่วยมีโอกาสเกิดผลข้างเคียงจากการใช้ยาเนื่องจากมีการย่อยสลายยาในร่างกายน้อยกว่าคนทั่วไป ดังนั้นจึงควรพิจารณาปรับลดขนาดยาลง",
+        "activity_score": 0.5
+      }
+    ],
+    "default": {
+      "genotype": "*1/*1",
+      "phenotype": "Normal Metabolizer (NM)",
+      "activity_score": 2
+    }
+  },
+  "VKORC1": {
+    "description": "VKORC1 Pharmacogenomics Rules",
+    "alleles": [
+      "VKORC1_1173",
+      "VKORC1_1639"
+    ],
+    "rules": [
+      {
+        "alleleVKORC1_1173": "C/C",
+        "alleleVKORC1_1639": "G/G",
+        "genotype": "BB",
+        "phenotype": "Warfarin Insensitivity",
+        "therapeutic_recommendation": "ผู้ป่วยมีความไวในการตอบสนองต่อยา Warfarin ในระดับปกติ",
+        "activity_score": 0
+      },
+      {
+        "alleleVKORC1_1173": "C/T",
+        "alleleVKORC1_1639": "G/A",
+        "genotype": "AB",
+        "phenotype": "Intermediate Warfarin Sensitivity",
+        "therapeutic_recommendation": "ผู้ป่วยมีปัจจัยเสี่ยงต่อการเกิดอาการไม่พึงประสงค์จากการใช้ยา Warfarin เนื่องจากตรวจพบความผิดแผกทางพันธุกรรมของยีน VKORC1 เป็นแบบ Genotype GA ส่งผลให้ผู้ป่วยมีความไวต่อการตอบสนองต่อยา Warfarin เมื่อเทียบกับคนทั่วไป (Genotype GG) ดังนั้นการบริหารขนาดยาเพิ่ม-ลด ควรให้ความระมัดระวัง ทั้งนี้ปัจจัยอื่นๆ เช่น อาหารที่มีวิตามินเคสูง (ผักใบเขียว) การดื่มแอลกอฮอล์ การใช้ยาอื่นร่วมที่มีผลต่อยา warfarin หรือสภาวะที่ผู้ป่วยมีโรคอื่นร่วมด้วย เป็นสิ่งที่ต้องคำนึงถึง",
+        "activity_score": 0
+      },
+      {
+        "alleleVKORC1_1173": "T/T",
+        "alleleVKORC1_1639": "A/A",
+        "genotype": "AA",
+        "phenotype": "High Warfarin Sensitivity",
+        "therapeutic_recommendation": "ผู้ป่วยมีปัจจัยเสี่ยงต่อการเกิดอาการไม่พึงประสงค์จากการใช้ยา Warfarin เนื่องจากตรวจพบความผิดแผกทางพันธุกรรมของยีน VKORC1 เป็นแบบ Genotype AA ส่งผลให้ผู้ป่วยมีความไวต่อการตอบสนองต่อยา Warfarin เมื่อเทียบกับคนทั่วไป (Genotype GG) ดังนั้นการบริหารขนาดยาเพิ่ม-ลด ควรให้ความระมัดระวังเป็นพิเศษ ทั้งนี้ปัจจัยอื่นๆ เช่น อาหารที่มีวิตามินเคสูง (ผักใบเขียว) การดื่มแอลกอฮอล์ การใช้ยาอื่นร่วมที่มีผลต่อยา warfarin หรือสภาวะที่ผู้ป่วยมีโรคอื่นร่วมด้วย เป็นสิ่งที่ต้องคำนึงถึง",
+        "activity_score": 0
+      }
+    ],
+    "default": {
+      "genotype": "BB",
+      "phenotype": "Warfarin Insensitivity",
+      "activity_score": 0
+    }
+  },
+  "CYP2C19": {
+    "description": "CYP2C19 Pharmacogenomics Rules",
+    "alleles": [
+      "*2",
+      "*3",
+      "*17"
+    ],
+    "rules": [
+      {
+        "allele2": "G/G",
+        "allele3": "G/G",
+        "allele17": "C/C",
+        "genotype": "*1/*1",
+        "phenotype": "เอนไซม์ CYP2C19 มีอัตราการทำงานปกติ (Normal metabolizer, NM)",
+        "therapeutic_recommendation": "สามารถใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ได้ในขนาดมาตรฐาน\r\n1.\tกรณีใช้ยาที่มีการกำจัดยาผ่านเอนไซม์ CYP2C19 เป็นวิถีหลัก (Major metabolic pathway) เช่น Voriconazole หรือยาในกลุ่ม PPIs สามารถเริ่มยาได้ในขนาดมาตรฐาน \r\n2.\tกรณีใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP2C19 ไปเป็น Active form เช่น Clopidogrel สามารถเริ่มยา Clopidogrel ได้ในขนาดมาตรฐาน (75 mg/day)",
+        "activity_score": 2
+      },
+      {
+        "allele2": "G/A",
+        "allele3": "G/G",
+        "allele17": "C/C",
+        "genotype": "*1/*2",
+        "phenotype": "เอนไซม์ CYP2C19 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tกรณีใช้ยาที่มีการกำจัดยาผ่านเอนไซม์ CYP2C19 เป็นวิถีหลัก (Major metabolic pathway) เช่น \r\n-\tVoriconazole สามารถเริ่มยาได้ในขนาดมาตรฐาน \r\n-\tยาในกลุ่ม PPIs สามารถเริ่มยาได้ในขนาดมาตรฐาน การรักษาแบบเรื้อรัง (>12 weeks) ควรปรับลดขนาดยาลง 50% และควรติดตามระดับยาในกระแสเลือด\r\n2.\tกรณีใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP2C19 ไปเป็น Active form เช่น Clopidogrel ควรพิจารณาเปลี่ยนไปใช้ยา anti-platelet ตัวอื่น เช่น prasugrel, ticagrelor แทน (กรณี cardiovascular indication) หรือใช้ ticagrelor, ticlopidine (กรณี neurovascular indication)",
+        "activity_score": 1
+      },
+      {
+        "allele2": "G/G",
+        "allele3": "G/A",
+        "allele17": "C/C",
+        "genotype": "*1/*3",
+        "phenotype": "เอนไซม์ CYP2C19 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tกรณีใช้ยาที่มีการกำจัดยาผ่านเอนไซม์ CYP2C19 เป็นวิถีหลัก (Major metabolic pathway) เช่น \r\n-\tVoriconazole สามารถเริ่มยาได้ในขนาดมาตรฐาน \r\n-\tยาในกลุ่ม PPIs สามารถเริ่มยาได้ในขนาดมาตรฐาน การรักษาแบบเรื้อรัง (>12 weeks) ควรปรับลดขนาดยาลง 50% และควรติดตามระดับยาในกระแสเลือด\r\n2.\tกรณีใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP2C19 ไปเป็น Active form เช่น Clopidogrel ควรพิจารณาเปลี่ยนไปใช้ยา anti-platelet ตัวอื่น เช่น prasugrel, ticagrelor แทน (กรณี cardiovascular indication) หรือใช้ ticagrelor, ticlopidine (กรณี neurovascular indication)",
+        "activity_score": 1
+      },
+      {
+        "allele2": "G/G",
+        "allele3": "G/G",
+        "allele17": "C/T",
+        "genotype": "*1/*17",
+        "phenotype": "เอนไซม์ CYP2C19 มีอัตราการทำงานสูง (Rapid metabolizer, RM)",
+        "therapeutic_recommendation": "1.\tกรณีใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP2C19 ไปเป็น Active form เช่น Clopidogrel (กรณี cardiovascular indication) สามารถใช้ยาได้ในขนาดมาตรฐาน (75 mg/day) \r\n2.\tกรณีใช้ยาที่มีการกำจัดยาผ่านเอนไซม์ CYP2C19 เป็นวิถีหลัก (Major metabolic pathway) ควรพิจารณาปรับเพิ่มขนาดยา หรือพิจารณาเปลี่ยนให้ยาตัวอื่นที่ไม่ผ่านกระบวนการเปลี่ยนแปลงยาด้วยเอนไซม์ CYP2C19 แทน เช่น \r\n-\tVoriconazole พิจารณาเปลี่ยนให้ยาตัวอื่นที่ไม่ผ่านกระบวนการเปลี่ยนแปลงยาด้วยเอนไซม์ CYP2C19 แทน เช่น Isavuconazole, liposomal Amphotericin B, Posaconazole \r\n-\tยาในกลุ่ม PPIs สามารถเริ่มยาได้ในขนาดมาตรฐาน และควรพิจารณาปรับเพิ่มขนาดยา 50-100% กรณีรักษา H.pylori infection และควรติดตามระดับยาในกระแสเลือด",
+        "activity_score": 3
+      },
+      {
+        "allele2": "A/A",
+        "allele3": "G/G",
+        "allele17": "C/C",
+        "genotype": "*2/*2",
+        "phenotype": "เอนไซม์ CYP2C19 มีอัตราการทำงานต่ำ (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "1.\tกรณีใช้ยาที่มีการกำจัดยาผ่านเอนไซม์ CYP2C19 เป็นวิถีหลัก (Major metabolic pathway) เช่น \r\n-\tVoriconazole ควรพิจารณาเปลี่ยนไปใช้ยาตัวอื่นที่ไม่ผ่านกระบวนการเปลี่ยนแปลงยาด้วย CYP2C19 เช่น isavuconazole, liposomal amphotericin B, posaconazole แทน หรือหากจำเป็นต้องใช้ยา voriconazole ควรพิจารณาปรับลดขนาดยาลงจากขนาดยามาตรฐาน และควรตรวตติดตามระดับยาในกระแสเลือด\r\n-\tยาในกลุ่ม PPIs สามารถเริ่มยาได้ในขนาดมาตรฐาน การรักษาแบบเรื้อรัง (>12 weeks) ควรปรับลดขนาดยาลง 50% และควรติดตามระดับยาในกระแสเลือด\r\n2.\tกรณีใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP2C19 ไปเป็น Active form เช่น Clopidogrel ควรพิจารณาเปลี่ยนไปใช้ยา anti-platelet ตัวอื่น เช่น prasugrel, ticagrelor แทน (กรณี cardiovascular indication) หรือใช้ ticagrelor, ticlopidine (กรณี neurovascular indication)",
+        "activity_score": 0.5
+      },
+      {
+        "allele2": "G/A",
+        "allele3": "G/A",
+        "allele17": "C/C",
+        "genotype": "*2/*3",
+        "phenotype": "เอนไซม์ CYP2C19 มีอัตราการทำงานต่ำ (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "1.\tกรณีใช้ยาที่มีการกำจัดยาผ่านเอนไซม์ CYP2C19 เป็นวิถีหลัก (Major metabolic pathway) เช่น \r\n-\tVoriconazole ควรพิจารณาเปลี่ยนไปใช้ยาตัวอื่นที่ไม่ผ่านกระบวนการเปลี่ยนแปลงยาด้วย CYP2C19 เช่น isavuconazole, liposomal amphotericin B, posaconazole แทน หรือหากจำเป็นต้องใช้ยา voriconazole ควรพิจารณาปรับลดขนาดยาลงจากขนาดยามาตรฐาน และควรตรวตติดตามระดับยาในกระแสเลือด\r\n-\tยาในกลุ่ม PPIs สามารถเริ่มยาได้ในขนาดมาตรฐาน การรักษาแบบเรื้อรัง (>12 weeks) ควรปรับลดขนาดยาลง 50% และควรติดตามระดับยาในกระแสเลือด\r\n2.\tกรณีใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP2C19 ไปเป็น Active form เช่น Clopidogrel ควรพิจารณาเปลี่ยนไปใช้ยา anti-platelet ตัวอื่น เช่น prasugrel, ticagrelor แทน (กรณี cardiovascular indication) หรือใช้ ticagrelor, ticlopidine (กรณี neurovascular indication)",
+        "activity_score": 0.5
+      },
+      {
+        "allele2": "G/A",
+        "allele3": "G/G",
+        "allele17": "C/T",
+        "genotype": "*2/*17",
+        "phenotype": "เอนไซม์ CYP2C19 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tกรณีใช้ยาที่มีการกำจัดยาผ่านเอนไซม์ CYP2C19 เป็นวิถีหลัก (Major metabolic pathway) เช่น \r\n-\tVoriconazole สามารถเริ่มยาได้ในขนาดมาตรฐาน \r\n-\tยาในกลุ่ม PPIs สามารถเริ่มยาได้ในขนาดมาตรฐาน การรักษาแบบเรื้อรัง (>12 weeks) ควรปรับลดขนาดยาลง 50% และควรติดตามระดับยาในกระแสเลือด\r\n2.\tกรณีใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP2C19 ไปเป็น Active form เช่น Clopidogrel ควรพิจารณาเปลี่ยนไปใช้ยา anti-platelet ตัวอื่น เช่น prasugrel, ticagrelor แทน (กรณี cardiovascular indication) หรือใช้ ticagrelor, ticlopidine (กรณี neurovascular indication)",
+        "activity_score": 1
+      },
+      {
+        "allele2": "G/G",
+        "allele3": "A/A",
+        "allele17": "C/C",
+        "genotype": "*3/*3",
+        "phenotype": "เอนไซม์ CYP2C19 มีอัตราการทำงานต่ำ (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "1.\tกรณีใช้ยาที่มีการกำจัดยาผ่านเอนไซม์ CYP2C19 เป็นวิถีหลัก (Major metabolic pathway) เช่น \r\n-\tVoriconazole ควรพิจารณาเปลี่ยนไปใช้ยาตัวอื่นที่ไม่ผ่านกระบวนการเปลี่ยนแปลงยาด้วย CYP2C19 เช่น isavuconazole, liposomal amphotericin B, posaconazole แทน หรือหากจำเป็นต้องใช้ยา voriconazole ควรพิจารณาปรับลดขนาดยาลงจากขนาดยามาตรฐาน และควรตรวตติดตามระดับยาในกระแสเลือด\r\n-\tยาในกลุ่ม PPIs สามารถเริ่มยาได้ในขนาดมาตรฐาน การรักษาแบบเรื้อรัง (>12 weeks) ควรปรับลดขนาดยาลง 50% และควรติดตามระดับยาในกระแสเลือด\r\n2.\tกรณีใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP2C19 ไปเป็น Active form เช่น Clopidogrel ควรพิจารณาเปลี่ยนไปใช้ยา anti-platelet ตัวอื่น เช่น prasugrel, ticagrelor แทน (กรณี cardiovascular indication) หรือใช้ ticagrelor, ticlopidine (กรณี neurovascular indication)",
+        "activity_score": 0.5
+      },
+      {
+        "allele2": "G/G",
+        "allele3": "G/A",
+        "allele17": "C/T",
+        "genotype": "*3/*17",
+        "phenotype": "เอนไซม์ CYP2C19 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tกรณีใช้ยาที่มีการกำจัดยาผ่านเอนไซม์ CYP2C19 เป็นวิถีหลัก (Major metabolic pathway) เช่น \r\n-\tVoriconazole สามารถเริ่มยาได้ในขนาดมาตรฐาน \r\n-\tยาในกลุ่ม PPIs สามารถเริ่มยาได้ในขนาดมาตรฐาน การรักษาแบบเรื้อรัง (>12 weeks) ควรปรับลดขนาดยาลง 50% และควรติดตามระดับยาในกระแสเลือด\r\n2.\tกรณีใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP2C19 ไปเป็น Active form เช่น Clopidogrel ควรพิจารณาเปลี่ยนไปใช้ยา anti-platelet ตัวอื่น เช่น prasugrel, ticagrelor แทน (กรณี cardiovascular indication) หรือใช้ ticagrelor, ticlopidine (กรณี neurovascular indication)",
+        "activity_score": 1
+      },
+      {
+        "allele2": "G/G",
+        "allele3": "G/G",
+        "allele17": "T/T",
+        "genotype": "*17/*17",
+        "phenotype": "เอนไซม์ CYP2C19 มีอัตราการทำงานสูงมาก (Ultrarapid metabolizer, RM)",
+        "therapeutic_recommendation": "1.\tกรณีใช้ยาที่มีการกำจัดยาผ่านเอนไซม์ CYP2C19 เป็นวิถีหลัก (Major metabolic pathway) ควรพิจารณาปรับเพิ่มขนาดยา หรือพิจารณาเปลี่ยนให้ยาตัวอื่นที่ไม่ผ่านกระบวนการเปลี่ยนแปลงยาด้วยเอนไซม์ CYP2C19 แทน เช่น \r\n-\tVoriconazole พิจารณาเปลี่ยนให้ยาตัวอื่นที่ไม่ผ่านกระบวนการเปลี่ยนแปลงยาด้วยเอนไซม์ CYP2C19 แทน เช่น Isavuconazole, liposomal Amphotericin B, Posaconazole \r\n-\tยาในกลุ่ม PPIs ควรพิจารณาปรับเพิ่มขนาดยา 100% จากขนาดยามาตรฐาน และควรติดตามระดับยาในกระแสเลือด \r\n2.\tกรณีใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP2C19 ไปเป็น Active form เช่น Clopidogrel (กรณี cardiovascular indication) สามารถใช้ยาได้ในขนาดมาตรฐาน (75 mg/day)",
+        "activity_score": 3
+      }
+    ],
+    "default": {
+      "genotype": "*1/*1",
+      "phenotype": "Normal Metabolizer (NM)",
+      "activity_score": 2
+    }
+  },
+  "CYP2D6": {
+    "description": "CYP2D6 Pharmacogenomics Rules (New Format)",
+    "alleles": [
+      "*4",
+      "*10",
+      "*41",
+      "CNV_intron2",
+      "CNV_exon9"
+    ],
+    "rules": [
+      {
+        "allele4": "-",
+        "allele10": "-",
+        "allele41": "-",
+        "cnvIntron2": "0",
+        "cnvExon9": "0",
+        "result": "*5/*5",
+        "genotype": "*5/*5",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานต่ำ  (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "1.\tผู้ป่วยรายนี้ตรวจพบความผิดแผกของยีน CYP2D6 ทั้งสองข้างเป็น *5 คือมีการขาดหายไปของยีน (gene deletion) ซึ่งส่งผลทำให้มีเอนไซม์ CYP2D6 น้อยมากหรือไม่มีเลย การใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง เนื่องจากผู้ป่วยอาจไม่ได้รับประสิทธิผลจากการรักษาหรืออาจเกิดผลข้างเคียงจากการใช้ยาได้\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานต่ำ ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยมากหรือไม่ได้เลย ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\n-\tจากข้อมูลมีรายงานว่า ผู้ป่วยที่มีอัตราการทำงานของเอนไซม์ CYP2D6 ต่ำ (PM) ที่เปลี่ยนจากการใช้ Tamoxifen เป็น Anastrozole ไม่ได้มีความเสี่ยงเพิ่มขึ้นต่อการกลับมาเป็นซ้ำ (recurrence) ของโรค และการใช้ Tamoxifen ในขนาดสูงขึ้น (40 mg/day) สามารถเพิ่มระดับ Endoxifen ได้ แต่ไม่สามารถเพิ่มให้เป็นระดับปกติได้ ซึ่งอาจพิจารณาใช้ในกรณีที่มีข้อห้ามในการใช้ยากลุ่ม Aromatase inhibitors",
+        "activity_score": 0.5
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/C",
+        "allele41": "G/G",
+        "cnvIntron2": "1",
+        "cnvExon9": "1",
+        "result": "*1/*5",
+        "genotype": "*1/*5",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "A/A",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "1",
+        "cnvExon9": "1",
+        "result": "*4/*5",
+        "genotype": "*4/*5",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานต่ำ  (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "1.\tผู้ป่วยรายนี้ตรวจพบความผิดแผกของยีน CYP2D6 ทั้งสองข้างเป็น *5 คือมีการขาดหายไปของยีน (gene deletion) ซึ่งส่งผลทำให้มีเอนไซม์ CYP2D6 น้อยมากหรือไม่มีเลย การใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง เนื่องจากผู้ป่วยอาจไม่ได้รับประสิทธิผลจากการรักษาหรืออาจเกิดผลข้างเคียงจากการใช้ยาได้\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานต่ำ ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยมากหรือไม่ได้เลย ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\n-\tจากข้อมูลมีรายงานว่า ผู้ป่วยที่มีอัตราการทำงานของเอนไซม์ CYP2D6 ต่ำ (PM) ที่เปลี่ยนจากการใช้ Tamoxifen เป็น Anastrozole ไม่ได้มีความเสี่ยงเพิ่มขึ้นต่อการกลับมาเป็นซ้ำ (recurrence) ของโรค และการใช้ Tamoxifen ในขนาดสูงขึ้น (40 mg/day) สามารถเพิ่มระดับ Endoxifen ได้ แต่ไม่สามารถเพิ่มให้เป็นระดับปกติได้ ซึ่งอาจพิจารณาใช้ในกรณีที่มีข้อห้ามในการใช้ยากลุ่ม Aromatase inhibitors",
+        "activity_score": 0.5
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "1",
+        "cnvExon9": "1",
+        "result": "*5/*10",
+        "genotype": "*5/*10",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/C",
+        "allele41": "A/A",
+        "cnvIntron2": "1",
+        "cnvExon9": "1",
+        "result": "*5/*41",
+        "genotype": "*5/*41",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/C",
+        "allele41": "G/G",
+        "cnvIntron2": "2",
+        "cnvExon9": "2",
+        "result": "*1/*1",
+        "genotype": "*1/*1",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปกติ (Normal metabolizer, NM)",
+        "therapeutic_recommendation": "1.\tสามารถใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ได้ในขนาดมาตรฐาน \r\n2.\tสำหรับยา Tamoxifen: สามารถเริ่มยาได้ในขนาดมาตรฐาน (20 mg/day) และควรหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (moderate-strong inhibitors)",
+        "activity_score": 2
+      },
+      {
+        "allele4": "G/A",
+        "allele10": "C/T",
+        "allele41": "G/G",
+        "cnvIntron2": "2",
+        "cnvExon9": "2",
+        "result": "*1/*4",
+        "genotype": "*1/*4",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/T",
+        "allele41": "G/G",
+        "cnvIntron2": "2",
+        "cnvExon9": "2",
+        "result": "*1/*10",
+        "genotype": "*1/*10",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปกติ (Normal metabolizer, NM)",
+        "therapeutic_recommendation": "1.\tสามารถใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ได้ในขนาดมาตรฐาน \r\n2.\tสำหรับยา Tamoxifen: สามารถเริ่มยาได้ในขนาดมาตรฐาน (20 mg/day) และควรหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (moderate-strong inhibitors)",
+        "activity_score": 2
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/C",
+        "allele41": "G/A",
+        "cnvIntron2": "2",
+        "cnvExon9": "2",
+        "result": "*1/*41",
+        "genotype": "*1/*41",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปกติ (Normal metabolizer, NM)",
+        "therapeutic_recommendation": "1.\tสามารถใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ได้ในขนาดมาตรฐาน \r\n2.\tสำหรับยา Tamoxifen: สามารถเริ่มยาได้ในขนาดมาตรฐาน (20 mg/day) และควรหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (moderate-strong inhibitors)",
+        "activity_score": 2
+      },
+      {
+        "allele4": "A/A",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "2",
+        "cnvExon9": "2",
+        "result": "*4/*4",
+        "genotype": "*4/*4",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานต่ำ  (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "1.\tผู้ป่วยรายนี้ตรวจพบความผิดแผกของยีน CYP2D6 ทั้งสองข้างเป็น *5 คือมีการขาดหายไปของยีน (gene deletion) ซึ่งส่งผลทำให้มีเอนไซม์ CYP2D6 น้อยมากหรือไม่มีเลย การใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง เนื่องจากผู้ป่วยอาจไม่ได้รับประสิทธิผลจากการรักษาหรืออาจเกิดผลข้างเคียงจากการใช้ยาได้\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานต่ำ ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยมากหรือไม่ได้เลย ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\n-\tจากข้อมูลมีรายงานว่า ผู้ป่วยที่มีอัตราการทำงานของเอนไซม์ CYP2D6 ต่ำ (PM) ที่เปลี่ยนจากการใช้ Tamoxifen เป็น Anastrozole ไม่ได้มีความเสี่ยงเพิ่มขึ้นต่อการกลับมาเป็นซ้ำ (recurrence) ของโรค และการใช้ Tamoxifen ในขนาดสูงขึ้น (40 mg/day) สามารถเพิ่มระดับ Endoxifen ได้ แต่ไม่สามารถเพิ่มให้เป็นระดับปกติได้ ซึ่งอาจพิจารณาใช้ในกรณีที่มีข้อห้ามในการใช้ยากลุ่ม Aromatase inhibitors",
+        "activity_score": 0.5
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "2",
+        "cnvExon9": "2",
+        "result": "*10/*10",
+        "genotype": "*10/*10",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/C",
+        "allele41": "A/A",
+        "cnvIntron2": "2",
+        "cnvExon9": "2",
+        "result": "*41/*41",
+        "genotype": "*41/*41",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/A",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "2",
+        "cnvExon9": "2",
+        "result": "*4/*10",
+        "genotype": "*4/*10",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/A",
+        "allele10": "C/T",
+        "allele41": "G/A",
+        "cnvIntron2": "2",
+        "cnvExon9": "2",
+        "result": "*4/*41",
+        "genotype": "*4/*41",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/T",
+        "allele41": "G/A",
+        "cnvIntron2": "2",
+        "cnvExon9": "2",
+        "result": "*10/*41",
+        "genotype": "*10/*41",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/C",
+        "allele41": "G/G",
+        "cnvIntron2": "3",
+        "cnvExon9": "3",
+        "result": "(*1/*1)xN",
+        "genotype": "(*1/*1)xN",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานสูงมาก  (Ultrarapid metabolizer, UM)",
+        "therapeutic_recommendation": "1.\tผู้ป่วยรายนี้ตรวจพบการเพิ่มขึ้นของยีน (gene duplication) ซึ่งส่งผลต่ออัตราการทำงานของเอนไซม์ CYP2D6 โดยมีค่า Activity score เท่ากับ 3.0 จัดอยู่ในกลุ่ม UM \r\n-\tสำหรับการใช้ยา Prodrug เช่น Codeine, Tramadol: อัตราการทำงานของเอนไซม์ CYP2D6 ที่เพิ่มขึ้นทำให้มีการสร้าง active metabolite ที่มากขึ้น ซึ่งอาจนำไปสู่ความเสี่ยงต่อความเป็นพิษที่สูงขึ้น ควรหลีกเลี่ยงการใช้ยาดังกล่าว\r\n-\tสำหรับการใช้ยาอื่นๆ: ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ ควรใช้ในขนาดที่สูงกว่ามาตรฐาน หรือพิจารณายาทางเลือก (หากไม่มีข้อห้าม)\r\n2.\tสำหรับยา Tamoxifen: สามารถเริ่มยาได้ในขนาดมาตรฐาน (20 mg/day) และควรหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (moderate-strong inhibitors)",
+        "activity_score": 3
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "3",
+        "cnvExon9": "3",
+        "result": "(*1/*10)xN",
+        "genotype": "(*1/*10)xN",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปกติ (Normal metabolizer, NM)",
+        "therapeutic_recommendation": "1.\tสามารถใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ได้ในขนาดมาตรฐาน \r\n2.\tสำหรับยา Tamoxifen: สามารถเริ่มยาได้ในขนาดมาตรฐาน (20 mg/day) และควรหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (moderate-strong inhibitors)",
+        "activity_score": 2
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/C",
+        "allele41": "G/A",
+        "cnvIntron2": "3",
+        "cnvExon9": "3",
+        "result": "(*1/*41)xN",
+        "genotype": "(*1/*41)xN",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปกติ (Normal metabolizer, NM)",
+        "therapeutic_recommendation": "1.\tสามารถใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ได้ในขนาดมาตรฐาน \r\n2.\tสำหรับยา Tamoxifen: สามารถเริ่มยาได้ในขนาดมาตรฐาน (20 mg/day) และควรหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (moderate-strong inhibitors)",
+        "activity_score": 2
+      },
+      {
+        "allele4": "A/A",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "3",
+        "cnvExon9": "3",
+        "result": "(*4/*4)xN",
+        "genotype": "(*4/*4)xN",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานต่ำ  (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "1.\tผู้ป่วยรายนี้ตรวจพบความผิดแผกของยีน CYP2D6 ทั้งสองข้างเป็น *5 คือมีการขาดหายไปของยีน (gene deletion) ซึ่งส่งผลทำให้มีเอนไซม์ CYP2D6 น้อยมากหรือไม่มีเลย การใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง เนื่องจากผู้ป่วยอาจไม่ได้รับประสิทธิผลจากการรักษาหรืออาจเกิดผลข้างเคียงจากการใช้ยาได้\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานต่ำ ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยมากหรือไม่ได้เลย ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\n-\tจากข้อมูลมีรายงานว่า ผู้ป่วยที่มีอัตราการทำงานของเอนไซม์ CYP2D6 ต่ำ (PM) ที่เปลี่ยนจากการใช้ Tamoxifen เป็น Anastrozole ไม่ได้มีความเสี่ยงเพิ่มขึ้นต่อการกลับมาเป็นซ้ำ (recurrence) ของโรค และการใช้ Tamoxifen ในขนาดสูงขึ้น (40 mg/day) สามารถเพิ่มระดับ Endoxifen ได้ แต่ไม่สามารถเพิ่มให้เป็นระดับปกติได้ ซึ่งอาจพิจารณาใช้ในกรณีที่มีข้อห้ามในการใช้ยากลุ่ม Aromatase inhibitors",
+        "activity_score": 0.5
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "3",
+        "cnvExon9": "3",
+        "result": "(*10/*10)xN",
+        "genotype": "(*10/*10)xN",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/C",
+        "allele41": "A/A",
+        "cnvIntron2": "3",
+        "cnvExon9": "3",
+        "result": "(*41/*41)xN",
+        "genotype": "(*41/*41)xN",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/A",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "3",
+        "cnvExon9": "3",
+        "result": "(*4/*10)xN",
+        "genotype": "(*4/*10)xN",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/A",
+        "allele10": "C/T",
+        "allele41": "G/A",
+        "cnvIntron2": "3",
+        "cnvExon9": "3",
+        "result": "(*4/*41)xN",
+        "genotype": "(*4/*41)xN",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/T",
+        "allele41": "G/A",
+        "cnvIntron2": "3",
+        "cnvExon9": "3",
+        "result": "(*10/*41)xN",
+        "genotype": "(*10/*41)xN",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/A",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "2",
+        "cnvExon9": "1",
+        "result": "*4/*36",
+        "genotype": "*4/*36",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานต่ำ  (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "1.\tผู้ป่วยรายนี้ตรวจพบความผิดแผกของยีน CYP2D6 ทั้งสองข้างเป็น *5 คือมีการขาดหายไปของยีน (gene deletion) ซึ่งส่งผลทำให้มีเอนไซม์ CYP2D6 น้อยมากหรือไม่มีเลย การใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง เนื่องจากผู้ป่วยอาจไม่ได้รับประสิทธิผลจากการรักษาหรืออาจเกิดผลข้างเคียงจากการใช้ยาได้\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานต่ำ ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยมากหรือไม่ได้เลย ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\n-\tจากข้อมูลมีรายงานว่า ผู้ป่วยที่มีอัตราการทำงานของเอนไซม์ CYP2D6 ต่ำ (PM) ที่เปลี่ยนจากการใช้ Tamoxifen เป็น Anastrozole ไม่ได้มีความเสี่ยงเพิ่มขึ้นต่อการกลับมาเป็นซ้ำ (recurrence) ของโรค และการใช้ Tamoxifen ในขนาดสูงขึ้น (40 mg/day) สามารถเพิ่มระดับ Endoxifen ได้ แต่ไม่สามารถเพิ่มให้เป็นระดับปกติได้ ซึ่งอาจพิจารณาใช้ในกรณีที่มีข้อห้ามในการใช้ยากลุ่ม Aromatase inhibitors",
+        "activity_score": 0.5
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/T",
+        "allele41": "G/G",
+        "cnvIntron2": "2",
+        "cnvExon9": "1",
+        "result": "*1/*36+*10",
+        "genotype": "*1/*36+*10",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/T",
+        "allele41": "G/A",
+        "cnvIntron2": "2",
+        "cnvExon9": "1",
+        "result": "*36/*41",
+        "genotype": "*36/*41",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/A",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "3",
+        "cnvExon9": "2",
+        "result": "*4/*36+*10",
+        "genotype": "*4/*36+*10",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/T",
+        "allele41": "G/G",
+        "cnvIntron2": "3",
+        "cnvExon9": "2",
+        "result": "*1/*36+*10",
+        "genotype": "*1/*36+*10",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปกติ (Normal metabolizer, NM)",
+        "therapeutic_recommendation": "1.\tสามารถใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ได้ในขนาดมาตรฐาน \r\n2.\tสำหรับยา Tamoxifen: สามารถเริ่มยาได้ในขนาดมาตรฐาน (20 mg/day) และควรหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (moderate-strong inhibitors)",
+        "activity_score": 2
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "C/T",
+        "allele41": "G/A",
+        "cnvIntron2": "3",
+        "cnvExon9": "2",
+        "result": "*10+*36/*41",
+        "genotype": "*10+*36/*41",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "3",
+        "cnvExon9": "2",
+        "result": "*10/*36+*10",
+        "genotype": "*10/*36+*10",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "4",
+        "cnvExon9": "2",
+        "result": "*36+*10/*36+*10",
+        "genotype": "*36+*10/*36+*10",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tการใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานปานกลาง ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยลง ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\nหากมีข้อห้ามใช้ยากลุ่ม Aromatase inhibitors พิจารณาปรับเพิ่มขนาดยา Tamoxifen เป็น 40 mg/day เพื่อให้ผู้ป่วยได้รับประสิทธิผลจากยาเต็มที่ และหลีกเลี่ยงการใช้ยาร่วมที่มีฤทธิ์ยับยั้งการทำงานของเอนไซม์ CYP2D6 (strong to weak inhibitors)",
+        "activity_score": 1
+      },
+      {
+        "allele4": "G/G",
+        "allele10": "T/T",
+        "allele41": "G/G",
+        "cnvIntron2": "1",
+        "cnvExon9": "0",
+        "result": "*5/*36",
+        "genotype": "*5/*36",
+        "phenotype": "เอนไซม์ CYP2D6 มีอัตราการทำงานต่ำ  (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "1.\tผู้ป่วยรายนี้ตรวจพบความผิดแผกของยีน CYP2D6 ทั้งสองข้างเป็น *5 คือมีการขาดหายไปของยีน (gene deletion) ซึ่งส่งผลทำให้มีเอนไซม์ CYP2D6 น้อยมากหรือไม่มีเลย การใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวัง เนื่องจากผู้ป่วยอาจไม่ได้รับประสิทธิผลจากการรักษาหรืออาจเกิดผลข้างเคียงจากการใช้ยาได้\r\n2.\tสำหรับยา Tamoxifen: เอนไซม์ CYP2D6 ในผู้ป่วยรายนี้มีอัตราการทำงานต่ำ ส่งผลให้ยา Tamoxifen ถูกเปลี่ยนแปลงไปเป็นเมตาบอไลต์ที่ออกฤทธิ์ (Endoxifen, 4-OH tamoxifen) ได้น้อยมากหรือไม่ได้เลย ดังนั้นควรพิจารณาการบริหารยาดังนี้ \r\n-\t สำหรับ post-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors \r\n-\t สำหรับ pre-menopausal พิจารณาใช้ยากลุ่ม Aromatase inhibitors ร่วมกับ Ovarian function suppression \r\n-\tจากข้อมูลมีรายงานว่า ผู้ป่วยที่มีอัตราการทำงานของเอนไซม์ CYP2D6 ต่ำ (PM) ที่เปลี่ยนจากการใช้ Tamoxifen เป็น Anastrozole ไม่ได้มีความเสี่ยงเพิ่มขึ้นต่อการกลับมาเป็นซ้ำ (recurrence) ของโรค และการใช้ Tamoxifen ในขนาดสูงขึ้น (40 mg/day) สามารถเพิ่มระดับ Endoxifen ได้ แต่ไม่สามารถเพิ่มให้เป็นระดับปกติได้ ซึ่งอาจพิจารณาใช้ในกรณีที่มีข้อห้ามในการใช้ยากลุ่ม Aromatase inhibitors",
+        "activity_score": 0.5
+      }
+    ],
+    "default": {
+      "genotype": "*1/*1",
+      "phenotype": "Normal Metabolizer (NM)",
+      "activity_score": 2
+    }
+  },
+  "CYP3A5": {
+    "description": "CYP3A5 Pharmacogenomics Rules",
+    "alleles": [
+      "*3"
+    ],
+    "rules": [
+      {
+        "allele3": "A/A",
+        "genotype": "*1/*1",
+        "phenotype": "เอนไซม์ CYP3A5 มีอัตราการทำงานปกติ (Normal metabolizer, NM)",
+        "therapeutic_recommendation": "1.\tสำหรับยา Tacrolimus: พิจารณาปรับเพิ่มขนาดยาเริ่มต้น 1.5 - 2 เท่า จากขนาดยามาตรฐาน (total dose ไม่ควรเกิน 0.3 mg/kg/day) และควรตรวจติดตามระดับยาในกระแสเลือด (Therapeutic drug monitoring) เพื่อเป็นแนวทางในการปรับขนาดยาและเฝ้าระวังการเกิดอาการไม่พึงประสงค์\r\n2.\tสำหรับยาอื่นๆ: สามารถใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์ CYP3A5ได้ในขนาดมาตรฐาน",
+        "activity_score": 2
+      },
+      {
+        "allele3": "A/G",
+        "genotype": "*1/*3",
+        "phenotype": "เอนไซม์ CYP3A5 มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "1.\tสำหรับยา Tacrolimus: พิจารณาปรับเพิ่มขนาดยาเริ่มต้น 1.5 - 2 เท่า จากขนาดยามาตรฐาน (total dose ไม่ควรเกิน 0.3 mg/kg/day) และควรตรวจติดตามระดับยาในกระแสเลือด (Therapeutic drug monitoring) เพื่อเป็นแนวทางในการปรับขนาดยาและเฝ้าระวังการเกิดอาการไม่พึงประสงค์\r\nสำหรับยาอื่นๆ: การใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐาน ควรให้ความระมัดระวัง",
+        "activity_score": 1
+      },
+      {
+        "allele3": "G/G",
+        "genotype": "*3/*3",
+        "phenotype": "เอนไซม์ CYP3A5 มีอัตราการทำงานต่ำ (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "1.\tสำหรับยา Tacrolimus: สามารถเริ่มยาได้ในขนาดมาตรฐาน และควรตรวจติดตามระดับยาในกระแสเลือด (Therapeutic drug monitoring) เพื่อเป็นแนวทางในการปรับขนาดยาและเฝ้าระวังการเกิดอาการไม่พึงประสงค์\r\n2.\tสำหรับยาอื่นๆ: การใช้ยาที่มีการเปลี่ยนแปลงยาผ่านเอนไซม์นี้ในขนาดมาตรฐานควรให้ความระมัดระวังเนื่องจากผู้ป่วยมีโอกาสเกิดผลข้างเคียงจากการใช้ยาได้",
+        "activity_score": 0.5
+      }
+    ],
+    "default": {
+      "genotype": "*1/*1",
+      "phenotype": "Normal Metabolizer (NM)",
+      "activity_score": 2
+    }
+  },
+  "TPMT": {
+    "description": "TPMT Pharmacogenomics Rules",
+    "alleles": [
+      "*3C"
+    ],
+    "rules": [
+      {
+        "allele3C": "A/A",
+        "genotype": "*1/*1",
+        "phenotype": "เอนไซม์ TPMT มีอัตราการทำงานปกติ (Normal metabolizer, NM)",
+        "therapeutic_recommendation": "สามารถใช้ยาในกลุ่ม Thiopurines ได้ในขนาดมาตรฐาน",
+        "activity_score": 2
+      },
+      {
+        "allele3C": "A/G",
+        "genotype": "*1/*3C",
+        "phenotype": "เอนไซม์ TPMT มีอัตราการทำงานปานกลาง (Intermediate metabolizer, IM)",
+        "therapeutic_recommendation": "ควรพิจารณาปรับลดขนาดยาในกลุ่ม Thiopurines ลงจากขนาดยามาตรฐาน\r\n1.\tสำหรับยา Azathioprine ปรับลดยาเริ่มต้นลง โดยใช้ 30-80% ของขนาดยาปกติ ถ้าขนาดยาปกติเป็น 2-3 mg/kg/day และปรับขนาดยาตามความรุนแรงของการเกิด myelosuppression ใช้เวลา 2-4 สัปดาห์หลังการปรับยาแต่ละครั้งจนระดับยาถึง steady-state\r\n2.\tสำหรับยา Mercaptopurine ปรับลดยาเริ่มต้นลง โดยใช้ 30-80% ของขนาดยาปกติ ถ้าขนาดยาปกติมากกว่าหรือเท่ากับ 75 mg/m2/day หรือ 1.5 mg/kg/day และปรับขนาดยาตามความรุนแรงของการเกิด myelosuppression ใช้เวลา 2-4 สัปดาห์หลังการปรับยาแต่ละครั้งจนระดับยาถึง steady-state\r\n3.\tสำหรับยา Thioguanine ปรับลดยาเริ่มต้นลง โดยใช้ 50-80% ของขนาดยาปกติ ถ้าขนาดยาปกติมากกว่าหรือเท่ากับ 40-60 mg/m2/day และปรับขนาดยาตามความรุนแรงของการเกิด myelosuppression ใช้เวลา 2-4 สัปดาห์หลังการปรับยาแต่ละครั้งจนระดับยาถึง steady-state",
+        "activity_score": 1
+      },
+      {
+        "allele3C": "a",
+        "genotype": "*3C/*3C",
+        "phenotype": "เอนไซม์ TPMT มีอัตราการทำงานต่ำ (Poor metabolizer, PM)",
+        "therapeutic_recommendation": "ผู้ป่วยมีความเสี่ยงต่อการเกิด Thiopurines- related leukopenia, neutropenia, myelosuppression ควรพิจารณาการบริหารยา Azathioprine ดังนี้\r\n1.\tสำหรับผู้ป่วย Nonmalignant condition พิจารณาใช้ยาในกลุ่ม Non-thiopurine immunosuppressant แทน\r\n2.\tสำหรับผู้ป่วย Malignant condition ปรับลดขนาดยาเริ่มต้นลง 10 เท่าจากขนาดยาปกติ ปรับเวลาการให้ยาเป็น 3 วัน/สัปดาห์ ใช้เวลา 4-6 สัปดาห์เพื่อให้ระดับยาเข้าสู่ภาวะ steady state หลังจากการปรับขนาดยาแต่ละครั้ง และปรับขนาดยาตามความรุนแรงของการเกิด myelosuppression",
+        "activity_score": 0.5
+      }
+    ],
+    "default": {
+      "genotype": "*1/*1",
+      "phenotype": "Normal Metabolizer (NM)",
+      "activity_score": 2
+    }
+  }
+}

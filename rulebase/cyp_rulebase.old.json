@@ -1,0 +1,412 @@
+{
+  "CYP2D6": {
+    "description": "CYP2D6 Pharmacogenomics Rules",
+    "alleles": ["*10", "*4", "*41", "*5"],
+    "rules": [
+      {
+        "allele10": "C/C",
+        "allele4": "G/G",
+        "allele41": "G/G",
+        "allele5": "Negative",
+        "genotype": "*1/*1",
+        "phenotype": "Normal Metabolizer (NM)",
+        "activity_score": 2.0
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "G/A",
+        "allele41": "G/G",
+        "allele5": "Negative",
+        "genotype": "*1/*4 or",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.0
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "G/G",
+        "allele41": "G/G",
+        "allele5": "Positive",
+        "genotype": "*1/*5",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.0
+      },
+      {
+        "allele10": "C/T",
+        "allele4": "G/G",
+        "allele41": "G/G",
+        "allele5": "Negative",
+        "genotype": "*1/*10 or",
+        "phenotype": "Normal Metabolizer (NM)",
+        "activity_score": 1.5
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "G/G",
+        "allele41": "G/A",
+        "allele5": "Negative",
+        "genotype": "*1/*41 or",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.0
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "A/A",
+        "allele41": "G/G",
+        "allele5": "Negative",
+        "genotype": "*4/*4 or",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 0.0
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "G/A",
+        "allele41": "G/G",
+        "allele5": "Positive",
+        "genotype": "*4/*5 or",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 0.5
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "A/A",
+        "allele41": "G/G",
+        "allele5": "Positive",
+        "genotype": "*4/*5 or",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 0.0
+      },
+      {
+        "allele10": "C/T",
+        "allele4": "G/A",
+        "allele41": "G/G",
+        "allele5": "Negative",
+        "genotype": "*4/*10 or",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 0.5
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "G/A",
+        "allele41": "G/A",
+        "allele5": "Negative",
+        "genotype": "*4/*41 or",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 0.5
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "G/G",
+        "allele41": "G/A",
+        "allele5": "Positive",
+        "genotype": "*5/*5",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 0.0
+      },
+      {
+        "allele10": "C/T",
+        "allele4": "G/G",
+        "allele41": "G/G",
+        "allele5": "Positive",
+        "genotype": "*5/*10 or",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 0.5
+      },
+      {
+        "allele10": "T/T",
+        "allele4": "G/G",
+        "allele41": "G/G",
+        "allele5": "Positive",
+        "genotype": "*5/*10 or",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 0.5
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "G/G",
+        "allele41": "G/A",
+        "allele5": "Positive",
+        "genotype": "*5/*41 or",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 0.5
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "G/G",
+        "allele41": "A/A",
+        "allele5": "Positive",
+        "genotype": "*5/*41 or",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 0.25
+      },
+      {
+        "allele10": "T/T",
+        "allele4": "G/G",
+        "allele41": "G/G",
+        "allele5": "Negative",
+        "genotype": "*10/*10 or",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.0
+      },
+      {
+        "allele10": "C/T",
+        "allele4": "G/G",
+        "allele41": "G/A",
+        "allele5": "Negative",
+        "genotype": "*10/*41 or",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.0
+      },
+      {
+        "allele10": "C/C",
+        "allele4": "G/G",
+        "allele41": "A/A",
+        "allele5": "Negative",
+        "genotype": "*41/*41",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 0.5
+      }
+    ],
+    "default": {
+      "genotype": "Normal Metabolizer",
+      "phenotype": "Normal Metabolizer (NM)",
+      "activity_score": 2.0
+    }
+  },
+  "CYP2C19": {
+    "description": "CYP2C19 Pharmacogenomics Rules",
+    "alleles": ["*2", "*3", "*17"],
+    "rules": [
+      {
+        "allele2": "G/G",
+        "allele3": "G/G",
+        "allele17": "C/C",
+        "genotype": "*1/*1",
+        "phenotype": "Normal Metabolizer (NM)",
+        "activity_score": 2.0
+      },
+      {
+        "allele2": "G/A",
+        "allele3": "G/G",
+        "allele17": "C/C",
+        "genotype": "*1/*2",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.5
+      },
+      {
+        "allele2": "G/G",
+        "allele3": "G/A",
+        "allele17": "C/C",
+        "genotype": "*1/*3",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.5
+      },
+      {
+        "allele2": "G/A",
+        "allele3": "G/A",
+        "allele17": "C/C",
+        "genotype": "*2/*3",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 0.0
+      },
+      {
+        "allele2": "A/A",
+        "allele3": "G/G",
+        "allele17": "C/C",
+        "genotype": "*2/*2",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 0.0
+      },
+      {
+        "allele2": "G/A",
+        "allele3": "G/A",
+        "allele17": "C/C",
+        "genotype": "*2/*3",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 0.0
+      },
+      {
+        "allele2": "G/A",
+        "allele3": "G/G",
+        "allele17": "C/T",
+        "genotype": "*2/*17",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.5
+      },
+      {
+        "allele2": "G/G",
+        "allele3": "G/A",
+        "allele17": "C/C",
+        "genotype": "*3/*3",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 0.0
+      },
+      {
+        "allele2": "G/G",
+        "allele3": "G/A",
+        "allele17": "C/T",
+        "genotype": "*3/*17",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.5
+      },
+      {
+        "allele2": "G/G",
+        "allele3": "G/G",
+        "allele17": "T/T",
+        "genotype": "*1/*17",
+        "phenotype": "Ultrarapid Metabolizer (UM)",
+        "activity_score": 3.0
+      }
+    ],
+    "default": {
+      "genotype": "*1/*1",
+      "phenotype": "Normal Metabolizer (NM)",
+      "activity_score": 2.0
+    }
+  },
+  "CYP2C9": {
+    "description": "CYP2C9 Pharmacogenomics Rules",
+    "alleles": ["*2", "*3"],
+    "rules": [
+      {
+        "allele2": "C/C",
+        "allele3": "A/A",
+        "genotype": "*1/*1",
+        "phenotype": "Normal Metabolizer (NM)",
+        "activity_score": 2.0
+      },
+      {
+        "allele2": "C/T",
+        "allele3": "A/A",
+        "genotype": "*1/*2",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.5
+      },
+      {
+        "allele2": "C/C",
+        "allele3": "A/C",
+        "genotype": "*1/*3",
+        "phenotype": "Intermediate Metabolizer (IM)",
+        "activity_score": 1.5
+      },
+      {
+        "allele2": "C/T",
+        "allele3": "A/C",
+        "genotype": "*2/*3",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 1.0
+      },
+      {
+        "allele2": "T/T",
+        "allele3": "A/A",
+        "genotype": "*2/*2",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 1.0
+      },
+      {
+        "allele2": "C/C",
+        "allele3": "C/C",
+        "genotype": "*3/*3",
+        "phenotype": "Poor Metabolizer (PM)",
+        "activity_score": 0.5
+      }
+    ],
+    "default": {
+      "genotype": "*1/*1",
+      "phenotype": "Normal Metabolizer (NM)",
+      "activity_score": 2.0
+    }
+  },
+  "VKORC1": {
+    "description": "VKORC1 Pharmacogenomics Rules",
+    "alleles": ["VKORC1 (1173C>T)", "VKORC1 (-1639G>A)"],
+    "rules": [
+      {
+        "alleleVKORC1_1173": "C/C",
+        "alleleVKORC1_1639": "G/G",
+        "haplotype": "BB",
+        "genotype": "BB",
+        "phenotype": "Coumadin insensitivity",
+        "activity_score": 2.0
+      },
+      {
+        "alleleVKORC1_1173": "C/T",
+        "alleleVKORC1_1639": "G/A",
+        "haplotype": "AB",
+        "genotype": "AB",
+        "phenotype": "Intermediate coumadin sensitivity",
+        "activity_score": 1.5
+      },
+      {
+        "alleleVKORC1_1173": "T/T",
+        "alleleVKORC1_1639": "A/A",
+        "haplotype": "AA",
+        "genotype": "AA",
+        "phenotype": "Coumadin sensitivity",
+        "activity_score": 1.0
+      }
+    ],
+    "default": {
+      "genotype": "BB",
+      "phenotype": "Coumadin insensitivity",
+      "activity_score": 2.0
+    }
+  },
+  "TPMT": {
+    "description": "TPMT Pharmacogenomics Rules",
+    "alleles": ["*3C"],
+    "rules": [
+      {
+        "allele3C": "A/A",
+        "genotype": "*1/*1",
+        "phenotype": "Normal Metabolizer",
+        "activity_score": 2.0
+      },
+      {
+        "allele3C": "A/G",
+        "genotype": "*1/*3C",
+        "phenotype": "Intermediate Metabolizer",
+        "activity_score": 1.5
+      },
+      {
+        "allele3C": "G/G",
+        "genotype": "*3C/*3C",
+        "phenotype": "Poor Metabolizer",
+        "activity_score": 0.5
+      }
+    ],
+    "default": {
+      "genotype": "*1/*1",
+      "phenotype": "Normal Metabolizer",
+      "activity_score": 2.0
+    }
+  },
+  "CYP3A5": {
+    "description": "CYP3A5 Pharmacogenomics Rules",
+    "alleles": ["*3"],
+    "rules": [
+      {
+        "allele3": "A/A",
+        "genotype": "*1/*1",
+        "phenotype": "Normal metabolizer (CYP3A5 expresser)",
+        "activity_score": 2.0
+      },
+      {
+        "allele3": "A/G",
+        "genotype": "*1/*3",
+        "phenotype": "Intermediate metabolizer (CYP3A5 expresser)",
+        "activity_score": 1.5
+      },
+      {
+        "allele3": "G/G",
+        "genotype": "*3/*3",
+        "phenotype": "Poor metabolizer (CYP3A5 nonexpresser)",
+        "activity_score": 0.5
+      }
+    ],
+    "default": {
+      "genotype": "*1/*1",
+      "phenotype": "Normal metabolizer (CYP3A5 expresser)",
+      "activity_score": 2.0
+    }
+  }
+}
