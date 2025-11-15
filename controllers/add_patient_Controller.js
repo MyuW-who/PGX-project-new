@@ -138,13 +138,40 @@ async function updatePatient(patientId, updatedData, currentUser) {
 
 
 
-// ลบข้อมูลผู้ป่วย (with cascading delete for test_request)
+// ลบข้อมูลผู้ป่วย (with cascading delete for report, test_request)
 async function deletePatient(patientId, currentUser) {
   try {
     // Get patient info before deleting
     const patient = await getPatientById(patientId);
 
-    // Step 1: Delete all test_request records for this patient first
+    // Step 1: Get all test_request IDs for this patient
+    const { data: testRequests, error: fetchError } = await supabase
+      .from('test_request')
+      .select('request_id')
+      .eq('patient_id', patientId);
+
+    if (fetchError) {
+      console.error('❌ Fetch Test Requests Error:', fetchError.message);
+      return { success: false, message: 'ไม่สามารถดึงข้อมูลการตรวจได้' };
+    }
+
+    // Step 2: Delete all reports associated with these test_requests
+    if (testRequests && testRequests.length > 0) {
+      const requestIds = testRequests.map(req => req.request_id);
+      
+      const { error: reportError } = await supabase
+        .from('report')
+        .delete()
+        .in('request_id', requestIds);
+
+      if (reportError) {
+        console.error('❌ Delete Report Error:', reportError.message);
+        return { success: false, message: 'ไม่สามารถลบรายงานที่เกี่ยวข้องได้' };
+      }
+      console.log(`✅ Deleted ${requestIds.length} report(s) for patient ${patientId}`);
+    }
+
+    // Step 3: Delete all test_request records for this patient
     const { error: testRequestError } = await supabase
       .from('test_request')
       .delete()
@@ -154,8 +181,9 @@ async function deletePatient(patientId, currentUser) {
       console.error('❌ Delete Test Request Error:', testRequestError.message);
       return { success: false, message: 'ไม่สามารถลบข้อมูลการตรวจที่เกี่ยวข้องได้' };
     }
+    console.log(`✅ Deleted test_request(s) for patient ${patientId}`);
 
-    // Step 2: Now delete the patient
+    // Step 4: Now delete the patient
     const { error: patientError } = await supabase
       .from('patient')
       .delete()
@@ -184,7 +212,7 @@ async function deletePatient(patientId, currentUser) {
       });
     }
 
-    return { success: true, message: 'ลบข้อมูลผู้ป่วยและการตรวจที่เกี่ยวข้องสำเร็จ' };
+    return { success: true, message: 'ลบข้อมูลผู้ป่วย รายงาน และการตรวจที่เกี่ยวข้องสำเร็จ' };
   } catch (err) {
     console.error('❌ Delete Error:', err.message);
     return { success: false, message: 'เกิดข้อผิดพลาดในการลบข้อมูล' };
