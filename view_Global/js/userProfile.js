@@ -275,10 +275,9 @@ function initializeUserProfile() {
       if (currentUser) {
         // Navigate to role-specific profile page
         if (currentUser.role === 'medtech') {
-          window.electronAPI.navigate('profile_medtech');
+          window.electronAPI.navigate('Role_medtech/profile_medtech');
         } else if (currentUser.role === 'pharmacist') {
-          // TODO: Create profile_pharmacy.html
-          console.warn('Profile page not yet available for pharmacist role');
+          window.electronAPI.navigate('Role_pharmacy/profile_pharmacy');
         } else if (currentUser.role === 'admin') {
           // TODO: Create profile_admin.html
           console.warn('Profile page not yet available for admin role');
@@ -305,15 +304,28 @@ closeScannerBtn?.addEventListener('click', () => {
   scannerOverlay.style.display = 'none'; // ให้ซ่อน scanner popup
 });
 
-const langBtn = document.getElementById('langToggle');
+  const langBtn = document.getElementById('langToggle');
   langBtn?.addEventListener('click', () => {
     langBtn.textContent = langBtn.textContent === 'TH' ? 'EN' : 'TH';
   });
 
-  return true;
-}
+  // Listen for profile updates from profile page
+  window.addEventListener('userProfileUpdated', (event) => {
+    console.log('🔄 Profile updated, refreshing user display');
+    // Update the current user in session
+    const currentUser = getCurrentUser();
+    if (currentUser && event.detail.user) {
+      // Merge updated data
+      Object.assign(currentUser, event.detail.user);
+      sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+      localStorage.setItem('userSession', JSON.stringify(currentUser));
+    }
+    // Refresh the display
+    updateUserDisplay();
+  });
 
-// Auto-initialize on DOM load if not called manually
+  return true;
+}// Auto-initialize on DOM load if not called manually
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     // Don't auto-initialize here, let each page call it explicitly

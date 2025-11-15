@@ -43,7 +43,26 @@ async function importJsonToSupabase() {
         .single();
       
       if (existing) {
-        console.log(`   ⚠️  ${dnaType} already exists, skipping...`);
+        console.log(`   ⚠️  ${dnaType} already exists, updating...`);
+        
+        // Update existing record
+        const { data: updated, error: updateError } = await supabase
+          .from('pgx_rulebase')
+          .update({
+            description: record.description,
+            alleles: record.alleles,
+            rules: record.rules,
+            default_rule: record.default_rule,
+            updated_at: record.updated_at
+          })
+          .eq('dna_type', dnaType)
+          .select();
+        
+        if (updateError) {
+          console.error(`   ❌ Failed to update ${dnaType}:`, updateError.message);
+        } else {
+          console.log(`   ✅ ${dnaType} updated successfully! (${record.rules.length} rules)`);
+        }
         continue;
       }
       

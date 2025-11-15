@@ -1,7 +1,6 @@
 {
   "CYP2C19": {
     "description": "CYP2C19 Pharmacogenomics Rules",
-    "phenotype_label": "Predicted Phenotype",
     "alleles": [
       "*2",
       "*3",
@@ -107,7 +106,6 @@
   },
   "CYP2C9": {
     "description": "CYP2C9 Pharmacogenomics Rules",
-    "phenotype_label": "Predicted Phenotype",
     "alleles": [
       "*2",
       "*3"
@@ -170,7 +168,6 @@
   },
   "CYP2D6": {
     "description": "CYP2D6 Pharmacogenomics Rules (New Format)",
-    "phenotype_label": "Predicted Phenotype",
     "alleles": [
       "*4",
       "*10",
@@ -584,7 +581,6 @@
   },
   "CYP3A5": {
     "description": "CYP3A5 Pharmacogenomics Rules",
-    "phenotype_label": "Likely Phenotype",
     "alleles": [
       "*3"
     ],
@@ -619,7 +615,6 @@
   },
   "TPMT": {
     "description": "TPMT Pharmacogenomics Rules",
-    "phenotype_label": "Predicted Phenotype",
     "alleles": [
       "*3C"
     ],
@@ -654,7 +649,6 @@
   },
   "VKORC1": {
     "description": "VKORC1 Pharmacogenomics Rules",
-    "phenotype_label": "Predicted Phenotype",
     "alleles": [
       "VKORC1_1173",
       "VKORC1_1639"

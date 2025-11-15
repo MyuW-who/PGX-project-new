@@ -18,6 +18,4 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 console.log('🔧 Using SUPABASE_URL:', process.env.SUPABASE_URL);
 console.log('🔧 Using SERVICE_KEY starts with:', process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 10));
 
-
-// ✅ ต้อง export ตัวนี้ออกไป
 module.exports = supabase;

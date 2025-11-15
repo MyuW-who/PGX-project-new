@@ -133,47 +133,62 @@
     </main>
 
     <!-- Edit User Modal -->
-    <div id="editModal" class="popup" style="display: none;">
-      <div class="popup-content">
-        <div class="popup-header">
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
           <h3>แก้ไขข้อมูลผู้ใช้งาน</h3>
           <span class="close" id="closeModal">&times;</span>
         </div>
-
-        <form id="edit-user-form">
-          <div class="popup-body">
-            <input type="hidden" id="edit-user-id" name="user_id">
-
-            <div class="form-field">
-              <label for="edit-username">Username (ไม่สามารถแก้ไขได้)</label>
-              <input id="edit-username" name="username" type="text" readonly disabled />
-            </div>
-
-            <div class="form-field">
-              <label for="edit-password">Password (กรอกเพื่อเปลี่ยนใหม่)</label>
-              <input id="edit-password" name="password" type="password" />
-            </div>
-
-            <div class="form-field">
-              <label for="edit-hospital-id">Hospital ID</label>
-              <input id="edit-hospital-id" name="hospital_id" type="text" required />
-            </div>
-
-            <div class="form-field">
-              <label for="edit-role">Role</label>
-              <select id="edit-role" name="role" required>
-                <option value="">เลือกบทบาท</option>
-                <option value="pharmacist">Pharmacist</option>
-                <option value="medtech">MedTech</option>
-              </select>
-            </div>
-
-            <div id="edit-form-message" class="form-message" role="alert"></div>
+        <form id="edit-user-form" class="modal-body">
+          <input type="hidden" id="edit-user-id">
+          
+          <div class="form-field">
+            <label for="edit-username">Username</label>
+            <input id="edit-username" type="text" disabled />
           </div>
-
-          <div class="popup-footer">
-            <button type="submit" class="btn-primary">บันทึกการเปลี่ยนแปลง</button>
-            <button type="button" class="btn-secondary" id="cancelEdit">ยกเลิก</button>
+          
+          <div class="form-field">
+            <label for="edit-password">Password ใหม่ (ไม่ต้องกรอกถ้าไม่ต้องการเปลี่ยน)</label>
+            <div class="input-with-button">
+              <input id="edit-password" type="password" placeholder="ไม่ต้องกรอกถ้าไม่ต้องการเปลี่ยน" />
+              <button type="button"
+                      class="toggle-password"
+                      data-target="edit-password"
+                      aria-label="แสดงรหัสผ่าน">
+                <svg class="icon icon-eye-open" viewBox="0 0 24 24" fill="none">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+                </svg>
+                <svg class="icon icon-eye-off" viewBox="0 0 24 24" fill="none">
+                  <path d="M3.98 5.51A17.92 17.92 0 0112 5c7 0 11 7 11 7a17.92 17.92 0 01-4.33 5.19"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9.53 9.53A3 3 0 0014.47 14.47" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M2 2l20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <div class="form-field">
+            <label for="edit-hospital-id">Hospital ID</label>
+            <input id="edit-hospital-id" type="text" required />
+          </div>
+          
+          <div class="form-field">
+            <label for="edit-role">Role</label>
+            <select id="edit-role" required>
+              <option value="">เลือกบทบาท</option>
+              <option value="pharmacist">Pharmacist</option>
+              <option value="medtech">MedTech</option>
+            </select>
+          </div>
+          
+          <div id="edit-form-message" class="form-message"></div>
+          
+          <div class="modal-footer">
+            <button type="submit" class="btn primary">บันทึกการแก้ไข</button>
+            <button type="button" class="btn secondary" id="cancelEdit">ยกเลิก</button>
           </div>
         </form>
       </div>

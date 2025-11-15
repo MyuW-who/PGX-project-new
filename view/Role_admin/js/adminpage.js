@@ -292,18 +292,21 @@ document.addEventListener("click", async (event) => {
   }
 });
 
-togglePasswordButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const input = document.getElementById(button.dataset.target);
-    if (!input) return;
-    const willShow = input.type === "password";
-    input.type = willShow ? "text" : "password";
-    button.classList.toggle("is-visible", willShow);
-    button.setAttribute(
-      "aria-label",
-      willShow ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
-    );
-  });
+// Password toggle - use event delegation to work with dynamically added elements
+document.addEventListener("click", (event) => {
+  const button = event.target.closest('.toggle-password');
+  if (!button) return;
+  
+  const input = document.getElementById(button.dataset.target);
+  if (!input) return;
+  
+  const willShow = input.type === "password";
+  input.type = willShow ? "text" : "password";
+  button.classList.toggle("is-visible", willShow);
+  button.setAttribute(
+    "aria-label",
+    willShow ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
+  );
 });
 
 /* ============================================

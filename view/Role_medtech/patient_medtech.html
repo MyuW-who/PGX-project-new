@@ -34,7 +34,7 @@
   <div class="hover-navbar">
     <div class="navbar-content">
       <div class="navbar-left">
-        <span class="logo">Roblox</span>
+        <span class="logo">Demo</span>
       </div>
       <div class="navbar-right">
         <button class="nav-btn close"><i class="fa fa-xmark"></i></button>
@@ -51,7 +51,7 @@
       <ul>
         <li id="dashboard-btn-medtech" >Dashboard</li>
         <li id="patient-btn-medtech" class="active">ข้อมูลผู้ป่วย</li>
-        <li id="information-btn-medtech">ตรวจสอบข้อมูล</li>
+        <!--li id="information-btn-medtech">ตรวจสอบข้อมูล</li-->
         <li id="state-btn-medtech">Test</li>
       </ul>
     </aside>
@@ -119,7 +119,7 @@
                 <th>ชื่อ</th>
                 <th>วันที่ส่งตรวจ</th>
                 <th>โรงพยาบาล</th>
-                <th>ตรวจสอบ</th>
+                <th>จัดการข้อมูล</th>
                 <th></th>
               </tr>
             </thead>
@@ -141,6 +141,7 @@
           <div class="form-group">
             <label>เลขประจำตัวผู้ป่วย:</label>
             <input type="number" id="patient_id" required />
+            <small id="patient_id_validation" style="display: none; margin-top: 4px; font-size: 12px;"></small>
           </div>
 
           <div class="form-group">
@@ -203,7 +204,7 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="save-btn">
+          <button type="submit" class="save-btn" id="savePatientBtn">
             <i class="fa fa-save"></i> บันทึก
           </button>
           <button type="button" id="closeAdd" class="cancel-btn">ยกเลิก</button>

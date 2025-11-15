@@ -44,11 +44,13 @@
     let response;
     
     if (isEditMode && editingPatientId) {
-      // Update existing patient
+      // Update existing patient - use editingPatientId instead of form value
+      // (form field is disabled so value might be lost)
+      patientData.patient_id = editingPatientId;
       response = await window.electronAPI.updatePatient(editingPatientId, patientData);
       console.log('✅ Patient updated:', response);
     } else {
-      // Add new patient
+      // Add new patient (duplicate check handled by real-time validation)
       response = await window.electronAPI.addPatient(patientData);
       console.log('✅ Patient added:', response);
     }
@@ -70,15 +72,42 @@
 
   } catch (err) {
     console.error('❌ Error saving patient data:', err);
-    // Show error message
-    Swal.fire({
-      icon: 'error',
-      title: 'บันทึกไม่สำเร็จ',
-      text: err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
-      background: '#1f2937',
-      color: '#f9fafb',
-      confirmButtonColor: '#3b82f6'
-    });
+    
+    // Convert error to string for checking
+    const errorString = String(err);
+    const errorMessage = err?.message || err?.error || errorString || '';
+    
+    console.log('🔍 Error details:', { errorString, errorMessage, fullError: err });
+    
+    // Check if it's a duplicate key error from database
+    if (errorString.includes('duplicate key') || 
+        errorString.includes('patient_pkey') || 
+        errorString.includes('unique constraint') ||
+        errorMessage.includes('duplicate key') ||
+        errorMessage.includes('patient_pkey') ||
+        errorMessage.includes('unique constraint')) {
+      // Show specific warning for duplicate patient ID
+      await Swal.fire({
+        icon: 'warning',
+        title: 'เลขผู้ป่วยซ้ำ!',
+        html: `เลขผู้ป่วย <strong>${patientData.patient_id}</strong> มีอยู่ในระบบแล้ว<br><br>` +
+              'กรุณาใช้เลขผู้ป่วยที่ไม่ซ้ำกัน',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'ตกลง'
+      });
+    } else {
+      // Show general error message
+      await Swal.fire({
+        icon: 'error',
+        title: 'บันทึกไม่สำเร็จ',
+        text: errorMessage || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+        background: '#1f2937',
+        color: '#f9fafb',
+        confirmButtonColor: '#3b82f6'
+      });
+    }
   }
 }
 
@@ -164,11 +193,97 @@ form?.addEventListener('submit', handleFormSubmit);
     // reset form and allow changing patient_id
     form?.reset();
     const idEl = document.getElementById('patient_id');
-    if (idEl) idEl.readOnly = false;
+    if (idEl) {
+      idEl.disabled = false; // enable patient_id field in add mode
+      idEl.style.backgroundColor = '';
+      idEl.style.cursor = '';
+    }
     popupAdd.style.display = 'flex';
   });
 
   closeAdd?.addEventListener('click', closePopup);
+
+  // Real-time duplicate patient_id validation
+  const patientIdInput = document.getElementById('patient_id');
+  const validationMsg = document.getElementById('patient_id_validation');
+  const saveBtn = document.getElementById('savePatientBtn');
+  let validationTimeout;
+  
+  patientIdInput?.addEventListener('input', async (e) => {
+    // Clear previous timeout
+    clearTimeout(validationTimeout);
+    
+    // Skip validation if in edit mode
+    if (isEditMode) {
+      validationMsg.style.display = 'none';
+      if (saveBtn) saveBtn.disabled = false;
+      return;
+    }
+    
+    const patientId = parseInt(e.target.value);
+    
+    // Skip if empty or invalid
+    if (!patientId || isNaN(patientId)) {
+      e.target.style.borderColor = '';
+      e.target.style.boxShadow = '';
+      validationMsg.style.display = 'none';
+      if (saveBtn) saveBtn.disabled = false;
+      return;
+    }
+    
+    // Show loading state
+    validationMsg.style.display = 'block';
+    validationMsg.style.color = '#6b7280';
+    validationMsg.textContent = 'กำลังตรวจสอบ...';
+    
+    // Debounce: wait 500ms after user stops typing
+    validationTimeout = setTimeout(async () => {
+      try {
+        const existingPatients = await window.electronAPI.getPatients();
+        console.log('🔍 Checking patient_id:', patientId, 'type:', typeof patientId);
+        console.log('📦 Existing patients sample:', existingPatients.slice(0, 3).map(p => ({ id: p.patient_id, type: typeof p.patient_id, firstName: p.first_name })));
+        
+        // Strict comparison: convert both to numbers for accurate comparison
+        const duplicatePatient = existingPatients.find(p => {
+          const dbPatientId = parseInt(p.patient_id);
+          const inputPatientId = parseInt(patientId);
+          return dbPatientId === inputPatientId && !isNaN(dbPatientId) && !isNaN(inputPatientId);
+        });
+        
+        console.log('🔎 Duplicate found:', duplicatePatient ? `YES - ID: ${duplicatePatient.patient_id}, Name: ${duplicatePatient.first_name} ${duplicatePatient.last_name}` : 'NO');
+        
+        if (duplicatePatient) {
+          e.target.style.borderColor = '#ef4444'; // red border
+          e.target.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+          validationMsg.style.display = 'block';
+          validationMsg.style.color = '#ef4444';
+          validationMsg.textContent = `⚠️ เลขผู้ป่วยซ้ำ! มีอยู่ในระบบแล้ว`;
+          // Disable save button
+          if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.style.opacity = '0.5';
+            saveBtn.style.cursor = 'not-allowed';
+          }
+        } else {
+          e.target.style.borderColor = '#10b981'; // green border
+          e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+          validationMsg.style.display = 'block';
+          validationMsg.style.color = '#10b981';
+          validationMsg.textContent = '✓ เลขผู้ป่วยนี้ใช้ได้';
+          // Enable save button
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.style.opacity = '';
+            saveBtn.style.cursor = '';
+          }
+        }
+      } catch (err) {
+        console.error('❌ Error checking duplicate:', err);
+        validationMsg.style.display = 'none';
+        if (saveBtn) saveBtn.disabled = false;
+      }
+    }, 500);
+  });
 
   function closePopup() {
     popupAdd.style.display = 'none';
@@ -177,7 +292,23 @@ form?.addEventListener('submit', handleFormSubmit);
     editingPatientId = null;
     popupTitle && (popupTitle.textContent = 'เพิ่มข้อมูลผู้ป่วย');
     const idEl = document.getElementById('patient_id');
-    if (idEl) idEl.readOnly = false;
+    if (idEl) {
+      idEl.disabled = false;
+      idEl.style.backgroundColor = '';
+      idEl.style.cursor = '';
+      idEl.style.borderColor = '';
+      idEl.style.boxShadow = '';
+    }
+    // Hide validation message
+    if (validationMsg) {
+      validationMsg.style.display = 'none';
+    }
+    // Reset save button
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.style.opacity = '';
+      saveBtn.style.cursor = '';
+    }
   }
 
 
@@ -222,7 +353,11 @@ form?.addEventListener('submit', handleFormSubmit);
       editingPatientId = patientId;
       popupTitle && (popupTitle.textContent = 'แก้ไขผู้ป่วย');
       const idEl = document.getElementById('patient_id');
-      if (idEl) idEl.readOnly = true; // lock primary key during edit
+      if (idEl) {
+        idEl.disabled = true; // disable patient_id field during edit
+        idEl.style.backgroundColor = '#e5e7eb'; // visual indicator it's disabled
+        idEl.style.cursor = 'not-allowed';
+      }
       // Show popup
       popupAdd.style.display = 'flex';
     } catch (err) {

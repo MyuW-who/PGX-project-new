@@ -1,7 +1,3 @@
-/* ========================
-   Theme & Language
-======================== */
-
 
 /* ========================
    ดึงข้อมูลจาก sessionStorage
@@ -44,7 +40,7 @@ function showAlleles(type) {
 showAlleles(dnaType);
 
 /* ========================
-   แสดง Predicted Phenotype จาก Rulebase
+   แสดง Phenotype และ Recommendation จาก Rulebase
 ======================== */
 function predictPhenotype(geno) {
   const g = geno.toLowerCase();
@@ -56,24 +52,47 @@ function predictPhenotype(geno) {
   return "-";
 }
 
+// Display Phenotype Label (DNA type specific)
+const phenotypeLabel = sessionStorage.getItem('phenotypeLabel') || 'Predicted Phenotype';
+document.getElementById("phenotypeLabel").textContent = phenotypeLabel;
+
+// Display Likely Phenotype
 document.getElementById("phenotype").textContent = phenotype || predictPhenotype(genotype);
 
-/* ========================
-   ปุ่มต่าง ๆ
-======================== */
+// Display Activity Score (if available)
+const activityScore = sessionStorage.getItem('activityScore');
+if (activityScore) {
+  document.getElementById("activityScore").textContent = activityScore;
+}
+
+// Display Genotype Summary
+const genotypeSummary = sessionStorage.getItem('genotypeSummary');
+if (genotypeSummary) {
+  document.getElementById("genotypeSummary").textContent = genotypeSummary;
+} else {
+  document.getElementById("genotypeSummary").textContent = `Genotype ${genotype} for ${dnaType}`;
+}
+
+// Display Therapeutic Recommendation
+const recommendation = sessionStorage.getItem('recommendation');
+if (recommendation) {
+  document.getElementById("recommendation").textContent = recommendation;
+} else {
+  document.getElementById("recommendation").textContent = 'Please consult with clinical pharmacist for medication dosing.';
+}
+
 document.querySelector(".back-btn").addEventListener("click", () => {
   window.electronAPI.navigate('input_step2_medtech');
 });
 
 document.querySelector(".confirm-btn").addEventListener("click", async () => {
   try {
-    // Check if module is loaded
+
     if (!window.testRequestModule) {
       alert('โมดูลไม่ถูกโหลด กรุณารีเฟรชหน้าเว็บ');
       return;
     }
-    
-    // Get current user from session
+
     const currentUser = getCurrentUser();
     
     if (!currentUser) {
@@ -86,10 +105,8 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
       return;
     }
 
-    // Load data from session using the module
     const sessionData = window.testRequestModule.loadTestRequestFromSession();
 
-    // Validate required data
     if (!sessionData.selectedPatientId || !sessionData.selectedDnaType || !sessionData.selectedSpecimen) {
       await Swal.fire({
         icon: 'error',
@@ -120,13 +137,66 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
     // Save to database using the module
     const result = await window.testRequestModule.createTestRequest(testRequestData);
     
-    if (result) {
-      await Swal.fire({
-        icon: 'success',
-        title: 'บันทึกสำเร็จ!',
-        text: 'บันทึกข้อมูลการตรวจเรียบร้อยแล้ว',
-        confirmButtonText: 'ตกลง'
+    if (result && result.request_id) {
+      // Prepare complete test data for report generation
+      const alleles = [];
+      const alleleKeys = ['allele2', 'allele3', 'allele4', 'allele5', 'allele10', 'allele17', 'allele41'];
+      alleleKeys.forEach(key => {
+        const value = sessionStorage.getItem(key);
+        if (value) {
+          alleles.push({
+            name: key.replace('allele', '*'),
+            value: value
+          });
+        }
       });
+
+      const completeTestData = {
+        request_id: result.request_id,
+        test_target: testRequestData.test_target,
+        genotype: genotype,
+        predicted_phenotype: document.getElementById('phenotype').textContent || phenotype,
+        genotype_summary: sessionStorage.getItem('genotypeSummary') || 
+                         `Genotype ${genotype} for ${testRequestData.test_target}`,
+        recommendation: sessionStorage.getItem('recommendation') || 
+                       'Please consult with clinical pharmacist for medication dosing.',
+        patientId: testRequestData.patient_id,
+        patientName: patientName,
+        patientAge: sessionStorage.getItem('patientAge') || 'N/A',
+        patientGender: sessionStorage.getItem('patientGender') || 'N/A',
+        specimen: testRequestData.Specimen,
+        patientNumber: sessionStorage.getItem('patientNumber') || result.request_id,
+        hospital: currentUser.hospital_id || 'N/A',
+        createDate: testRequestData.request_date,
+        updateDate: new Date().toLocaleDateString('th-TH'),
+        doctorName: doctorName,
+        responsibleDoctor: doctorName,
+        alleles: alleles
+      };
+
+      // Generate report with PDF
+      console.log('🔄 Generating PGx report with data:', completeTestData);
+      const reportResult = await window.electronAPI.createPgxReport(completeTestData);
+      console.log('📊 Report result:', reportResult);
+      
+      if (reportResult.success) {
+        await Swal.fire({
+          icon: 'success',
+          title: 'บันทึกสำเร็จ!',
+          html: `
+            <p>บันทึกข้อมูลการตรวจเรียบร้อยแล้ว</p>
+            <p><small>สร้างรายงาน PDF เรียบร้อยแล้ว</small></p>
+          `,
+          confirmButtonText: 'ตกลง'
+        });
+      } else {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'บันทึกข้อมูลสำเร็จ',
+          text: 'แต่ไม่สามารถสร้างรายงาน PDF ได้: ' + (reportResult.message || 'Unknown error'),
+          confirmButtonText: 'ตกลง'
+        });
+      }
       
       // Clear session data using the module
       window.testRequestModule.clearTestRequestSession();

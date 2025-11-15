@@ -109,6 +109,29 @@
 					<i class="fa-regular fa-clipboard"></i>
 					<p>ไม่มีกิจกรรมตามเงื่อนไขที่เลือก</p>
 				</div>
+				
+				<!-- Pagination Controls -->
+				<div id="paginationContainer" class="pagination-container" style="display:none;">
+					<button id="btnFirstPage" class="pagination-btn" title="หน้าแรก">
+						<i class="fa fa-angles-left"></i>
+					</button>
+					<button id="btnPrevPage" class="pagination-btn" title="ก่อนหน้า">
+						<i class="fa fa-angle-left"></i>
+					</button>
+					<span id="pageInfo" class="page-info">หน้า 1 / 1</span>
+					<button id="btnNextPage" class="pagination-btn" title="ถัดไป">
+						<i class="fa fa-angle-right"></i>
+					</button>
+					<button id="btnLastPage" class="pagination-btn" title="หน้าสุดท้าย">
+						<i class="fa fa-angles-right"></i>
+					</button>
+					<select id="itemsPerPage" class="items-per-page">
+						<option value="10" selected>10 / หน้า</option>
+						<option value="20">20 / หน้า</option>
+						<option value="50">50 / หน้า</option>
+						<option value="100">100 / หน้า</option>
+					</select>
+				</div>
 			</section>
 		</main>
 

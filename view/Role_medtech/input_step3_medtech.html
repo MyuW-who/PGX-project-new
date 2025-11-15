@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../../view_Global/css/darkmode.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
-<body>
+<body class="step3-page">
   <!-- Navbar -->
   <header class="page-header">
         <h2>Input information</h2>
@@ -29,7 +29,7 @@
   </section>
 
   <!-- Content -->
-  <main class="container">
+  <main class="container step3-container">
     <h3>สรุปผลการตรวจ DNA</h3>
 
     <div class="summary-box">
@@ -46,8 +46,16 @@
       </table>
 
       <p><strong>Genotype:</strong> <span id="genotype">-</span></p>
-      <p><strong>Predicted Phenotype:</strong> 
+      <p><strong>Total activity score:</strong> <span id="activityScore">N/A</span></p>
+      
+      <p><strong>Genotype Summary:</strong></p>
+      <p id="genotypeSummary" style="margin-left: 20px; color: #555;">-</p>
+      
+      <p><strong><span id="phenotypeLabel">Likely Phenotype</span>:</strong> 
          <span id="phenotype">-</span></p>
+      
+      <p><strong>Therapeutic recommendation:</strong></p>
+      <p id="recommendation" style="margin-left: 20px; color: #555;">-</p>
     </div>
 
     <div class="btn-area">
