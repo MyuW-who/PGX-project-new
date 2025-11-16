@@ -443,10 +443,15 @@ ipcMain.handle('find-diplotype', async (event, geneSymbol, genotype) => {
 });
 
 ipcMain.handle('create-pgx-report', async (event, testData) => {
+  console.log('========================================');
+  console.log('IPC HANDLER: create-pgx-report called');
+  console.log('testData received:', testData);
+  console.log('========================================');
   try {
     return await processCompleteReport(testData);
   } catch (err) {
     console.error('❌ Create PGx Report Error:', err.message);
+    console.error('Stack:', err.stack);
     return { success: false, message: 'เกิดข้อผิดพลาดในการสร้างรายงาน' };
   }
 });

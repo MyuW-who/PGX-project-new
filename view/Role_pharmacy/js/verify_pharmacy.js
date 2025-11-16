@@ -36,6 +36,21 @@
 
         const { confirmed_by_1, confirmed_by_2, status } = currentRequest;
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        const currentUserName = `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim();
+
+        // Debug logging to identify the issue
+        console.log('🔍 Checking confirmation status:');
+        console.log('  Current user name:', `"${currentUserName}"`);
+        console.log('  confirmed_by_1:', `"${confirmed_by_1}"`);
+        console.log('  confirmed_by_2:', `"${confirmed_by_2}"`);
+        console.log('  currentUser object:', currentUser);
+        
+        // Check if user already confirmed (more robust comparison)
+        const userAlreadyConfirmed = 
+            (confirmed_by_1 && confirmed_by_1.trim() === currentUserName) || 
+            (confirmed_by_2 && confirmed_by_2.trim() === currentUserName);
+        
+        console.log('  User already confirmed?:', userAlreadyConfirmed);
 
         // Count confirmations
         let confirmCount = 0;
@@ -69,17 +84,48 @@
             if (subtitleEl) subtitleEl.textContent = `เจ้าหน้าที่ ${confirmCount} / 2 ยืนยันแล้ว`;
             
             // Check if current user already confirmed
-            if (currentUser.user_id === confirmed_by_1) {
+            if (userAlreadyConfirmed) {
                 btnConfirm.disabled = true;
-                if (stepperStatus) stepperStatus.textContent = 'คุณยืนยันแล้ว - รอผู้อื่นยืนยัน';
+                btnConfirm.style.opacity = '0.5';
+                btnConfirm.style.cursor = 'not-allowed';
+                btnConfirm.style.backgroundColor = '#cccccc';
+                btnConfirm.style.pointerEvents = 'none';
+                btnConfirm.textContent = 'คุณได้ยืนยันแล้ว ✓';
+                if (stepperStatus) stepperStatus.textContent = '✓ คุณยืนยันแล้ว - รอผู้อื่นยืนยัน';
+                if (subtitleEl) subtitleEl.textContent = 'รอการยืนยันจากเจ้าหน้าที่อีก 1 คน';
+                console.log('🚫 Button disabled - user already confirmed');
             } else {
                 btnConfirm.disabled = false;
+                btnConfirm.style.opacity = '1';
+                btnConfirm.style.cursor = 'pointer';
+                btnConfirm.style.backgroundColor = '';
+                btnConfirm.style.pointerEvents = '';
+                btnConfirm.textContent = 'ยืนยันรายงานผล (Confirm)';
+                console.log('✅ Button enabled - user can confirm');
             }
         } else if (status === 'need_2_confirmation' || status === 'need 2 confirmation') {
             // No confirmations yet
             if (stepperStatus) stepperStatus.textContent = 'รอการยืนยันจาก 2 คน';
             if (subtitleEl) subtitleEl.textContent = 'เจ้าหน้าที่ 0 / 2 กำลังตรวจสอบไฟล์ PDF';
-            btnConfirm.disabled = false;
+            // Check if this user somehow already confirmed (edge case)
+            if (userAlreadyConfirmed) {
+                btnConfirm.disabled = true;
+                btnConfirm.style.opacity = '0.5';
+                btnConfirm.style.cursor = 'not-allowed';
+                btnConfirm.style.backgroundColor = '#cccccc';
+                btnConfirm.style.pointerEvents = 'none';
+                btnConfirm.textContent = 'คุณได้ยืนยันแล้ว ✓';
+                if (stepperStatus) stepperStatus.textContent = '✓ คุณยืนยันแล้ว';
+                console.log('🚫 Button disabled - user already confirmed');
+            } else {
+                btnConfirm.disabled = false;
+                btnConfirm.style.opacity = '1';
+                btnConfirm.style.cursor = 'pointer';
+                btnConfirm.style.backgroundColor = '';
+                btnConfirm.style.pointerEvents = '';
+                btnConfirm.textContent = 'ยืนยันรายงานผล (Confirm)';
+                console.log('✅ Button enabled - user can confirm');
+            }
         } else {
             // Unknown status
             if (stepperStatus) stepperStatus.textContent = status || 'ไม่ทราบสถานะ';
@@ -461,6 +507,29 @@
             return;
         }
 
+        // Check if user already confirmed (more robust comparison with trim)
+        const currentUserName = `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim();
+        const userAlreadyConfirmed = 
+            (currentRequest.confirmed_by_1 && currentRequest.confirmed_by_1.trim() === currentUserName) || 
+            (currentRequest.confirmed_by_2 && currentRequest.confirmed_by_2.trim() === currentUserName);
+        
+        console.log('🔍 Confirm button clicked - checking:', {
+            currentUserName,
+            confirmed_by_1: currentRequest.confirmed_by_1,
+            confirmed_by_2: currentRequest.confirmed_by_2,
+            userAlreadyConfirmed
+        });
+        
+        if (userAlreadyConfirmed) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'คุณยืนยันแล้ว',
+                text: 'คุณได้ทำการยืนยันเอกสารนี้ไปแล้ว ต้องให้เจ้าหน้าที่คนอื่นยืนยัน',
+                confirmButtonText: 'รับทราบ'
+            });
+            return;
+        }
+
         const result = await Swal.fire({
             title: 'ยืนยันการตรวจสอบ',
             html: `
@@ -493,9 +562,6 @@
                         <p>${confirmResult.message}</p>
                         <p style="margin-top: 10px; font-size: 14px; color: #666;">
                             <i class="fas fa-file-pdf"></i> PDF ได้รับการอัปเดตพร้อมลายเซ็นของคุณแล้ว
-                        </p>
-                        <p style="margin-top: 8px; font-size: 13px; color: #2563eb; font-weight: 600;">
-                            📌 กรุณาคลิก "ดูไฟล์" อีกครั้งเพื่อดู PDF เวอร์ชันใหม่
                         </p>
                     `,
                     icon: 'success',
