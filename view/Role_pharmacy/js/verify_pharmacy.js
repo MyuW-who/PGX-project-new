@@ -36,20 +36,38 @@
 
         const { confirmed_by_1, confirmed_by_2, status } = currentRequest;
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-        const currentUserName = `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim();
+        
+        // Use doctor_name if available (which is the format stored in confirmation)
+        const currentUserName = currentUser.doctor_name || 
+                                `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim() ||
+                                currentUser.username;
 
         // Debug logging to identify the issue
         console.log('🔍 Checking confirmation status:');
         console.log('  Current user name:', `"${currentUserName}"`);
+        console.log('  Current user object:', currentUser);
         console.log('  confirmed_by_1:', `"${confirmed_by_1}"`);
         console.log('  confirmed_by_2:', `"${confirmed_by_2}"`);
-        console.log('  currentUser object:', currentUser);
         
-        // Check if user already confirmed (more robust comparison)
+        // Normalize strings for comparison (remove extra spaces, normalize case)
+        const normalizeString = (str) => {
+            if (!str) return '';
+            return str.trim().replace(/\s+/g, ' ').toLowerCase();
+        };
+        
+        const normalizedUserName = normalizeString(currentUserName);
+        const normalizedConfirmed1 = normalizeString(confirmed_by_1);
+        const normalizedConfirmed2 = normalizeString(confirmed_by_2);
+        
+        // Check if user already confirmed (robust comparison with normalization)
         const userAlreadyConfirmed = 
-            (confirmed_by_1 && confirmed_by_1.trim() === currentUserName) || 
-            (confirmed_by_2 && confirmed_by_2.trim() === currentUserName);
+            (normalizedConfirmed1 && normalizedConfirmed1 === normalizedUserName) || 
+            (normalizedConfirmed2 && normalizedConfirmed2 === normalizedUserName);
         
+        console.log('  Normalized comparison:');
+        console.log('    User:', `"${normalizedUserName}"`);
+        console.log('    Confirmed 1:', `"${normalizedConfirmed1}"`);
+        console.log('    Confirmed 2:', `"${normalizedConfirmed2}"`);
         console.log('  User already confirmed?:', userAlreadyConfirmed);
 
         // Count confirmations
@@ -507,16 +525,33 @@
             return;
         }
 
-        // Check if user already confirmed (more robust comparison with trim)
-        const currentUserName = `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim();
+        // Use doctor_name if available (which is the format stored in confirmation)
+        const currentUserName = currentUser.doctor_name || 
+                                `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim() ||
+                                currentUser.username;
+        
+        // Normalize strings for comparison
+        const normalizeString = (str) => {
+            if (!str) return '';
+            return str.trim().replace(/\s+/g, ' ').toLowerCase();
+        };
+        
+        const normalizedUserName = normalizeString(currentUserName);
+        const normalizedConfirmed1 = normalizeString(currentRequest.confirmed_by_1);
+        const normalizedConfirmed2 = normalizeString(currentRequest.confirmed_by_2);
+        
+        // Check if user already confirmed (robust comparison with normalization)
         const userAlreadyConfirmed = 
-            (currentRequest.confirmed_by_1 && currentRequest.confirmed_by_1.trim() === currentUserName) || 
-            (currentRequest.confirmed_by_2 && currentRequest.confirmed_by_2.trim() === currentUserName);
+            (normalizedConfirmed1 && normalizedConfirmed1 === normalizedUserName) || 
+            (normalizedConfirmed2 && normalizedConfirmed2 === normalizedUserName);
         
         console.log('🔍 Confirm button clicked - checking:', {
             currentUserName,
+            normalizedUserName,
             confirmed_by_1: currentRequest.confirmed_by_1,
             confirmed_by_2: currentRequest.confirmed_by_2,
+            normalizedConfirmed1,
+            normalizedConfirmed2,
             userAlreadyConfirmed
         });
         
