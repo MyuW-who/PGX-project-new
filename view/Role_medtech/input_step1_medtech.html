@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <title>ยืนยันการตรวจ - ขั้นตอนที่ 1</title>
+  <script>(function(){const t=localStorage.getItem('theme-mode');t==='dark'&&document.documentElement.classList.add('dark')})();</script>
   
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../../view_Global/css/navbar.css">
   <link rel="stylesheet" href="./css/input_step1_medtech.css" />
-  <link rel="stylesheet" href="../../view_Global/css/darkmode.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="../../view_Global/css/darkmode.css">
 </head>
 <body class="step1-page">
   <!-- Navbar -->
@@ -49,6 +50,16 @@
         <option value="TPMT">TPMT</option>
         <option value="CYP3A5">CYP3A5</option>
       </select>
+      
+      <label for="specimenCategory">หมวดหมู่สิ่งส่งตรวจ:</label>
+      <select id="specimenCategory">
+        <option value="">-- เลือกหมวดหมู่ --</option>
+        <option value="SNP genotyping test">SNP genotyping test</option>
+        <option value="HLA/Drug-related SCAR screening test">HLA/Drug-related SCAR screening test</option>
+        <option value="Functional genomics test">Functional genomics test</option>
+        <option value="Drug/Gene-related toxicity test">Drug/Gene-related toxicity test</option>
+      </select>
+      
       <label for="specimenType">สิ่งส่งตรวจ:</label>
       <select id="specimenType">
         <option value="">-- เลือกชนิดของสิ่งส่งตรวจ --</option>

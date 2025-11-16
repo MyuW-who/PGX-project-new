@@ -11,7 +11,7 @@ async function getSpecimens() {
   try {
     const { data, error } = await supabase
       .from('Specimen')
-      .select('Specimen_Id, Specimen_Name, SLA_time')
+      .select('Specimen_Id, Specimen_Name, SLA_time, category')
       .order('Specimen_Id', { ascending: true });
 
     if (error) {
@@ -23,7 +23,8 @@ async function getSpecimens() {
     const mappedData = data?.map(item => ({
       specimen_id: item.Specimen_Id,
       specimen_name: item.Specimen_Name,
-      sla_time: item.SLA_time
+      sla_time: item.SLA_time,
+      category: item.category
     })) || [];
     
     return { success: true, data: mappedData };
