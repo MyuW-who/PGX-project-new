@@ -300,10 +300,10 @@ async function getSpecimenSLA() {
 // ยืนยัน test request (confirmation)
 async function confirmTestRequest(requestId, userId) {
   try {
-    // Get user's full name from system_users table
+    // Get user's full name and signature from system_users table
     const { data: userData, error: userError } = await supabase
       .from('system_users')
-      .select('F_Name, L_Name')
+      .select('F_Name, L_Name, Signature_path')
       .eq('user_id', userId)
       .single();
 
@@ -315,6 +315,10 @@ async function confirmTestRequest(requestId, userId) {
     const confirmedByName = userData 
       ? `${userData.F_Name || ''} ${userData.L_Name || ''}`.trim() 
       : userId.toString();
+    
+    // Get signature path from user data
+    const userSignaturePath = userData?.Signature_path || null;
+    console.log('👤 Confirming user signature path:', userSignaturePath);
 
     // Get current test request
     const { data: currentRequest, error: fetchError } = await supabase
@@ -343,8 +347,8 @@ async function confirmTestRequest(requestId, userId) {
       return { success: false, message: 'กรุณากรอกข้อมูล Alleles ก่อนยืนยัน' };
     }
 
-    // Check if this user already confirmed (by comparing names)
-    if (currentRequest.confirmed_by_1 === confirmedByName || currentRequest.confirmed_by_2 === confirmedByName) {
+    // Check if this user already confirmed (by comparing user_id)
+    if (currentRequest.confirmed_by_1 === userId || currentRequest.confirmed_by_2 === userId) {
       return { success: false, message: 'คุณได้ยืนยันแล้ว ไม่สามารถยืนยันซ้ำได้' };
     }
 
@@ -355,7 +359,7 @@ async function confirmTestRequest(requestId, userId) {
     if (!currentRequest.confirmed_by_1) {
       // First confirmation: need_2_confirmation → need_1_confirmation
       updateData = {
-        confirmed_by_1: confirmedByName,
+        confirmed_by_1: userId, // Store user_id instead of name
         confirmed_at_1: new Date().toISOString(),
         status: 'need_1_confirmation'
       };
@@ -363,7 +367,7 @@ async function confirmTestRequest(requestId, userId) {
     } else if (!currentRequest.confirmed_by_2) {
       // Second confirmation: need_1_confirmation → done
       updateData = {
-        confirmed_by_2: confirmedByName,
+        confirmed_by_2: userId, // Store user_id instead of name
         confirmed_at_2: new Date().toISOString(),
         status: 'done'
       };
@@ -399,118 +403,77 @@ async function confirmTestRequest(requestId, userId) {
       }
 
       if (reportData) {
-        console.log('📄 Report found, regenerating PDF...');
-        // Import PDF generation function
-        const { generatePGxPDF, uploadPDFToStorage } = require('./pgxReportController');
+        console.log('📄 Report found, editing PDF to add signatures...');
+        // Import PDF editing function
+        const { addSignaturesToPDF, uploadPDFToStorage } = require('./pgxReportController');
         
-        // Get user signatures
+        // Determine signature URLs based on confirmation status
         let signature1_url = null;
         let signature2_url = null;
         
-        const confirmedBy1 = updateData.confirmed_by_1 || currentRequest.confirmed_by_1;
-        const confirmedBy2 = updateData.confirmed_by_2 || currentRequest.confirmed_by_2;
+        // Convert user's signature path to URL if it exists
+        let currentUserSignatureUrl = null;
+        if (userSignaturePath) {
+          if (userSignaturePath.startsWith('http://') || userSignaturePath.startsWith('https://')) {
+            currentUserSignatureUrl = userSignaturePath;
+          } else {
+            const { data: urlData } = supabase.storage
+              .from('Image_Bucket')
+              .getPublicUrl(userSignaturePath);
+            currentUserSignatureUrl = urlData.publicUrl;
+          }
+          console.log('✅ Current user signature URL:', currentUserSignatureUrl);
+        }
         
-        console.log('🔍 Fetching signatures for confirmer 1:', confirmedBy1, 'confirmer 2:', confirmedBy2);
-        
-        if (confirmedBy1) {
+        // Assign signature to correct position based on which confirmation this is
+        if (!currentRequest.confirmed_by_1) {
+          // First confirmation - signature goes to LEFT box
+          signature1_url = currentUserSignatureUrl;
+          signature2_url = null;
+          console.log('📝 First confirmation - adding signature to LEFT box');
+        } else if (!currentRequest.confirmed_by_2) {
+          // Second confirmation - keep first signature in LEFT, add new to RIGHT
+          // Fetch first confirmer's signature for LEFT box
           const { data: user1 } = await supabase
             .from('system_users')
             .select('Signature_path')
-            .eq('user_id', confirmedBy1)
+            .eq('user_id', currentRequest.confirmed_by_1)
             .single();
           
-          console.log('👤 User 1 data:', user1);
-          
           if (user1?.Signature_path) {
-            console.log('📝 Found signature path for user 1:', user1.Signature_path);
-            // Convert storage path to public URL
             if (user1.Signature_path.startsWith('http://') || user1.Signature_path.startsWith('https://')) {
               signature1_url = user1.Signature_path;
             } else {
-              // It's a storage path like "signatures/userId_timestamp.png"
               const { data: urlData } = supabase.storage
                 .from('Image_Bucket')
                 .getPublicUrl(user1.Signature_path);
               signature1_url = urlData.publicUrl;
-              console.log('🔗 Converted to URL:', signature1_url);
             }
           }
-        }
-        
-        if (confirmedBy2) {
-          const { data: user2 } = await supabase
-            .from('system_users')
-            .select('Signature_path')
-            .eq('user_id', confirmedBy2)
-            .single();
           
-          console.log('👤 User 2 data:', user2);
-          
-          if (user2?.Signature_path) {
-            console.log('📝 Found signature path for user 2:', user2.Signature_path);
-            // Convert storage path to public URL
-            if (user2.Signature_path.startsWith('http://') || user2.Signature_path.startsWith('https://')) {
-              signature2_url = user2.Signature_path;
-            } else {
-              // It's a storage path like "signatures/userId_timestamp.png"
-              const { data: urlData } = supabase.storage
-                .from('Image_Bucket')
-                .getPublicUrl(user2.Signature_path);
-              signature2_url = urlData.publicUrl;
-              console.log('🔗 Converted to URL:', signature2_url);
-            }
-          }
+          // Current user's signature goes to RIGHT box
+          signature2_url = currentUserSignatureUrl;
+          console.log('📝 Second confirmation - LEFT:', signature1_url, 'RIGHT:', signature2_url);
         }
-
-        console.log('✍️ Final signature URLs - User 1:', signature1_url, 'User 2:', signature2_url);
-
-        // Parse alleles if stored as JSON string
-        let alleles = currentRequest.alleles;
-        if (typeof alleles === 'string') {
-          try {
-            alleles = JSON.parse(alleles);
-          } catch (e) {
-            alleles = [];
-          }
-        }
-
-        // Prepare PDF data
-        const pdfInfo = {
-          report_id: reportData.report_id,
-          request_id: requestId,
-          test_target: currentRequest.test_target,
-          genotype: reportData.genotype,
-          genotype_summary: reportData.genotype_summary,
-          predicted_phenotype: reportData.predicted_phenotype,
-          recommendation: reportData.recommendation,
-          patientId: currentRequest.patient?.patient_id || 'N/A',
-          patientName: `${currentRequest.patient?.first_name || ''} ${currentRequest.patient?.last_name || ''}`.trim(),
-          patientAge: currentRequest.patient?.age || 'N/A',
-          patientGender: currentRequest.patient?.gender || 'N/A',
-          specimen: currentRequest.Specimen || 'Nails',
-          patientNumber: currentRequest.request_id,
-          hospital: currentRequest.patient?.hospital_id || '1',
-          createDate: currentRequest.request_date || new Date().toISOString().split('T')[0],
-          updateDate: new Date().toLocaleDateString('th-TH'),
-          doctorName: currentRequest.responsible_doctor || 'N/A',
-          alleles: alleles || [],
-          activityScore: currentRequest.activity_score || 'N/A',
-          signature1_url,
-          signature2_url
-        };
-
-        console.log('📄 Generating PDF with signature URLs...');
         
-        // Generate new PDF with timestamp to avoid cache issues
-        const { buffer: pdfBuffer, fileName } = await generatePGxPDF(pdfInfo);
+        console.log('✍️ Final signature URLs - Left:', signature1_url, 'Right:', signature2_url);
+
+        // Get existing PDF path
+        const existingPdfPath = reportData.pdf_path;
+        console.log('📄 Existing PDF path:', existingPdfPath);
         
-        // Modify filename to include timestamp for cache busting
-        const uniqueFileName = fileName.replace('.pdf', `_${Date.now()}.pdf`);
+        // Edit PDF to add signatures
+        const modifiedPdfBuffer = await addSignaturesToPDF(existingPdfPath, signature1_url, signature2_url);
         
-        console.log('✅ PDF buffer created, uploading to storage as:', uniqueFileName);
+        // Generate new filename with timestamp to avoid cache issues
+        const timestamp = Date.now();
+        const originalFileName = existingPdfPath.split('/').pop().replace('.pdf', '');
+        const uniqueFileName = `${originalFileName}_${timestamp}.pdf`;
         
-        // Upload to storage
-        const publicUrl = await uploadPDFToStorage(pdfBuffer, uniqueFileName);
+        console.log('✅ PDF edited, uploading to storage as:', uniqueFileName);
+        
+        // Upload modified PDF to storage
+        const publicUrl = await uploadPDFToStorage(modifiedPdfBuffer, uniqueFileName);
         
         if (publicUrl) {
           // Update report with new PDF path
@@ -519,7 +482,7 @@ async function confirmTestRequest(requestId, userId) {
             .update({ pdf_path: publicUrl })
             .eq('report_id', reportData.report_id);
           
-          console.log('✅ PDF regenerated with signatures:', publicUrl);
+          console.log('✅ PDF updated with signatures:', publicUrl);
         }
       } else {
         console.log('⚠️ No report found for request_id:', requestId);

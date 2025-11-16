@@ -17,7 +17,25 @@ body {
 
 /* 🔹 Header จะไม่หด */
 .page-header {
-    flex-shrink: 0; 
+    flex-shrink: 0;
+    position: relative;
+    z-index: 100;
+    background-color: var(--card-bg);
+}
+
+/* 🔹 Ensure dropdown is clickable and above PDF viewer */
+.header-actions {
+    position: relative;
+    z-index: 200;
+}
+
+.dropdown {
+    position: relative;
+    z-index: 1000;
+}
+
+.dropdown-content {
+    z-index: 1001 !important;
 }
 
 /* ===================================================

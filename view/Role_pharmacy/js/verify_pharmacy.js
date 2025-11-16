@@ -494,10 +494,12 @@
                         <p style="margin-top: 10px; font-size: 14px; color: #666;">
                             <i class="fas fa-file-pdf"></i> PDF ได้รับการอัปเดตพร้อมลายเซ็นของคุณแล้ว
                         </p>
+                        <p style="margin-top: 8px; font-size: 13px; color: #2563eb; font-weight: 600;">
+                            📌 กรุณาคลิก "ดูไฟล์" อีกครั้งเพื่อดู PDF เวอร์ชันใหม่
+                        </p>
                     `,
                     icon: 'success',
-                    timer: 3000,
-                    showConfirmButton: false
+                    confirmButtonText: 'ตกลง'
                 });
                 // Navigate back to information page
                 window.electronAPI?.navigate('information_pharmacy');
@@ -583,10 +585,6 @@
         window.electronAPI?.navigate('information_pharmacy');
     });
 })();
-// Initialize user profile features (dropdown, logout, profile link, etc.)
-if (typeof initializeUserProfile === 'function') {
-    initializeUserProfile();
-}
 
 // Initialize user profile features (dropdown, logout, profile link, etc.)
 if (typeof initializeUserProfile === 'function') {
