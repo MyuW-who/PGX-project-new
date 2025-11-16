@@ -121,6 +121,7 @@ ipcMain.on('navigate', (event, page) => {
     'fill_alleles_pharmacy': 'view/Role_pharmacy/fill_alleles_pharmacy.html',
     'confirm_alleles_pharmacy': 'view/Role_pharmacy/confirm_alleles_pharmacy.html',
     'profile_pharmacy': 'view/Role_pharmacy/profile_pharmacy.html',
+    'showpdf_pharmacy': 'view/Role_pharmacy/show_pdf.html',
     
     // Admin pages (backward compatibility)
     'adminpage': 'view/Role_admin/adminpage.html',

@@ -300,6 +300,22 @@ async function getSpecimenSLA() {
 // ยืนยัน test request (confirmation)
 async function confirmTestRequest(requestId, userId) {
   try {
+    // Get user's full name from system_users table
+    const { data: userData, error: userError } = await supabase
+      .from('system_users')
+      .select('F_Name, L_Name')
+      .eq('user_id', userId)
+      .single();
+
+    if (userError) {
+      console.error('❌ Error fetching user data:', userError.message);
+    }
+
+    // Create full name (FirstName LastName)
+    const confirmedByName = userData 
+      ? `${userData.F_Name || ''} ${userData.L_Name || ''}`.trim() 
+      : userId.toString();
+
     // Get current test request
     const { data: currentRequest, error: fetchError } = await supabase
       .from('test_request')
@@ -317,8 +333,8 @@ async function confirmTestRequest(requestId, userId) {
       return { success: false, message: 'กรุณากรอกข้อมูล Alleles ก่อนยืนยัน' };
     }
 
-    // Check if this user already confirmed
-    if (currentRequest.confirmed_by_1 === userId || currentRequest.confirmed_by_2 === userId) {
+    // Check if this user already confirmed (by comparing names)
+    if (currentRequest.confirmed_by_1 === confirmedByName || currentRequest.confirmed_by_2 === confirmedByName) {
       return { success: false, message: 'คุณได้ยืนยันแล้ว ไม่สามารถยืนยันซ้ำได้' };
     }
 
@@ -329,7 +345,7 @@ async function confirmTestRequest(requestId, userId) {
     if (!currentRequest.confirmed_by_1) {
       // First confirmation: need_2_confirmation → need_1_confirmation
       updateData = {
-        confirmed_by_1: userId,
+        confirmed_by_1: confirmedByName,
         confirmed_at_1: new Date().toISOString(),
         status: 'need_1_confirmation'
       };
@@ -337,7 +353,7 @@ async function confirmTestRequest(requestId, userId) {
     } else if (!currentRequest.confirmed_by_2) {
       // Second confirmation: need_1_confirmation → done
       updateData = {
-        confirmed_by_2: userId,
+        confirmed_by_2: confirmedByName,
         confirmed_at_2: new Date().toISOString(),
         status: 'done'
       };
@@ -357,7 +373,7 @@ async function confirmTestRequest(requestId, userId) {
       return { success: false, message: 'เกิดข้อผิดพลาดในการบันทึก' };
     }
 
-    console.log('✅ Confirmed by user:', userId, '→ New status:', newStatus);
+    console.log('✅ Confirmed by:', confirmedByName, '→ New status:', newStatus);
     return { 
       success: true, 
       message: newStatus === 'done' ? 'ยืนยันสำเร็จ! เอกสารผ่านการตรวจสอบครบถ้วน' : 'ยืนยันสำเร็จ! รอการยืนยันจากเจ้าหน้าที่อีก 1 คน',
@@ -373,12 +389,28 @@ async function confirmTestRequest(requestId, userId) {
 // ปฏิเสธ test request (rejection)
 async function rejectTestRequest(requestId, userId, reason) {
   try {
+    // Get user's full name from system_users table
+    const { data: userData, error: userError } = await supabase
+      .from('system_users')
+      .select('F_Name, L_Name')
+      .eq('user_id', userId)
+      .single();
+
+    if (userError) {
+      console.error('❌ Error fetching user data:', userError.message);
+    }
+
+    // Create full name (FirstName LastName)
+    const rejectedByName = userData 
+      ? `${userData.F_Name || ''} ${userData.L_Name || ''}`.trim() 
+      : userId.toString();
+
     // Update status to reject
     const { error } = await supabase
       .from('test_request')
       .update({
         status: 'reject',
-        rejected_by: userId,
+        rejected_by: rejectedByName,
         rejected_at: new Date().toISOString(),
         rejection_reason: reason
       })
@@ -389,7 +421,7 @@ async function rejectTestRequest(requestId, userId, reason) {
       return { success: false, message: 'เกิดข้อผิดพลาดในการบันทึก' };
     }
 
-    console.log('✅ Rejected by user:', userId);
+    console.log('✅ Rejected by:', rejectedByName);
     return { success: true, message: 'ปฏิเสธเอกสารสำเร็จ' };
 
   } catch (error) {

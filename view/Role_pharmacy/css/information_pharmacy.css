@@ -438,6 +438,34 @@ tr.tat-overdue:hover {
   font-size: 14px;
 }
 
+/* Reject Reason Button (Orange/Info) */
+.reject-reason-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 10px; 
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+  background: rgba(249, 115, 22, 0.1);
+  color: #f97316;
+}
+
+.reject-reason-btn:hover {
+  background: #f97316;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(249, 115, 22, 0.3);
+}
+
+.reject-reason-btn i {
+  font-size: 14px;
+}
+
 /* ====== Popup Generic ====== */
 .popup.hidden { display: none; }
 .popup {
