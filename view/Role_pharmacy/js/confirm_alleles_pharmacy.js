@@ -88,12 +88,67 @@ if (recommendation) {
   document.getElementById("recommendation").textContent = 'Please consult with clinical pharmacist for medication dosing.';
 }
 
+/* ========================
+   Check if current user already confirmed
+======================== */
+async function checkUserConfirmation() {
+  const currentUser = getCurrentUser();
+  const requestId = sessionStorage.getItem('selectedRequestId');
+  
+  if (!currentUser || !requestId) {
+    return;
+  }
+
+  try {
+    // Fetch test request data to check confirmations
+    const testRequestData = await window.electronAPI.getTestRequestById(requestId);
+    
+    if (testRequestData) {
+      const userFullName = `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim();
+      const confirmBtn = document.querySelector(".confirm-btn");
+      
+      // More robust comparison with trim
+      const alreadyConfirmedBy1 = testRequestData.confirmed_by_1 && testRequestData.confirmed_by_1.trim() === userFullName;
+      const alreadyConfirmedBy2 = testRequestData.confirmed_by_2 && testRequestData.confirmed_by_2.trim() === userFullName;
+      const userAlreadyConfirmed = alreadyConfirmedBy1 || alreadyConfirmedBy2;
+      
+      // Check if current user already confirmed (by comparing full name)
+      if (userAlreadyConfirmed) {
+        // User already confirmed - disable button IMMEDIATELY and SYNCHRONOUSLY
+        if (confirmBtn) {
+          confirmBtn.disabled = true;
+          confirmBtn.style.setProperty('background-color', '#cccccc', 'important');
+          confirmBtn.style.setProperty('cursor', 'not-allowed', 'important');
+          confirmBtn.style.setProperty('opacity', '0.5', 'important');
+          confirmBtn.style.setProperty('pointer-events', 'none', 'important');
+          confirmBtn.style.setProperty('border', '1px solid #999', 'important');
+          confirmBtn.textContent = 'คุณได้ยืนยันแล้ว ✓';
+          confirmBtn.classList.add('disabled-confirmation');
+        }
+      }
+    }
+  } catch (error) {
+    // Silent error handling
+  }
+}
+
+// Check on page load
+checkUserConfirmation();
+
 document.querySelector(".back-btn").addEventListener("click", () => {
   window.electronAPI.navigate('fill_alleles_pharmacy');
 });
 
-document.querySelector(".confirm-btn").addEventListener("click", async () => {
+document.querySelector(".confirm-btn").addEventListener("click", async (e) => {
   try {
+    // Check if button is disabled first
+    const btn = e.target;
+    if (btn.disabled || btn.style.pointerEvents === 'none') {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+    
     const currentUser = getCurrentUser();
     
     if (!currentUser) {
@@ -130,6 +185,21 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
       return;
     }
 
+    // Check if current user already confirmed (more robust with trim)
+    const userFullName = `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim();
+    const alreadyConfirmedBy1 = testRequestData.confirmed_by_1 && testRequestData.confirmed_by_1.trim() === userFullName;
+    const alreadyConfirmedBy2 = testRequestData.confirmed_by_2 && testRequestData.confirmed_by_2.trim() === userFullName;
+    
+    if (alreadyConfirmedBy1 || alreadyConfirmedBy2) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'คุณได้ยืนยันแล้ว',
+        text: 'คุณได้ทำการยืนยันข้อมูลนี้ไปแล้ว กรุณาให้เภสัชกรท่านอื่นยืนยันอีกครั้ง',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
     const sessionData = {
       selectedPatientId: sessionStorage.getItem('selectedPatientId'),
       selectedDnaType: sessionStorage.getItem('selectedDnaType'),
@@ -145,17 +215,10 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
       });
       return;
     }
-
-    const doctorName = currentUser.doctor_name 
-      || (currentUser.first_name && currentUser.last_name 
-          ? `${currentUser.first_name} ${currentUser.last_name}`.trim() 
-          : currentUser.username)
-      || 'Unknown Pharmacist';
     
-    // Prepare update data with alleles
+    // Prepare update data with alleles (Do NOT change Doc_Name - it should stay as the medtech's name)
     const updateData = {
       status: 'need_2_confirmation',
-      Doc_Name: doctorName,
       allele_data: JSON.stringify(sessionStorage.getItem('alleles') ? JSON.parse(sessionStorage.getItem('alleles')) : {})
     };
 
@@ -194,17 +257,14 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
         specimen: testRequestData.Specimen,
         patientNumber: sessionStorage.getItem('patientNumber') || result.request_id,
         hospital: currentUser.hospital_id || 'N/A',
-        createDate: testRequestData.request_date,
+        createDate: testRequestData.request_date ? new Date(testRequestData.request_date).toLocaleDateString('th-TH') : new Date().toLocaleDateString('th-TH'),
         updateDate: new Date().toLocaleDateString('th-TH'),
-        doctorName: doctorName,
-        responsibleDoctor: doctorName,
+        doctorName: testRequestData.Doc_Name || 'N/A',  // Pass doctor name from test request
         alleles: alleles
       };
 
       // Generate report with PDF
-      console.log('🔄 Generating PGx report with data:', completeTestData);
       const reportResult = await window.electronAPI.createPgxReport(completeTestData);
-      console.log('📊 Report result:', reportResult);
       
       if (reportResult.success) {
         await Swal.fire({

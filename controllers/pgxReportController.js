@@ -199,7 +199,7 @@ async function addSignaturesToPDF(existingPdfPath, signature1_url, signature2_ur
     const boxHeight = 50;
     const boxY = 60; // Distance from bottom
     const leftBoxX = 75; // Left signature X position
-    const rightBoxX = 285; // Right signature X position (75 + 225 - 15 space)
+    const rightBoxX = 300; // Right signature X position (75 + 225 - 15 space)
     
     // Add first signature (LEFT box)
     if (signature1_url) {

@@ -347,8 +347,8 @@ async function confirmTestRequest(requestId, userId) {
       return { success: false, message: 'กรุณากรอกข้อมูล Alleles ก่อนยืนยัน' };
     }
 
-    // Check if this user already confirmed (by comparing user_id)
-    if (currentRequest.confirmed_by_1 === userId || currentRequest.confirmed_by_2 === userId) {
+    // Check if this user already confirmed (by comparing full name)
+    if (currentRequest.confirmed_by_1 === confirmedByName || currentRequest.confirmed_by_2 === confirmedByName) {
       return { success: false, message: 'คุณได้ยืนยันแล้ว ไม่สามารถยืนยันซ้ำได้' };
     }
 
@@ -359,7 +359,7 @@ async function confirmTestRequest(requestId, userId) {
     if (!currentRequest.confirmed_by_1) {
       // First confirmation: need_2_confirmation → need_1_confirmation
       updateData = {
-        confirmed_by_1: userId, // Store user_id instead of name
+        confirmed_by_1: confirmedByName, // Store doctor name (full name)
         confirmed_at_1: new Date().toISOString(),
         status: 'need_1_confirmation'
       };
@@ -367,7 +367,7 @@ async function confirmTestRequest(requestId, userId) {
     } else if (!currentRequest.confirmed_by_2) {
       // Second confirmation: need_1_confirmation → done
       updateData = {
-        confirmed_by_2: userId, // Store user_id instead of name
+        confirmed_by_2: confirmedByName, // Store doctor name (full name)
         confirmed_at_2: new Date().toISOString(),
         status: 'done'
       };
