@@ -32,7 +32,41 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 /* ========= Elements & Events ========= */
 
+// Helper function for smooth scroll with offset
+function smoothScrollToSection(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (section) {
+    section.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'center'
+    });
+  }
+}
 
+// Stat card click handlers - scroll to corresponding section
+document.getElementById('cardAll')?.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+document.getElementById('cardPending')?.addEventListener('click', () => {
+  smoothScrollToSection('sectionPending');
+});
+
+document.getElementById('cardNeed2')?.addEventListener('click', () => {
+  smoothScrollToSection('sectionAwaiting');
+});
+
+document.getElementById('cardNeed1')?.addEventListener('click', () => {
+  smoothScrollToSection('sectionAwaiting');
+});
+
+document.getElementById('cardDone')?.addEventListener('click', () => {
+  smoothScrollToSection('sectionDone');
+});
+
+document.getElementById('cardReject')?.addEventListener('click', () => {
+  smoothScrollToSection('sectionReject');
+});
 
 document.getElementById('searchInput')?.addEventListener('input', async e => {
   const kw = e.target.value.trim();
