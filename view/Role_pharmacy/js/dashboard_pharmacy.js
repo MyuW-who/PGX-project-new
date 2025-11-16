@@ -75,7 +75,7 @@ patientPageBtn?.addEventListener('click', () => {
 
 // ฟังก์ชันอัปเดตสีกราฟ
 function updateChartsForTheme() {
-  const isDark = document.body.classList.contains('dark');
+  const isDark = document.documentElement.classList.contains('dark');
   const textColor = isDark ? '#f1f5f9' : '#111827';
   const gridColor = isDark ? '#334155' : '#e5e7eb';
   const bgCard = isDark ? '#2f2f40' : '#ffffff';
@@ -280,7 +280,7 @@ async function renderMetrics() {
         const centerX = (chartArea.left + chartArea.right) / 2;
         const centerY = (chartArea.top + chartArea.bottom) / 2;
         
-        const isDark = document.body.classList.contains('dark');
+        const isDark = document.documentElement.classList.contains('dark');
         
         ctx.save();
         ctx.textAlign = 'center';
@@ -350,7 +350,7 @@ async function renderMetrics() {
         const arc = meta?.data?.[0];
         if (!arc) return;
         
-        const isDark = document.body.classList.contains('dark');
+        const isDark = document.documentElement.classList.contains('dark');
         const {ctx} = chart;
         
         ctx.save();
@@ -363,7 +363,7 @@ async function renderMetrics() {
       }
     };
 
-    const isDark = document.body.classList.contains('dark');
+    const isDark = document.documentElement.classList.contains('dark');
     const ctx = gaugeCanvas.getContext('2d');
     
     // Destroy existing chart if it exists
