@@ -45,6 +45,8 @@ body {
   gap: 40px;
   box-shadow: var(--shadow-lg);
   position: relative;
+  box-sizing: border-box;
+  min-height: 100vh;
 }
 
 .sidebar::before {
@@ -95,7 +97,6 @@ body {
 }
 
 .main-content {
-  /* Match patient page spacing for consistent header position */
   padding: 32px 40px 64px;
   display: flex;
   flex-direction: column;
@@ -103,15 +104,20 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .page-header {
   display: flex;
-  align-items: center; /* center vertically like patient */
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 24px;
-  border-bottom: 2px solid var(--color-border);
+  gap: 24px;
+  padding: 24px 28px;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  flex-wrap: wrap;
 }
 
 .page-header h1 {
@@ -168,6 +174,7 @@ body {
   gap: 28px;
   border: 1px solid var(--color-border);
   transition: box-shadow 0.3s ease;
+  box-sizing: border-box;
 }
 
 .card:hover {
