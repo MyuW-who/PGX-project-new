@@ -79,12 +79,62 @@ async function createReport(reportData) {
 }
 
 /**
+ * Draw signature image in PDF
+ * @param {PDFDocument} doc - PDFKit document
+ * @param {string} signatureUrl - URL or path to signature image
+ * @param {number} x - X coordinate
+ * @param {number} y - Y coordinate
+ * @param {number} width - Width of signature area
+ * @param {number} height - Height of signature area
+ */
+async function drawSignature(doc, signatureUrl, x, y, width, height) {
+  try {
+    if (!signatureUrl) {
+      console.log('⚠️ No signature URL provided');
+      return;
+    }
+
+    console.log('🖼️ Drawing signature from URL:', signatureUrl);
+
+    // Check if it's a local file path or URL
+    let imagePath;
+    if (signatureUrl.startsWith('http://') || signatureUrl.startsWith('https://')) {
+      // Download from URL
+      const https = require('https');
+      const http = require('http');
+      const protocol = signatureUrl.startsWith('https://') ? https : http;
+      
+      const imageBuffer = await new Promise((resolve, reject) => {
+        protocol.get(signatureUrl, (res) => {
+          const chunks = [];
+          res.on('data', chunk => chunks.push(chunk));
+          res.on('end', () => resolve(Buffer.concat(chunks)));
+          res.on('error', reject);
+        }).on('error', reject);
+      });
+      
+      doc.image(imageBuffer, x, y, { width, height, fit: [width, height], align: 'center', valign: 'center' });
+      console.log('✅ Signature image drawn successfully');
+    } else if (fs.existsSync(signatureUrl)) {
+      // Local file path
+      doc.image(signatureUrl, x, y, { width, height, fit: [width, height], align: 'center', valign: 'center' });
+      console.log('✅ Signature image drawn from local file');
+    } else {
+      console.log('⚠️ Signature file not found:', signatureUrl);
+    }
+  } catch (err) {
+    console.error('❌ Error drawing signature:', err.message);
+    console.error('Signature URL was:', signatureUrl);
+  }
+}
+
+/**
  * Generate PDF report for PGx test (in memory, no local file)
  * @param {Object} reportInfo - Complete report information
  * @returns {Promise<{buffer: Buffer, fileName: string}>} PDF buffer and filename
  */
 async function generatePGxPDF(reportInfo) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       // Create unique filename with report_id or request_id
       const timestamp = Date.now();
@@ -353,10 +403,12 @@ async function generatePGxPDF(reportInfo) {
     doc.y = recY + recTextHeight + 8;
 
     // === SIGNATURE BOX ===
-    const sigBoxY = doc.page.height - 95;
-    const sigBoxWidth = 400;
-    const sigBoxHeight = 35;
-    const sigBoxX = 85;
+    const sigBoxY = doc.page.height - 110;
+    const sigBoxWidth = 450;
+    const sigBoxHeight = 50;
+    const sigBoxX = 60;
+    
+    console.log('📝 Drawing signature box with signatures - Left:', reportInfo.signature1_url, 'Right:', reportInfo.signature2_url);
     
     // Draw outer box
     doc.rect(sigBoxX, sigBoxY, sigBoxWidth, sigBoxHeight).stroke('#000000');
@@ -365,13 +417,23 @@ async function generatePGxPDF(reportInfo) {
     const centerX = sigBoxX + (sigBoxWidth / 2);
     doc.moveTo(centerX, sigBoxY).lineTo(centerX, sigBoxY + sigBoxHeight).stroke('#000000');
     
-    // Left side labels
+    // Left side labels and signature
     doc.fontSize(7.5);
     setRegular();
     doc.text('วิเคราะห์และแปลผลโดย', sigBoxX + 4, sigBoxY + 4, { width: (sigBoxWidth / 2) - 8, align: 'left' });
     
-    // Right side labels
+    // Draw left signature if available (first confirmer)
+    if (reportInfo.signature1_url) {
+      await drawSignature(doc, reportInfo.signature1_url, sigBoxX + 15, sigBoxY + 18, 100, 25);
+    }
+    
+    // Right side labels and signature
     doc.text('วิเคราะห์และแปลผลโดย', centerX + 4, sigBoxY + 4, { width: (sigBoxWidth / 2) - 8, align: 'left' });
+    
+    // Draw right signature if available (second confirmer)
+    if (reportInfo.signature2_url) {
+      await drawSignature(doc, reportInfo.signature2_url, centerX + 15, sigBoxY + 18, 100, 25);
+    }
 
     doc.end();
     } catch (err) {
@@ -491,18 +553,68 @@ async function processCompleteReport(testData) {
 
     const reportId = reportResult.data.report_id;
 
-    // Step 4: Generate PDF with report_id in filename (in memory)
+    // Step 4: Fetch confirmer signatures if they exist
+    let signature1_url = null;
+    let signature2_url = null;
+    
+    console.log('🔍 Checking for confirmers - confirmed_by_1:', testData.confirmed_by_1, 'confirmed_by_2:', testData.confirmed_by_2);
+    
+    if (testData.confirmed_by_1) {
+      const { data: user1 } = await supabase
+        .from('system_users')
+        .select('Signature_path')
+        .eq('user_id', testData.confirmed_by_1)
+        .single();
+      
+      if (user1?.Signature_path) {
+        // Convert storage path to public URL
+        if (user1.Signature_path.startsWith('http://') || user1.Signature_path.startsWith('https://')) {
+          signature1_url = user1.Signature_path;
+        } else {
+          // It's a storage path like "signatures/userId_timestamp.png"
+          const { data: urlData } = supabase.storage
+            .from('Image_Bucket')
+            .getPublicUrl(user1.Signature_path);
+          signature1_url = urlData.publicUrl;
+        }
+      }
+    }
+    
+    if (testData.confirmed_by_2) {
+      const { data: user2 } = await supabase
+        .from('system_users')
+        .select('Signature_path')
+        .eq('user_id', testData.confirmed_by_2)
+        .single();
+      
+      if (user2?.Signature_path) {
+        // Convert storage path to public URL
+        if (user2.Signature_path.startsWith('http://') || user2.Signature_path.startsWith('https://')) {
+          signature2_url = user2.Signature_path;
+        } else {
+          // It's a storage path like "signatures/userId_timestamp.png"
+          const { data: urlData } = supabase.storage
+            .from('Image_Bucket')
+            .getPublicUrl(user2.Signature_path);
+          signature2_url = urlData.publicUrl;
+        }
+      }
+    }
+
+    // Step 5: Generate PDF with report_id in filename (in memory)
     const pdfInfo = {
       ...testData,
       report_id: reportId,
       genotype_summary: genotypeDescription,
       recommendation: consultationText,
-      activityScore: diplotype?.totalactivityscore || 'N/A'
+      activityScore: diplotype?.totalactivityscore || 'N/A',
+      signature1_url,
+      signature2_url
     };
 
     const { buffer: pdfBuffer, fileName } = await generatePGxPDF(pdfInfo);
 
-    // Step 5: Upload to Supabase storage
+    // Step 6: Upload to Supabase storage
     const publicUrl = await uploadPDFToStorage(pdfBuffer, fileName);
 
     if (!publicUrl) {
@@ -518,7 +630,7 @@ async function processCompleteReport(testData) {
       };
     }
 
-    // Step 6: Update report with PDF path
+    // Step 7: Update report with PDF path
     const { error: updateError } = await supabase
       .from('report')
       .update({ pdf_path: publicUrl })
@@ -528,7 +640,7 @@ async function processCompleteReport(testData) {
       console.error('❌ Error updating PDF path:', updateError.message);
     }
 
-    // Step 7: Clean up local file (optional)
+    // Step 8: Clean up local file (optional)
     // fs.unlinkSync(localPdfPath);
 
     return {

@@ -489,9 +489,14 @@
             if (confirmResult.success) {
                 await Swal.fire({
                     title: 'สำเร็จ!',
-                    text: confirmResult.message,
+                    html: `
+                        <p>${confirmResult.message}</p>
+                        <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                            <i class="fas fa-file-pdf"></i> PDF ได้รับการอัปเดตพร้อมลายเซ็นของคุณแล้ว
+                        </p>
+                    `,
                     icon: 'success',
-                    timer: 2000,
+                    timer: 3000,
                     showConfirmButton: false
                 });
                 // Navigate back to information page

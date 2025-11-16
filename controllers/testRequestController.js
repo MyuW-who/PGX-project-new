@@ -300,10 +300,20 @@ async function getSpecimenSLA() {
 // ยืนยัน test request (confirmation)
 async function confirmTestRequest(requestId, userId) {
   try {
-    // Get current test request
+    // Get current test request with full data
     const { data: currentRequest, error: fetchError } = await supabase
       .from('test_request')
-      .select('confirmed_by_1, confirmed_by_2, status')
+      .select(`
+        *,
+        patient:patient_id (
+          patient_id,
+          first_name,
+          last_name,
+          hospital_id,
+          age,
+          gender
+        )
+      `)
       .eq('request_id', requestId)
       .single();
 
@@ -358,6 +368,152 @@ async function confirmTestRequest(requestId, userId) {
     }
 
     console.log('✅ Confirmed by user:', userId, '→ New status:', newStatus);
+
+    // Regenerate PDF with signatures after confirmation
+    try {
+      console.log('🔄 Attempting to regenerate PDF with signatures...');
+      const { data: reportData, error: reportError } = await supabase
+        .from('report')
+        .select('*')
+        .eq('request_id', requestId)
+        .maybeSingle();
+
+      if (reportError) {
+        console.error('❌ Error fetching report:', reportError);
+      }
+
+      if (reportData) {
+        console.log('📄 Report found, regenerating PDF...');
+        // Import PDF generation function
+        const { generatePGxPDF, uploadPDFToStorage } = require('./pgxReportController');
+        
+        // Get user signatures
+        let signature1_url = null;
+        let signature2_url = null;
+        
+        const confirmedBy1 = updateData.confirmed_by_1 || currentRequest.confirmed_by_1;
+        const confirmedBy2 = updateData.confirmed_by_2 || currentRequest.confirmed_by_2;
+        
+        console.log('🔍 Fetching signatures for confirmer 1:', confirmedBy1, 'confirmer 2:', confirmedBy2);
+        
+        if (confirmedBy1) {
+          const { data: user1 } = await supabase
+            .from('system_users')
+            .select('Signature_path')
+            .eq('user_id', confirmedBy1)
+            .single();
+          
+          console.log('👤 User 1 data:', user1);
+          
+          if (user1?.Signature_path) {
+            console.log('📝 Found signature path for user 1:', user1.Signature_path);
+            // Convert storage path to public URL
+            if (user1.Signature_path.startsWith('http://') || user1.Signature_path.startsWith('https://')) {
+              signature1_url = user1.Signature_path;
+            } else {
+              // It's a storage path like "signatures/userId_timestamp.png"
+              const { data: urlData } = supabase.storage
+                .from('Image_Bucket')
+                .getPublicUrl(user1.Signature_path);
+              signature1_url = urlData.publicUrl;
+              console.log('🔗 Converted to URL:', signature1_url);
+            }
+          }
+        }
+        
+        if (confirmedBy2) {
+          const { data: user2 } = await supabase
+            .from('system_users')
+            .select('Signature_path')
+            .eq('user_id', confirmedBy2)
+            .single();
+          
+          console.log('👤 User 2 data:', user2);
+          
+          if (user2?.Signature_path) {
+            console.log('📝 Found signature path for user 2:', user2.Signature_path);
+            // Convert storage path to public URL
+            if (user2.Signature_path.startsWith('http://') || user2.Signature_path.startsWith('https://')) {
+              signature2_url = user2.Signature_path;
+            } else {
+              // It's a storage path like "signatures/userId_timestamp.png"
+              const { data: urlData } = supabase.storage
+                .from('Image_Bucket')
+                .getPublicUrl(user2.Signature_path);
+              signature2_url = urlData.publicUrl;
+              console.log('🔗 Converted to URL:', signature2_url);
+            }
+          }
+        }
+
+        console.log('✍️ Final signature URLs - User 1:', signature1_url, 'User 2:', signature2_url);
+
+        // Parse alleles if stored as JSON string
+        let alleles = currentRequest.alleles;
+        if (typeof alleles === 'string') {
+          try {
+            alleles = JSON.parse(alleles);
+          } catch (e) {
+            alleles = [];
+          }
+        }
+
+        // Prepare PDF data
+        const pdfInfo = {
+          report_id: reportData.report_id,
+          request_id: requestId,
+          test_target: currentRequest.test_target,
+          genotype: reportData.genotype,
+          genotype_summary: reportData.genotype_summary,
+          predicted_phenotype: reportData.predicted_phenotype,
+          recommendation: reportData.recommendation,
+          patientId: currentRequest.patient?.patient_id || 'N/A',
+          patientName: `${currentRequest.patient?.first_name || ''} ${currentRequest.patient?.last_name || ''}`.trim(),
+          patientAge: currentRequest.patient?.age || 'N/A',
+          patientGender: currentRequest.patient?.gender || 'N/A',
+          specimen: currentRequest.Specimen || 'Nails',
+          patientNumber: currentRequest.request_id,
+          hospital: currentRequest.patient?.hospital_id || '1',
+          createDate: currentRequest.request_date || new Date().toISOString().split('T')[0],
+          updateDate: new Date().toLocaleDateString('th-TH'),
+          doctorName: currentRequest.responsible_doctor || 'N/A',
+          alleles: alleles || [],
+          activityScore: currentRequest.activity_score || 'N/A',
+          signature1_url,
+          signature2_url
+        };
+
+        console.log('📄 Generating PDF with signature URLs...');
+        
+        // Generate new PDF with timestamp to avoid cache issues
+        const { buffer: pdfBuffer, fileName } = await generatePGxPDF(pdfInfo);
+        
+        // Modify filename to include timestamp for cache busting
+        const uniqueFileName = fileName.replace('.pdf', `_${Date.now()}.pdf`);
+        
+        console.log('✅ PDF buffer created, uploading to storage as:', uniqueFileName);
+        
+        // Upload to storage
+        const publicUrl = await uploadPDFToStorage(pdfBuffer, uniqueFileName);
+        
+        if (publicUrl) {
+          // Update report with new PDF path
+          await supabase
+            .from('report')
+            .update({ pdf_path: publicUrl })
+            .eq('report_id', reportData.report_id);
+          
+          console.log('✅ PDF regenerated with signatures:', publicUrl);
+        }
+      } else {
+        console.log('⚠️ No report found for request_id:', requestId);
+      }
+    } catch (pdfError) {
+      console.error('⚠️ Error regenerating PDF:', pdfError);
+      console.error('PDF Error stack:', pdfError.stack);
+      // Don't fail the confirmation if PDF generation fails
+    }
+    
     return { 
       success: true, 
       message: newStatus === 'done' ? 'ยืนยันสำเร็จ! เอกสารผ่านการตรวจสอบครบถ้วน' : 'ยืนยันสำเร็จ! รอการยืนยันจากเจ้าหน้าที่อีก 1 คน',
