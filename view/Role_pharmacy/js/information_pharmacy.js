@@ -167,7 +167,7 @@ function renderTestRequests(data) {
   tbody.innerHTML = '';
 
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr class="no-data-row"><td colspan="9">ไม่พบข้อมูลที่ตรงกับการค้นหา</td></tr>`;
+    tbody.innerHTML = `<tr class="no-data-row"><td colspan="8">ไม่พบข้อมูลที่ตรงกับการค้นหา</td></tr>`;
     return;
   }
 
@@ -243,7 +243,6 @@ function renderTestRequests(data) {
       <td>${testTarget}</td>
       <td>${received}</td>
       <td>${specimen}</td>
-      <td>${confirmedDoctor}</td>
       <td>
         <div class="tat-status">
           <span class="tat-dot ${dotClass}"></span>
