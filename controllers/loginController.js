@@ -10,7 +10,7 @@ async function handleLogin(event, { username, password }) {
 
     const { data, error } = await supabase
       .from('system_users')
-      .select('user_id, username, password_hash, role, hospital_id, created_at, F_Name, L_Name')
+      .select('user_id, username, password_hash, role, hospital_id, created_at, F_Name, L_Name, Signature_path')
       .eq('username', u)
       .maybeSingle();
 
@@ -64,6 +64,7 @@ async function handleLogin(event, { username, password }) {
       created_at: data.created_at,
       first_name: data.F_Name || null,
       last_name: data.L_Name || null,
+      signature_url: data.Signature_path || null,
       doctor_name: (data.F_Name && data.L_Name) 
         ? `${data.F_Name} ${data.L_Name}`.trim() 
         : (data.F_Name || data.L_Name || data.username)
