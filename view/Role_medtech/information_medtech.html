@@ -74,6 +74,7 @@
         <div class="toolbar-right">
           <select id="tatFilter">
             <option value="all">All status</option>
+            <option value="pending">Pending</option>
             <option value="need 2 confirmation">Need 2 confirmation</option>
             <option value="need 1 confirmation">Need 1 confirmation</option>
             <option value="done">Done</option>
@@ -94,16 +95,24 @@
           <div class="card-info"><p>All Case</p><span id="statAll">0</span></div>
         </div>
         <div class="stat-card">
+          <div class="card-icon icon-pending"><i class="fa fa-clock"></i></div>
+          <div class="card-info"><p>Pending</p><span id="statPending">0</span></div>
+        </div>
+        <div class="stat-card">
           <div class="card-icon icon-pre"><i class="fa fa-hourglass-half"></i></div>
           <div class="card-info"><p>Need 2 confirmation</p><span id="statPre">0</span></div>
         </div>
         <div class="stat-card">
-          <div class="card-icon icon-analytic"><i class="fa fa-clock"></i></div>
+          <div class="card-icon icon-analytic"><i class="fa fa-hourglass-end"></i></div>
           <div class="card-info"><p>Need 1 confirmation</p><span id="statAnalytic">0</span></div>
         </div>
         <div class="stat-card">
           <div class="card-icon icon-post"><i class="fa fa-check-circle"></i></div>
           <div class="card-info"><p>Done</p><span id="statPost">0</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="card-icon icon-reject"><i class="fa fa-times-circle"></i></div>
+          <div class="card-info"><p>Reject</p><span id="statReject">0</span></div>
         </div>
       </section>
 

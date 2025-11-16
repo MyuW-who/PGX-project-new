@@ -296,6 +296,10 @@ function renderTestRequests(data) {
             <i class="fas fa-dna"></i>
             กรอก Alleles
           </button>
+          <button class="request-action-btn danger" onclick="deletePendingRequest(${req.request_id})">
+            <i class="fas fa-trash"></i>
+            ลบ
+          </button>
         ` : `
           <button class="request-action-btn secondary" disabled>
             <i class="fas ${statusIcon}"></i>
@@ -444,6 +448,56 @@ window.fillAlleles = async function(requestId) {
   } catch (error) {
     console.error('❌ Error preparing allele input:', error);
     alert('เกิดข้อผิดพลาดในการเตรียมข้อมูล');
+  }
+}
+
+// Function to delete pending request
+window.deletePendingRequest = async function(requestId) {
+  try {
+    const result = await Swal.fire({
+      title: 'ยืนยันการลบ',
+      text: `คุณต้องการลบคำขอตรวจ #${requestId} ใช่หรือไม่?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'ลบ',
+      cancelButtonText: 'ยกเลิก'
+    });
+
+    if (result.isConfirmed) {
+      const deleteResult = await window.electronAPI.deleteTestRequest(requestId);
+      
+      if (deleteResult && deleteResult.success) {
+        await Swal.fire({
+          icon: 'success',
+          title: 'ลบสำเร็จ',
+          text: 'ลบคำขอตรวจเรียบร้อยแล้ว',
+          confirmButtonText: 'ตกลง'
+        });
+        
+        // Reload the page data
+        const testRequests = await window.electronAPI.getTestRequests();
+        const pendingRequests = testRequests.filter(r => r.status?.toLowerCase() === 'pending');
+        renderTestRequests(pendingRequests);
+        await updateStatsFromAPI();
+      } else {
+        await Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: 'ไม่สามารถลบคำขอตรวจได้',
+          confirmButtonText: 'ตกลง'
+        });
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error deleting request:', error);
+    await Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: 'เกิดข้อผิดพลาดในการลบคำขอตรวจ',
+      confirmButtonText: 'ตกลง'
+    });
   }
 }
 
