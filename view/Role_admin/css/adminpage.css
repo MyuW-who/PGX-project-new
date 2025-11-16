@@ -343,7 +343,6 @@ thead th {
   letter-spacing: 0.05em;
   color: var(--color-muted);
   font-weight: 700;
-  background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
 }
 
 tbody tr {
@@ -359,6 +358,7 @@ tbody tr:hover {
 .button-group {
   display: flex;
   gap: 8px;
+  justify-content: center;
 }
 
 .table-action {
