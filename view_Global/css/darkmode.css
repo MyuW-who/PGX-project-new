@@ -379,7 +379,6 @@ html.dark .Edit-btn,
 html.dark .table-action.edit,
 html.dark .btn-icon.edit {
   background-color: #374151;
-  color: #93c5fd;
   border-color: #60a5fa;
 }
 
@@ -387,7 +386,7 @@ html.dark .Edit-btn:hover,
 html.dark .table-action.edit:hover,
 html.dark .btn-icon.edit:hover {
   background-color: #434e61;
-  color: #c7d2fe;
+  color: #698aaf;
   border-color: #93c5fd;
 }
 
@@ -395,7 +394,6 @@ html.dark .delete-btn,
 html.dark .table-action.delete,
 html.dark .btn-icon.delete {
   background-color: #374151;
-  color: #fca5a5;
   border-color: #f87171;
 }
 
@@ -403,7 +401,7 @@ html.dark .delete-btn:hover,
 html.dark .table-action.delete:hover,
 html.dark .btn-icon.delete:hover {
   background-color: #434e61;
-  color: #fecaca;
+  color: #be7373;
   border-color: #fda4af;
 }
 
