@@ -94,9 +94,9 @@ backBtn.addEventListener("click", () => {
   window.electronAPI.navigate('patient_medtech'); // Navigate back to the patient page
 });
 
-// Next Button
+// Next Button - Create test request with pending status
 const nextBtn = document.querySelector(".next-btn");
-nextBtn.addEventListener("click", () => {
+nextBtn.addEventListener("click", async () => {
   const dnaType = document.getElementById("dnaType").value;
   const specimenType = document.getElementById("specimenType").value;
   
@@ -110,12 +110,43 @@ nextBtn.addEventListener("click", () => {
     return;
   }
 
-  // Store selected DNA type and Specimen in sessionStorage
-  sessionStorage.setItem("selectedDnaType", dnaType);
-  sessionStorage.setItem("selectedSpecimen", specimenType);
+  try {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const patientId = sessionStorage.getItem('selectedPatientId');
+    
+    if (!currentUser.user_id) {
+      alert('ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบใหม่');
+      window.electronAPI.navigate('login');
+      return;
+    }
 
-  // Navigate to the next step
-  window.electronAPI.navigate('input_step2_medtech');
+    // Create test request with pending status
+    const testRequestData = {
+      patient_id: patientId,
+      test_target: dnaType,
+      specimen: specimenType,
+      status: 'pending',
+      user_id: currentUser.user_id,
+      request_date: new Date().toISOString()
+    };
+
+    console.log('📝 Creating test request:', testRequestData);
+    const result = await window.electronAPI.addTestRequest(testRequestData);
+
+    if (result && result.request_id) {
+      console.log('✅ Test request created:', result.request_id);
+      alert(`สร้างคำขอตรวจสอบสำเร็จ! Request ID: ${result.request_id}\nสถานะ: รอเภสัชกรกรอกข้อมูล Allele`);
+      
+      // Navigate back to patient page
+      window.electronAPI.navigate('patient_medtech');
+    } else {
+      console.error('❌ Failed to create test request');
+      alert('เกิดข้อผิดพลาดในการสร้างคำขอตรวจสอบ');
+    }
+  } catch (error) {
+    console.error('❌ Error creating test request:', error);
+    alert('เกิดข้อผิดพลาดในการสร้างคำขอตรวจสอบ');
+  }
 });
 
 // ปุ่ม Back

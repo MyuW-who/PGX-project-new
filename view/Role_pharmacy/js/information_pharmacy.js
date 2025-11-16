@@ -77,22 +77,32 @@ function getTATBadgeClass(status) {
   // Normalize status to lowercase for comparison
   const statusLower = (status || '').toLowerCase().trim();
   
+  // 🔵 Blue - Pending (waiting for pharmacist to fill alleles)
+  if (statusLower === 'pending') {
+    return 'status-pending';
+  }
+  
+  // 🟠 Orange - Needs 2 confirmations
+  if (statusLower === 'need_2_confirmation' || statusLower === 'need 2 confirmation') {
+    return 'status-pending-2';
+  }
+  
+  // 🟡 Yellow - Needs 1 confirmation
+  if (statusLower === 'need_1_confirmation' || statusLower === 'need 1 confirmation') {
+    return 'status-pending-1';
+  }
+  
   // 🟢 Green - Done (Completed)
   if (statusLower === 'done') {
     return 'status-done';
   }
   
-  // 🟡 Yellow - Needs 1 confirmation
-  if (statusLower === 'need 1 confirmation') {
-    return 'status-pending-1';
+  // 🔴 Red - Rejected
+  if (statusLower === 'reject') {
+    return 'status-reject';
   }
   
-  // 🟠 Orange - Needs 2 confirmations
-  if (statusLower === 'need 2 confirmation') {
-    return 'status-pending-2';
-  }
-  
-  // Default for reject or other statuses
+  // Default for other statuses
   return 'status-default';
 }
 
@@ -223,10 +233,22 @@ function renderTestRequests(data) {
         </div>
       </td>
       <td>
-        ${status?.toLowerCase() === 'done' ? `
+        ${status?.toLowerCase() === 'need_2_confirmation' || status?.toLowerCase() === 'need 2 confirmation' ? `
+          <button class="verify-btn" onclick="verifyTestRequest(${req.request_id})">
+            <i class="fas fa-check-circle"></i> ยืนยัน
+          </button>
+        ` : status?.toLowerCase() === 'need_1_confirmation' || status?.toLowerCase() === 'need 1 confirmation' ? `
+          <button class="verify-btn" onclick="verifyTestRequest(${req.request_id})">
+            <i class="fas fa-check-circle"></i> ยืนยัน
+          </button>
+        ` : status?.toLowerCase() === 'done' ? `
           <button class="pdf-btn" onclick="viewPDF(${req.request_id}, '${patientName}')">
             <i class="fas fa-file-pdf"></i> ดู PDF
           </button>
+        ` : status?.toLowerCase() === 'pending' ? `
+          <span style="color: #3b82f6; font-weight: 500;">รอกรอก Alleles</span>
+        ` : status?.toLowerCase() === 'reject' ? `
+          <span style="color: #ef4444; font-weight: 500;">ปฏิเสธ</span>
         ` : ''}
       </td>
     `;
@@ -322,6 +344,44 @@ async function viewPDF(requestId, patientName) {
 function showPage(pageName, requestId) {
   sessionStorage.setItem('selectedRequestId', requestId);
   window.electronAPI?.navigate(pageName);
+}
+
+// Function to fill alleles for pending request
+window.fillAlleles = async function(requestId) {
+  try {
+    // Get request details
+    const req = await window.electronAPI.getTestRequestById(requestId);
+    if (!req) {
+      alert('ไม่พบข้อมูล Test Request');
+      return;
+    }
+    
+    // Store request data in sessionStorage
+    sessionStorage.setItem('selectedRequestId', requestId);
+    sessionStorage.setItem('selectedPatientId', req.patient_id);
+    sessionStorage.setItem('patientId', req.patient_id);
+    sessionStorage.setItem('selectedDnaType', req.test_target);
+    sessionStorage.setItem('selectedSpecimen', req.specimen);
+    
+    // Store patient info
+    if (req.patient) {
+      sessionStorage.setItem('patientName', `${req.patient.first_name} ${req.patient.last_name}`);
+      sessionStorage.setItem('patientAge', req.patient.age || 'N/A');
+      sessionStorage.setItem('patientGender', req.patient.gender || 'N/A');
+      sessionStorage.setItem('patientHospital', req.patient.hospital_id || 'N/A');
+    }
+    
+    // Navigate to allele input page
+    window.electronAPI.navigate('fill_alleles_pharmacy');
+  } catch (error) {
+    console.error('❌ Error preparing allele input:', error);
+    alert('เกิดข้อผิดพลาดในการเตรียมข้อมูล');
+  }
+}
+
+// Function to verify test request
+window.verifyTestRequest = function(requestId) {
+  showPage('verify_pharmacy', requestId);
 }
 
 /* ========= Light/Dark toggle (ตัวอย่าง) ========= */

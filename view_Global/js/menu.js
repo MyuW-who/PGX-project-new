@@ -36,6 +36,11 @@ dashboard_btn_pharmacy?.addEventListener('click', () => {
   window.electronAPI.navigate('dashboard_pharmacy');
 });
 
+const test_request_manager_btn_pharmacy = document.getElementById('test-request-manager-btn-pharmacy');
+test_request_manager_btn_pharmacy?.addEventListener('click', () => {
+  window.electronAPI.navigate('test_request_manager');
+});
+
 const verify_btn_pharmacy = document.getElementById('verify-btn-pharmacy');
 verify_btn_pharmacy?.addEventListener('click', () => {
   window.electronAPI.navigate('verify_pharmacy');
