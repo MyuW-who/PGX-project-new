@@ -14,6 +14,8 @@ const specimenTableBody = document.querySelector('#specimen-table tbody');
 // State
 let editingSpecimenId = null;
 let specimens = [];
+let currentPage = 1;
+const itemsPerPage = 10;
 
 /* ============================================
    🔹 Load Specimens from Database
@@ -36,7 +38,7 @@ async function loadSpecimens() {
 }
 
 /* ============================================
-   🔹 Render Specimen Table
+   🔹 Render Specimen Table with Pagination
    ============================================ */
 function renderSpecimenTable() {
   if (!specimenTableBody) return;
@@ -50,10 +52,17 @@ function renderSpecimenTable() {
         </td>
       </tr>
     `;
+    hidePagination();
     return;
   }
   
-  specimenTableBody.innerHTML = specimens.map(specimen => `
+  // Calculate pagination
+  const totalPages = Math.ceil(specimens.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedSpecimens = specimens.slice(startIndex, endIndex);
+  
+  specimenTableBody.innerHTML = paginatedSpecimens.map(specimen => `
     <tr data-id="${specimen.specimen_id}">
       <td>${specimen.specimen_name}</td>
       <td style="text-align: center;">${specimen.sla_time}</td>
@@ -69,7 +78,76 @@ function renderSpecimenTable() {
       </td>
     </tr>
   `).join('');
+  
+  renderPagination(totalPages);
 }
+
+/* ============================================
+   🔹 Render Pagination Controls
+   ============================================ */
+function renderPagination(totalPages) {
+  let paginationContainer = document.getElementById('pagination-container');
+  
+  if (!paginationContainer) {
+    // Create pagination container if it doesn't exist
+    const tableWrapper = document.querySelector('.specimen-table-wrapper') || specimenTableBody.closest('section');
+    if (tableWrapper) {
+      paginationContainer = document.createElement('div');
+      paginationContainer.id = 'pagination-container';
+      paginationContainer.className = 'pagination-container';
+      tableWrapper.appendChild(paginationContainer);
+    } else {
+      return;
+    }
+  }
+  
+  if (totalPages <= 1) {
+    paginationContainer.style.display = 'none';
+    return;
+  }
+  
+  paginationContainer.style.display = 'flex';
+  paginationContainer.innerHTML = `
+    <button class="pagination-btn" onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}>
+      <i class="fa fa-angles-left"></i>
+    </button>
+    <button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+      <i class="fa fa-angle-left"></i>
+    </button>
+    <span class="page-info">หน้า ${currentPage} / ${totalPages}</span>
+    <button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+      <i class="fa fa-angle-right"></i>
+    </button>
+    <button class="pagination-btn" onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>
+      <i class="fa fa-angles-right"></i>
+    </button>
+    <span class="items-info">${specimens.length} รายการทั้งหมด</span>
+  `;
+}
+
+/* ============================================
+   🔹 Hide Pagination
+   ============================================ */
+function hidePagination() {
+  const paginationContainer = document.getElementById('pagination-container');
+  if (paginationContainer) {
+    paginationContainer.style.display = 'none';
+  }
+}
+
+/* ============================================
+   🔹 Go to Page
+   ============================================ */
+window.goToPage = function(page) {
+  const totalPages = Math.ceil(specimens.length / itemsPerPage);
+  if (page < 1 || page > totalPages) return;
+  
+  currentPage = page;
+  renderSpecimenTable();
+  
+  // Scroll to top of table
+  specimenTableBody.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
 
 /* ============================================
    🔹 Form Submit Handler
@@ -107,6 +185,7 @@ specimenForm?.addEventListener('submit', async (e) => {
     if (result.success) {
       showMessage('success', result.message);
       resetForm();
+      currentPage = 1; // Reset to first page
       await loadSpecimens(); // Reload table
     } else {
       showMessage('error', result.message);
