@@ -155,7 +155,7 @@ function renderTestRequests(data) {
   tbody.innerHTML = '';
 
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr class="no-data-row"><td colspan="6">ไม่พบข้อมูลที่ตรงกับการค้นหา</td></tr>`;
+    tbody.innerHTML = `<tr class="no-data-row"><td colspan="9">ไม่พบข้อมูลที่ตรงกับการค้นหา</td></tr>`;
     return;
   }
 
@@ -180,6 +180,21 @@ function renderTestRequests(data) {
 
     // Get dot class for color coding
     const dotClass = getTATBadgeClass(status);
+    
+    // Determine confirmed doctor display based on status
+    let confirmedDoctor = '-';
+    const statusLower = status?.toLowerCase() || '';
+    if (statusLower === 'need_2_confirmation' || statusLower === 'need 2 confirmation') {
+      confirmedDoctor = 'รอยืนยันคนที่ 1';
+    } else if (statusLower === 'need_1_confirmation' || statusLower === 'need 1 confirmation') {
+      // Show first confirmer
+      confirmedDoctor = req.confirmed_by_1 || 'รอยืนยันคนที่ 2';
+    } else if (statusLower === 'done') {
+      // Show both confirmer
+      const doctor1 = req.confirmed_by_1 || '';
+      const doctor2 = req.confirmed_by_2 || '';
+      confirmedDoctor = [doctor1, doctor2].filter(d => d).join(' & ') || 'เสร็จสิ้น';
+    }
     
     // Calculate TAT warning with actual SLA time from database
     const tatWarning = calculateTATWarning(requestDate, slaTime, status);
@@ -216,6 +231,7 @@ function renderTestRequests(data) {
       <td>${testTarget}</td>
       <td>${received}</td>
       <td>${specimen}</td>
+      <td>${confirmedDoctor}</td>
       <td>
         <div class="tat-status">
           <span class="tat-dot ${dotClass}"></span>
