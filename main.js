@@ -115,8 +115,12 @@ ipcMain.on('navigate', (event, page) => {
     
     // Pharmacy pages
     'dashboard_pharmacy': 'view/Role_pharmacy/dashboard_pharmacy.html',
+    'test_request_manager': 'view/Role_pharmacy/test_request_manager.html',
     'information_pharmacy': 'view/Role_pharmacy/information_pharmacy.html',
     'verify_pharmacy': 'view/Role_pharmacy/verify_pharmacy.html',
+    'fill_alleles_pharmacy': 'view/Role_pharmacy/fill_alleles_pharmacy.html',
+    'confirm_alleles_pharmacy': 'view/Role_pharmacy/confirm_alleles_pharmacy.html',
+    'profile_pharmacy': 'view/Role_pharmacy/profile_pharmacy.html',
     
     // Admin pages (backward compatibility)
     'adminpage': 'view/Role_admin/adminpage.html',

@@ -245,16 +245,20 @@ async function updateStatsFromAPI() {
   try {
     const stats = await window.electronAPI.getTestRequestStats('all');
     document.getElementById('statAll').textContent = stats.all || 0;
+    document.getElementById('statPending').textContent = stats.pending || 0;
     document.getElementById('statPre').textContent = stats.need2 || stats.need2Confirmation || 0;
     document.getElementById('statAnalytic').textContent = stats.need1 || stats.need1Confirmation || 0;
     document.getElementById('statPost').textContent = stats.done || 0;
+    document.getElementById('statReject').textContent = stats.reject || 0;
   } catch (e) {
     console.error('Error fetching stats:', e);
     // Set to 0 if error
     document.getElementById('statAll').textContent = 0;
+    document.getElementById('statPending').textContent = 0;
     document.getElementById('statPre').textContent = 0;
     document.getElementById('statAnalytic').textContent = 0;
     document.getElementById('statPost').textContent = 0;
+    document.getElementById('statReject').textContent = 0;
   }
 }
 

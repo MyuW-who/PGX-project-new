@@ -50,7 +50,7 @@
             step2?.classList.add('active', 'completed');
         }
 
-        // Update status text
+        // Update status text based on new workflow
         if (status === 'done') {
             if (stepperStatus) stepperStatus.textContent = 'เสร็จสมบูรณ์ - ยืนยันครบ 2 คน';
             if (subtitleEl) subtitleEl.textContent = 'เอกสารได้รับการยืนยันแล้ว';
@@ -60,7 +60,11 @@
             if (subtitleEl) subtitleEl.textContent = 'เอกสารถูกปฏิเสธ';
             btnConfirm.disabled = true;
             btnReject.disabled = true;
-        } else if (confirmCount === 1) {
+        } else if (status === 'pending') {
+            if (stepperStatus) stepperStatus.textContent = 'รอกรอกข้อมูล Alleles';
+            if (subtitleEl) subtitleEl.textContent = 'ยังไม่มีข้อมูล Alleles';
+            btnConfirm.disabled = true;
+        } else if (status === 'need_1_confirmation' || status === 'need 1 confirmation') {
             if (stepperStatus) stepperStatus.textContent = 'รอการยืนยันจากอีก 1 คน';
             if (subtitleEl) subtitleEl.textContent = `เจ้าหน้าที่ ${confirmCount} / 2 ยืนยันแล้ว`;
             
@@ -71,11 +75,16 @@
             } else {
                 btnConfirm.disabled = false;
             }
-        } else {
+        } else if (status === 'need_2_confirmation' || status === 'need 2 confirmation') {
             // No confirmations yet
             if (stepperStatus) stepperStatus.textContent = 'รอการยืนยันจาก 2 คน';
             if (subtitleEl) subtitleEl.textContent = 'เจ้าหน้าที่ 0 / 2 กำลังตรวจสอบไฟล์ PDF';
             btnConfirm.disabled = false;
+        } else {
+            // Unknown status
+            if (stepperStatus) stepperStatus.textContent = status || 'ไม่ทราบสถานะ';
+            if (subtitleEl) subtitleEl.textContent = 'กรุณาตรวจสอบสถานะ';
+            btnConfirm.disabled = true;
         }
 
         console.log('📊 Confirmation status:', { confirmCount, status, confirmed_by_1, confirmed_by_2 });

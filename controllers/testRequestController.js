@@ -142,10 +142,7 @@ async function addTestRequest(requestData) {
 async function updateTestRequest(requestId, updateData) {
   const { data, error } = await supabase
     .from('test_request')
-    .update({
-      ...updateData,
-      updated_at: new Date().toISOString()
-    })
+    .update(updateData)
     .eq('request_id', requestId)
     .select()
     .single();
@@ -208,14 +205,20 @@ async function getTestRequestStats(timeFilter = 'today') {
   }
 
   const all = data?.length || 0;
+  
+  const pending = data?.filter(r => {
+    const status = r.status?.toLowerCase().trim();
+    return status === 'pending';
+  })?.length || 0;
+  
   const need2Confirmation = data?.filter(r => {
     const status = r.status?.toLowerCase().trim();
-    return status === 'need 2 confirmation';
+    return status === 'need_2_confirmation' || status === 'need 2 confirmation';
   })?.length || 0;
   
   const need1Confirmation = data?.filter(r => {
     const status = r.status?.toLowerCase().trim();
-    return status === 'need 1 confirmation';
+    return status === 'need_1_confirmation' || status === 'need 1 confirmation';
   })?.length || 0;
   
   const done = data?.filter(r => {
@@ -230,6 +233,7 @@ async function getTestRequestStats(timeFilter = 'today') {
 
   return { 
     all, 
+    pending,
     need2Confirmation, 
     need1Confirmation, 
     done,
@@ -308,6 +312,11 @@ async function confirmTestRequest(requestId, userId) {
       return { success: false, message: 'ไม่พบข้อมูลคำขอ' };
     }
 
+    // Check if request is pending (not yet ready for confirmation)
+    if (currentRequest.status === 'pending') {
+      return { success: false, message: 'กรุณากรอกข้อมูล Alleles ก่อนยืนยัน' };
+    }
+
     // Check if this user already confirmed
     if (currentRequest.confirmed_by_1 === userId || currentRequest.confirmed_by_2 === userId) {
       return { success: false, message: 'คุณได้ยืนยันแล้ว ไม่สามารถยืนยันซ้ำได้' };
@@ -318,15 +327,15 @@ async function confirmTestRequest(requestId, userId) {
     let newStatus = '';
 
     if (!currentRequest.confirmed_by_1) {
-      // First confirmation
+      // First confirmation: need_2_confirmation → need_1_confirmation
       updateData = {
         confirmed_by_1: userId,
         confirmed_at_1: new Date().toISOString(),
-        status: 'need 1 confirmation'
+        status: 'need_1_confirmation'
       };
-      newStatus = 'need 1 confirmation';
+      newStatus = 'need_1_confirmation';
     } else if (!currentRequest.confirmed_by_2) {
-      // Second confirmation - mark as done
+      // Second confirmation: need_1_confirmation → done
       updateData = {
         confirmed_by_2: userId,
         confirmed_at_2: new Date().toISOString(),

@@ -156,18 +156,21 @@ function calculateTATWarning(requestDate, slaTime, status) {
  */
 function renderAllTables(allRequests) {
   // 1. กรองข้อมูลตามสถานะ (ใช้ .toLowerCase() เพื่อความแน่นอน)
+  const pendingList = allRequests.filter(r => (r.status || '').toLowerCase() === 'pending');
   const need2List = allRequests.filter(r => (r.status || '').toLowerCase() === 'need 2 confirmation');
   const need1List = allRequests.filter(r => (r.status || '').toLowerCase() === 'need 1 confirmation');
   const doneList = allRequests.filter(r => (r.status || '').toLowerCase() === 'done');
   const rejectList = allRequests.filter(r => (r.status || '').toLowerCase() === 'reject');
 
-  // 2. ดึง Element ของ tbody ทั้ง 4 (จาก HTML)
+  // 2. ดึง Element ของ tbody ทั้งหมด (จาก HTML)
+  const tbodyPending = document.querySelector('#tablePending tbody');
   const tbodyNeed2 = document.querySelector('#tableNeed2 tbody');
   const tbodyNeed1 = document.querySelector('#tableNeed1 tbody');
   const tbodyDone = document.querySelector('#tableDone tbody');
   const tbodyReject = document.querySelector('#tableReject tbody');
 
   // 3. ส่งข้อมูลไป render แต่ละตาราง
+  renderTableRows(tbodyPending, pendingList);
   renderTableRows(tbodyNeed2, need2List);
   renderTableRows(tbodyNeed1, need1List);
   renderTableRows(tbodyDone, doneList);
@@ -283,9 +286,10 @@ async function updateStatsFromAPI() {
   try {
     const stats = await window.electronAPI.getTestRequestStats('all');
     
-    document.getElementById('statAll').textContent = stats.all || 0; 
+    document.getElementById('statAll').textContent = stats.all || 0;
+    document.getElementById('statPending').textContent = stats.pending || 0;
     document.getElementById('statPost').textContent = stats.done || 0;
-    document.getElementById('statReject').textContent = stats.reject || 0; // ✅ เปิดบรรทัดนี้
+    document.getElementById('statReject').textContent = stats.reject || 0;
     document.getElementById('statPre').textContent = stats.need2 || stats.need2Confirmation || 0;
     document.getElementById('statAnalytic').textContent = stats.need1 || stats.need1Confirmation || 0;
 
@@ -293,8 +297,9 @@ async function updateStatsFromAPI() {
     console.error('Error fetching stats:', e);
     // Set to 0 if error
     document.getElementById('statAll').textContent = 0;
+    document.getElementById('statPending').textContent = 0;
     document.getElementById('statPost').textContent = 0;
-    document.getElementById('statReject').textContent = 0; // ✅ เปิดบรรทัดนี้
+    document.getElementById('statReject').textContent = 0;
     document.getElementById('statPre').textContent = 0;
     document.getElementById('statAnalytic').textContent = 0;
   }

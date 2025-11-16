@@ -2,6 +2,13 @@
 /* ========================
    ดึงข้อมูลจาก sessionStorage
 ======================== */
+
+// Get current user helper function
+function getCurrentUser() {
+  const sessionData = sessionStorage.getItem('currentUser');
+  return sessionData ? JSON.parse(sessionData) : null;
+}
+
 const dnaType = sessionStorage.getItem("selectedDnaType") || "-";
 const patientName = sessionStorage.getItem("patientName") || "-";
 const patientId = sessionStorage.getItem("patientId") || sessionStorage.getItem("selectedPatientId") || "-";
@@ -82,17 +89,11 @@ if (recommendation) {
 }
 
 document.querySelector(".back-btn").addEventListener("click", () => {
-  window.electronAPI.navigate('input_step2_medtech');
+  window.electronAPI.navigate('fill_alleles_pharmacy');
 });
 
 document.querySelector(".confirm-btn").addEventListener("click", async () => {
   try {
-
-    if (!window.testRequestModule) {
-      alert('โมดูลไม่ถูกโหลด กรุณารีเฟรชหน้าเว็บ');
-      return;
-    }
-
     const currentUser = getCurrentUser();
     
     if (!currentUser) {
@@ -105,9 +106,37 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
       return;
     }
 
-    const sessionData = window.testRequestModule.loadTestRequestFromSession();
+    // Get request ID from session
+    const requestId = sessionStorage.getItem('selectedRequestId');
+    if (!requestId) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'ข้อมูลไม่ครบถ้วน',
+        text: 'ไม่พบข้อมูล Request ID',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
 
-    if (!sessionData.selectedPatientId || !sessionData.selectedDnaType || !sessionData.selectedSpecimen) {
+    // Fetch test request data
+    const testRequestData = await window.electronAPI.getTestRequestById(requestId);
+    if (!testRequestData) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: 'ไม่พบข้อมูล Test Request',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
+    const sessionData = {
+      selectedPatientId: sessionStorage.getItem('selectedPatientId'),
+      selectedDnaType: sessionStorage.getItem('selectedDnaType'),
+      selectedSpecimen: sessionStorage.getItem('selectedSpecimen')
+    };
+
+    if (!sessionData.selectedPatientId || !sessionData.selectedDnaType) {
       await Swal.fire({
         icon: 'error',
         title: 'ข้อมูลไม่ครบถ้วน',
@@ -117,27 +146,25 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
       return;
     }
 
-    // Prepare test request data
     const doctorName = currentUser.doctor_name 
       || (currentUser.first_name && currentUser.last_name 
           ? `${currentUser.first_name} ${currentUser.last_name}`.trim() 
           : currentUser.username)
-      || 'Unknown Doctor';
+      || 'Unknown Pharmacist';
     
-    const testRequestData = {
-      patient_id: sessionData.selectedPatientId,
-      test_target: sessionData.selectedDnaType,
-      Specimen: sessionData.selectedSpecimen,
-      request_date: new Date().toISOString().split('T')[0],
-      status: 'need 2 confirmation',
-      users_id: currentUser.user_id || null,
-      Doc_Name: doctorName
+    // Prepare update data with alleles
+    const updateData = {
+      status: 'need_2_confirmation',
+      Doc_Name: doctorName,
+      allele_data: JSON.stringify(sessionStorage.getItem('alleles') ? JSON.parse(sessionStorage.getItem('alleles')) : {})
     };
 
-    // Save to database using the module
-    const result = await window.testRequestModule.createTestRequest(testRequestData);
+    // Update test request
+    const result = await window.electronAPI.updateTestRequest(requestId, updateData);
+    console.log('✅ Test request updated:', result);
     
-    if (result && result.request_id) {
+    if (result) {
+      const actualRequestId = result.request_id || requestId;
       // Prepare complete test data for report generation
       const alleles = [];
       const alleleKeys = ['allele2', 'allele3', 'allele4', 'allele5', 'allele10', 'allele17', 'allele41'];
@@ -152,7 +179,7 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
       });
 
       const completeTestData = {
-        request_id: result.request_id,
+        request_id: actualRequestId,
         test_target: testRequestData.test_target,
         genotype: genotype,
         predicted_phenotype: document.getElementById('phenotype').textContent || phenotype,
@@ -198,11 +225,14 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
         });
       }
       
-      // Clear session data using the module
-      window.testRequestModule.clearTestRequestSession();
+      // Clear some session data
+      sessionStorage.removeItem('selectedRequestId');
+      sessionStorage.removeItem('genotype');
+      sessionStorage.removeItem('phenotype');
+      sessionStorage.removeItem('alleles');
       
-      // Navigate back to patient page
-      window.electronAPI.navigate('patient_medtech');
+      // Navigate back to information page
+      window.electronAPI.navigate('information_pharmacy');
     }
   } catch (error) {
     console.error('❌ Error saving test request:', error);

@@ -94,28 +94,91 @@ backBtn.addEventListener("click", () => {
   window.electronAPI.navigate('patient_medtech'); // Navigate back to the patient page
 });
 
-// Next Button
+// Next Button - Create test request with pending status
 const nextBtn = document.querySelector(".next-btn");
-nextBtn.addEventListener("click", () => {
+nextBtn.addEventListener("click", async () => {
   const dnaType = document.getElementById("dnaType").value;
   const specimenType = document.getElementById("specimenType").value;
   
   if (!dnaType) {
-    alert("กรุณาเลือกประเภท DNA ก่อนดำเนินการต่อ");
+    Swal.fire({
+      icon: 'warning',
+      title: 'ข้อมูลไม่ครบถ้วน',
+      text: 'กรุณาเลือกประเภท DNA ก่อนดำเนินการต่อ',
+      confirmButtonText: 'ตกลง'
+    });
     return;
   }
   
   if (!specimenType) {
-    alert("กรุณาเลือกประเภทสิ่งส่งตรวจก่อนดำเนินการต่อ");
+    Swal.fire({
+      icon: 'warning',
+      title: 'ข้อมูลไม่ครบถ้วน',
+      text: 'กรุณาเลือกประเภทสิ่งส่งตรวจก่อนดำเนินการต่อ',
+      confirmButtonText: 'ตกลง'
+    });
     return;
   }
 
-  // Store selected DNA type and Specimen in sessionStorage
-  sessionStorage.setItem("selectedDnaType", dnaType);
-  sessionStorage.setItem("selectedSpecimen", specimenType);
+  try {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const patientId = sessionStorage.getItem('selectedPatientId');
+    
+    if (!currentUser.user_id) {
+      Swal.fire({
+        icon: 'error',
+        title: 'ไม่พบข้อมูลผู้ใช้',
+        text: 'กรุณาเข้าสู่ระบบใหม่',
+        confirmButtonText: 'ตกลง'
+      });
+      window.electronAPI.navigate('login');
+      return;
+    }
 
-  // Navigate to the next step
-  window.electronAPI.navigate('input_step2_medtech');
+    // Create test request with pending status
+    const testRequestData = {
+      patient_id: patientId,
+      test_target: dnaType,
+      Specimen: specimenType,
+      status: 'pending',
+      users_id: currentUser.user_id,
+      request_date: new Date().toISOString()
+    };
+
+    console.log('📝 Creating test request:', testRequestData);
+    const result = await window.electronAPI.addTestRequest(testRequestData);
+    
+    console.log('📦 Result from addTestRequest:', result);
+
+    if (result && result.success && result.data && result.data.request_id) {
+      console.log('✅ Test request created:', result.data.request_id);
+      await Swal.fire({
+        icon: 'success',
+        title: 'สร้างคำขอตรวจสอบสำเร็จ!',
+        html: `<strong>Request ID: ${result.data.request_id}</strong><br>สถานะ: รอเภสัชกรกรอกข้อมูล Allele`,
+        confirmButtonText: 'ตกลง'
+      });
+      
+      // Navigate back to patient page
+      window.electronAPI.navigate('patient_medtech');
+    } else {
+      console.error('❌ Failed to create test request - Result:', result);
+      await Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: result?.message || 'เกิดข้อผิดพลาดในการสร้างคำขอตรวจสอบ',
+        confirmButtonText: 'ตกลง'
+      });
+    }
+  } catch (error) {
+    console.error('❌ Error creating test request:', error);
+    await Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: 'เกิดข้อผิดพลาดในการสร้างคำขอตรวจสอบ',
+      confirmButtonText: 'ตกลง'
+    });
+  }
 });
 
 // ปุ่ม Back
