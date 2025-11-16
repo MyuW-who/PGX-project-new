@@ -135,17 +135,19 @@ nextBtn.addEventListener("click", async () => {
       return;
     }
 
-    // Create test request with pending status
+    // Create test request with pending status and doctor name from logged-in user
+    const doctorName = currentUser.doctor_name || `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || currentUser.username;
     const testRequestData = {
       patient_id: patientId,
       test_target: dnaType,
       Specimen: specimenType,
       status: 'pending',
       users_id: currentUser.user_id,
+      Doc_Name: doctorName, // Set doctor name from logged-in user
       request_date: new Date().toISOString()
     };
 
-    console.log('📝 Creating test request:', testRequestData);
+    console.log('📝 Creating test request with doctor name:', doctorName, testRequestData);
     const result = await window.electronAPI.addTestRequest(testRequestData);
     
     console.log('📦 Result from addTestRequest:', result);
