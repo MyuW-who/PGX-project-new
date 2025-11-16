@@ -333,13 +333,13 @@ html.dark .case-table tbody tr,
 html.dark #user-table tbody tr,
 html.dark .specimen-table tbody tr {
   background-color: transparent !important;
-  color: var(--text-primary);
-  border-color: var(--border);
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
 }
 
 html.dark .data-table-container tbody tr:nth-child(even),
 html.dark .case-table tbody tr:nth-child(even) {
-  background-color: rgba(55, 65, 81, 0.3);
+  background-color: rgba(55, 65, 81, 0.3) !important;
 }
 
 html.dark table tbody tr:hover,
@@ -605,6 +605,31 @@ html.dark canvas {
   background: var(--card-bg) !important;
 }
 
+/* Chart text and labels visibility */
+html.dark .stat-card h4,
+html.dark .stat-card h3,
+html.dark .stat-card p,
+html.dark .chart-container h4,
+html.dark .chart-container p,
+html.dark .stat-card-header h4 {
+  color: var(--text-primary) !important;
+}
+
+html.dark .stat-card p,
+html.dark .chart-container p,
+html.dark #top-rejects-subtitle,
+html.dark #top-dna-subtitle,
+html.dark #top-hospitals-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+/* Chart center text (donut charts) */
+html.dark .chart-container canvas + div,
+html.dark canvas + div,
+html.dark [class*="chart"] div {
+  color: var(--text-primary) !important;
+}
+
 html.dark .toggle-group .small-btn {
   background: #374151 !important;
   border-color: #4b5563 !important;
@@ -790,8 +815,19 @@ html.dark .swal2-html-container div {
 
 /* Override inline background styles in SweetAlert content */
 html.dark .swal2-html-container p[style*="background"],
-html.dark .swal2-html-container div[style*="background"] {
+html.dark .swal2-html-container div[style*="background"],
+html.dark .swal2-html-container [style*="background"] {
   background: var(--bg) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Force all text in SweetAlert to be visible in dark mode */
+html.dark .swal2-html-container * {
+  color: var(--text-secondary) !important;
+}
+
+html.dark .swal2-html-container strong {
+  color: var(--text-primary) !important;
 }
 
 html.dark .swal2-input,
@@ -851,4 +887,182 @@ html.dark .popup-footer,
 html.dark .modal-footer {
   background: var(--card-bg) !important;
   border-top: 1px solid var(--border) !important;
+}
+
+/* Input Step 1 Medtech Page - Dark Mode */
+html.dark body.step1-page {
+  background: #0d0d0d !important;
+  color: #f5f5f5 !important;
+}
+
+html.dark .step1-page .page-header {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+
+html.dark .step1-page .container {
+  background: linear-gradient(145deg, #2d3040, #383d4f) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .step1-page .container h3 {
+  color: #ffffff !important;
+  font-size: 1.4rem !important;
+  margin-bottom: 1.5rem !important;
+  padding-bottom: 0.8rem !important;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+html.dark .step1-page .patient-box {
+  background: linear-gradient(135deg, rgba(45, 48, 64, 0.6), rgba(55, 58, 74, 0.6)) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 16px !important;
+}
+
+html.dark .step1-page .patient-box td {
+  color: #cbd5e1 !important;
+}
+
+html.dark .step1-page .patient-box td.label {
+  color: #cbd5e1 !important;
+  font-weight: 600;
+}
+
+html.dark .step1-page .dna-section label {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+html.dark .step1-page .dna-section select {
+  background: linear-gradient(135deg, rgba(45, 48, 64, 0.9), rgba(55, 58, 74, 0.9)) !important;
+  color: #e0e7ff !important;
+  border: 1.6px solid rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+html.dark .step1-page .dna-section select:hover {
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+html.dark .step1-page .dna-section select:focus {
+  border-color: rgba(59, 130, 246, 0.7) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 6px 16px rgba(59, 130, 246, 0.3) !important;
+}
+
+html.dark .step1-page .dna-section select option {
+  background: #2d2f40 !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark .step1-page .back-btn {
+  background: linear-gradient(135deg, rgba(60, 63, 82, 0.9), rgba(70, 73, 92, 0.9)) !important;
+  color: #e0e7ff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+html.dark .step1-page .back-btn:hover {
+  background: linear-gradient(135deg, rgba(70, 73, 92, 1), rgba(80, 83, 102, 1)) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+html.dark .step1-page .next-btn {
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+  transition: all 0.3s ease !important;
+}
+
+html.dark .step1-page .next-btn:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Login Page - Theme Toggle Button */
+.theme-toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 140px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+html.dark .theme-toggle-btn {
+  background: rgba(45, 48, 64, 0.9);
+  color: #fbbf24;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .theme-toggle-btn:hover {
+  border-color: rgba(251, 191, 36, 0.3);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
+}
+
+/* PDF Viewer Page - Dark Mode */
+html.dark body.pdf-dark-bg {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+  color: #e4e4e7 !important;
+}
+
+html.dark .pdf-top-bar {
+  background: rgba(30, 30, 46, 0.8) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .pdf-window {
+  background: rgba(30, 30, 46, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .pdf-toolbar {
+  background: rgba(20, 20, 30, 0.8) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .pdf-window-title,
+html.dark .pdf-icon-btn {
+  color: #e4e4e7 !important;
+}
+
+html.dark .pdf-icon-btn {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+html.dark .pdf-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .pdf-frame-wrap {
+  background: rgba(15, 15, 25, 0.5) !important;
 }

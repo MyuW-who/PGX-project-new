@@ -263,7 +263,7 @@ async function renderMetrics() {
         const centerX = (chartArea.left + chartArea.right) / 2;
         const centerY = (chartArea.top + chartArea.bottom) / 2;
         
-        const isDark = document.body.classList.contains('dark');
+        const isDark = document.documentElement.classList.contains('dark');
         
         ctx.save();
         ctx.textAlign = 'center';
@@ -333,7 +333,7 @@ async function renderMetrics() {
         const arc = meta?.data?.[0];
         if (!arc) return;
         
-        const isDark = document.body.classList.contains('dark');
+        const isDark = document.documentElement.classList.contains('dark');
         const {ctx} = chart;
         
         ctx.save();
@@ -346,7 +346,7 @@ async function renderMetrics() {
       }
     };
 
-    const isDark = document.body.classList.contains('dark');
+    const isDark = document.documentElement.classList.contains('dark');
     const ctx = gaugeCanvas.getContext('2d');
     
     // Destroy existing chart if it exists
