@@ -68,9 +68,23 @@ function displayProfile(profile) {
   firstNameInput.value = profile.first_name || '';
   lastNameInput.value = profile.last_name || '';
 
-  // Display user name in header
-  const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.username;
-  userDisplayName.textContent = `${fullName} (${profile.role})`;
+  // Update session with full profile data
+  const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+  if (fullName) {
+    // Store doctor_name in current user session for display
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      currentUser.doctor_name = fullName;
+      currentUser.first_name = profile.first_name;
+      currentUser.last_name = profile.last_name;
+      sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+    }
+  }
+
+  // Trigger update of user display in header (handled by userProfile.js)
+  if (typeof updateUserDisplay === 'function') {
+    updateUserDisplay();
+  }
 
   // Display account info
   infoUsername.textContent = profile.username;
@@ -318,7 +332,17 @@ function formatDate(dateString) {
    🔹 Back Button
    ============================================ */
 btnBack?.addEventListener('click', () => {
-  window.history.back();
+  // Navigate to role-specific dashboard
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    if (currentUser.role === 'pharmacist') {
+      window.electronAPI.navigate('Role_pharmacy/dashboard_pharmacy');
+    } else if (currentUser.role === 'medtech') {
+      window.electronAPI.navigate('Role_medtech/dashboard_medtech');
+    } else {
+      window.electronAPI.navigate('Role_admin/adminpage');
+    }
+  }
 });
 
 /* ============================================

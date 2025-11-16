@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="../../view_Global/css/navbar.css" />
   <link rel="stylesheet" href="../../view_Global/css/darkmode.css" />
 </head>
 <body>
@@ -25,11 +26,20 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="icon-btn theme-toggle" aria-label="Toggle theme">🌗</button>
-        <button class="lang-btn">TH</button>
-        <div class="account-pill">
-          <span class="avatar">A</span>
-          <span class="name" id="userDisplayName">Loading...</span>
+        <button id="themeToggle" class="icon-btn theme-toggle" aria-label="Toggle theme">
+          <i class="fa fa-moon"></i>
+        </button>
+        <button id="langToggle" class="lang-btn">TH</button>
+        
+        <div class="dropdown">
+          <button class="dropbtn" id="dropdownBtn">
+            <i class="fa fa-user-circle"></i> <span id="userDisplayName">Loading...</span> <i class="fa fa-caret-down"></i>
+          </button>
+          <div id="dropdownMenu" class="dropdown-content">
+            <a href="#" id="profile-link" class="dropdown-item">Profile</a>
+            <a href="#">About</a>
+            <a href="#" id="logout">Logout</a>
+          </div>
         </div>
       </div>
     </header>
@@ -108,6 +118,8 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+  <script src="../../view_Global/js/userProfile.js"></script>
+  <script src="../../view_Global/js/darkmode.js"></script>
   <script src="./js/profile_pharmacy.js"></script>
 </body>
 </html>
