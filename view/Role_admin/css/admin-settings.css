@@ -69,17 +69,23 @@ a {
   color: var(--sidebar-text);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 20px 25px rgba(15, 23, 42, 0.15);
-  padding: 1.5rem;
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
+  gap: 40px;
+  box-sizing: border-box;
 }
 
 .content {
-  margin-left: 240px; /* Same as sidebar width */
+  margin-left: 240px;
   width: calc(100% - 240px);
-  padding: 2rem 3rem;
+  padding: 32px 40px 64px;
   background: var(--color-bg);
   min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 /* --- 3. Sidebar Navigation --- */
@@ -153,9 +159,15 @@ a {
 /* --- 4. Page Header & Toolbar --- */
 .page-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 28px;
+  background: var(--color-surface);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  flex-wrap: wrap;
 }
 
 .page-heading h1 {
@@ -257,6 +269,7 @@ a {
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
 }
 
 /* Standard Card Padding */
