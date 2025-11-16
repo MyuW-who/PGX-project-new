@@ -526,7 +526,7 @@ renderDNAForm(dnaType);
    🔙 ปุ่ม Back / ✅ Confirm
 ======================== */
 document.querySelector(".back-btn").addEventListener("click", () => {
-  window.electronAPI.navigate('information_pharmacy');
+  window.electronAPI.navigate('test_request_manager');
 });
 
 document.querySelector(".confirm-btn").addEventListener("click", async () => {

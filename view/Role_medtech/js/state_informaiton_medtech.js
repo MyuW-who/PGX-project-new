@@ -16,7 +16,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     console.log('🔍 SLA Map Keys:', Object.keys(specimenSlaMap));
     console.log('🔍 SLA Map Values:', Object.values(specimenSlaMap));
 
-    // 2. ดึงข้อมูล Test Requests (เหมือนเดิม)
+    // 2. ดึงข้อมูล Test Requests
     const testRequests = await window.electronAPI.getTestRequests();
     console.log('📦 Test Requests:', testRequests);
     
@@ -81,6 +81,11 @@ function getTATBadgeClass(status) {
     return 'status-done';
   }
   
+  // 🔵 Blue - Pending
+  if (statusLower === 'pending') {
+    return 'status-pending';
+  }
+  
   // 🟡 Yellow - Needs 1 confirmation
   if (statusLower === 'need 1 confirmation') {
     return 'status-pending-1';
@@ -91,7 +96,12 @@ function getTATBadgeClass(status) {
     return 'status-pending-2';
   }
   
-  // Default for reject or other statuses
+  // 🔴 Red - Rejected
+  if (statusLower === 'reject') {
+    return 'status-reject';
+  }
+  
+  // Default for other statuses
   return 'status-default';
 }
 
@@ -213,7 +223,9 @@ function renderTableRows(tbody, data) {
     // Get SLA time from map (case-insensitive lookup)
     const specimenKey = (specimen || '').toLowerCase();
     const slaTime = specimenSlaMap[specimenKey];
-    const statusDisplay = status;
+    
+    // Format status display text (replace underscores with spaces)
+    const statusDisplay = status ? status.replace(/_/g, ' ') : '-';
 
     const dotClass = getTATBadgeClass(status);
     
@@ -269,6 +281,10 @@ function renderTableRows(tbody, data) {
           >
             <i class="fas fa-file-pdf"></i> ดู PDF
           </button>
+        ` : status?.toLowerCase() === 'reject' ? `
+          <button class="reject-reason-btn" onclick="showRejectReason(${req.request_id})">
+            <i class="fas fa-info-circle"></i> ดูเหตุผล
+          </button>
         ` : ''}
       </td>
     `;
@@ -306,6 +322,47 @@ async function updateStatsFromAPI() {
 }
 
 /* ========= Edit / View PDF / Navigate ========= */
+async function showRejectReason(requestId) {
+  try {
+    const req = await window.electronAPI.getTestRequestById(requestId);
+    if (!req) {
+      Swal.fire({
+        icon: 'error',
+        title: 'ไม่พบข้อมูล',
+        text: 'ไม่สามารถดึงข้อมูล Test Request ได้'
+      });
+      return;
+    }
+    
+    const rejectionReason = req.rejection_reason || 'ไม่มีเหตุผลที่ระบุ';
+    const rejectedBy = req.rejected_by || '-';
+    const rejectedAt = req.rejected_at ? new Date(req.rejected_at).toLocaleString('th-TH') : '-';
+    
+    Swal.fire({
+      icon: 'info',
+      title: 'เหตุผลการปฏิเสธ',
+      html: `
+        <div style="text-align: left; padding: 10px;">
+          <p><strong>เคสเลขที่:</strong> ${requestId}</p>
+          <p><strong>เหตุผล:</strong></p>
+          <p style="background: #f3f4f6; padding: 10px; border-radius: 5px; margin: 10px 0;">${rejectionReason}</p>
+          <p><strong>ปฏิเสธโดย:</strong> ${rejectedBy}</p>
+          <p><strong>วันที่ปฏิเสธ:</strong> ${rejectedAt}</p>
+        </div>
+      `,
+      confirmButtonText: 'ปิด',
+      width: '600px'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching reject reason:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: 'ไม่สามารถดึงข้อมูลเหตุผลการปฏิเสธได้'
+    });
+  }
+}
+
 async function editTestRequest(requestId) {
   try {
     const req = await window.electronAPI.getTestRequestById(requestId);
@@ -322,48 +379,19 @@ async function editTestRequest(requestId) {
 // ⭐️ (ส่วนนี้ขาดหายไปจากไฟล์ที่คุณส่งมา ผมเติมให้)
 async function viewPDF(requestId, patientName) {
   try {
-    // Get the test request details with report
-    const req = await window.electronAPI.getTestRequestById(requestId);
-    if (!req) {
-      alert('ไม่พบข้อมูล Test Request');
-      return;
-    }
+    // Store data in sessionStorage
+    sessionStorage.setItem('selectedRequestId', requestId);
+    sessionStorage.setItem('selectedPatientName', patientName);
     
-    // Check if report exists and has PDF path
-    if (req.report?.pdf_path) {
-      // If there's a PDF URL from Supabase Storage
-      alert(`เปิดไฟล์ PDF: ${req.report.pdf_path}`);
-      // TODO: Implement actual PDF viewing/opening in browser
-      // window.open(req.report.pdf_path, '_blank');
-    } else if (req.report) {
-      // Report exists but no PDF, regenerate with full report data
-      const reportData = {
-        name: patientName,
-        age: req.patient?.age || '-',
-        gender: req.patient?.gender || '-',
-        hn: req.patient?.patient_id || '-',
-        hospital: req.patient?.hospital_id || '-',
-        testTarget: req.test_target || '-',
-        specimen: req.Specimen || '-',
-        // Add rulebase data from report
-        genotype: req.report.genotype,
-        predicted_phenotype: req.report.predicted_phenotype,
-        recommendation: req.report.recommendation,
-        genotype_summary: req.report.genotype_summary,
-        // Parse alleles if stored as JSON string
-        alleles: typeof req.alleles === 'string' ? JSON.parse(req.alleles) : (req.alleles || []),
-        activityScore: req.activity_score || 'N/A'
-      };
-      
-      const pdfPath = await window.electron.generatePDF(reportData);
-      alert(`สร้าง PDF สำเร็จ: ${pdfPath}`);
-    } else {
-      // No report yet, can't generate PDF
-      alert('ยังไม่มีรายงานผลการตรวจสำหรับ Test Request นี้');
-    }
-  } catch (e) {
-    console.error('❌ Error viewing PDF:', e);
-    alert('เกิดข้อผิดพลาดในการดู PDF');
+    // Navigate to PDF viewer page
+    window.electronAPI.navigate('showpdf_medtech');
+  } catch (error) {
+    console.error('❌ Error preparing PDF view:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: 'ไม่สามารถเปิด PDF ได้'
+    });
   }
 }
 
@@ -371,6 +399,11 @@ function showPage(pageName, patientId) {
   sessionStorage.setItem('selectedPatientId', patientId);
   window.electronAPI?.navigate(pageName);
 }
+
+// Make functions globally accessible for onclick handlers
+window.showRejectReason = showRejectReason;
+window.viewPDF = viewPDF;
+window.editTestRequest = editTestRequest;
 
 /* ========= Light/Dark toggle (ตัวอย่าง) ========= */
 
