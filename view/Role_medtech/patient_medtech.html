@@ -52,7 +52,7 @@
         <li id="dashboard-btn-medtech" >Dashboard</li>
         <li id="patient-btn-medtech" class="active">ข้อมูลผู้ป่วย</li>
         <!--li id="information-btn-medtech">ตรวจสอบข้อมูล</li-->
-        <li id="state-btn-medtech">Test</li>
+        <li id="state-btn-medtech">ติดตามสถานะ</li>
       </ul>
     </aside>
 
@@ -194,7 +194,12 @@
 
           <div class="form-group">
             <label>โรงพยาบาล:</label>
-            <input type="text" id="hospital" />
+            <select id="hospital">
+              <option value="">--เลือกโรงพยาบาล--</option>
+              <option value="รพ.กรุงเทพ">รพ.กรุงเทพ</option>
+              <option value="รพ.ศิริราช">รพ.ศิริราช</option>
+              <option value="รพ.จุฬา">รพ.จุฬา</option>
+            </select>
           </div>
 
           <div class="form-group">
