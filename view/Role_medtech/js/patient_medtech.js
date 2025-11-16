@@ -60,8 +60,8 @@
       icon: 'success',
       title: 'บันทึกสำเร็จ!',
       text: isEditMode ? 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว' : 'เพิ่มข้อมูลผู้ป่วยสำเร็จ',
-      background: '#1f2937',
-      color: '#f9fafb',
+      background: '#ffffffff',
+      color: '#000000ff',
       confirmButtonColor: '#3b82f6'
     });
 
