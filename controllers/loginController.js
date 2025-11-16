@@ -64,6 +64,8 @@ async function handleLogin(event, { username, password }) {
       created_at: data.created_at,
       first_name: data.F_Name || null,
       last_name: data.L_Name || null,
+      F_Name: data.F_Name || null,
+      L_Name: data.L_Name || null,
       signature_url: data.Signature_path || null,
       doctor_name: (data.F_Name && data.L_Name) 
         ? `${data.F_Name} ${data.L_Name}`.trim() 
