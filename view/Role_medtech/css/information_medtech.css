@@ -191,10 +191,10 @@ a {
    📋 DATA TABLE (ปรับปรุงดีไซน์)
    ============================================ */
 .data-table-container .table-wrapper {
-  background: var(--card-bg);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow-x: auto;
+  background: rgba(12, 20, 40, 0.85);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow: hidden;
 }
 
 .data-table-container table {
@@ -203,7 +203,7 @@ a {
 }
 
 .data-table-container thead {
-  background-color: transparent; /* 🔹 ทำให้โปร่งใส */
+  background: rgba(18, 31, 60, 0.9);
 }
 
 .data-table-container th,
@@ -217,11 +217,16 @@ a {
 }
 
 .data-table-container th {
-  font-weight: 600;
-  text-transform: none; /* 🔹 ไม่ต้องเป็นตัวพิมพ์ใหญ่ */
-  font-size: 14px;
-  letter-spacing: normal;
-  color: var(--text-muted);
+  color: #c7d5ff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.data-table-container tbody tr {
+  background: rgba(9, 14, 30, 0.75);
+}
+
+.data-table-container tbody tr + tr {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .data-table-container tbody tr:hover {
@@ -520,5 +525,46 @@ tr.tat-overdue:hover {
 
 .scanner-popup-box .close-btn:hover {
   background: #718096;
+}
+
+/* ============================================
+   📌 PENDING SECTION (Newly Added)
+   ============================================ */
+.pending-section {
+  background: #0d1730;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 25px 60px rgba(4, 9, 24, 0.55);
+}
+
+.pending-section {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pending-section .data-table-container,
+.pending-section .table-wrapper,
+.pending-section table {
+  width: 100%;
+}
+
+.pending-section .data-table-container {
+  padding: 0;
+  margin: 0;
+}
+
+.pending-section .table-wrapper {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.pending-section .section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  color: #f1f5ff;
+  font-size: 22px;
+  font-weight: 700;
 }
 
