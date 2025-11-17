@@ -581,7 +581,6 @@ html.dark input[type="email"],
 html.dark input[type="password"],
 html.dark input[type="number"],
 html.dark textarea {
-  background: #374151 !important;
   color: var(--text-primary) !important;
 }
 
@@ -668,7 +667,6 @@ html.dark section.metrics-row {
 }
 
 html.dark .toolbar,
-html.dark .scanner-overlay,
 html.dark .scanner-popup-box,
 html.dark .popup,
 html.dark .popup-content,

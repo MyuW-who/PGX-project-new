@@ -25,16 +25,14 @@ a {
    🔍 TOOLBAR (Search + Add Button)
    ============================================ */
 .toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  padding: 18px 24px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 50px;
   align-items: center;
   justify-content: space-between;
-  background: var(--card-bg);
-  padding: 18px 24px;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  box-sizing: border-box;
+  box-shadow: var(--shadow-strong);
 }
 
 .toolbar-left {
@@ -52,10 +50,38 @@ a {
   pointer-events: none; /* ทำให้คลิกทะลุไอคอนไปที่ input ได้ */
 }
 
-.toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.toolbar-left input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 16px;
+  padding: 14px 48px 14px 52px;
+  color: var(--text-primary);
+  font-size: 1.05rem;
+}
+
+body.dark .toolbar-left input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fbff;
+}
+
+.toolbar-left i {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.toolbar-right .btn.primary {
+  background: linear-gradient(135deg, #4f7afe, #6b4dff);
+  border: none;
+  border-radius: 16px;
+  padding: 14px 28px;
+  font-weight: 600;
+  box-shadow: 0 12px 24px rgba(79, 122, 254, 0.35);
 }
 
 #searchInput {
@@ -68,7 +94,6 @@ a {
   color: var(--text-primary);
   transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
   outline: none;
-  box-sizing: border-box;
 }
 #searchInput:focus {
   border-color: var(--primary);
@@ -83,7 +108,6 @@ a {
   background: #fff;
   cursor: pointer;
   color: var(--text-secondary);
-  box-sizing: border-box;
 }
 
 .btn {
@@ -237,11 +261,11 @@ a {
 .form-group input,
 .form-group select {
   width: 100%;
-  background: #ffffff; /* <-- พื้นหลังช่องกรอกเป็นสีขาว */
-  border: 1px solid #d1d5db; /* <-- เส้นขอบสีเทาอ่อน */
+  background: var(--card-bg, #ffffff) !important;
+  border: 1px solid var(--border, #d1d5db);
   border-radius: 8px;
   padding: 10px 12px;
-  color: var(--text-primary); /* <-- สีตัวอักษรตอนพิมพ์เป็นสีดำ */
+  color: var(--text-primary);
   font-size: 14px;
   box-sizing: border-box;
 }
@@ -315,17 +339,18 @@ a {
 }
 
 .scanner-popup-box {
-  background: #2d3748; /* สีพื้นหลังโทนเทา-ดำ */
+  background: rgba(47, 55, 70, 0.25);
   color: #f7fafc;
   padding: 32px 40px;
   border-radius: 16px;
   width: 90%;
   max-width: 420px;
   text-align: center;
-  border: 1px solid #4a5568;
+  border: 1px solid rgba(148, 163, 184, 0.15);
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
-  position: relative; /* สำคัญสำหรับ animation */
-  overflow: hidden;  /* สำคัญสำหรับ animation */
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(25px);
 }
 
 .scanner-popup-box h3 {
@@ -338,7 +363,7 @@ a {
   margin: 30px 0;
   padding: 20px;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(148, 163, 184, 0.3);
   position: relative;
   height: 180px;
   display: flex;
@@ -348,7 +373,7 @@ a {
 
 .scanner-popup-box .scanner-visual .fa-barcode {
   font-size: 150px;
-  color: rgba(255, 255, 255, 0.1); /* ทำให้ไอคอนจางๆ */
+  color: rgba(255, 255, 255, 0.15);
 }
 
 /* --- เส้นสแกน Animation --- */
@@ -373,23 +398,24 @@ a {
 }
 
 .scanner-popup-box p {
-  color: #a0aec0;
+  color: rgba(226, 232, 240, 0.9);
   margin-bottom: 30px;
 }
 
 .scanner-popup-box .close-btn {
-  background: #4a5568;
+  background: rgba(71, 85, 105, 0.7);
   color: #f7fafc;
-  border: none;
+  border: 1px solid rgba(148, 163, 184, 0.3);
   padding: 10px 25px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .scanner-popup-box .close-btn:hover {
-  background: #718096;
+  background: rgba(100, 116, 139, 0.9);
+  border-color: rgba(148, 163, 184, 0.5);
 }
 
 
@@ -403,4 +429,30 @@ a {
 }
 .swal-form label {
   font-weight: bold;
+}
+
+/* ============================================
+   🌙 DARK MODE OVERRIDES
+   ============================================ */
+html.dark #tatFilter {
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+html.dark .form-group input,
+html.dark .form-group select {
+  background: #3a3d52 !important;
+  border-color: var(--border);
+  color: var(--text-primary) !important;
+}
+
+html.dark .form-group select option {
+  background: #3a3d52;
+  color: var(--text-primary);
+}
+
+html.dark .form-group input::placeholder {
+  color: #6b7280 !important;
+  opacity: 0.6;
 }

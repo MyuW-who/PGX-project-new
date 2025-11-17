@@ -95,9 +95,18 @@ a {
 }
 
 .toolbar-left {
-  position: relative;
   flex: 1;
-  max-width: 520px;
+  min-width: 240px;
+  position: relative;
+}
+
+.toolbar-left .fa-search {
+  position: absolute;
+  top: 50%;
+  left: 18px; /* ระยะห่างจากขอบซ้าย */
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none; /* ทำให้คลิกทะลุไอคอนไปที่ input ได้ */
 }
 
 .toolbar-left input {
