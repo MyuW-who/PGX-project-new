@@ -20,7 +20,7 @@ body.step3-page {
   color: #1f2937;      /* light text */
 }
 
-body.dark.step3-page {
+html.dark body.step3-page {
   background: #111827; /* dark background */
   color: #f9fafb;      /* dark text */
 }
@@ -43,7 +43,7 @@ body.step3-page .page-header h2 {
   letter-spacing: 0.3px;
 }
 
-body.dark.step3-page .page-header h2 { color: var(--text-primary); }
+html.dark body.step3-page .page-header h2 { color: var(--text-primary); }
 
 body.step3-page .header-buttons { display: flex; gap: 0.5rem; }
 
@@ -68,13 +68,13 @@ body.step3-page .icon-btn:hover {
   border-color: rgba(37,99,235,0.45);
   box-shadow: 0 18px 38px rgba(37,99,235,0.16);
 }
-body.dark.step3-page .icon-btn {
+html.dark body.step3-page .icon-btn {
   background: #2563eb;
   color:#ffffff;
   border-color: transparent;
   box-shadow: 0 4px 10px rgba(0,0,0,0.35);
 }
-body.dark.step3-page .icon-btn:hover { background:#1d4ed8; }
+html.dark body.step3-page .icon-btn:hover { background:#1d4ed8; }
 
 /* ============================================
    🔽 STEPS INDICATOR
@@ -127,22 +127,22 @@ body.step3-page .line {
 body.step3-page .step.active + .line,
 body.step3-page .step.done + .line { background: rgba(37,99,235,0.4); }
 
-body.dark.step3-page .step,
-body.dark.step3-page .step.done {
+html.dark body.step3-page .step,
+html.dark body.step3-page .step.done {
   background: #1f2937;
   color: #cbd5e1;
   border: 1px solid #2d3748;
   box-shadow: 0 14px 32px rgba(0,0,0,0.5);
 }
-body.dark.step3-page .step.active {
+html.dark body.step3-page .step.active {
   background: #2563eb;
   color: #ffffff;
   border-color: transparent;
   box-shadow: 0 16px 36px rgba(37,99,235,0.45);
 }
-body.dark.step3-page .line { background: #334155; }
-body.dark.step3-page .step.active + .line,
-body.dark.step3-page .step.done + .line { background: #3b82f6; }
+html.dark body.step3-page .line { background: #334155; }
+html.dark body.step3-page .step.active + .line,
+html.dark body.step3-page .step.done + .line { background: #3b82f6; }
 
 /* ============================================
    📦 CONTAINER
@@ -163,8 +163,8 @@ body.step3-page .step3-container h3 {
   margin: 0 0 1rem 0;
   letter-spacing: 0.2px;
 }
-body.dark.step3-page .step3-container { background: linear-gradient(180deg,#1e2433,#292f43); border:1px solid #374151; box-shadow:0 30px 70px rgba(0,0,0,0.55); }
-body.dark.step3-page .step3-container h3 { color:#ffffff; }
+html.dark body.step3-page .step3-container { background: linear-gradient(180deg,#1e2433,#292f43); border:1px solid #374151; box-shadow:0 30px 70px rgba(0,0,0,0.55); }
+html.dark body.step3-page .step3-container h3 { color:#ffffff; }
 
 /* ============================================
    📝 SUMMARY BOX
@@ -200,14 +200,14 @@ body.step3-page .summary-box #genotype {
   min-width:80px;
   text-align:center;
 }
-body.dark.step3-page .summary-box { background: rgba(55,65,81,0.55); border:1px solid #3b4452; }
-body.dark.step3-page .summary-box p { color:#d1d5db; }
-body.dark.step3-page .summary-box strong { color:#ffffff; }
-body.dark.step3-page .summary-box #genotype,
-body.dark.step3-page .summary-box #patientName,
-body.dark.step3-page .summary-box #dnaType,
-body.dark.step3-page .summary-box #phenotype { color:#e5e7eb; }
-body.dark.step3-page .summary-box #genotype { background:#31384a; border-color:#465168; line-height:1; min-width:80px; text-align:center; padding:0.4rem 0.85rem; }
+html.dark body.step3-page .summary-box { background: rgba(55,65,81,0.55); border:1px solid #3b4452; }
+html.dark body.step3-page .summary-box p { color:#d1d5db; }
+html.dark body.step3-page .summary-box strong { color:#ffffff; }
+html.dark body.step3-page .summary-box #genotype,
+html.dark body.step3-page .summary-box #patientName,
+html.dark body.step3-page .summary-box #dnaType,
+html.dark body.step3-page .summary-box #phenotype { color:#e5e7eb; }
+html.dark body.step3-page .summary-box #genotype { background:#31384a; border-color:#465168; line-height:1; min-width:80px; text-align:center; padding:0.4rem 0.85rem; }
 
 /* ============================================
    📊 RESULT TABLE
@@ -247,9 +247,9 @@ body.step3-page .result-table thead th:last-child  { border-top-right-radius: 10
 body.step3-page .result-table tbody tr:last-child td { border-bottom: none; }
 /* Add a subtle divider under the table to match the second template */
 body.step3-page .result-table { padding-bottom: 0.25rem; border-bottom: 1px solid rgba(148,163,184,0.25); }
-body.dark.step3-page .result-table th,
-body.dark.step3-page .result-table td { color:#e5e7eb; border-bottom:1px solid rgba(255,255,255,0.12); }
-body.dark.step3-page .result-table thead th {
+html.dark body.step3-page .result-table th,
+html.dark body.step3-page .result-table td { color:#e5e7eb; border-bottom:1px solid rgba(255,255,255,0.12); }
+html.dark body.step3-page .result-table thead th {
   background:#2b3144; /* dark indigo band */
   color:#ffffff;
   font-weight:700;
@@ -257,8 +257,8 @@ body.dark.step3-page .result-table thead th {
   padding: 0.9rem 0.5rem;
   box-shadow: inset 0 -1px 0 rgba(0,0,0,0.35);
 }
-body.dark.step3-page .result-table thead th:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
-body.dark.step3-page .result-table thead th:last-child  { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+html.dark body.step3-page .result-table thead th:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+html.dark body.step3-page .result-table thead th:last-child  { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
 
 /* ============================================
    🔘 BUTTONS
@@ -338,16 +338,16 @@ body.step3-page .confirm-btn.disabled-confirmation:hover {
   box-shadow: none !important;
 }
 
-body.dark.step3-page .confirm-btn:disabled,
-body.dark.step3-page .confirm-btn.disabled-confirmation {
+html.dark body.step3-page .confirm-btn:disabled,
+html.dark body.step3-page .confirm-btn.disabled-confirmation {
   background: #4b5563 !important;
   color: #9ca3af !important;
 }
 
 /* Dark mode color overrides only */
-body.dark.step3-page .back-btn { background:#374151; color:#e2e8f0; border:1px solid #4b5563; }
-body.dark.step3-page .back-btn:hover { background:#4b5563; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
-body.dark.step3-page .print-btn { background:#1e293b; color:#60a5fa; border:1px solid #3b82f6; }
-body.dark.step3-page .print-btn:hover { background:#1f3a52; }
-body.dark.step3-page .confirm-btn { background: linear-gradient(135deg,#3b82f6,#2563eb); box-shadow:0 10px 28px rgba(37,99,235,0.45); }
-body.dark.step3-page .confirm-btn:hover { background: linear-gradient(135deg,#2563eb,#1d4ed8); box-shadow:0 12px 34px rgba(37,99,235,0.6); }
+html.dark body.step3-page .back-btn { background:#374151; color:#e2e8f0; border:1px solid #4b5563; }
+html.dark body.step3-page .back-btn:hover { background:#4b5563; box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+html.dark body.step3-page .print-btn { background:#1e293b; color:#60a5fa; border:1px solid #3b82f6; }
+html.dark body.step3-page .print-btn:hover { background:#1f3a52; }
+html.dark body.step3-page .confirm-btn { background: linear-gradient(135deg,#3b82f6,#2563eb); box-shadow:0 10px 28px rgba(37,99,235,0.45); }
+html.dark body.step3-page .confirm-btn:hover { background: linear-gradient(135deg,#2563eb,#1d4ed8); box-shadow:0 12px 34px rgba(37,99,235,0.6); }

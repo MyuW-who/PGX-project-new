@@ -655,9 +655,7 @@ html.dark .quick-stats {
 }
 
 /* Sections containing tables/data should keep card background */
-html.dark section {
-  background: var(--card-bg) !important;
-}
+
 
 /* But stats/metrics sections should be transparent */
 html.dark section.stats-grid,
