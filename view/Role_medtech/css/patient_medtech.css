@@ -37,7 +37,8 @@ a {
 
 .toolbar-left {
   flex: 1;
-  min-width: 240px;
+  min-width: 400px;
+  max-width: 600px;
   position: relative;
 }
 
@@ -85,7 +86,7 @@ body.dark .toolbar-left input {
 }
 
 #searchInput {
-  width: 25%;
+  width: 100%;
   padding: 14px 16px 14px 45px;
   border-radius: 14px;
   border: 1px solid var(--border);
