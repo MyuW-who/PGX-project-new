@@ -14,7 +14,6 @@ body.step3-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 20px 40px;
   transition: background 0.3s ease, color 0.3s ease;
   background: #f9fafb; /* light background */
   color: #1f2937;      /* light text */
@@ -68,13 +67,7 @@ body.step3-page .icon-btn:hover {
   border-color: rgba(37,99,235,0.45);
   box-shadow: 0 18px 38px rgba(37,99,235,0.16);
 }
-html.dark body.step3-page .icon-btn {
-  background: #2563eb;
-  color:#ffffff;
-  border-color: transparent;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
-}
-html.dark body.step3-page .icon-btn:hover { background:#1d4ed8; }
+
 
 /* ============================================
    🔽 STEPS INDICATOR

@@ -3,7 +3,6 @@ body {
   color: #1f2937;
   margin: 0;
   transition: background 0.3s, color 0.3s;
-  padding: 20px 40px;
 }
 
 body.dark {

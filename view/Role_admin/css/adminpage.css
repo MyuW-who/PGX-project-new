@@ -30,7 +30,7 @@ body {
   font-size: 15px;
 }
 
-.layout {
+.container {
   display: grid;
   grid-template-columns: 240px 1fr; /* match patient/dashboard sidebar width */
   min-height: 100vh;
@@ -120,26 +120,13 @@ body {
   flex-wrap: wrap;
 }
 
-.page-header h1 {
+.page-header h2 {
   margin: 0; /* same as patient */
   font-size: 24px; /* match patient heading size */
   font-weight: 600;
 }
 
-.page-header p {
-  margin: 0;
-  color: var(--color-muted);
-  font-size: 0.95rem;
-}
-
-
-.page-title {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.header-buttons {
+.header-actions {
   display: flex;
   align-items: center;
   gap: 10px; /* match patient */

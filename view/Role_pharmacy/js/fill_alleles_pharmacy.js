@@ -88,7 +88,7 @@ async function renderDNAForm(type) {
 
       <div class="select-row">
         <label for="genotype">Genotype:</label>
-        <input id="genotype" type="text" value="-" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+        <input id="genotype" type="text" value="-" readonly style=" cursor: not-allowed;">
       </div>`;
   } 
   else if (type === "CYP2C19") {
@@ -114,7 +114,8 @@ async function renderDNAForm(type) {
 
       <div class="select-row">
         <label for="genotype">Genotype:</label>
-        <input id="genotype" type="text" value="-" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+        <input id="genotype" type="text" value="-" readonly style=" cursor: not-allowed;">
+        
       </div>`;
   } 
   else if (type === "CYP2C9") {
@@ -133,7 +134,7 @@ async function renderDNAForm(type) {
 
       <div class="select-row">
         <label for="genotype">Genotype:</label>
-        <input id="genotype" type="text" value="-" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+        <input id="genotype" type="text" value="-" readonly style=" cursor: not-allowed;">
       </div>`;
   } 
   else if (type === "VKORC1") {
@@ -152,7 +153,7 @@ async function renderDNAForm(type) {
 
       <div class="select-row">
         <label for="genotype">Haplotype:</label>
-        <input id="genotype" type="text" value="-" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+        <input id="genotype" type="text" value="-" readonly style=" cursor: not-allowed;">
       </div>`;
   } 
   else if (type === "TPMT") {
@@ -166,7 +167,7 @@ async function renderDNAForm(type) {
 
       <div class="select-row">
         <label for="genotype">Genotype:</label>
-        <input id="genotype" type="text" value="-" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+        <input id="genotype" type="text" value="-" readonly style=" cursor: not-allowed;">
       </div>`;
   } 
   else if (type === "CYP3A5") {
@@ -180,7 +181,7 @@ async function renderDNAForm(type) {
 
       <div class="select-row">
         <label for="genotype">Genotype:</label>
-        <input id="genotype" type="text" value="-" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+        <input id="genotype" type="text" value="-" readonly style=" cursor: not-allowed;">
       </div>`;
   } 
   else {
@@ -469,7 +470,7 @@ async function predictFromAlleles() {
         const genotypeInput = document.getElementById('genotype');
         if (genotypeInput) {
           genotypeInput.value = result.genotype;
-          genotypeInput.style.backgroundColor = '#e8f5e9'; // Light green for matched
+          
         }
       } else {
         autoGenotype = result.genotype || "-";
@@ -479,7 +480,7 @@ async function predictFromAlleles() {
         const genotypeInput = document.getElementById('genotype');
         if (genotypeInput) {
           genotypeInput.value = result.genotype + " (Default)";
-          genotypeInput.style.backgroundColor = '#fff3cd'; // Light yellow for default
+          
         }
       }
     } else {
@@ -489,7 +490,7 @@ async function predictFromAlleles() {
       const genotypeInput = document.getElementById('genotype');
       if (genotypeInput) {
         genotypeInput.value = "-";
-        genotypeInput.style.backgroundColor = '#f0f0f0';
+        
       }
     }
   } catch (error) {
