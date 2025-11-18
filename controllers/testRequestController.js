@@ -29,12 +29,12 @@ async function searchTestRequests(searchTerm) {
     return await fetchAllTestRequests();
   }
 
-  const cleanSearchTerm = searchTerm.trim();
+  const cleanSearchTerm = searchTerm.trim().toLowerCase();
   if (!cleanSearchTerm) {
     return await fetchAllTestRequests();
   }
 
-  // First get all test requests
+  // Fetch all test requests with patient data
   const { data, error } = await supabase
     .from('test_request')
     .select(`
@@ -53,10 +53,17 @@ async function searchTestRequests(searchTerm) {
     return [];
   }
 
-  // Filter by request_id only (exact match)
+  // Filter using JavaScript for LIKE functionality - search only by patient_id and name
   const filtered = (data || []).filter(req => {
-    const requestId = req.request_id?.toString() || '';
-    return requestId === cleanSearchTerm;
+    const patientId = (req.patient_id?.toString() || '').toLowerCase();
+    const firstName = (req.patient?.first_name || '').toLowerCase();
+    const lastName = (req.patient?.last_name || '').toLowerCase();
+    const fullName = `${firstName} ${lastName}`.trim();
+    
+    return patientId.includes(cleanSearchTerm) ||
+           firstName.includes(cleanSearchTerm) ||
+           lastName.includes(cleanSearchTerm) ||
+           fullName.includes(cleanSearchTerm);
   });
 
   return filtered;
@@ -254,22 +261,23 @@ async function getSpecimenSLA() {
       .select('*')
       .limit(10);
 
-    // If table doesn't exist or has errors, use default values
+    // If table doesn't exist or has errors, use default values (in hours)
     if (error) {
       console.log('⚠️ Specimen table not found, using default SLA values');
       return {
-        'blood': 5,
-        'hair': 7,
-        'cheek septum': 3,
-        'saliva': 2
+        'blood': 120,      // 5 days
+        'hair': 168,       // 7 days  
+        'cheek septum': 72,  // 3 days
+        'saliva': 48       // 2 days
       };
     }
 
     // If we got data, try to map it
     const slaMap = {};
     (data || []).forEach(spec => {
-      const name = (spec.Specimen_Name || spec.specimen_name)?.toLowerCase();
-      const slaHours = parseFloat(spec.SLA_time || spec.sla_time) || 72;
+      const name = (spec.Specimen_Name || spec.specimen_name)?.toLowerCase().trim();
+      const slaDays = parseFloat(spec.SLA_time || spec.sla_time) || 3;
+      const slaHours = slaDays * 24; // Convert days to hours
       const id = spec.Specimen_ID || spec.specimen_id || spec.id;
       
       if (name) {
@@ -280,19 +288,21 @@ async function getSpecimenSLA() {
       }
     });
     
+    //console.log('✅ SLA Map loaded:', slaMap);
+    
     return Object.keys(slaMap).length > 0 ? slaMap : {
-      'blood': 5,
-      'hair': 7,
-      'cheek septum': 3,
-      'saliva': 2
+      'blood': 120,      // 5 days
+      'hair': 168,       // 7 days
+      'cheek septum': 72,  // 3 days
+      'saliva': 48       // 2 days
     };
   } catch (err) {
     console.log('⚠️ Error fetching specimen SLA, using defaults');
     return {
-      'blood': 5,
-      'hair': 7,
-      'cheek septum': 3,
-      'saliva': 2
+      'blood': 120,      // 5 days
+      'hair': 168,       // 7 days
+      'cheek septum': 72,  // 3 days
+      'saliva': 48       // 2 days
     };
   }
 }

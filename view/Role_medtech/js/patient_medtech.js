@@ -30,7 +30,7 @@
     // collect common fields
     const patientData = {
       patient_id: parseInt(document.getElementById('patient_id').value),
-      hospital_id: document.getElementById('hospital').value.trim(),
+      hospital_id: document.getElementById('hospital').value.trim() || null,
       first_name: document.getElementById('first_name').value.trim(),
       last_name: document.getElementById('last_name').value.trim(),
       age: parseInt(document.getElementById('age').value),

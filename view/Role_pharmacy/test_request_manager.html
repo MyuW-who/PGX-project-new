@@ -74,14 +74,6 @@
         </div>
           
         <div class="toolbar-right">
-          <select id="tatFilter">
-            <option value="pending" selected>Pending Only</option>
-            <option value="all">All status</option>
-            <option value="need_2_confirmation">Need 2 confirmation</option>
-            <option value="need_1_confirmation">Need 1 confirmation</option>
-            <option value="done">Done</option>
-            <option value="reject">Reject</option>
-          </select>
           <button id="scanBarcodeBtn" class="btn primary">
             <i class="fa fa-barcode"></i>
             สแกนบาร์โค้ด
@@ -92,28 +84,28 @@
 
       <!-- Stats -->
       <section class="quick-stats">
-        <div class="stat-box stat-pending">
+        <div class="stat-box stat-pending" id="statCardPending" style="cursor: pointer;">
           <div class="stat-icon"><i class="fas fa-clock"></i></div>
           <div class="stat-content">
             <span class="stat-label">Pending Cases</span>
             <span class="stat-number" id="statPending">0</span>
           </div>
         </div>
-        <div class="stat-box stat-normal">
+        <div class="stat-box stat-normal" id="statCardNormal" style="cursor: pointer;">
           <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
           <div class="stat-content">
             <span class="stat-label">TAT Normal (&lt;80%)</span>
             <span class="stat-number" id="statNormal">0</span>
           </div>
         </div>
-        <div class="stat-box stat-warning">
+        <div class="stat-box stat-warning" id="statCardWarning" style="cursor: pointer;">
           <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
           <div class="stat-content">
             <span class="stat-label">TAT Warning (≥80%)</span>
             <span class="stat-number" id="statWarning">0</span>
           </div>
         </div>
-        <div class="stat-box stat-overdue">
+        <div class="stat-box stat-overdue" id="statCardOverdue" style="cursor: pointer;">
           <div class="stat-icon"><i class="fas fa-exclamation-circle"></i></div>
           <div class="stat-content">
             <span class="stat-label">TAT Overdue (&gt;100%)</span>
