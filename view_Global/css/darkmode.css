@@ -837,7 +837,7 @@ html.dark .swal2-textarea:focus {
 }
 
 html.dark .swal2-confirm {
-  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  background: linear-gradient(135deg, #3b82f6) !important;
 }
 
 html.dark .swal2-cancel {
@@ -884,10 +884,6 @@ html.dark .modal-footer {
 }
 
 /* Input Step 1 Medtech Page - Dark Mode */
-html.dark body.step1-page {
-  background: #0d0d0d !important;
-  color: #f5f5f5 !important;
-}
 
 html.dark .step1-page .page-header {
   background: var(--card-bg) !important;
