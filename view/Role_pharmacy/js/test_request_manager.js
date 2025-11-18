@@ -239,13 +239,24 @@ function renderTestRequests(data) {
       </div>
       
       <div class="request-card-body">
+        
+        <div class="request-info-row">
+          <div class="request-info-icon">
+            <i class="fas fa-id-card"></i>
+          </div>
+          <div class="request-info-content">
+            <div class="request-info-label">เลขประจำตัว</div>
+            <div class="request-info-value">${patientId}</div>
+          </div>
+        </div>
+            
         <div class="request-info-row">
           <div class="request-info-icon">
             <i class="fas fa-user"></i>
           </div>
           <div class="request-info-content">
             <div class="request-info-label">ชื่อ - นามสกุล</div>
-            <div class="request-info-value">${patientId} ${patientName}</div>
+            <div class="request-info-value"> ${patientName}</div>
           </div>
         </div>
         
