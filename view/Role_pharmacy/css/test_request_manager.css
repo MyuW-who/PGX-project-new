@@ -1,48 +1,9 @@
-:root {
-  --page-bg: linear-gradient(165deg, #f5f7fb 0%, #eef1f8 45%, #ffffff 100%);
-  --surface-main: #f2f4fb;
-  --panel-bg: #ffffff;
-  --panel-border: rgba(15, 23, 42, 0.08);
-  --card-bg: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --shadow-strong: 0 28px 60px rgba(15, 23, 42, 0.12);
-  --accent-blue: #4263ff;
-  --accent-purple: #7a4dff;
-  --accent-green: #36b66e;
-  --accent-red: #ff6b75;
-}
-
-body.dark {
-  --page-bg: radial-gradient(circle at top, #0f1c3b 0%, #050c1c 55%, #030914 100%);
-  --surface-main: transparent;
-  --panel-bg: #111a36;
-  --panel-border: rgba(255, 255, 255, 0.08);
-  --card-bg: rgba(16, 28, 56, 0.95);
-  --text-primary: #f4f6ff;
-  --text-secondary: #cdd5f4;
-  --text-muted: #b7c2e6;
-  --shadow-strong: 0 20px 45px rgba(2, 6, 23, 0.7);
-}
-
-body {
-  background: var(--page-bg);
-  color: var(--text-primary);
-  font-family: "Kanit", "Segoe UI", sans-serif;
-}
-
-.main-content {
-  background: var(--surface-main);
-  padding: 32px 36px 60px;
-  gap: 28px;
-  border-radius: 32px;
-}
-
 a {
   color: inherit;
   text-decoration: none;
 }
+
+
 
 /* ============================================
    🧱 HEADER SECTION (Title, Buttons, Dropdown)
@@ -84,14 +45,15 @@ a {
    🔍 TOOLBAR (Search + Add Button)
    ============================================ */
 .toolbar {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 20px;
-  padding: 18px 24px;
   display: flex;
+  flex-wrap: wrap;
+  gap: 50px;
   align-items: center;
   justify-content: space-between;
-  box-shadow: var(--shadow-strong);
+  background: var(--card-bg);
+  padding: 18px 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 
 .toolbar-left {
@@ -110,38 +72,10 @@ a {
   pointer-events: none; /* ทำให้คลิกทะลุไอคอนไปที่ input ได้ */
 }
 
-.toolbar-left input {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 16px;
-  padding: 14px 48px 14px 52px;
-  color: var(--text-primary);
-  font-size: 1.05rem;
-}
-
-body.dark .toolbar-left input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #f8fbff;
-}
-
-.toolbar-left i {
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  font-size: 1rem;
-}
-
-.toolbar-right .btn.primary {
-  background: linear-gradient(135deg, #4f7afe, #6b4dff);
-  border: none;
-  border-radius: 16px;
-  padding: 14px 28px;
-  font-weight: 600;
-  box-shadow: 0 12px 24px rgba(79, 122, 254, 0.35);
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 #searchInput {
@@ -210,89 +144,56 @@ body.dark .toolbar-left input {
    ============================================ */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
 }
 
 .stat-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px;
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 22px 24px;
-  border-radius: 22px;
-  border: 1px solid var(--panel-border);
-  background: var(--card-bg);
-  box-shadow: var(--shadow-strong);
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-  cursor: pointer;
-}
-
-.stat-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(66, 99, 255, 0.3);
-  box-shadow: 0 32px 70px rgba(15, 23, 42, 0.18);
-}
-
-.stat-card:active {
-  transform: translateY(-2px);
+  gap: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
 }
 
 .card-icon {
-  width: 62px;
-  height: 62px;
-  border-radius: 18px;
-  display: grid;
-  place-items: center;
-  font-size: 1.4rem;
-  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
 }
 
-.icon-all { background: linear-gradient(135deg, #3a8dff, #4263ff); }
-.icon-pending { background: linear-gradient(135deg, #4d5dff, #a14dff); }
-.icon-pre { background: linear-gradient(135deg, #7a4dff, #b84dff); }
-.icon-analytic { background: linear-gradient(135deg, #a54dff, #d34dff); }
-.icon-post { background: linear-gradient(135deg, #21a06b, #36b66e); }
-.icon-reject { background: linear-gradient(135deg, #ff6b75, #ff3d55); }
+.card-icon.icon-all { background-color: var(--icon-all-bg); color: #0284c7; }
+.card-icon.icon-pre { background-color: var(--icon-pre-bg); color: #4f46e5; }
+.card-icon.icon-analytic { background-color: var(--icon-analytic-bg); color: #9333ea; }
+.card-icon.icon-post { background-color: var(--icon-post-bg); color: #16a34a; }
 
-.card-info p { color: var(--text-muted); }
+.card-info p {
+  margin: 0 0 4px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
 .card-info span {
-  display: block;
-  margin-top: 6px;
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 700;
   color: var(--text-primary);
 }
-
-.dark.card-info span {
-  display: block;
-  margin-top: 6px;
-  font-size: 2rem;
-  font-weight: 600;
-  color: #ffffff;
-}
-
-
-.data-table-container {
-  display: flex;
-  flex-direction: column;
-  /* สำคัญมาก: บังคับให้ grid item (ตัวกล่องตาราง)
-    สามารถย่อส่วนได้ ไม่ยืดตามเนื้อหา
-  */
-  min-height: 0; 
-}
-
 
 /* ============================================
    📋 DATA TABLE (ปรับปรุงดีไซน์)
    ============================================ */
 .data-table-container .table-wrapper {
-  flex: 1;
   background: var(--card-bg);
-  border-radius: 20px;
-  box-shadow: var(--shadow-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   overflow-x: auto;
-  max-height: 350px;
-  overflow-y: auto;
 }
 
 .data-table-container table {
@@ -301,19 +202,16 @@ body.dark .toolbar-left input {
 }
 
 .data-table-container thead {
-  background-color: var(--card-bg);
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  background-color: transparent; /* 🔹 ทำให้โปร่งใส */
 }
 
 .data-table-container th,
 .data-table-container td {
-  border-bottom: 1px solid var(--panel-border);
-  color: var(--text-secondary);
   padding: 18px 24px;
   text-align: left;
   font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
@@ -360,12 +258,6 @@ body.dark .toolbar-left input {
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
 }
 
-/* 🔵 Blue - Pending */
-.tat-dot.status-pending {
-  background-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-}
-
 /* 🟡 Yellow - Needs 1 confirmation */
 .tat-dot.status-pending-1 {
   background-color: #eab308;
@@ -376,6 +268,12 @@ body.dark .toolbar-left input {
 .tat-dot.status-pending-2 {
   background-color: #f97316;
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+
+/* 🔵 Blue - Pending (waiting for allele input) */
+.tat-dot.status-pending {
+  background-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 /* 🔴 Red - Rejected */
@@ -485,8 +383,8 @@ tr.tat-overdue:hover {
   font-size: 14px;
 }
 
-/* Reject Reason Button (Orange/Info) */
-.reject-reason-btn {
+/* Fill Alleles Button (Blue) */
+.fill-alleles-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -498,18 +396,46 @@ tr.tat-overdue:hover {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   font-weight: 500;
-  background: rgba(249, 115, 22, 0.1);
-  color: #f97316;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
 }
 
-.reject-reason-btn:hover {
-  background: #f97316;
+.fill-alleles-btn:hover {
+  background: #3b82f6;
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(249, 115, 22, 0.3);
+  box-shadow: 0 6px 15px rgba(59, 130, 246, 0.2);
 }
 
-.reject-reason-btn i {
+.fill-alleles-btn i {
+  font-size: 14px;
+}
+
+/* Verify Button (Green) */
+.verify-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 10px; 
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.verify-btn:hover {
+  background: #22c55e;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(34, 197, 94, 0.2);
+}
+
+.verify-btn i {
   font-size: 14px;
 }
 
@@ -634,58 +560,4 @@ tr.tat-overdue:hover {
 .scanner-popup-box .close-btn:hover {
   background: #718096;
 }
-
-
-/* ============================================
-   LAYOUT สำหรับตารางที่แยกตามสถานะ
-   ============================================ */
-
-/* เพิ่มช่องว่างระหว่างกลุ่มตาราง */
-.data-table-section {
-  background: var(--panel-bg);
-  border-radius: 24px;
-  border: 1px solid var(--panel-border);
-  padding: 28px;
-  box-shadow: var(--shadow-strong);
-  margin-top: 32px;
-}
-
-/* สไตล์หัวข้อหลักของกลุ่ม (H3) */
-.data-table-section h3 {
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--panel-border);
-  font-size: 22px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-bottom: 10px;
-}
-
-.data-table-section h3 i {
-  color: var(--primary);
-}
-
-/* สไตล์หัวข้อย่อยของตาราง (H4) */
-.data-table-container h4 {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin: 0 0 12px 4px;
-}
-
-/* Grid 2 คอลัมน์สำหรับตาราง Pending */
-.table-grid-2 {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* ⭐️ แก้ไขบรรทัดนี้ */
-  gap: 24px;
-}
-
-/* ทำให้ Grid 2 คอลัมน์ซ้อนกันในจอเล็ก */
-@media (max-width: 1200px) {
-  .table-grid-2 {
-    grid-template-columns: 1fr;
-  }
-}
-
 

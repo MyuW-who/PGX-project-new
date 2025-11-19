@@ -137,14 +137,60 @@ async function generatePDF(reportData) {
   doc.text('โรงพยาบาล (Hospital):', col1Label, y, { width: 95 });
   doc.text((reportData.hospital || '1').toString(), col1Value, y, { width: 145 });
   doc.text('วันที่รับตัวอย่าง (Date):', col2Label, y, { width: 100 });
-  const today = new Date().toISOString().split('T')[0];
-  doc.text(reportData.createDate || today, col2Value, y, { width: 110 });
+  
+  // Convert to Thai Buddhist calendar format (DD/MM/YYYY+543)
+  let formattedCreateDate = '';
+  if (reportData.createDate) {
+    try {
+      const date = new Date(reportData.createDate);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const thaiYear = date.getFullYear() + 543;
+      formattedCreateDate = `${day}/${month}/${thaiYear}`;
+    } catch (e) {
+      formattedCreateDate = reportData.createDate;
+    }
+  } else {
+    const today = new Date();
+    const day = today.getDate().toString().padStart(2, '0');
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const thaiYear = today.getFullYear() + 543;
+    formattedCreateDate = `${day}/${month}/${thaiYear}`;
+  }
+  
+  doc.text(formattedCreateDate, col2Value, y, { width: 110 });
   
   y += lineHeight;
   doc.text('แพทย์ผู้ส่งตรวจ (Clinician):', col1Label, y, { width: 95 });
   doc.text(reportData.doctorName || '-', col1Value, y, { width: 145 });
   doc.text('วันที่รายงานผล (Report):', col2Label, y, { width: 100 });
-  doc.text(reportData.updateDate || today, col2Value, y, { width: 110 });
+  
+  // Convert report date to Thai Buddhist calendar format
+  let formattedUpdateDate = '';
+  if (reportData.updateDate) {
+    // If already in Thai format (contains /), use it directly
+    if (reportData.updateDate.includes('/')) {
+      formattedUpdateDate = reportData.updateDate;
+    } else {
+      try {
+        const date = new Date(reportData.updateDate);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const thaiYear = date.getFullYear() + 543;
+        formattedUpdateDate = `${day}/${month}/${thaiYear}`;
+      } catch (e) {
+        formattedUpdateDate = reportData.updateDate;
+      }
+    }
+  } else {
+    const today = new Date();
+    const day = today.getDate().toString().padStart(2, '0');
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const thaiYear = today.getFullYear() + 543;
+    formattedUpdateDate = `${day}/${month}/${thaiYear}`;
+  }
+  
+  doc.text(formattedUpdateDate, col2Value, y, { width: 110 });
 
   doc.y = patientBoxY + patientBoxHeight + 8;
 

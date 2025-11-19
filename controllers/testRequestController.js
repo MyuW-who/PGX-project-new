@@ -29,12 +29,12 @@ async function searchTestRequests(searchTerm) {
     return await fetchAllTestRequests();
   }
 
-  const cleanSearchTerm = searchTerm.trim();
+  const cleanSearchTerm = searchTerm.trim().toLowerCase();
   if (!cleanSearchTerm) {
     return await fetchAllTestRequests();
   }
 
-  // First get all test requests
+  // Fetch all test requests with patient data
   const { data, error } = await supabase
     .from('test_request')
     .select(`
@@ -53,10 +53,17 @@ async function searchTestRequests(searchTerm) {
     return [];
   }
 
-  // Filter by request_id only (exact match)
+  // Filter using JavaScript for LIKE functionality - search only by patient_id and name
   const filtered = (data || []).filter(req => {
-    const requestId = req.request_id?.toString() || '';
-    return requestId === cleanSearchTerm;
+    const patientId = (req.patient_id?.toString() || '').toLowerCase();
+    const firstName = (req.patient?.first_name || '').toLowerCase();
+    const lastName = (req.patient?.last_name || '').toLowerCase();
+    const fullName = `${firstName} ${lastName}`.trim();
+    
+    return patientId.includes(cleanSearchTerm) ||
+           firstName.includes(cleanSearchTerm) ||
+           lastName.includes(cleanSearchTerm) ||
+           fullName.includes(cleanSearchTerm);
   });
 
   return filtered;
@@ -142,10 +149,7 @@ async function addTestRequest(requestData) {
 async function updateTestRequest(requestId, updateData) {
   const { data, error } = await supabase
     .from('test_request')
-    .update({
-      ...updateData,
-      updated_at: new Date().toISOString()
-    })
+    .update(updateData)
     .eq('request_id', requestId)
     .select()
     .single();
@@ -208,14 +212,20 @@ async function getTestRequestStats(timeFilter = 'today') {
   }
 
   const all = data?.length || 0;
+  
+  const pending = data?.filter(r => {
+    const status = r.status?.toLowerCase().trim();
+    return status === 'pending';
+  })?.length || 0;
+  
   const need2Confirmation = data?.filter(r => {
     const status = r.status?.toLowerCase().trim();
-    return status === 'need 2 confirmation';
+    return status === 'need_2_confirmation' || status === 'need 2 confirmation';
   })?.length || 0;
   
   const need1Confirmation = data?.filter(r => {
     const status = r.status?.toLowerCase().trim();
-    return status === 'need 1 confirmation';
+    return status === 'need_1_confirmation' || status === 'need 1 confirmation';
   })?.length || 0;
   
   const done = data?.filter(r => {
@@ -230,6 +240,7 @@ async function getTestRequestStats(timeFilter = 'today') {
 
   return { 
     all, 
+    pending,
     need2Confirmation, 
     need1Confirmation, 
     done,
@@ -250,22 +261,23 @@ async function getSpecimenSLA() {
       .select('*')
       .limit(10);
 
-    // If table doesn't exist or has errors, use default values
+    // If table doesn't exist or has errors, use default values (in hours)
     if (error) {
       console.log('⚠️ Specimen table not found, using default SLA values');
       return {
-        'blood': 5,
-        'hair': 7,
-        'cheek septum': 3,
-        'saliva': 2
+        'blood': 120,      // 5 days
+        'hair': 168,       // 7 days  
+        'cheek septum': 72,  // 3 days
+        'saliva': 48       // 2 days
       };
     }
 
     // If we got data, try to map it
     const slaMap = {};
     (data || []).forEach(spec => {
-      const name = (spec.Specimen_Name || spec.specimen_name)?.toLowerCase();
-      const slaHours = parseFloat(spec.SLA_time || spec.sla_time) || 72;
+      const name = (spec.Specimen_Name || spec.specimen_name)?.toLowerCase().trim();
+      const slaDays = parseFloat(spec.SLA_time || spec.sla_time) || 3;
+      const slaHours = slaDays * 24; // Convert days to hours
       const id = spec.Specimen_ID || spec.specimen_id || spec.id;
       
       if (name) {
@@ -276,19 +288,21 @@ async function getSpecimenSLA() {
       }
     });
     
+    //console.log('✅ SLA Map loaded:', slaMap);
+    
     return Object.keys(slaMap).length > 0 ? slaMap : {
-      'blood': 5,
-      'hair': 7,
-      'cheek septum': 3,
-      'saliva': 2
+      'blood': 120,      // 5 days
+      'hair': 168,       // 7 days
+      'cheek septum': 72,  // 3 days
+      'saliva': 48       // 2 days
     };
   } catch (err) {
     console.log('⚠️ Error fetching specimen SLA, using defaults');
     return {
-      'blood': 5,
-      'hair': 7,
-      'cheek septum': 3,
-      'saliva': 2
+      'blood': 120,      // 5 days
+      'hair': 168,       // 7 days
+      'cheek septum': 72,  // 3 days
+      'saliva': 48       // 2 days
     };
   }
 }
@@ -296,10 +310,40 @@ async function getSpecimenSLA() {
 // ยืนยัน test request (confirmation)
 async function confirmTestRequest(requestId, userId) {
   try {
+    // Get user's full name and signature from system_users table
+    const { data: userData, error: userError } = await supabase
+      .from('system_users')
+      .select('F_Name, L_Name, Signature_path')
+      .eq('user_id', userId)
+      .single();
+
+    if (userError) {
+      console.error('❌ Error fetching user data:', userError.message);
+    }
+
+    // Create full name (FirstName LastName)
+    const confirmedByName = userData 
+      ? `${userData.F_Name || ''} ${userData.L_Name || ''}`.trim() 
+      : userId.toString();
+    
+    // Get signature path from user data
+    const userSignaturePath = userData?.Signature_path || null;
+    console.log('👤 Confirming user signature path:', userSignaturePath);
+
     // Get current test request
     const { data: currentRequest, error: fetchError } = await supabase
       .from('test_request')
-      .select('confirmed_by_1, confirmed_by_2, status')
+      .select(`
+        *,
+        patient:patient_id (
+          patient_id,
+          first_name,
+          last_name,
+          hospital_id,
+          age,
+          gender
+        )
+      `)
       .eq('request_id', requestId)
       .single();
 
@@ -308,8 +352,13 @@ async function confirmTestRequest(requestId, userId) {
       return { success: false, message: 'ไม่พบข้อมูลคำขอ' };
     }
 
-    // Check if this user already confirmed
-    if (currentRequest.confirmed_by_1 === userId || currentRequest.confirmed_by_2 === userId) {
+    // Check if request is pending (not yet ready for confirmation)
+    if (currentRequest.status === 'pending') {
+      return { success: false, message: 'กรุณากรอกข้อมูล Alleles ก่อนยืนยัน' };
+    }
+
+    // Check if this user already confirmed (by comparing full name)
+    if (currentRequest.confirmed_by_1 === confirmedByName || currentRequest.confirmed_by_2 === confirmedByName) {
       return { success: false, message: 'คุณได้ยืนยันแล้ว ไม่สามารถยืนยันซ้ำได้' };
     }
 
@@ -318,17 +367,17 @@ async function confirmTestRequest(requestId, userId) {
     let newStatus = '';
 
     if (!currentRequest.confirmed_by_1) {
-      // First confirmation
+      // First confirmation: need_2_confirmation → need_1_confirmation
       updateData = {
-        confirmed_by_1: userId,
+        confirmed_by_1: confirmedByName, // Store doctor name (full name)
         confirmed_at_1: new Date().toISOString(),
-        status: 'need 1 confirmation'
+        status: 'need_1_confirmation'
       };
-      newStatus = 'need 1 confirmation';
+      newStatus = 'need_1_confirmation';
     } else if (!currentRequest.confirmed_by_2) {
-      // Second confirmation - mark as done
+      // Second confirmation: need_1_confirmation → done
       updateData = {
-        confirmed_by_2: userId,
+        confirmed_by_2: confirmedByName, // Store doctor name (full name)
         confirmed_at_2: new Date().toISOString(),
         status: 'done'
       };
@@ -349,6 +398,111 @@ async function confirmTestRequest(requestId, userId) {
     }
 
     console.log('✅ Confirmed by user:', userId, '→ New status:', newStatus);
+
+    // Regenerate PDF with signatures after confirmation
+    try {
+      console.log('🔄 Attempting to regenerate PDF with signatures...');
+      const { data: reportData, error: reportError } = await supabase
+        .from('report')
+        .select('*')
+        .eq('request_id', requestId)
+        .maybeSingle();
+
+      if (reportError) {
+        console.error('❌ Error fetching report:', reportError);
+      }
+
+      if (reportData) {
+        console.log('📄 Report found, editing PDF to add signatures...');
+        // Import PDF editing function
+        const { addSignaturesToPDF, uploadPDFToStorage } = require('./pgxReportController');
+        
+        // Determine signature URLs based on confirmation status
+        let signature1_url = null;
+        let signature2_url = null;
+        
+        // Convert user's signature path to URL if it exists
+        let currentUserSignatureUrl = null;
+        if (userSignaturePath) {
+          if (userSignaturePath.startsWith('http://') || userSignaturePath.startsWith('https://')) {
+            currentUserSignatureUrl = userSignaturePath;
+          } else {
+            const { data: urlData } = supabase.storage
+              .from('Image_Bucket')
+              .getPublicUrl(userSignaturePath);
+            currentUserSignatureUrl = urlData.publicUrl;
+          }
+          console.log('✅ Current user signature URL:', currentUserSignatureUrl);
+        }
+        
+        // Assign signature to correct position based on which confirmation this is
+        if (!currentRequest.confirmed_by_1) {
+          // First confirmation - signature goes to LEFT box
+          signature1_url = currentUserSignatureUrl;
+          signature2_url = null;
+          console.log('📝 First confirmation - adding signature to LEFT box');
+        } else if (!currentRequest.confirmed_by_2) {
+          // Second confirmation - keep first signature in LEFT, add new to RIGHT
+          // Fetch first confirmer's signature for LEFT box
+          const { data: user1 } = await supabase
+            .from('system_users')
+            .select('Signature_path')
+            .eq('user_id', currentRequest.confirmed_by_1)
+            .single();
+          
+          if (user1?.Signature_path) {
+            if (user1.Signature_path.startsWith('http://') || user1.Signature_path.startsWith('https://')) {
+              signature1_url = user1.Signature_path;
+            } else {
+              const { data: urlData } = supabase.storage
+                .from('Image_Bucket')
+                .getPublicUrl(user1.Signature_path);
+              signature1_url = urlData.publicUrl;
+            }
+          }
+          
+          // Current user's signature goes to RIGHT box
+          signature2_url = currentUserSignatureUrl;
+          console.log('📝 Second confirmation - LEFT:', signature1_url, 'RIGHT:', signature2_url);
+        }
+        
+        console.log('✍️ Final signature URLs - Left:', signature1_url, 'Right:', signature2_url);
+
+        // Get existing PDF path
+        const existingPdfPath = reportData.pdf_path;
+        console.log('📄 Existing PDF path:', existingPdfPath);
+        
+        // Edit PDF to add signatures
+        const modifiedPdfBuffer = await addSignaturesToPDF(existingPdfPath, signature1_url, signature2_url);
+        
+        // Generate new filename with timestamp to avoid cache issues
+        const timestamp = Date.now();
+        const originalFileName = existingPdfPath.split('/').pop().replace('.pdf', '');
+        const uniqueFileName = `${originalFileName}_${timestamp}.pdf`;
+        
+        console.log('✅ PDF edited, uploading to storage as:', uniqueFileName);
+        
+        // Upload modified PDF to storage
+        const publicUrl = await uploadPDFToStorage(modifiedPdfBuffer, uniqueFileName);
+        
+        if (publicUrl) {
+          // Update report with new PDF path
+          await supabase
+            .from('report')
+            .update({ pdf_path: publicUrl })
+            .eq('report_id', reportData.report_id);
+          
+          console.log('✅ PDF updated with signatures:', publicUrl);
+        }
+      } else {
+        console.log('⚠️ No report found for request_id:', requestId);
+      }
+    } catch (pdfError) {
+      console.error('⚠️ Error regenerating PDF:', pdfError);
+      console.error('PDF Error stack:', pdfError.stack);
+      // Don't fail the confirmation if PDF generation fails
+    }
+    
     return { 
       success: true, 
       message: newStatus === 'done' ? 'ยืนยันสำเร็จ! เอกสารผ่านการตรวจสอบครบถ้วน' : 'ยืนยันสำเร็จ! รอการยืนยันจากเจ้าหน้าที่อีก 1 คน',
@@ -364,12 +518,28 @@ async function confirmTestRequest(requestId, userId) {
 // ปฏิเสธ test request (rejection)
 async function rejectTestRequest(requestId, userId, reason) {
   try {
+    // Get user's full name from system_users table
+    const { data: userData, error: userError } = await supabase
+      .from('system_users')
+      .select('F_Name, L_Name')
+      .eq('user_id', userId)
+      .single();
+
+    if (userError) {
+      console.error('❌ Error fetching user data:', userError.message);
+    }
+
+    // Create full name (FirstName LastName)
+    const rejectedByName = userData 
+      ? `${userData.F_Name || ''} ${userData.L_Name || ''}`.trim() 
+      : userId.toString();
+
     // Update status to reject
     const { error } = await supabase
       .from('test_request')
       .update({
         status: 'reject',
-        rejected_by: userId,
+        rejected_by: rejectedByName,
         rejected_at: new Date().toISOString(),
         rejection_reason: reason
       })
@@ -380,7 +550,7 @@ async function rejectTestRequest(requestId, userId, reason) {
       return { success: false, message: 'เกิดข้อผิดพลาดในการบันทึก' };
     }
 
-    console.log('✅ Rejected by user:', userId);
+    console.log('✅ Rejected by:', rejectedByName);
     return { success: true, message: 'ปฏิเสธเอกสารสำเร็จ' };
 
   } catch (error) {

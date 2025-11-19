@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Patient Dashboard</title>
+  <script>(function(){const t=localStorage.getItem('theme-mode');t==='dark'&&document.documentElement.classList.add('dark')})();</script>
 
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
@@ -22,9 +23,9 @@
   <link rel="stylesheet" href="../../view_Global/css/global.css"> 
   <link rel="stylesheet" href="./css/patient_medtech.css" />
   <link rel="stylesheet" href="../../view_Global/css/menu.css">
-  <link rel="stylesheet" href="../../view_Global/css/darkmode.css">
   <link rel="stylesheet" href="../../view_Global/css/navbar.css">
   <link rel="stylesheet" href="../../view_Global/css/navbar_hover.css">
+  <link rel="stylesheet" href="../../view_Global/css/darkmode.css">
   <!-- Font Awesome -->
   
 </head>
@@ -52,7 +53,7 @@
         <li id="dashboard-btn-medtech" >Dashboard</li>
         <li id="patient-btn-medtech" class="active">ข้อมูลผู้ป่วย</li>
         <!--li id="information-btn-medtech">ตรวจสอบข้อมูล</li-->
-        <li id="state-btn-medtech">Test</li>
+        <li id="state-btn-medtech">ติดตามสถานะ</li>
       </ul>
     </aside>
 
@@ -75,8 +76,8 @@
             </button>
             <div id="dropdownMenu" class="dropdown-content">
               <a href="#" id="profile-link" class="dropdown-item">Profile</a>
-              <a href="#">About</a>
-              <a href="#" id="logout">Logout</a>
+              <a href="#" class="dropdown-item">About</a>
+              <a href="#" id="logout" class="dropdown-item">Logout</a>
             </div>
           </div>
         </div>
@@ -90,12 +91,6 @@
         </div>
           
         <div class="toolbar-right">
-          <select id="tatFilter">
-            <option value="all">TAT ทั้งหมด</option>
-            <option value="pre-analytic">Pre-analytic</option>
-            <option value="analytic">Analytic</option>
-            <option value="post-analytic">Post-analytic</option>
-          </select>
           <button id="scanBarcodeBtn" class="btn primary">
             <i class="fa fa-barcode"></i>
             สแกนบาร์โค้ด
@@ -120,7 +115,6 @@
                 <th>วันที่ส่งตรวจ</th>
                 <th>โรงพยาบาล</th>
                 <th>จัดการข้อมูล</th>
-                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -194,7 +188,15 @@
 
           <div class="form-group">
             <label>โรงพยาบาล:</label>
-            <input type="text" id="hospital" />
+            <select id="hospital" required>
+              <option value="">--เลือกโรงพยาบาล--</option>
+              <option value="รพ.กรุงเทพ">รพ.กรุงเทพ</option>
+              <option value="รพ.ศิริราช">รพ.ศิริราช</option>
+              <option value="รพ.จุฬา">รพ.จุฬา</option>
+              <option value="รพ.รามาธิบดี">รพ.รามาธิบดี</option>
+              <option value="รพ.พระมงกุฏเกล้า">รพ.พระมงกุฏเกล้า</option>
+              <option value="รพ.ศรีนครินทร์">รพ.ศรีนครินทร์</option>
+            </select>
           </div>
 
           <div class="form-group">

@@ -33,7 +33,7 @@ body {
   font-size: 15px;
 }
 
-.layout {
+.container {
   display: grid;
   grid-template-columns: 240px 1fr; /* match patient/dashboard sidebar width */
   min-height: 100vh;
@@ -48,6 +48,8 @@ body {
   gap: 40px;
   box-shadow: var(--shadow-lg);
   position: relative;
+  box-sizing: border-box;
+  min-height: 100vh;
 }
 
 .sidebar ul {
@@ -131,7 +133,6 @@ body {
 }
 
 .main-content {
-  /* Match patient page spacing for consistent header position */
   padding: 32px 40px 64px;
   display: flex;
   flex-direction: column;
@@ -139,6 +140,7 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .main-content > *:not(.popup) {
@@ -161,26 +163,13 @@ body {
   flex-wrap: wrap;
 }
 
-.page-header h1 {
+.page-header h2 {
   margin: 0; /* same as patient */
   font-size: 24px; /* match patient heading size */
   font-weight: 600;
 }
 
-.page-header p {
-  margin: 0;
-  color: var(--color-muted);
-  font-size: 0.95rem;
-}
-
-
-.page-title {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.header-buttons {
+.header-actions {
   display: flex;
   align-items: center;
   gap: 10px; /* match patient */
@@ -203,6 +192,7 @@ body {
   gap: 28px;
   border: 1px solid var(--color-border);
   transition: box-shadow 0.3s ease;
+  box-sizing: border-box;
 }
 
 .card:hover {
@@ -371,7 +361,6 @@ thead th {
   letter-spacing: 0.05em;
   color: var(--color-muted);
   font-weight: 700;
-  background: var(--color-surface);
 }
 
 tbody tr {
@@ -387,6 +376,7 @@ tbody tr:hover {
 .button-group {
   display: flex;
   gap: 8px;
+  justify-content: center;
 }
 
 .table-action {

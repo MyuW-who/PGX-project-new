@@ -2,6 +2,13 @@
 /* ========================
    ดึงข้อมูลจาก sessionStorage
 ======================== */
+
+// Get current user helper function
+function getCurrentUser() {
+  const sessionData = sessionStorage.getItem('currentUser');
+  return sessionData ? JSON.parse(sessionData) : null;
+}
+
 const dnaType = sessionStorage.getItem("selectedDnaType") || "-";
 const patientName = sessionStorage.getItem("patientName") || "-";
 const patientId = sessionStorage.getItem("patientId") || sessionStorage.getItem("selectedPatientId") || "-";
@@ -81,18 +88,67 @@ if (recommendation) {
   document.getElementById("recommendation").textContent = 'Please consult with clinical pharmacist for medication dosing.';
 }
 
+/* ========================
+   Check if current user already confirmed
+======================== */
+async function checkUserConfirmation() {
+  const currentUser = getCurrentUser();
+  const requestId = sessionStorage.getItem('selectedRequestId');
+  
+  if (!currentUser || !requestId) {
+    return;
+  }
+
+  try {
+    // Fetch test request data to check confirmations
+    const testRequestData = await window.electronAPI.getTestRequestById(requestId);
+    
+    if (testRequestData) {
+      const userFullName = `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim();
+      const confirmBtn = document.querySelector(".confirm-btn");
+      
+      // More robust comparison with trim
+      const alreadyConfirmedBy1 = testRequestData.confirmed_by_1 && testRequestData.confirmed_by_1.trim() === userFullName;
+      const alreadyConfirmedBy2 = testRequestData.confirmed_by_2 && testRequestData.confirmed_by_2.trim() === userFullName;
+      const userAlreadyConfirmed = alreadyConfirmedBy1 || alreadyConfirmedBy2;
+      
+      // Check if current user already confirmed (by comparing full name)
+      if (userAlreadyConfirmed) {
+        // User already confirmed - disable button IMMEDIATELY and SYNCHRONOUSLY
+        if (confirmBtn) {
+          confirmBtn.disabled = true;
+          confirmBtn.style.setProperty('background-color', '#cccccc', 'important');
+          confirmBtn.style.setProperty('cursor', 'not-allowed', 'important');
+          confirmBtn.style.setProperty('opacity', '0.5', 'important');
+          confirmBtn.style.setProperty('pointer-events', 'none', 'important');
+          confirmBtn.style.setProperty('border', '1px solid #999', 'important');
+          confirmBtn.textContent = 'คุณได้ยืนยันแล้ว ✓';
+          confirmBtn.classList.add('disabled-confirmation');
+        }
+      }
+    }
+  } catch (error) {
+    // Silent error handling
+  }
+}
+
+// Check on page load
+checkUserConfirmation();
+
 document.querySelector(".back-btn").addEventListener("click", () => {
-  window.electronAPI.navigate('input_step2_medtech');
+  window.electronAPI.navigate('fill_alleles_pharmacy');
 });
 
-document.querySelector(".confirm-btn").addEventListener("click", async () => {
+document.querySelector(".confirm-btn").addEventListener("click", async (e) => {
   try {
-
-    if (!window.testRequestModule) {
-      alert('โมดูลไม่ถูกโหลด กรุณารีเฟรชหน้าเว็บ');
-      return;
+    // Check if button is disabled first
+    const btn = e.target;
+    if (btn.disabled || btn.style.pointerEvents === 'none') {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
     }
-
+    
     const currentUser = getCurrentUser();
     
     if (!currentUser) {
@@ -105,9 +161,52 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
       return;
     }
 
-    const sessionData = window.testRequestModule.loadTestRequestFromSession();
+    // Get request ID from session
+    const requestId = sessionStorage.getItem('selectedRequestId');
+    if (!requestId) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'ข้อมูลไม่ครบถ้วน',
+        text: 'ไม่พบข้อมูล Request ID',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
 
-    if (!sessionData.selectedPatientId || !sessionData.selectedDnaType || !sessionData.selectedSpecimen) {
+    // Fetch test request data
+    const testRequestData = await window.electronAPI.getTestRequestById(requestId);
+    if (!testRequestData) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: 'ไม่พบข้อมูล Test Request',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
+    // Check if current user already confirmed (more robust with trim)
+    const userFullName = `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim();
+    const alreadyConfirmedBy1 = testRequestData.confirmed_by_1 && testRequestData.confirmed_by_1.trim() === userFullName;
+    const alreadyConfirmedBy2 = testRequestData.confirmed_by_2 && testRequestData.confirmed_by_2.trim() === userFullName;
+    
+    if (alreadyConfirmedBy1 || alreadyConfirmedBy2) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'คุณได้ยืนยันแล้ว',
+        text: 'คุณได้ทำการยืนยันข้อมูลนี้ไปแล้ว กรุณาให้เภสัชกรท่านอื่นยืนยันอีกครั้ง',
+        confirmButtonText: 'ตกลง'
+      });
+      return;
+    }
+
+    const sessionData = {
+      selectedPatientId: sessionStorage.getItem('selectedPatientId'),
+      selectedDnaType: sessionStorage.getItem('selectedDnaType'),
+      selectedSpecimen: sessionStorage.getItem('selectedSpecimen')
+    };
+
+    if (!sessionData.selectedPatientId || !sessionData.selectedDnaType) {
       await Swal.fire({
         icon: 'error',
         title: 'ข้อมูลไม่ครบถ้วน',
@@ -116,28 +215,19 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
       });
       return;
     }
-
-    // Prepare test request data
-    const doctorName = currentUser.doctor_name 
-      || (currentUser.first_name && currentUser.last_name 
-          ? `${currentUser.first_name} ${currentUser.last_name}`.trim() 
-          : currentUser.username)
-      || 'Unknown Doctor';
     
-    const testRequestData = {
-      patient_id: sessionData.selectedPatientId,
-      test_target: sessionData.selectedDnaType,
-      Specimen: sessionData.selectedSpecimen,
-      request_date: new Date().toISOString().split('T')[0],
-      status: 'need 2 confirmation',
-      users_id: currentUser.user_id || null,
-      Doc_Name: doctorName
+    // Prepare update data with alleles (Do NOT change Doc_Name - it should stay as the medtech's name)
+    const updateData = {
+      status: 'need_2_confirmation',
+      allele_data: JSON.stringify(sessionStorage.getItem('alleles') ? JSON.parse(sessionStorage.getItem('alleles')) : {})
     };
 
-    // Save to database using the module
-    const result = await window.testRequestModule.createTestRequest(testRequestData);
+    // Update test request
+    const result = await window.electronAPI.updateTestRequest(requestId, updateData);
+    console.log('✅ Test request updated:', result);
     
-    if (result && result.request_id) {
+    if (result) {
+      const actualRequestId = result.request_id || requestId;
       // Prepare complete test data for report generation
       const alleles = [];
       const alleleKeys = ['allele2', 'allele3', 'allele4', 'allele5', 'allele10', 'allele17', 'allele41'];
@@ -152,7 +242,7 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
       });
 
       const completeTestData = {
-        request_id: result.request_id,
+        request_id: actualRequestId,
         test_target: testRequestData.test_target,
         genotype: genotype,
         predicted_phenotype: document.getElementById('phenotype').textContent || phenotype,
@@ -167,17 +257,14 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
         specimen: testRequestData.Specimen,
         patientNumber: sessionStorage.getItem('patientNumber') || result.request_id,
         hospital: currentUser.hospital_id || 'N/A',
-        createDate: testRequestData.request_date,
+        createDate: testRequestData.request_date ? new Date(testRequestData.request_date).toLocaleDateString('th-TH') : new Date().toLocaleDateString('th-TH'),
         updateDate: new Date().toLocaleDateString('th-TH'),
-        doctorName: doctorName,
-        responsibleDoctor: doctorName,
+        doctorName: testRequestData.Doc_Name || 'N/A',  // Pass doctor name from test request
         alleles: alleles
       };
 
       // Generate report with PDF
-      console.log('🔄 Generating PGx report with data:', completeTestData);
       const reportResult = await window.electronAPI.createPgxReport(completeTestData);
-      console.log('📊 Report result:', reportResult);
       
       if (reportResult.success) {
         await Swal.fire({
@@ -198,11 +285,14 @@ document.querySelector(".confirm-btn").addEventListener("click", async () => {
         });
       }
       
-      // Clear session data using the module
-      window.testRequestModule.clearTestRequestSession();
+      // Clear some session data
+      sessionStorage.removeItem('selectedRequestId');
+      sessionStorage.removeItem('genotype');
+      sessionStorage.removeItem('phenotype');
+      sessionStorage.removeItem('alleles');
       
-      // Navigate back to patient page
-      window.electronAPI.navigate('patient_medtech');
+      // Navigate back to information page
+      window.electronAPI.navigate('information_pharmacy');
     }
   } catch (error) {
     console.error('❌ Error saving test request:', error);

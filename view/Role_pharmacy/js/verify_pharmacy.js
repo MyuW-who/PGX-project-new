@@ -36,6 +36,39 @@
 
         const { confirmed_by_1, confirmed_by_2, status } = currentRequest;
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        
+        // Use doctor_name if available (which is the format stored in confirmation)
+        const currentUserName = currentUser.doctor_name || 
+                                `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim() ||
+                                currentUser.username;
+
+        // Debug logging to identify the issue
+        console.log('🔍 Checking confirmation status:');
+        console.log('  Current user name:', `"${currentUserName}"`);
+        console.log('  Current user object:', currentUser);
+        console.log('  confirmed_by_1:', `"${confirmed_by_1}"`);
+        console.log('  confirmed_by_2:', `"${confirmed_by_2}"`);
+        
+        // Normalize strings for comparison (remove extra spaces, normalize case)
+        const normalizeString = (str) => {
+            if (!str) return '';
+            return str.trim().replace(/\s+/g, ' ').toLowerCase();
+        };
+        
+        const normalizedUserName = normalizeString(currentUserName);
+        const normalizedConfirmed1 = normalizeString(confirmed_by_1);
+        const normalizedConfirmed2 = normalizeString(confirmed_by_2);
+        
+        // Check if user already confirmed (robust comparison with normalization)
+        const userAlreadyConfirmed = 
+            (normalizedConfirmed1 && normalizedConfirmed1 === normalizedUserName) || 
+            (normalizedConfirmed2 && normalizedConfirmed2 === normalizedUserName);
+        
+        console.log('  Normalized comparison:');
+        console.log('    User:', `"${normalizedUserName}"`);
+        console.log('    Confirmed 1:', `"${normalizedConfirmed1}"`);
+        console.log('    Confirmed 2:', `"${normalizedConfirmed2}"`);
+        console.log('  User already confirmed?:', userAlreadyConfirmed);
 
         // Count confirmations
         let confirmCount = 0;
@@ -50,7 +83,7 @@
             step2?.classList.add('active', 'completed');
         }
 
-        // Update status text
+        // Update status text based on new workflow
         if (status === 'done') {
             if (stepperStatus) stepperStatus.textContent = 'เสร็จสมบูรณ์ - ยืนยันครบ 2 คน';
             if (subtitleEl) subtitleEl.textContent = 'เอกสารได้รับการยืนยันแล้ว';
@@ -60,22 +93,62 @@
             if (subtitleEl) subtitleEl.textContent = 'เอกสารถูกปฏิเสธ';
             btnConfirm.disabled = true;
             btnReject.disabled = true;
-        } else if (confirmCount === 1) {
+        } else if (status === 'pending') {
+            if (stepperStatus) stepperStatus.textContent = 'รอกรอกข้อมูล Alleles';
+            if (subtitleEl) subtitleEl.textContent = 'ยังไม่มีข้อมูล Alleles';
+            btnConfirm.disabled = true;
+        } else if (status === 'need_1_confirmation' || status === 'need 1 confirmation') {
             if (stepperStatus) stepperStatus.textContent = 'รอการยืนยันจากอีก 1 คน';
             if (subtitleEl) subtitleEl.textContent = `เจ้าหน้าที่ ${confirmCount} / 2 ยืนยันแล้ว`;
             
             // Check if current user already confirmed
-            if (currentUser.user_id === confirmed_by_1) {
+            if (userAlreadyConfirmed) {
                 btnConfirm.disabled = true;
-                if (stepperStatus) stepperStatus.textContent = 'คุณยืนยันแล้ว - รอผู้อื่นยืนยัน';
+                btnConfirm.style.opacity = '0.5';
+                btnConfirm.style.cursor = 'not-allowed';
+                btnConfirm.style.backgroundColor = '#cccccc';
+                btnConfirm.style.pointerEvents = 'none';
+                btnConfirm.textContent = 'คุณได้ยืนยันแล้ว ✓';
+                if (stepperStatus) stepperStatus.textContent = '✓ คุณยืนยันแล้ว - รอผู้อื่นยืนยัน';
+                if (subtitleEl) subtitleEl.textContent = 'รอการยืนยันจากเจ้าหน้าที่อีก 1 คน';
+                console.log('🚫 Button disabled - user already confirmed');
             } else {
                 btnConfirm.disabled = false;
+                btnConfirm.style.opacity = '1';
+                btnConfirm.style.cursor = 'pointer';
+                btnConfirm.style.backgroundColor = '';
+                btnConfirm.style.pointerEvents = '';
+                btnConfirm.textContent = 'ยืนยันรายงานผล (Confirm)';
+                console.log('✅ Button enabled - user can confirm');
             }
-        } else {
+        } else if (status === 'need_2_confirmation' || status === 'need 2 confirmation') {
             // No confirmations yet
             if (stepperStatus) stepperStatus.textContent = 'รอการยืนยันจาก 2 คน';
             if (subtitleEl) subtitleEl.textContent = 'เจ้าหน้าที่ 0 / 2 กำลังตรวจสอบไฟล์ PDF';
-            btnConfirm.disabled = false;
+            // Check if this user somehow already confirmed (edge case)
+            if (userAlreadyConfirmed) {
+                btnConfirm.disabled = true;
+                btnConfirm.style.opacity = '0.5';
+                btnConfirm.style.cursor = 'not-allowed';
+                btnConfirm.style.backgroundColor = '#cccccc';
+                btnConfirm.style.pointerEvents = 'none';
+                btnConfirm.textContent = 'คุณได้ยืนยันแล้ว ✓';
+                if (stepperStatus) stepperStatus.textContent = '✓ คุณยืนยันแล้ว';
+                console.log('🚫 Button disabled - user already confirmed');
+            } else {
+                btnConfirm.disabled = false;
+                btnConfirm.style.opacity = '1';
+                btnConfirm.style.cursor = 'pointer';
+                btnConfirm.style.backgroundColor = '';
+                btnConfirm.style.pointerEvents = '';
+                btnConfirm.textContent = 'ยืนยันรายงานผล (Confirm)';
+                console.log('✅ Button enabled - user can confirm');
+            }
+        } else {
+            // Unknown status
+            if (stepperStatus) stepperStatus.textContent = status || 'ไม่ทราบสถานะ';
+            if (subtitleEl) subtitleEl.textContent = 'กรุณาตรวจสอบสถานะ';
+            btnConfirm.disabled = true;
         }
 
         console.log('📊 Confirmation status:', { confirmCount, status, confirmed_by_1, confirmed_by_2 });
@@ -452,6 +525,46 @@
             return;
         }
 
+        // Use doctor_name if available (which is the format stored in confirmation)
+        const currentUserName = currentUser.doctor_name || 
+                                `${currentUser.F_Name || ''} ${currentUser.L_Name || ''}`.trim() ||
+                                currentUser.username;
+        
+        // Normalize strings for comparison
+        const normalizeString = (str) => {
+            if (!str) return '';
+            return str.trim().replace(/\s+/g, ' ').toLowerCase();
+        };
+        
+        const normalizedUserName = normalizeString(currentUserName);
+        const normalizedConfirmed1 = normalizeString(currentRequest.confirmed_by_1);
+        const normalizedConfirmed2 = normalizeString(currentRequest.confirmed_by_2);
+        
+        // Check if user already confirmed (robust comparison with normalization)
+        const userAlreadyConfirmed = 
+            (normalizedConfirmed1 && normalizedConfirmed1 === normalizedUserName) || 
+            (normalizedConfirmed2 && normalizedConfirmed2 === normalizedUserName);
+        
+        console.log('🔍 Confirm button clicked - checking:', {
+            currentUserName,
+            normalizedUserName,
+            confirmed_by_1: currentRequest.confirmed_by_1,
+            confirmed_by_2: currentRequest.confirmed_by_2,
+            normalizedConfirmed1,
+            normalizedConfirmed2,
+            userAlreadyConfirmed
+        });
+        
+        if (userAlreadyConfirmed) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'คุณยืนยันแล้ว',
+                text: 'คุณได้ทำการยืนยันเอกสารนี้ไปแล้ว ต้องให้เจ้าหน้าที่คนอื่นยืนยัน',
+                confirmButtonText: 'รับทราบ'
+            });
+            return;
+        }
+
         const result = await Swal.fire({
             title: 'ยืนยันการตรวจสอบ',
             html: `
@@ -480,10 +593,14 @@
             if (confirmResult.success) {
                 await Swal.fire({
                     title: 'สำเร็จ!',
-                    text: confirmResult.message,
+                    html: `
+                        <p>${confirmResult.message}</p>
+                        <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                            <i class="fas fa-file-pdf"></i> PDF ได้รับการอัปเดตพร้อมลายเซ็นของคุณแล้ว
+                        </p>
+                    `,
                     icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false
+                    confirmButtonText: 'ตกลง'
                 });
                 // Navigate back to information page
                 window.electronAPI?.navigate('information_pharmacy');
@@ -569,10 +686,6 @@
         window.electronAPI?.navigate('information_pharmacy');
     });
 })();
-// Initialize user profile features (dropdown, logout, profile link, etc.)
-if (typeof initializeUserProfile === 'function') {
-    initializeUserProfile();
-}
 
 // Initialize user profile features (dropdown, logout, profile link, etc.)
 if (typeof initializeUserProfile === 'function') {

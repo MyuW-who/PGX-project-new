@@ -2,9 +2,10 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <title>ยืนยันการตรวจ - ขั้นตอนที่ 2</title>
+  <title>กรอกข้อมูล Alleles - Pharmacy</title>
+  <script>(function(){const t=localStorage.getItem('theme-mode');t==='dark'&&document.documentElement.classList.add('dark')})();</script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <link rel="stylesheet" href="./css/input_step2_medtech.css" /> 
+  <link rel="stylesheet" href="./css/fill_alleles_pharmacy.css" /> 
   <link rel="stylesheet" href="../../view_Global/css/navbar.css">
   <link rel="stylesheet" href="../../view_Global/css/darkmode.css" />
   
@@ -12,21 +13,19 @@
 <body class="step2-page">
   <!-- Navbar -->
   <header class="page-header">
-        <h2>Input information</h2>
-        <div class="header-buttons">
-          <button id="themeToggle" class="icon-btn">
-            <i class="fa fa-moon"></i>
-          </button>
-        </div>
+    <h2>Input information</h2>
+    <div class="header-buttons">
+      <button id="themeToggle" class="icon-btn">
+        <i class="fa fa-moon"></i>
+      </button>
+    </div>
   </header>
 
   <!-- Step progress -->
-  <section class="steps">
-    <div class="step done">1</div>
+  <section class="steps ">
+    <div class="step active">1</div>
     <div class="line"></div>
-    <div class="step active">2</div>
-    <div class="line"></div>
-    <div class="step">3</div>
+    <div class="step ">2</div>
   </section>
 
   <!-- Content -->
@@ -53,7 +52,7 @@
     </div>
   </main>
 
-  <script src="./js/input_step2_medtech.js"></script>
+  <script src="./js/fill_alleles_pharmacy.js"></script>
   <script src="../../view_Global/js/darkmode.js"></script>
 </body>
 </html>

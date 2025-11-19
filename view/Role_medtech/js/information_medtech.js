@@ -36,7 +36,8 @@ document.getElementById('searchInput')?.addEventListener('input', async e => {
   const kw = e.target.value.trim();
   try {
     const data = kw ? await window.electronAPI.searchTestRequests(kw) : await window.electronAPI.getTestRequests();
-    renderTestRequests(data);
+    const filtered = data.filter(r => r.status?.toLowerCase() !== 'pending');
+    renderTestRequests(filtered);
     await updateStatsFromAPI();
   } catch (err) {
     console.error('search error', err);
@@ -46,8 +47,9 @@ document.getElementById('searchInput')?.addEventListener('input', async e => {
 
 document.getElementById('tatFilter')?.addEventListener('change', async e => {
   const all = await window.electronAPI.getTestRequests();
+  const allExceptPending = all.filter(r => r.status?.toLowerCase() !== 'pending');
   const v = e.target.value;
-  const filtered = v === 'all' ? all : all.filter(r => r.status === v);
+  const filtered = v === 'all' ? allExceptPending : allExceptPending.filter(r => r.status === v);
   renderTestRequests(filtered);
   await updateStatsFromAPI();
 });
@@ -153,7 +155,7 @@ function renderTestRequests(data) {
   tbody.innerHTML = '';
 
   if (!data || data.length === 0) {
-    tbody.innerHTML = `<tr class="no-data-row"><td colspan="6">ไม่พบข้อมูลที่ตรงกับการค้นหา</td></tr>`;
+    tbody.innerHTML = `<tr class="no-data-row"><td colspan="8">ไม่พบข้อมูลที่ตรงกับการค้นหา</td></tr>`;
     return;
   }
 
@@ -173,11 +175,26 @@ function renderTestRequests(data) {
     const specimenKey = (specimen || '').toLowerCase();
     const slaTime = specimenSlaMap[specimenKey];
     
-    // Display status as-is from database
-    const statusDisplay = status;
+    // Format status display text (replace underscores with spaces)
+    const statusDisplay = status ? status.replace(/_/g, ' ') : '-';
 
     // Get dot class for color coding
     const dotClass = getTATBadgeClass(status);
+    
+    // Determine confirmed doctor display based on status
+    let confirmedDoctor = '-';
+    const statusLower = status?.toLowerCase() || '';
+    if (statusLower === 'need_2_confirmation' || statusLower === 'need 2 confirmation') {
+      confirmedDoctor = 'รอยืนยันคนที่ 1';
+    } else if (statusLower === 'need_1_confirmation' || statusLower === 'need 1 confirmation') {
+      // Show first confirmer
+      confirmedDoctor = req.confirmed_by_1 || 'รอยืนยันคนที่ 2';
+    } else if (statusLower === 'done') {
+      // Show both confirmer
+      const doctor1 = req.confirmed_by_1 || '';
+      const doctor2 = req.confirmed_by_2 || '';
+      confirmedDoctor = [doctor1, doctor2].filter(d => d).join(' & ') || 'เสร็จสิ้น';
+    }
     
     // Calculate TAT warning with actual SLA time from database
     const tatWarning = calculateTATWarning(requestDate, slaTime, status);
@@ -227,6 +244,10 @@ function renderTestRequests(data) {
           <button class="pdf-btn" onclick="viewPDF(${req.request_id}, '${patientName}')">
             <i class="fas fa-file-pdf"></i> ดู PDF
           </button>
+        ` : status?.toLowerCase() === 'reject' ? `
+          <button class="reject-reason-btn" onclick="showRejectReason(${req.request_id})">
+            <i class="fas fa-info-circle"></i> ดูเหตุผล
+          </button>
         ` : ''}
       </td>
     `;
@@ -245,20 +266,65 @@ async function updateStatsFromAPI() {
   try {
     const stats = await window.electronAPI.getTestRequestStats('all');
     document.getElementById('statAll').textContent = stats.all || 0;
+    document.getElementById('statPending').textContent = stats.pending || 0;
     document.getElementById('statPre').textContent = stats.need2 || stats.need2Confirmation || 0;
     document.getElementById('statAnalytic').textContent = stats.need1 || stats.need1Confirmation || 0;
     document.getElementById('statPost').textContent = stats.done || 0;
+    document.getElementById('statReject').textContent = stats.reject || 0;
   } catch (e) {
     console.error('Error fetching stats:', e);
     // Set to 0 if error
     document.getElementById('statAll').textContent = 0;
+    document.getElementById('statPending').textContent = 0;
     document.getElementById('statPre').textContent = 0;
     document.getElementById('statAnalytic').textContent = 0;
     document.getElementById('statPost').textContent = 0;
+    document.getElementById('statReject').textContent = 0;
   }
 }
 
 /* ========= Edit / View PDF / Navigate ========= */
+async function showRejectReason(requestId) {
+  try {
+    const req = await window.electronAPI.getTestRequestById(requestId);
+    if (!req) {
+      Swal.fire({
+        icon: 'error',
+        title: 'ไม่พบข้อมูล',
+        text: 'ไม่สามารถดึงข้อมูล Test Request ได้'
+      });
+      return;
+    }
+    
+    const rejectionReason = req.rejection_reason || 'ไม่มีเหตุผลที่ระบุ';
+    const rejectedBy = req.rejected_by || '-';
+    const rejectedAt = req.rejected_at ? new Date(req.rejected_at).toLocaleString('th-TH') : '-';
+    
+    Swal.fire({
+      icon: 'info',
+      title: 'เหตุผลการปฏิเสธ',
+      html: `
+        <div style="text-align: left; padding: 10px;">
+          <p><strong>เคสเลขที่:</strong> ${requestId}</p>
+          <p><strong>เหตุผล:</strong></p>
+          <p style="background: #f3f4f6; padding: 10px; border-radius: 5px; margin: 10px 0;">${rejectionReason}</p>
+          <p><strong>ปฏิเสธโดย:</strong> ${rejectedBy}</p>
+          <p><strong>วันที่ปฏิเสธ:</strong> ${rejectedAt}</p>
+        </div>
+      `,
+      confirmButtonText: 'ปิด',
+      width: '600px'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching reject reason:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: 'ไม่สามารถดึงข้อมูลเหตุผลการปฏิเสธได้'
+    });
+  }
+}
+
 async function editTestRequest(requestId) {
   try {
     const req = await window.electronAPI.getTestRequestById(requestId);
@@ -274,48 +340,19 @@ async function editTestRequest(requestId) {
 
 async function viewPDF(requestId, patientName) {
   try {
-    // Get the test request details with report
-    const req = await window.electronAPI.getTestRequestById(requestId);
-    if (!req) {
-      alert('ไม่พบข้อมูล Test Request');
-      return;
-    }
+    // Store data in sessionStorage
+    sessionStorage.setItem('selectedRequestId', requestId);
+    sessionStorage.setItem('selectedPatientName', patientName);
     
-    // Check if report exists and has PDF path
-    if (req.report?.pdf_path) {
-      // If there's a PDF URL from Supabase Storage
-      alert(`เปิดไฟล์ PDF: ${req.report.pdf_path}`);
-      // TODO: Implement actual PDF viewing/opening in browser
-      // window.open(req.report.pdf_path, '_blank');
-    } else if (req.report) {
-      // Report exists but no PDF, regenerate with full report data
-      const reportData = {
-        name: patientName,
-        age: req.patient?.age || '-',
-        gender: req.patient?.gender || '-',
-        hn: req.patient?.patient_id || '-',
-        hospital: req.patient?.hospital_id || '-',
-        testTarget: req.test_target || '-',
-        specimen: req.Specimen || '-',
-        // Add rulebase data from report
-        genotype: req.report.genotype,
-        predicted_phenotype: req.report.predicted_phenotype,
-        recommendation: req.report.recommendation,
-        genotype_summary: req.report.genotype_summary,
-        // Parse alleles if stored as JSON string
-        alleles: typeof req.alleles === 'string' ? JSON.parse(req.alleles) : (req.alleles || []),
-        activityScore: req.activity_score || 'N/A'
-      };
-      
-      const pdfPath = await window.electron.generatePDF(reportData);
-      alert(`สร้าง PDF สำเร็จ: ${pdfPath}`);
-    } else {
-      // No report yet, can't generate PDF
-      alert('ยังไม่มีรายงานผลการตรวจสำหรับ Test Request นี้');
-    }
-  } catch (e) {
-    console.error('❌ Error viewing PDF:', e);
-    alert('เกิดข้อผิดพลาดในการดู PDF');
+    // Navigate to PDF viewer page
+    window.electronAPI.navigate('showpdf_medtech');
+  } catch (error) {
+    console.error('❌ Error preparing PDF view:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: 'ไม่สามารถเปิด PDF ได้'
+    });
   }
 }
 
@@ -323,6 +360,10 @@ function showPage(pageName, patientId) {
   sessionStorage.setItem('selectedPatientId', patientId);
   window.electronAPI?.navigate(pageName);
 }
+
+// Make functions globally accessible for onclick handlers
+window.showRejectReason = showRejectReason;
+window.viewPDF = viewPDF;
 
 /* ========= Light/Dark toggle (ตัวอย่าง) ========= */
 

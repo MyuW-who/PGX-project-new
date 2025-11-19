@@ -20,7 +20,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     const testRequests = await window.electronAPI.getTestRequests();
     console.log('📦 Test Requests:', testRequests);
     console.log('📦 Sample Request:', testRequests[0]);
-    renderTestRequests(testRequests);
+    // Filter out pending status
+    const filtered = testRequests.filter(r => r.status?.toLowerCase() !== 'pending');
+    renderTestRequests(filtered);
     await updateStatsFromAPI();
   } catch (e) {
     console.error('fetch test requests error', e);
@@ -36,7 +38,8 @@ document.getElementById('searchInput')?.addEventListener('input', async e => {
   const kw = e.target.value.trim();
   try {
     const data = kw ? await window.electronAPI.searchTestRequests(kw) : await window.electronAPI.getTestRequests();
-    renderTestRequests(data);
+    const filtered = data.filter(r => r.status?.toLowerCase() !== 'pending');
+    renderTestRequests(filtered);
     await updateStatsFromAPI();
   } catch (err) {
     console.error('search error', err);
@@ -46,8 +49,9 @@ document.getElementById('searchInput')?.addEventListener('input', async e => {
 
 document.getElementById('tatFilter')?.addEventListener('change', async e => {
   const all = await window.electronAPI.getTestRequests();
+  const allExceptPending = all.filter(r => r.status?.toLowerCase() !== 'pending');
   const v = e.target.value;
-  const filtered = v === 'all' ? all : all.filter(r => r.status === v);
+  const filtered = v === 'all' ? allExceptPending : allExceptPending.filter(r => r.status === v);
   renderTestRequests(filtered);
   await updateStatsFromAPI();
 });
@@ -77,22 +81,32 @@ function getTATBadgeClass(status) {
   // Normalize status to lowercase for comparison
   const statusLower = (status || '').toLowerCase().trim();
   
+  // 🔵 Blue - Pending (waiting for pharmacist to fill alleles)
+  if (statusLower === 'pending') {
+    return 'status-pending';
+  }
+  
+  // 🟠 Orange - Needs 2 confirmations
+  if (statusLower === 'need_2_confirmation' || statusLower === 'need 2 confirmation') {
+    return 'status-pending-2';
+  }
+  
+  // 🟡 Yellow - Needs 1 confirmation
+  if (statusLower === 'need_1_confirmation' || statusLower === 'need 1 confirmation') {
+    return 'status-pending-1';
+  }
+  
   // 🟢 Green - Done (Completed)
   if (statusLower === 'done') {
     return 'status-done';
   }
   
-  // 🟡 Yellow - Needs 1 confirmation
-  if (statusLower === 'need 1 confirmation') {
-    return 'status-pending-1';
+  // 🔴 Red - Rejected
+  if (statusLower === 'reject') {
+    return 'status-reject';
   }
   
-  // 🟠 Orange - Needs 2 confirmations
-  if (statusLower === 'need 2 confirmation') {
-    return 'status-pending-2';
-  }
-  
-  // Default for reject or other statuses
+  // Default for other statuses
   return 'status-default';
 }
 
@@ -173,11 +187,26 @@ function renderTestRequests(data) {
     const specimenKey = (specimen || '').toLowerCase();
     const slaTime = specimenSlaMap[specimenKey];
     
-    // Display status as-is from database
-    const statusDisplay = status;
+    // Format status display text (replace underscores with spaces)
+    const statusDisplay = status ? status.replace(/_/g, ' ') : '-';
 
     // Get dot class for color coding
     const dotClass = getTATBadgeClass(status);
+    
+    // Determine confirmed doctor display based on status
+    let confirmedDoctor = '-';
+    const statusLower = status?.toLowerCase() || '';
+    if (statusLower === 'need_2_confirmation' || statusLower === 'need 2 confirmation') {
+      confirmedDoctor = 'รอยืนยันคนที่ 1';
+    } else if (statusLower === 'need_1_confirmation' || statusLower === 'need 1 confirmation') {
+      // Show first confirmer
+      confirmedDoctor = req.confirmed_by_1 || 'รอยืนยันคนที่ 2';
+    } else if (statusLower === 'done') {
+      // Show both confirmer
+      const doctor1 = req.confirmed_by_1 || '';
+      const doctor2 = req.confirmed_by_2 || '';
+      confirmedDoctor = [doctor1, doctor2].filter(d => d).join(' & ') || 'เสร็จสิ้น';
+    }
     
     // Calculate TAT warning with actual SLA time from database
     const tatWarning = calculateTATWarning(requestDate, slaTime, status);
@@ -223,9 +252,23 @@ function renderTestRequests(data) {
         </div>
       </td>
       <td>
-        ${status?.toLowerCase() === 'done' ? `
+        ${status?.toLowerCase() === 'need_2_confirmation' || status?.toLowerCase() === 'need 2 confirmation' ? `
+          <button class="verify-btn" onclick="verifyTestRequest(${req.request_id})">
+            <i class="fas fa-check-circle"></i> ยืนยัน
+          </button>
+        ` : status?.toLowerCase() === 'need_1_confirmation' || status?.toLowerCase() === 'need 1 confirmation' ? `
+          <button class="verify-btn" onclick="verifyTestRequest(${req.request_id})">
+            <i class="fas fa-check-circle"></i> ยืนยัน
+          </button>
+        ` : status?.toLowerCase() === 'done' ? `
           <button class="pdf-btn" onclick="viewPDF(${req.request_id}, '${patientName}')">
             <i class="fas fa-file-pdf"></i> ดู PDF
+          </button>
+        ` : status?.toLowerCase() === 'pending' ? `
+          <span style="color: #3b82f6; font-weight: 500;">รอกรอก Alleles</span>
+        ` : status?.toLowerCase() === 'reject' ? `
+          <button class="reject-reason-btn" onclick="showRejectReason(${req.request_id})">
+            <i class="fas fa-info-circle"></i> ดูเหตุผล
           </button>
         ` : ''}
       </td>
@@ -233,7 +276,7 @@ function renderTestRequests(data) {
     tr.addEventListener('click', (e) => {
       // ไม่ให้คลิกที่ปุ่มทำให้เปลี่ยนหน้า
       if (!e.target.closest('button')) {
-        showPage('verify_pharmacy', req.request_id);
+        //showPage('verify_pharmacy', req.request_id);
       }
     });
     tbody.appendChild(tr);
@@ -259,6 +302,47 @@ async function updateStatsFromAPI() {
 }
 
 /* ========= Edit / View PDF / Navigate ========= */
+async function showRejectReason(requestId) {
+  try {
+    const req = await window.electronAPI.getTestRequestById(requestId);
+    if (!req) {
+      Swal.fire({
+        icon: 'error',
+        title: 'ไม่พบข้อมูล',
+        text: 'ไม่สามารถดึงข้อมูล Test Request ได้'
+      });
+      return;
+    }
+    
+    const rejectionReason = req.rejection_reason || 'ไม่มีเหตุผลที่ระบุ';
+    const rejectedBy = req.rejected_by || '-';
+    const rejectedAt = req.rejected_at ? new Date(req.rejected_at).toLocaleString('th-TH') : '-';
+    
+    Swal.fire({
+      icon: 'info',
+      title: 'เหตุผลการปฏิเสธ',
+      html: `
+        <div style="text-align: left; padding: 10px;">
+          <p><strong>เคสเลขที่:</strong> ${requestId}</p>
+          <p><strong>เหตุผล:</strong></p>
+          <p style="background: #f3f4f6; padding: 10px; border-radius: 5px; margin: 10px 0;">${rejectionReason}</p>
+          <p><strong>ปฏิเสธโดย:</strong> ${rejectedBy}</p>
+          <p><strong>วันที่ปฏิเสธ:</strong> ${rejectedAt}</p>
+        </div>
+      `,
+      confirmButtonText: 'ปิด',
+      width: '600px'
+    });
+  } catch (error) {
+    console.error('❌ Error fetching reject reason:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: 'ไม่สามารถดึงข้อมูลเหตุผลการปฏิเสธได้'
+    });
+  }
+}
+
 async function editTestRequest(requestId) {
   try {
     const req = await window.electronAPI.getTestRequestById(requestId);
@@ -274,48 +358,19 @@ async function editTestRequest(requestId) {
 
 async function viewPDF(requestId, patientName) {
   try {
-    // Get the test request details with report
-    const req = await window.electronAPI.getTestRequestById(requestId);
-    if (!req) {
-      alert('ไม่พบข้อมูล Test Request');
-      return;
-    }
+    // Store data in sessionStorage
+    sessionStorage.setItem('selectedRequestId', requestId);
+    sessionStorage.setItem('selectedPatientName', patientName);
     
-    // Check if report exists and has PDF path
-    if (req.report?.pdf_path) {
-      // If there's a PDF URL from Supabase Storage
-      alert(`เปิดไฟล์ PDF: ${req.report.pdf_path}`);
-      // TODO: Implement actual PDF viewing/opening in browser
-      // window.open(req.report.pdf_path, '_blank');
-    } else if (req.report) {
-      // Report exists but no PDF, regenerate with full report data
-      const reportData = {
-        name: patientName,
-        age: req.patient?.age || '-',
-        gender: req.patient?.gender || '-',
-        hn: req.patient?.patient_id || '-',
-        hospital: req.patient?.hospital_id || '-',
-        testTarget: req.test_target || '-',
-        specimen: req.Specimen || '-',
-        // Add rulebase data from report
-        genotype: req.report.genotype,
-        predicted_phenotype: req.report.predicted_phenotype,
-        recommendation: req.report.recommendation,
-        genotype_summary: req.report.genotype_summary,
-        // Parse alleles if stored as JSON string
-        alleles: typeof req.alleles === 'string' ? JSON.parse(req.alleles) : (req.alleles || []),
-        activityScore: req.activity_score || 'N/A'
-      };
-      
-      const pdfPath = await window.electron.generatePDF(reportData);
-      alert(`สร้าง PDF สำเร็จ: ${pdfPath}`);
-    } else {
-      // No report yet, can't generate PDF
-      alert('ยังไม่มีรายงานผลการตรวจสำหรับ Test Request นี้');
-    }
-  } catch (e) {
-    console.error('❌ Error viewing PDF:', e);
-    alert('เกิดข้อผิดพลาดในการดู PDF');
+    // Navigate to PDF viewer page (pharmacy version)
+    window.electronAPI.navigate('showpdf_pharmacy');
+  } catch (error) {
+    console.error('❌ Error preparing PDF view:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: 'ไม่สามารถเปิด PDF ได้'
+    });
   }
 }
 
@@ -323,6 +378,50 @@ function showPage(pageName, requestId) {
   sessionStorage.setItem('selectedRequestId', requestId);
   window.electronAPI?.navigate(pageName);
 }
+
+// Function to fill alleles for pending request
+window.fillAlleles = async function(requestId) {
+  try {
+    // Get request details
+    const req = await window.electronAPI.getTestRequestById(requestId);
+    if (!req) {
+      alert('ไม่พบข้อมูล Test Request');
+      return;
+    }
+    
+    // Store request data in sessionStorage
+    sessionStorage.setItem('selectedRequestId', requestId);
+    sessionStorage.setItem('selectedPatientId', req.patient_id);
+    sessionStorage.setItem('patientId', req.patient_id);
+    sessionStorage.setItem('selectedDnaType', req.test_target);
+    sessionStorage.setItem('selectedSpecimen', req.specimen);
+    
+    // Store patient info
+    if (req.patient) {
+      sessionStorage.setItem('patientName', `${req.patient.first_name} ${req.patient.last_name}`);
+      sessionStorage.setItem('patientAge', req.patient.age || 'N/A');
+      sessionStorage.setItem('patientGender', req.patient.gender || 'N/A');
+      sessionStorage.setItem('patientHospital', req.patient.hospital_id || 'N/A');
+    }
+    
+    // Navigate to allele input page
+    window.electronAPI.navigate('fill_alleles_pharmacy');
+  } catch (error) {
+    console.error('❌ Error preparing allele input:', error);
+    alert('เกิดข้อผิดพลาดในการเตรียมข้อมูล');
+  }
+}
+
+// Function to verify test request
+window.verifyTestRequest = function(requestId) {
+  showPage('verify_pharmacy', requestId);
+}
+
+// Function to show reject reason (make globally accessible)
+window.showRejectReason = showRejectReason;
+
+// Function to view PDF (make globally accessible)
+window.viewPDF = viewPDF;
 
 /* ========= Light/Dark toggle (ตัวอย่าง) ========= */
 

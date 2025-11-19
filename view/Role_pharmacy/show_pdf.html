@@ -10,20 +10,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     <link rel="stylesheet" href="../../view_Global/css/global.css"> 
-    <link rel="stylesheet" href="../../view_Global/css/menu.css">
-    <link rel="stylesheet" href="../../view_Global/css/navbar.css">
-    <link rel="stylesheet" href="../../view_Global/css/navbar_hover.css">
-    
-    <link rel="stylesheet" href="./css/information_pharmacy.css"> 
-    <link rel="stylesheet" href="./css/show_pdf.css" />
     <link rel="stylesheet" href="../../view_Global/css/darkmode.css">
+    
+    <link rel="stylesheet" href="./css/show_pdf_viewer.css" />
 </head>
 <body class="pdf-dark-bg">
   <div class="pdf-shell">
     <header class="pdf-top-bar">
-      <button id="back-to-state" class="pdf-icon-btn" aria-label="Back">
+      <button id="back-to-information" class="pdf-icon-btn" aria-label="Back">
         <i class="fas fa-arrow-left"></i>
       </button>
       <div class="pdf-top-dots">
@@ -61,8 +56,8 @@
   <script src="../../view_Global/js/darkmode.js"></script>
   <script src="./js/show_pdf.js"></script>
   <script>
-    document.getElementById('back-to-state')?.addEventListener('click', () => {
-      window.electronAPI.navigate('state_medtech');
+    document.getElementById('back-to-information')?.addEventListener('click', () => {
+      window.electronAPI.navigate('information_pharmacy');
     });
   </script>
 </body>

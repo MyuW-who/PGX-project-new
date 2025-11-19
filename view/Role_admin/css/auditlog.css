@@ -5,7 +5,7 @@ body {
 	padding-top: 60px; /* Account for fixed navbar height */
 }
 
-.layout {
+.container {
 	min-height: calc(100vh - 60px);
 }
 
@@ -76,6 +76,7 @@ body {
 	background: var(--color-surface);
 	border: 1px solid var(--color-border);
 	transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+	box-sizing: border-box;
 }
 
 .audit-item:hover { 

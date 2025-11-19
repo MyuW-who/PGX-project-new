@@ -62,30 +62,22 @@ body {
   gap: 14px;
 }
 
-.icon-btn,
-.lang-btn,
-.account-pill {
+/* Back button specific styling (not covered by navbar.css) */
+.back-btn {
   border: 1px solid rgba(148, 163, 184, 0.35);
   background: rgba(255, 255, 255, 0.96);
   color: var(--color-text);
   border-radius: 14px;
-  padding: 0.6rem 1rem;
+  padding: 0.6rem;
+  width: 44px;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  justify-content: center;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease, border 0.18s ease;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
-}
-
-.icon-btn,
-.theme-toggle,
-.back-btn {
-  padding: 0.6rem;
-  width: 44px;
-  justify-content: center;
 }
 
 .back-btn .icon {
@@ -93,9 +85,7 @@ body {
   line-height: 1;
 }
 
-.icon-btn:hover,
-.lang-btn:hover,
-.account-pill:hover {
+.back-btn:hover {
   transform: translateY(-2px);
   border-color: rgba(37, 99, 235, 0.4);
   box-shadow: 0 16px 32px rgba(37, 99, 235, 0.16);

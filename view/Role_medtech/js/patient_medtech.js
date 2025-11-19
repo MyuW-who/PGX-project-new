@@ -30,7 +30,7 @@
     // collect common fields
     const patientData = {
       patient_id: parseInt(document.getElementById('patient_id').value),
-      hospital_id: document.getElementById('hospital').value.trim(),
+      hospital_id: document.getElementById('hospital').value.trim() || null,
       first_name: document.getElementById('first_name').value.trim(),
       last_name: document.getElementById('last_name').value.trim(),
       age: parseInt(document.getElementById('age').value),
@@ -60,8 +60,8 @@
       icon: 'success',
       title: 'บันทึกสำเร็จ!',
       text: isEditMode ? 'ข้อมูลผู้ป่วยได้รับการอัปเดตแล้ว' : 'เพิ่มข้อมูลผู้ป่วยสำเร็จ',
-      background: '#1f2937',
-      color: '#f9fafb',
+      background: '#ffffffff',
+      color: '#000000ff',
       confirmButtonColor: '#3b82f6'
     });
 
@@ -165,9 +165,9 @@ form?.addEventListener('submit', handleFormSubmit);
           <td>${p.first_name ?? ''} ${p.last_name ?? ''}</td>
           <td>${p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : '-'}</td>
           <td>${p.hospital_id ?? '-'}</td>
-          <td>
-            <button class="delete-btn" onclick="event.stopPropagation(); deletePatient(${p.patient_id})"><i class="fas fa-trash-alt"></i></button>
+          <td> 
             <button class="Edit-btn" onclick="event.stopPropagation(); editPatient(${p.patient_id})"><i class="fas fa-edit"></i></button>
+            <button class="delete-btn" onclick="event.stopPropagation(); deletePatient(${p.patient_id})"><i class="fas fa-trash-alt"></i></button>
           </td>
         </tr>`;
       tbody.insertAdjacentHTML('beforeend', row);

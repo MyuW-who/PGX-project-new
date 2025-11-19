@@ -3,6 +3,9 @@ const supabase = require('../supabase');
 const fs = require('fs');
 const path = require('path');
 const PDFDocument = require('pdfkit');
+const { PDFDocument: PDFLibDocument } = require('pdf-lib');
+const https = require('https');
+const http = require('http');
 
 /**
  * Compare genotype with diplotype table and get matching results
@@ -79,12 +82,317 @@ async function createReport(reportData) {
 }
 
 /**
+ * Download image from URL to buffer
+ * @param {string} imageUrl - URL of the image
+ * @returns {Promise<Buffer>} Image buffer
+ */
+async function downloadImage(imageUrl) {
+  return new Promise((resolve, reject) => {
+    console.log('🔽 Downloading image from:', imageUrl);
+    
+    const protocol = imageUrl.startsWith('https:') ? https : http;
+    const request = protocol.get(imageUrl, {
+      rejectUnauthorized: false,
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0'
+      }
+    }, (res) => {
+      // Handle redirects
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        const redirectUrl = res.headers.location;
+        console.log('➡️ Following redirect to:', redirectUrl);
+        const redirectProtocol = redirectUrl.startsWith('https:') ? https : http;
+        redirectProtocol.get(redirectUrl, {
+          rejectUnauthorized: false,
+          timeout: 10000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0'
+          }
+        }, (redirectRes) => {
+          if (redirectRes.statusCode !== 200) {
+            reject(new Error(`HTTP ${redirectRes.statusCode} after redirect`));
+            return;
+          }
+          
+          const chunks = [];
+          redirectRes.on('data', chunk => chunks.push(chunk));
+          redirectRes.on('end', () => {
+            const buffer = Buffer.concat(chunks);
+            console.log('✅ Downloaded', buffer.length, 'bytes after redirect');
+            resolve(buffer);
+          });
+          redirectRes.on('error', reject);
+        }).on('error', reject);
+        return;
+      }
+      
+      if (res.statusCode !== 200) {
+        reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
+        return;
+      }
+      
+      const chunks = [];
+      res.on('data', chunk => chunks.push(chunk));
+      res.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        console.log('✅ Downloaded', buffer.length, 'bytes');
+        resolve(buffer);
+      });
+      res.on('error', reject);
+    });
+    
+    request.on('error', (err) => {
+      console.error('❌ Request error:', err.message);
+      reject(err);
+    });
+    
+    request.setTimeout(10000, () => {
+      request.destroy();
+      reject(new Error('Request timeout'));
+    });
+  });
+}
+
+/**
+ * Edit existing PDF to add signatures
+ * @param {string} existingPdfPath - Storage path or URL of existing PDF
+ * @param {string} signature1_url - URL of first signature (left box)
+ * @param {string} signature2_url - URL of second signature (right box)
+ * @returns {Promise<Buffer>} Modified PDF as buffer
+ */
+async function addSignaturesToPDF(existingPdfPath, signature1_url, signature2_url) {
+  try {
+    console.log('📝 Starting PDF editing process...');
+    console.log('📄 Existing PDF path:', existingPdfPath);
+    console.log('✍️ Signature 1 (LEFT):', signature1_url);
+    console.log('✍️ Signature 2 (RIGHT):', signature2_url);
+    
+    // Download existing PDF
+    let existingPdfBuffer;
+    if (existingPdfPath.startsWith('http://') || existingPdfPath.startsWith('https://')) {
+      console.log('🌐 Downloading PDF from URL...');
+      existingPdfBuffer = await downloadImage(existingPdfPath);
+    } else {
+      // Get PDF from Supabase storage
+      console.log('☁️ Downloading PDF from storage:', existingPdfPath);
+      const { data, error } = await supabase.storage
+        .from('PDF_Bucket')
+        .download(existingPdfPath);
+      
+      if (error) throw new Error(`Failed to download PDF: ${error.message}`);
+      existingPdfBuffer = Buffer.from(await data.arrayBuffer());
+      console.log('✅ PDF downloaded:', existingPdfBuffer.length, 'bytes');
+    }
+    
+    // Load PDF with pdf-lib
+    console.log('📖 Loading PDF document...');
+    const pdfDoc = await PDFLibDocument.load(existingPdfBuffer);
+    const pages = pdfDoc.getPages();
+    const lastPage = pages[pages.length - 1];
+    const { width: pageWidth, height: pageHeight } = lastPage.getSize();
+    
+    console.log('📏 Last page size:', pageWidth, 'x', pageHeight);
+    
+    // Signature box dimensions (matching original layout)
+    const boxWidth = 225; // 450px total / 2
+    const boxHeight = 50;
+    const boxY = 60; // Distance from bottom
+    const leftBoxX = 75; // Left signature X position
+    const rightBoxX = 300; // Right signature X position (75 + 225 - 15 space)
+    
+    // Add first signature (LEFT box)
+    if (signature1_url) {
+      try {
+        console.log('🖼️ Processing LEFT signature...');
+        const sig1Buffer = await downloadImage(signature1_url);
+        const sig1Image = await pdfDoc.embedPng(sig1Buffer);
+        
+        // Scale image to fit box while maintaining aspect ratio
+        const sig1Dims = sig1Image.scale(1);
+        const scale1 = Math.min(boxWidth / sig1Dims.width, boxHeight / sig1Dims.height);
+        const sig1Width = sig1Dims.width * scale1;
+        const sig1Height = sig1Dims.height * scale1;
+        
+        // Center signature in box
+        const sig1X = leftBoxX + (boxWidth - sig1Width) / 2;
+        const sig1Y = boxY + (boxHeight - sig1Height) / 2;
+        
+        lastPage.drawImage(sig1Image, {
+          x: sig1X,
+          y: sig1Y,
+          width: sig1Width,
+          height: sig1Height,
+        });
+        console.log('✅ LEFT signature added at', sig1X, sig1Y);
+      } catch (err) {
+        console.error('❌ Error adding LEFT signature:', err.message);
+      }
+    }
+    
+    // Add second signature (RIGHT box)
+    if (signature2_url) {
+      try {
+        console.log('🖼️ Processing RIGHT signature...');
+        const sig2Buffer = await downloadImage(signature2_url);
+        const sig2Image = await pdfDoc.embedPng(sig2Buffer);
+        
+        // Scale image to fit box while maintaining aspect ratio
+        const sig2Dims = sig2Image.scale(1);
+        const scale2 = Math.min(boxWidth / sig2Dims.width, boxHeight / sig2Dims.height);
+        const sig2Width = sig2Dims.width * scale2;
+        const sig2Height = sig2Dims.height * scale2;
+        
+        // Center signature in box
+        const sig2X = rightBoxX + (boxWidth - sig2Width) / 2;
+        const sig2Y = boxY + (boxHeight - sig2Height) / 2;
+        
+        lastPage.drawImage(sig2Image, {
+          x: sig2X,
+          y: sig2Y,
+          width: sig2Width,
+          height: sig2Height,
+        });
+        console.log('✅ RIGHT signature added at', sig2X, sig2Y);
+      } catch (err) {
+        console.error('❌ Error adding RIGHT signature:', err.message);
+      }
+    }
+    
+    // Save modified PDF
+    console.log('💾 Saving modified PDF...');
+    const modifiedPdfBuffer = await pdfDoc.save();
+    console.log('✅ PDF editing complete:', modifiedPdfBuffer.length, 'bytes');
+    
+    return Buffer.from(modifiedPdfBuffer);
+  } catch (err) {
+    console.error('❌ Error editing PDF:', err.message);
+    console.error('❌ Stack:', err.stack);
+    throw err;
+  }
+}
+
+/**
+ * Draw signature image in PDF
+ * @param {PDFDocument} doc - PDFKit document
+ * @param {string} signatureUrl - URL or path to signature image
+ * @param {number} x - X coordinate
+ * @param {number} y - Y coordinate
+ * @param {number} width - Width of signature area
+ * @param {number} height - Height of signature area
+ */
+async function drawSignature(doc, signatureUrl, x, y, width, height) {
+  try {
+    if (!signatureUrl) {
+      console.log('⚠️ No signature URL provided');
+      return;
+    }
+
+    console.log('🖼️ Drawing signature from URL:', signatureUrl);
+
+    // Check if it's a local file path or URL
+    if (signatureUrl.startsWith('http://') || signatureUrl.startsWith('https://')) {
+      // Download from URL
+      const https = require('https');
+      const http = require('http');
+      const protocol = signatureUrl.startsWith('https://') ? https : http;
+      
+      console.log('📥 Downloading signature image...');
+      
+      const imageBuffer = await new Promise((resolve, reject) => {
+        const request = protocol.get(signatureUrl, {
+          // Add options for Supabase
+          headers: {
+            'User-Agent': 'Mozilla/5.0'
+          },
+          rejectUnauthorized: false // Allow self-signed certificates
+        }, (res) => {
+          console.log('📡 Response status:', res.statusCode);
+          console.log('📡 Content-Type:', res.headers['content-type']);
+          
+          // Handle redirects
+          if (res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 307 || res.statusCode === 308) {
+            const redirectUrl = res.headers.location;
+            console.log('🔄 Following redirect to:', redirectUrl);
+            
+            // Recursive call for redirect
+            const redirectProtocol = redirectUrl.startsWith('https://') ? https : http;
+            redirectProtocol.get(redirectUrl, { rejectUnauthorized: false }, (redirectRes) => {
+              const chunks = [];
+              redirectRes.on('data', chunk => chunks.push(chunk));
+              redirectRes.on('end', () => {
+                const buffer = Buffer.concat(chunks);
+                console.log('✅ Downloaded', buffer.length, 'bytes after redirect');
+                resolve(buffer);
+              });
+              redirectRes.on('error', reject);
+            }).on('error', reject);
+            return;
+          }
+          
+          if (res.statusCode !== 200) {
+            reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
+            return;
+          }
+          
+          const chunks = [];
+          res.on('data', chunk => chunks.push(chunk));
+          res.on('end', () => {
+            const buffer = Buffer.concat(chunks);
+            console.log('✅ Downloaded', buffer.length, 'bytes');
+            resolve(buffer);
+          });
+          res.on('error', reject);
+        });
+        
+        request.on('error', (err) => {
+          console.error('❌ Request error:', err.message);
+          reject(err);
+        });
+        
+        request.setTimeout(10000, () => {
+          request.destroy();
+          reject(new Error('Request timeout'));
+        });
+      });
+      
+      if (!imageBuffer || imageBuffer.length === 0) {
+        console.error('❌ Downloaded buffer is empty');
+        return;
+      }
+      
+      console.log('🎨 Drawing image to PDF...');
+      doc.image(imageBuffer, x, y, { 
+        width, 
+        height, 
+        fit: [width, height], 
+        align: 'center', 
+        valign: 'center' 
+      });
+      console.log('✅ Signature image drawn successfully');
+    } else if (fs.existsSync(signatureUrl)) {
+      // Local file path
+      console.log('📁 Loading from local file...');
+      doc.image(signatureUrl, x, y, { width, height, fit: [width, height], align: 'center', valign: 'center' });
+      console.log('✅ Signature image drawn from local file');
+    } else {
+      console.log('⚠️ Signature file not found:', signatureUrl);
+    }
+  } catch (err) {
+    console.error('❌ Error drawing signature:', err.message);
+    console.error('❌ Error stack:', err.stack);
+    console.error('❌ Signature URL was:', signatureUrl);
+    // Don't throw - let PDF generation continue without signature
+  }
+}
+
+/**
  * Generate PDF report for PGx test (in memory, no local file)
  * @param {Object} reportInfo - Complete report information
  * @returns {Promise<{buffer: Buffer, fileName: string}>} PDF buffer and filename
  */
 async function generatePGxPDF(reportInfo) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       // Create unique filename with report_id or request_id
       const timestamp = Date.now();
@@ -353,10 +661,12 @@ async function generatePGxPDF(reportInfo) {
     doc.y = recY + recTextHeight + 8;
 
     // === SIGNATURE BOX ===
-    const sigBoxY = doc.page.height - 95;
-    const sigBoxWidth = 400;
-    const sigBoxHeight = 35;
-    const sigBoxX = 85;
+    const sigBoxY = doc.page.height - 110;
+    const sigBoxWidth = 450;
+    const sigBoxHeight = 50;
+    const sigBoxX = 60;
+    
+    console.log('📝 Drawing signature box with signatures - Left:', reportInfo.signature1_url, 'Right:', reportInfo.signature2_url);
     
     // Draw outer box
     doc.rect(sigBoxX, sigBoxY, sigBoxWidth, sigBoxHeight).stroke('#000000');
@@ -365,13 +675,23 @@ async function generatePGxPDF(reportInfo) {
     const centerX = sigBoxX + (sigBoxWidth / 2);
     doc.moveTo(centerX, sigBoxY).lineTo(centerX, sigBoxY + sigBoxHeight).stroke('#000000');
     
-    // Left side labels
+    // Left side labels and signature
     doc.fontSize(7.5);
     setRegular();
     doc.text('วิเคราะห์และแปลผลโดย', sigBoxX + 4, sigBoxY + 4, { width: (sigBoxWidth / 2) - 8, align: 'left' });
     
-    // Right side labels
+    // Draw left signature if available (first confirmer)
+    if (reportInfo.signature1_url) {
+      await drawSignature(doc, reportInfo.signature1_url, sigBoxX + 15, sigBoxY + 18, 100, 25);
+    }
+    
+    // Right side labels and signature
     doc.text('วิเคราะห์และแปลผลโดย', centerX + 4, sigBoxY + 4, { width: (sigBoxWidth / 2) - 8, align: 'left' });
+    
+    // Draw right signature if available (second confirmer)
+    if (reportInfo.signature2_url) {
+      await drawSignature(doc, reportInfo.signature2_url, centerX + 15, sigBoxY + 18, 100, 25);
+    }
 
     doc.end();
     } catch (err) {
@@ -491,18 +811,68 @@ async function processCompleteReport(testData) {
 
     const reportId = reportResult.data.report_id;
 
-    // Step 4: Generate PDF with report_id in filename (in memory)
+    // Step 4: Fetch confirmer signatures if they exist
+    let signature1_url = null;
+    let signature2_url = null;
+    
+    console.log('🔍 Checking for confirmers - confirmed_by_1:', testData.confirmed_by_1, 'confirmed_by_2:', testData.confirmed_by_2);
+    
+    if (testData.confirmed_by_1) {
+      const { data: user1 } = await supabase
+        .from('system_users')
+        .select('Signature_path')
+        .eq('user_id', testData.confirmed_by_1)
+        .single();
+      
+      if (user1?.Signature_path) {
+        // Convert storage path to public URL
+        if (user1.Signature_path.startsWith('http://') || user1.Signature_path.startsWith('https://')) {
+          signature1_url = user1.Signature_path;
+        } else {
+          // It's a storage path like "signatures/userId_timestamp.png"
+          const { data: urlData } = supabase.storage
+            .from('Image_Bucket')
+            .getPublicUrl(user1.Signature_path);
+          signature1_url = urlData.publicUrl;
+        }
+      }
+    }
+    
+    if (testData.confirmed_by_2) {
+      const { data: user2 } = await supabase
+        .from('system_users')
+        .select('Signature_path')
+        .eq('user_id', testData.confirmed_by_2)
+        .single();
+      
+      if (user2?.Signature_path) {
+        // Convert storage path to public URL
+        if (user2.Signature_path.startsWith('http://') || user2.Signature_path.startsWith('https://')) {
+          signature2_url = user2.Signature_path;
+        } else {
+          // It's a storage path like "signatures/userId_timestamp.png"
+          const { data: urlData } = supabase.storage
+            .from('Image_Bucket')
+            .getPublicUrl(user2.Signature_path);
+          signature2_url = urlData.publicUrl;
+        }
+      }
+    }
+
+    // Step 5: Generate PDF with report_id in filename (in memory)
     const pdfInfo = {
       ...testData,
       report_id: reportId,
       genotype_summary: genotypeDescription,
       recommendation: consultationText,
-      activityScore: diplotype?.totalactivityscore || 'N/A'
+      activityScore: diplotype?.totalactivityscore || 'N/A',
+      signature1_url,
+      signature2_url
     };
 
     const { buffer: pdfBuffer, fileName } = await generatePGxPDF(pdfInfo);
 
-    // Step 5: Upload to Supabase storage
+    // Step 6: Upload to Supabase storage
     const publicUrl = await uploadPDFToStorage(pdfBuffer, fileName);
 
     if (!publicUrl) {
@@ -518,7 +888,7 @@ async function processCompleteReport(testData) {
       };
     }
 
-    // Step 6: Update report with PDF path
+    // Step 7: Update report with PDF path
     const { error: updateError } = await supabase
       .from('report')
       .update({ pdf_path: publicUrl })
@@ -528,7 +898,7 @@ async function processCompleteReport(testData) {
       console.error('❌ Error updating PDF path:', updateError.message);
     }
 
-    // Step 7: Clean up local file (optional)
+    // Step 8: Clean up local file (optional)
     // fs.unlinkSync(localPdfPath);
 
     return {
@@ -554,5 +924,6 @@ module.exports = {
   createReport,
   generatePGxPDF,
   uploadPDFToStorage,
-  processCompleteReport
+  processCompleteReport,
+  addSignaturesToPDF
 };

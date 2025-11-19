@@ -4,15 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Case Management</title>
+  <script>(function(){const t=localStorage.getItem('theme-mode');t==='dark'&&document.documentElement.classList.add('dark')})();</script>
 
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="../../view_Global/css/global.css"> 
   <link rel="stylesheet" href="./css/information_medtech.css" />
   <link rel="stylesheet" href="../../view_Global/css/menu.css">
-  <link rel="stylesheet" href="../../view_Global/css/darkmode.css">
   <link rel="stylesheet" href="../../view_Global/css/navbar.css">
   <link rel="stylesheet" href="../../view_Global/css/navbar_hover.css">
+  <link rel="stylesheet" href="../../view_Global/css/darkmode.css">
 
 
 </head>
@@ -38,7 +39,7 @@
         <li id="dashboard-btn-medtech" >Dashboard</li>
         <li id="patient-btn-medtech" >ข้อมูลผู้ป่วย</li>
         <li id="information-btn-medtech" class="active">ตรวจสอบข้อมูล</li>
-        <li id="state-btn-medtech">Test</li>
+        <li id="state-btn-medtech">ติดตามสถานะ</li>
       </ul>
     </aside>
     <!-- Main -->
@@ -56,8 +57,8 @@
             </button>
             <div id="dropdownMenu" class="dropdown-content">
               <a href="#" id="profile-link" class="dropdown-item">Profile</a>
-              <a href="#">About</a>
-              <a href="#" id="logout">Logout</a>
+              <a href="#" class="dropdown-item">About</a>
+              <a href="#" id="logout" class="dropdown-item">Logout</a>
             </div>
           </div>
         </div>
@@ -94,16 +95,24 @@
           <div class="card-info"><p>All Case</p><span id="statAll">0</span></div>
         </div>
         <div class="stat-card">
+          <div class="card-icon icon-pending"><i class="fa fa-clock"></i></div>
+          <div class="card-info"><p>Pending</p><span id="statPending">0</span></div>
+        </div>
+        <div class="stat-card">
           <div class="card-icon icon-pre"><i class="fa fa-hourglass-half"></i></div>
           <div class="card-info"><p>Need 2 confirmation</p><span id="statPre">0</span></div>
         </div>
         <div class="stat-card">
-          <div class="card-icon icon-analytic"><i class="fa fa-clock"></i></div>
+          <div class="card-icon icon-analytic"><i class="fa fa-hourglass-end"></i></div>
           <div class="card-info"><p>Need 1 confirmation</p><span id="statAnalytic">0</span></div>
         </div>
         <div class="stat-card">
           <div class="card-icon icon-post"><i class="fa fa-check-circle"></i></div>
           <div class="card-info"><p>Done</p><span id="statPost">0</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="card-icon icon-reject"><i class="fa fa-times-circle"></i></div>
+          <div class="card-info"><p>Reject</p><span id="statReject">0</span></div>
         </div>
       </section>
 
