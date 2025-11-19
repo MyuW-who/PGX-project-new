@@ -225,7 +225,7 @@ function renderTestRequests(data) {
     }
     
     tr.innerHTML = `
-      <td>${req.request_id || '-'}</td>
+      <td>${patientId}</td>
       <td>${hospitalId}</td>
       <td>${patientName}</td>
       <td>${testTarget}</td>
@@ -305,7 +305,7 @@ async function showRejectReason(requestId) {
       title: 'เหตุผลการปฏิเสธ',
       html: `
         <div style="text-align: left; padding: 10px;">
-          <p><strong>เคสเลขที่:</strong> ${requestId}</p>
+          <p><strong>หมายเลขผู้ป่วย:</strong> ${requestId}</p>
           <p><strong>เหตุผล:</strong></p>
           <p style="background: #f3f4f6; padding: 10px; border-radius: 5px; margin: 10px 0;">${rejectionReason}</p>
           <p><strong>ปฏิเสธโดย:</strong> ${rejectedBy}</p>

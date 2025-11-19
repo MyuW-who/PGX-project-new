@@ -237,7 +237,7 @@ function renderTestRequests(data) {
     }
     
     tr.innerHTML = `
-      <td>${req.request_id || '-'}</td>
+      <td>${patientId}</td>
       <td>${hospitalId}</td>
       <td>${patientName}</td>
       <td>${testTarget}</td>
