@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearTimeout(timer);
     } else {
       clearTimeout(timer);
-      timer = setTimeout(() => hoverNav.classList.remove("visible"), 1000);
+      timer = setTimeout(() => hoverNav.classList.remove("visible"), 500);
     }
   });
 
