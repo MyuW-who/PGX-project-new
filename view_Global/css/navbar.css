@@ -39,7 +39,7 @@ body {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   position: relative;
   z-index: 100;
-  background-color: var(--card-bg);
+  
 }
 
 .page-header h2 {
