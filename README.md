@@ -67,6 +67,20 @@ cd PGX-project-new
 npm install
 ```
 
+   **Core Dependencies:**
+   - `electron` (v38.3.0) - Desktop application framework
+   - `@supabase/supabase-js` (v2.75.0) - Supabase client for database operations
+   - `bcrypt` (v6.0.0) - Password hashing library
+   - `bcryptjs` (v3.0.2) - JavaScript implementation of bcrypt
+   - `dotenv` (v17.2.3) - Environment variable management
+   - `pdfkit` (v0.17.2) - PDF generation library
+   - `pdf-lib` (v1.17.1) - PDF manipulation utilities
+   - `xlsx` (v0.18.5) - Excel file processing for rulebase imports
+   - `electron-store` (v11.0.2) - Persistent storage for Electron
+
+   **Development Dependencies:**
+   - `jest` (v29.7.0) - Testing framework
+
 3. Create `.env` file in the root directory:
 ```env
 SUPABASE_URL=https://your-project.supabase.co
