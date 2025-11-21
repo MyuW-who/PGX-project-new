@@ -1,260 +1,249 @@
-# PGx Patient Management System
+# ระบบจัดการผู้ป่วย PGx (PGx Patient Management System)
 
-## Overview
+## ภาพรวม
 
-A desktop application for managing Pharmacogenomics (PGx) patient records and test requests in Thai healthcare facilities. Built with Electron, Supabase, and vanilla JavaScript following MVC architecture.
+แอปพลิเคชันเดสก์ท็อปสำหรับบริหารจัดการข้อมูลผู้ป่วยและคำขอตรวจทางเภสัชพันธุศาสตร์ (PGx) ในสถานพยาบาลของไทย พัฒนาโดยใช้ Electron + Supabase + JavaScript ตามสถาปัตยกรรมแบบ MVC
 
-## Key Features
+## คุณสมบัติหลัก
 
-- **Patient Management**: Add, edit, search, and track patient records
-- **Test Request Workflow**: Complete lifecycle management from request to report generation
-- **Multi-Role Support**: Separate interfaces for Pharmacists, Medical Technologists, and Administrators
-- **Pharmacogenomic Analysis**: Support for 6 genes (CYP2D6, CYP2C9, CYP2C19, VKORC1, CYP3A5, TPMT)
-- **PDF Report Generation**: Automated reports with Thai therapeutic recommendations
-- **Audit Logging**: Complete tracking of all system actions
-- **TAT Monitoring**: Real-time turnaround time tracking with visual indicators
-- **Bilingual UI**: Support for Thai and English languages
-- **Dark Mode**: Theme toggle for user preference
+- การจัดการผู้ป่วย: เพิ่ม แก้ไข ค้นหา และติดตามข้อมูลผู้ป่วย
+- เวิร์กโฟลว์คำขอตรวจ: ครบวงจรตั้งแต่สร้างคำขอจนถึงออกไฟล์รายงาน
+- รองรับหลายบทบาท: เภสัชกร นักเทคนิคการแพทย์ และผู้ดูแลระบบ
+- วิเคราะห์ PGx: รองรับ 6 ยีน (CYP2D6, CYP2C9, CYP2C19, VKORC1, CYP3A5, TPMT)
+- สร้างไฟล์ PDF: รายงานพร้อมข้อแนะนำการรักษาภาษาไทย
+- บันทึกการใช้งาน: เก็บประวัติการทำงานในระบบ (Audit Log)
+- ติดตาม TAT: แสดงสถานะเวลาที่ใช้เทียบกับ SLA แบบเรียลไทม์
+- อินเทอร์เฟซสองภาษา: ไทย/อังกฤษ และมีโหมดมืด
 
-## Supported Pharmacogenomic Genes
+## ยีนที่รองรับ
 
-| Gene | Alleles Tested | Rules | Description |
+| ยีน | อัลลีลที่ตรวจ | จำนวนกฎ | รายละเอียด |
 |------|---------------|-------|-------------|
-| CYP2D6 | *4, *10, *41, CNV intron 2, CNV exon 9 | 33 | Copy Number Variation analysis |
-| CYP2C9 | *2, *3 | 6 | Drug metabolism |
-| CYP2C19 | *2, *3, *17 | 10 | Drug metabolism |
-| VKORC1 | 1173C>T, -1639G>A | 3 | Warfarin sensitivity |
-| CYP3A5 | *3 | 3 | Drug metabolism |
-| TPMT | *3C | 3 | Thiopurine sensitivity |
+| CYP2D6 | *4, *10, *41, CNV intron 2, CNV exon 9 | 33 | วิเคราะห์สำเนายีน (CNV) |
+| CYP2C9 | *2, *3 | 6 | การเผาผลาญยา |
+| CYP2C19 | *2, *3, *17 | 10 | การเผาผลาญยา |
+| VKORC1 | 1173C>T, -1639G>A | 3 | ความไวต่อวาร์ฟาริน |
+| CYP3A5 | *3 | 3 | การเผาผลาญยา |
+| TPMT | *3C | 3 | ความไวต่อไทโอพูรีน |
 
-## Technology Stack
+## เทคโนโลยีที่ใช้
 
-- **Frontend**: HTML, CSS, JavaScript (Vanilla)
-- **Backend**: Electron (Node.js)
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: bcrypt password hashing
-- **PDF Generation**: PDFKit with Thai font support
-- **IPC**: Electron IPC for secure communication
+- ส่วนหน้า: HTML, CSS, JavaScript (Vanilla)
+- ส่วนหลัง: Electron (Node.js)
+- ฐานข้อมูล: Supabase (PostgreSQL)
+- ยืนยันตัวตน: bcrypt สำหรับแฮชรหัสผ่าน
+- สร้าง PDF: PDFKit พร้อมฟอนต์ภาษาไทย
+- สื่อสารระหว่างส่วนหน้า/หลัง: Electron IPC
 
-## Architecture
+## สถาปัตยกรรมระบบ (MVC)
 
-The application follows the MVC (Model-View-Controller) pattern:
+- Models (`src/models/`): เข้าถึง/จัดการข้อมูลในฐานข้อมูล
+- Controllers (`src/controllers/`): ตรรกะธุรกิจและการประสานงานโมเดล
+- Views (`view/`): ไฟล์ HTML + JS แยกหน้า
+- Preload Bridge (`preload.js`): สะพาน IPC ที่ปลอดภัย
+- Main Process (`main.js`): วงจรชีวิตแอปและตัวจัดการ IPC
 
-- **Models** (`src/models/`): Database operations and data access layer
-- **Controllers** (`src/controllers/`): Business logic orchestration
-- **Views** (`view/`): HTML pages with isolated JavaScript modules
-- **Preload Bridge** (`preload.js`): Secure IPC communication bridge
-- **Main Process** (`main.js`): Electron lifecycle and IPC handlers
+## การติดตั้ง
 
-## Installation
+### สิ่งที่ต้องมี
 
-### Prerequisites
+- Node.js เวอร์ชัน 16 ขึ้นไป
+- npm หรือ yarn
+- บัญชีและโปรเจกต์ Supabase
 
-- Node.js (v16 or higher)
-- npm or yarn
-- Supabase account and project
+### ขั้นตอนตั้งค่า
 
-### Setup Steps
-
-1. Clone the repository:
+1. โคลนโปรเจกต์
 ```bash
 git clone <repository-url>
 cd PGX-project-new
 ```
 
-2. Install dependencies:
+2. ติดตั้งแพ็กเกจ
 ```bash
 npm install
 ```
 
-   **Core Dependencies:**
-   - `electron` (v38.3.0) - Desktop application framework
-   - `@supabase/supabase-js` (v2.75.0) - Supabase client for database operations
-   - `bcrypt` (v6.0.0) - Password hashing library
-   - `bcryptjs` (v3.0.2) - JavaScript implementation of bcrypt
-   - `dotenv` (v17.2.3) - Environment variable management
-   - `pdfkit` (v0.17.2) - PDF generation library
-   - `pdf-lib` (v1.17.1) - PDF manipulation utilities
-   - `xlsx` (v0.18.5) - Excel file processing for rulebase imports
-   - `electron-store` (v11.0.2) - Persistent storage for Electron
+   ขึ้นต่อไปนี้คือรายละเอียด dependencies ที่ใช้ในโปรเจกต์
 
-   **Development Dependencies:**
-   - `jest` (v29.7.0) - Testing framework
+   - `electron` (v38.3.0) – เฟรมเวิร์กสำหรับสร้างแอปเดสก์ท็อป
+   - `@supabase/supabase-js` (v2.75.0) – ไคลเอนต์เชื่อมต่อ Supabase
+   - `bcrypt` (v6.0.0) – ไลบรารีแฮชรหัสผ่าน
+   - `bcryptjs` (v3.0.2) – เวอร์ชัน JavaScript ของ bcrypt
+   - `dotenv` (v17.2.3) – จัดการตัวแปรสภาพแวดล้อมจากไฟล์ .env
+   - `pdfkit` (v0.17.2) – สร้างไฟล์ PDF
+   - `pdf-lib` (v1.17.1) – จัดการ/แก้ไขไฟล์ PDF
+   - `xlsx` (v0.18.5) – อ่าน/เขียนไฟล์ Excel สำหรับ rulebase
+   - `electron-store` (v11.0.2) – จัดเก็บข้อมูลถาวรในแอป Electron
 
-3. Create `.env` file in the root directory:
+   สำหรับการพัฒนา
+   - `jest` (v29.7.0) – เฟรมเวิร์กสำหรับทดสอบ
+
+3. สร้างไฟล์ `.env` ที่โฟลเดอร์ราก
 ```env
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-4. Initialize the database:
-   - Run SQL scripts in `rulebase/` folder to create tables
-   - Use `scripts/initializeSpecimens.js` to set up specimen types
+4. เตรียมฐานข้อมูล
+   - รันสคริปต์ SQL ในโฟลเดอร์ `rulebase/` เพื่อสร้างตาราง
+   - ใช้ `scripts/initializeSpecimens.js` เพื่อตั้งค่า Specimen เริ่มต้น
 
-5. Start the application:
+5. เริ่มรันแอป
 ```bash
 npm start
 ```
 
-## Database Schema
+## โครงสร้างฐานข้อมูล (สรุป)
 
-### Core Tables
+- `patient`: ข้อมูลประชากรผู้ป่วย
+- `system_users`: บัญชีผู้ใช้และบทบาท
+- `test_request`: คำขอตรวจและสถานะ
+- `report`: รายงาน PGx ที่สร้างแล้ว
+- `Specimen`: ประเภทสิ่งส่งตรวจและค่า SLA
+- `audit_log`: ประวัติการทำงานของระบบ
 
-- **patient**: Patient demographic information
-- **system_users**: User accounts with role-based access
-- **test_request**: Test requests with status tracking
-- **report**: Generated PGx reports
-- **Specimen**: Specimen types with SLA configuration
-- **audit_log**: System action logging
+### บทบาทผู้ใช้
 
-### User Roles
+- เภสัชกร: จัดการคำขอตรวจ กรอกอัลลีล ออกรายงาน
+- นักเทคนิคการแพทย์: เพิ่มผู้ป่วยและสร้างคำขอตรวจ
+- ผู้ดูแลระบบ: จัดการผู้ใช้ ตั้งค่า Specimen/ค่า SLA ดูบันทึกระบบ
 
-- **pharmacist**: Manage test requests, fill alleles, generate reports
-- **medtech**: Create test requests, input patient data
-- **admin**: User management, system configuration, audit logs
+## สคริปต์ที่ใช้บ่อย
 
-## Management Scripts
-
-### View Current Data
+ดูข้อมูลปัจจุบัน
 ```bash
 node scripts/showRulebaseInfo.js
 ```
 
-### Backup Rulebase
+สำรองข้อมูล rulebase
 ```bash
 node scripts/backupSupabaseToJson.js
 ```
 
-### Import Rulebase
+นำเข้าข้อมูล rulebase
 ```bash
 node scripts/importJsonToSupabase.js
 ```
 
-### Test Predictions
+ทดสอบการทำนาย
 ```bash
 node scripts/testRulebase.js
 ```
 
-### Test PDF Generation
+ทดสอบสร้าง PDF
 ```bash
 node scripts/testPdfGeneration.js
 node scripts/testPdfGeneration.js --all
 ```
 
-### Initialize Specimens
+ตั้งค่า Specimen เริ่มต้น
 ```bash
 node scripts/initializeSpecimens.js
 ```
 
-## User Workflows
+## เวิร์กโฟลว์การใช้งาน
 
-### Medical Technologist Workflow
-1. Login with medtech credentials
-2. Navigate to Patient Management
-3. Add or search for patient
-4. Create test request with specimen and DNA type
-5. View status in Case Management dashboard
+### นักเทคนิคการแพทย์
+1) เข้าสู่ระบบด้วยบัญชี medtech
+2) ไปที่เมนูจัดการผู้ป่วย
+3) เพิ่ม/ค้นหาผู้ป่วย
+4) สร้างคำขอตรวจ ระบุ Specimen และชนิด DNA
+5) ติดตามสถานะในหน้า Case Management
 
-### Pharmacist Workflow
-1. Login with pharmacist credentials
-2. View pending test requests
-3. Click "Fill Alleles" to input genotype data
-4. System predicts phenotype and recommendations
-5. Confirm or modify recommendations
-6. Generate PDF report
-7. Second pharmacist reviews and confirms
+### เภสัชกร
+1) เข้าสู่ระบบด้วยบัญชี pharmacist
+2) ดูคำขอตรวจที่รอดำเนินการ
+3) กด "กรอก Alleles" เพื่อใส่ข้อมูลจีโนไทป์
+4) ระบบทำนาย phenotype และข้อแนะนำ
+5) ยืนยัน/ปรับแก้ข้อแนะนำ
+6) สร้างไฟล์รายงาน PDF
+7) เภสัชกรคนที่สองตรวจทานและยืนยัน
 
-### Administrator Workflow
-1. Login with admin credentials
-2. Manage user accounts
-3. Configure specimen types and SLA
-4. View audit logs
-5. Monitor system statistics
+### ผู้ดูแลระบบ
+1) เข้าสู่ระบบด้วยบัญชี admin
+2) จัดการบัญชีผู้ใช้
+3) ตั้งค่า Specimen และค่า SLA
+4) ตรวจสอบ Audit Log
+5) ติดตามสถิติการใช้งาน
 
-## Features Detail
+## รายละเอียดฟีเจอร์สำคัญ
 
-### Search Functionality
-- Search patients by ID or name (partial matching)
-- Case-insensitive search
-- Real-time filtering
+### การค้นหา
+- ค้นหาผู้ป่วยด้วยรหัสหรือชื่อ (รองรับการพิมพ์บางส่วน)
+- ไม่สนตัวพิมพ์เล็ก/ใหญ่
+- กรองผลแบบเรียลไทม์
 
-### TAT Monitoring
-- Normal: Less than 80% of SLA time
-- Warning: 80-100% of SLA time
-- Overdue: Greater than 100% of SLA time
-- Clickable stat cards to filter by TAT status
+### การติดตาม TAT
+- ปกติ: ใช้เวลาน้อยกว่า 80% ของ SLA
+- เตือน: 80–100% ของ SLA
+- เกินกำหนด: มากกว่า 100% ของ SLA
+- คลิกการ์ดสถิติเพื่อกรองตามสถานะ TAT
 
-### Session Management
-- Client-side session storage
-- Automatic logout on session expiry
-- Per-page authentication checks
+### การจัดการเซสชัน
+- จัดเก็บเซสชันฝั่งไคลเอนต์
+- ออกจากระบบอัตโนมัติเมื่อหมดอายุ
+- ตรวจสอบสิทธิ์ทุกหน้า
 
-### PDF Reports
-- Thai language support with Sarabun font
-- Patient information
-- Genotype and phenotype results
-- Therapeutic recommendations
-- Pharmacist signatures
-- Auto-save to reports directory
+### รายงาน PDF
+- รองรับภาษาไทยด้วยฟอนต์ Sarabun
+- แสดงข้อมูลผู้ป่วย ผลจีโนไทป์/ฟีโนไทป์ ข้อแนะนำ และลายเซ็น
+- บันทึกไฟล์อัตโนมัติในโฟลเดอร์ `reports/`
 
-## Security
+## ความปลอดภัย
 
-- Context isolation enabled
-- Node integration disabled
-- Password hashing with bcrypt (10 salt rounds)
-- Service role key for database operations
-- Secure IPC communication via preload bridge
+- เปิดใช้งาน Context Isolation
+- ปิด Node Integration ใน Renderer
+- แฮชรหัสผ่านด้วย bcrypt (10 รอบเกลือ)
+- ใช้ Service Role Key สำหรับงานฐานข้อมูลฝั่งเซิร์ฟเวอร์
+- สื่อสารผ่าน IPC ที่ประกาศไว้ใน `preload.js`
 
-## Development
+## แนวทางพัฒนา
 
-### Code Style
-- CommonJS modules (require/exports)
-- Emoji prefixes for logs (success, error, config)
-- Thai comments in original code accepted
-- Error handling on all database operations
+- ใช้ CommonJS (`require`/`module.exports`)
+- โค้ดมีคอมเมนต์ภาษาไทยได้ตามต้นฉบับ และจัดการข้อผิดพลาดทุกคำสั่งฐานข้อมูล
 
-### Adding New Features
+### เพิ่มฟีเจอร์ใหม่
+1) สร้าง Model (ถ้าจำเป็น) ใน `src/models/`
+2) เขียนฟังก์ชันใน Controller ที่เกี่ยวข้องใน `src/controllers/`
+3) ลงทะเบียน IPC ใน `main.js`
+4) เปิดใช้ใน `preload.js`
+5) เรียกใช้จากหน้า Renderer ผ่าน `window.electronAPI`
 
-1. Create Model (if needed) in `src/models/`
-2. Create Controller function in `src/controllers/`
-3. Register IPC handler in `main.js`
-4. Expose in `preload.js`
-5. Call from renderer via `window.electronAPI`
+## เอกสารเพิ่มเติม
 
-## Documentation
+- **[MVC Architecture](docs/MVC_ARCHITECTURE.md)** – รายละเอียดสถาปัตยกรรม
+- **[System Status](docs/SYSTEM_STATUS.md)** – สถานะการตั้งค่าระบบ
+- **[Rulebase Management](docs/RULEBASE_MANAGEMENT.md)** – การจัดการข้อมูล rulebase
+- **[Quick Start](docs/QUICK_START.md)** – เริ่มต้นใช้งาน
+- **[Test Request Manager](docs/TEST_REQUEST_MANAGER.md)** – รายละเอียดเวิร์กโฟลว์คำขอตรวจ
+- **[User Profile](docs/USER_PROFILE.md)** – การจัดการโปรไฟล์ผู้ใช้
 
-- **[MVC Architecture](docs/MVC_ARCHITECTURE.md)** - Architecture details
-- **[System Status](docs/SYSTEM_STATUS.md)** - Current configuration
-- **[Rulebase Management](docs/RULEBASE_MANAGEMENT.md)** - Data management
-- **[Quick Start](docs/QUICK_START.md)** - Getting started guide
-- **[Test Request Manager](docs/TEST_REQUEST_MANAGER.md)** - Workflow details
-- **[User Profile](docs/USER_PROFILE.md)** - Profile management
+## การแก้ปัญหาเบื้องต้น
 
-## Troubleshooting
+### แอปไม่เริ่มทำงาน
+- ตรวจสอบไฟล์ `.env` ว่ากำหนดค่า Supabase ถูกต้อง
+- ใช้ Node.js เวอร์ชัน 16 ขึ้นไป
+- ดูข้อความผิดพลาดในคอนโซล
 
-### Application won't start
-- Check `.env` file exists with valid Supabase credentials
-- Verify Node.js version is 16 or higher
-- Check console for error messages
+### ค้นหาไม่ขึ้นผลลัพธ์
+- ตรวจสอบการเชื่อมต่อฐานข้อมูล
+- ดูข้อผิดพลาดในคอนโซลของหน้าเว็บ
+- ตรวจรูปแบบคำค้นหา
 
-### Search not working
-- Ensure database connection is active
-- Check browser console for errors
-- Verify search term format
+### สร้าง PDF ไม่สำเร็จ
+- ตรวจว่ามีโฟลเดอร์ `reports/`
+- ตรวจว่ามีไฟล์ฟอนต์ไทยในโฟลเดอร์ `fonts/`
+- ตรวจว่าข้อมูลผู้ป่วย/คำขอตรวจครบถ้วน
 
-### PDF generation fails
-- Check `reports/` directory exists
-- Verify Thai font file exists in `fonts/`
-- Check patient and test request data is complete
+## สัญญาอนุญาต
 
-## License
+สงวนลิขสิทธิ์ทั้งหมด (Proprietary)
 
-Proprietary - All rights reserved
+## ติดต่อทีมพัฒนา
 
-## Contact
+หากพบปัญหาหรือมีคำถาม โปรดติดต่อทีมพัฒนา
 
-For support or questions, contact the development team.
+## สถานะโครงการ
 
-## Project Status
-
-Active development - Features and improvements are regularly added based on user feedback and healthcare requirements.
+กำลังพัฒนาอย่างต่อเนื่อง โดยปรับปรุงฟีเจอร์ตามความต้องการของผู้ใช้งานและหน่วยบริการสุขภาพ
