@@ -10,6 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.querySelector(".nav-btn.close");
   let timer = null;
 
+  if (!hoverNav) {
+    return;
+  }
+
   // 🟦 แสดง/ซ่อน Navbar เมื่อเลื่อนเม้าท์
   document.addEventListener("mousemove", (e) => {
     if (e.clientY <= 20) {
@@ -17,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearTimeout(timer);
     } else {
       clearTimeout(timer);
-      timer = setTimeout(() => hoverNav.classList.remove("visible"), 1000);
+      timer = setTimeout(() => hoverNav.classList.remove("visible"), 500);
     }
   });
 

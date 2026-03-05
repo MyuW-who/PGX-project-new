@@ -9,7 +9,7 @@
   --sidebar-bg: #111827; /* same as patient */
   --sidebar-text: #e5e7eb; /* same as patient */
   --sidebar-active: rgba(59, 130, 246, 0.18); /* same as patient */
-  --radius: 12px;
+  --radius: 16px;
   --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
   --shadow: 0 4px 6px rgba(15, 23, 42, 0.1);
   --shadow-lg: 0 20px 25px rgba(15, 23, 42, 0.15);
@@ -30,7 +30,7 @@ body {
   font-size: 15px;
 }
 
-.container {
+.layout {
   display: grid;
   grid-template-columns: 240px 1fr; /* match patient/dashboard sidebar width */
   min-height: 100vh;
@@ -120,13 +120,26 @@ body {
   flex-wrap: wrap;
 }
 
-.page-header h2 {
+.page-header h1 {
   margin: 0; /* same as patient */
   font-size: 24px; /* match patient heading size */
   font-weight: 600;
 }
 
-.header-actions {
+.page-header p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+
+.page-title {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.header-buttons {
   display: flex;
   align-items: center;
   gap: 10px; /* match patient */

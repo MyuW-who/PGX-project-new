@@ -1,165 +1,249 @@
-# PGx-project
+# ระบบจัดการผู้ป่วย PGx (PGx Patient Management System)
 
-## 🧬 Pharmacogenomics Rulebase (Updated 2025)
+## ภาพรวม
 
-This project now supports **6 pharmacogenomic genes** with comprehensive Thai therapeutic recommendations:
+แอปพลิเคชันเดสก์ท็อปสำหรับบริหารจัดการข้อมูลผู้ป่วยและคำขอตรวจทางเภสัชพันธุศาสตร์ (PGx) ในสถานพยาบาลของไทย พัฒนาโดยใช้ Electron + Supabase + JavaScript ตามสถาปัตยกรรมแบบ MVC
 
-| Gene | Alleles Tested | Rules | Status |
-|------|---------------|-------|--------|
-| **CYP2D6** | *4, *10, *41, CNV intron 2, CNV exon 9 | 33 | ✅ Updated (NEW FORMAT) |
-| **CYP2C9** | *2, *3 | 6 | ✅ Active |
-| **CYP2C19** | *2, *3, *17 | 10 | ✅ Active |
-| **VKORC1** | 1173C>T, -1639G>A | 3 | ✅ Active |
-| **CYP3A5** | *3 | 3 | ✅ Active |
-| **TPMT** | *3C | 3 | ✅ Active |
+## คุณสมบัติหลัก
 
-### Key Changes
-- **CYP2D6** now uses CNV (Copy Number Variation) analysis for intron 2 and exon 9
-- All rules include Thai therapeutic recommendations
-- Prediction engine supports both Supabase and local JSON fallback
+- การจัดการผู้ป่วย: เพิ่ม แก้ไข ค้นหา และติดตามข้อมูลผู้ป่วย
+- เวิร์กโฟลว์คำขอตรวจ: ครบวงจรตั้งแต่สร้างคำขอจนถึงออกไฟล์รายงาน
+- รองรับหลายบทบาท: เภสัชกร นักเทคนิคการแพทย์ และผู้ดูแลระบบ
+- วิเคราะห์ PGx: รองรับ 6 ยีน (CYP2D6, CYP2C9, CYP2C19, VKORC1, CYP3A5, TPMT)
+- สร้างไฟล์ PDF: รายงานพร้อมข้อแนะนำการรักษาภาษาไทย
+- บันทึกการใช้งาน: เก็บประวัติการทำงานในระบบ (Audit Log)
+- ติดตาม TAT: แสดงสถานะเวลาที่ใช้เทียบกับ SLA แบบเรียลไทม์
+- อินเทอร์เฟซสองภาษา: ไทย/อังกฤษ และมีโหมดมืด
 
-### 🛠️ Quick Management Commands
-```powershell
-# View current data
+## ยีนที่รองรับ
+
+| ยีน | อัลลีลที่ตรวจ | จำนวนกฎ | รายละเอียด |
+|------|---------------|-------|-------------|
+| CYP2D6 | *4, *10, *41, CNV intron 2, CNV exon 9 | 33 | วิเคราะห์สำเนายีน (CNV) |
+| CYP2C9 | *2, *3 | 6 | การเผาผลาญยา |
+| CYP2C19 | *2, *3, *17 | 10 | การเผาผลาญยา |
+| VKORC1 | 1173C>T, -1639G>A | 3 | ความไวต่อวาร์ฟาริน |
+| CYP3A5 | *3 | 3 | การเผาผลาญยา |
+| TPMT | *3C | 3 | ความไวต่อไทโอพูรีน |
+
+## เทคโนโลยีที่ใช้
+
+- ส่วนหน้า: HTML, CSS, JavaScript (Vanilla)
+- ส่วนหลัง: Electron (Node.js)
+- ฐานข้อมูล: Supabase (PostgreSQL)
+- ยืนยันตัวตน: bcrypt สำหรับแฮชรหัสผ่าน
+- สร้าง PDF: PDFKit พร้อมฟอนต์ภาษาไทย
+- สื่อสารระหว่างส่วนหน้า/หลัง: Electron IPC
+
+## สถาปัตยกรรมระบบ (MVC)
+
+- Models (`src/models/`): เข้าถึง/จัดการข้อมูลในฐานข้อมูล
+- Controllers (`src/controllers/`): ตรรกะธุรกิจและการประสานงานโมเดล
+- Views (`view/`): ไฟล์ HTML + JS แยกหน้า
+- Preload Bridge (`preload.js`): สะพาน IPC ที่ปลอดภัย
+- Main Process (`main.js`): วงจรชีวิตแอปและตัวจัดการ IPC
+
+## การติดตั้ง
+
+### สิ่งที่ต้องมี
+
+- Node.js เวอร์ชัน 16 ขึ้นไป
+- npm หรือ yarn
+- บัญชีและโปรเจกต์ Supabase
+
+### ขั้นตอนตั้งค่า
+
+1. โคลนโปรเจกต์
+```bash
+git clone <repository-url>
+cd PGX-project-new
+```
+
+2. ติดตั้งแพ็กเกจ
+```bash
+npm install
+```
+
+   ขึ้นต่อไปนี้คือรายละเอียด dependencies ที่ใช้ในโปรเจกต์
+
+   - `electron` (v38.3.0) – เฟรมเวิร์กสำหรับสร้างแอปเดสก์ท็อป
+   - `@supabase/supabase-js` (v2.75.0) – ไคลเอนต์เชื่อมต่อ Supabase
+   - `bcrypt` (v6.0.0) – ไลบรารีแฮชรหัสผ่าน
+   - `bcryptjs` (v3.0.2) – เวอร์ชัน JavaScript ของ bcrypt
+   - `dotenv` (v17.2.3) – จัดการตัวแปรสภาพแวดล้อมจากไฟล์ .env
+   - `pdfkit` (v0.17.2) – สร้างไฟล์ PDF
+   - `pdf-lib` (v1.17.1) – จัดการ/แก้ไขไฟล์ PDF
+   - `xlsx` (v0.18.5) – อ่าน/เขียนไฟล์ Excel สำหรับ rulebase
+   - `electron-store` (v11.0.2) – จัดเก็บข้อมูลถาวรในแอป Electron
+
+   สำหรับการพัฒนา
+   - `jest` (v29.7.0) – เฟรมเวิร์กสำหรับทดสอบ
+
+3. สร้างไฟล์ `.env` ที่โฟลเดอร์ราก
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+4. เตรียมฐานข้อมูล
+   - รันสคริปต์ SQL ในโฟลเดอร์ `rulebase/` เพื่อสร้างตาราง
+   - ใช้ `scripts/initializeSpecimens.js` เพื่อตั้งค่า Specimen เริ่มต้น
+
+5. เริ่มรันแอป
+```bash
+npm start
+```
+
+## โครงสร้างฐานข้อมูล (สรุป)
+
+- `patient`: ข้อมูลประชากรผู้ป่วย
+- `system_users`: บัญชีผู้ใช้และบทบาท
+- `test_request`: คำขอตรวจและสถานะ
+- `report`: รายงาน PGx ที่สร้างแล้ว
+- `Specimen`: ประเภทสิ่งส่งตรวจและค่า SLA
+- `audit_log`: ประวัติการทำงานของระบบ
+
+### บทบาทผู้ใช้
+
+- เภสัชกร: จัดการคำขอตรวจ กรอกอัลลีล ออกรายงาน
+- นักเทคนิคการแพทย์: เพิ่มผู้ป่วยและสร้างคำขอตรวจ
+- ผู้ดูแลระบบ: จัดการผู้ใช้ ตั้งค่า Specimen/ค่า SLA ดูบันทึกระบบ
+
+## สคริปต์ที่ใช้บ่อย
+
+ดูข้อมูลปัจจุบัน
+```bash
 node scripts/showRulebaseInfo.js
+```
 
-# Backup from Supabase to JSON
+สำรองข้อมูล rulebase
+```bash
 node scripts/backupSupabaseToJson.js
+```
 
-# Upload from JSON to Supabase
+นำเข้าข้อมูล rulebase
+```bash
 node scripts/importJsonToSupabase.js
+```
 
-# Test predictions
+ทดสอบการทำนาย
+```bash
 node scripts/testRulebase.js
+```
 
-# Test PDF generation with rulebase data
+ทดสอบสร้าง PDF
+```bash
 node scripts/testPdfGeneration.js
-node scripts/testPdfGeneration.js --all  # Test all DNA types
+node scripts/testPdfGeneration.js --all
+```
 
-# Initialize specimen data (Blood, Nails, Hair, Saliva with 7-day SLA)
+ตั้งค่า Specimen เริ่มต้น
+```bash
 node scripts/initializeSpecimens.js
 ```
 
-For detailed documentation, see:
-- **[System Status](docs/SYSTEM_STATUS.md)** - Current configuration and status
-- **[Management Guide](docs/RULEBASE_MANAGEMENT.md)** - Complete management instructions
-- **[Update Guide](docs/RULEBASE_UPDATE.md)** - Implementation details
-- [AI Coding Instructions](.github/copilot-instructions.md) - Architecture overview
+## เวิร์กโฟลว์การใช้งาน
 
-## 🧪 Specimen Management
+### นักเทคนิคการแพทย์
+1) เข้าสู่ระบบด้วยบัญชี medtech
+2) ไปที่เมนูจัดการผู้ป่วย
+3) เพิ่ม/ค้นหาผู้ป่วย
+4) สร้างคำขอตรวจ ระบุ Specimen และชนิด DNA
+5) ติดตามสถานะในหน้า Case Management
 
-The system supports multiple specimen types with configurable TAT (Turnaround Time):
-- **Blood** - Default: 5 days
-- **Nails** - Default: 10 days  
-- **Hair** - Default: 5 days
-- **Saliva** - Default: 7 days
+### เภสัชกร
+1) เข้าสู่ระบบด้วยบัญชี pharmacist
+2) ดูคำขอตรวจที่รอดำเนินการ
+3) กด "กรอก Alleles" เพื่อใส่ข้อมูลจีโนไทป์
+4) ระบบทำนาย phenotype และข้อแนะนำ
+5) ยืนยัน/ปรับแก้ข้อแนะนำ
+6) สร้างไฟล์รายงาน PDF
+7) เภสัชกรคนที่สองตรวจทานและยืนยัน
 
-Manage specimens through Admin Settings page or use the initialization script.
+### ผู้ดูแลระบบ
+1) เข้าสู่ระบบด้วยบัญชี admin
+2) จัดการบัญชีผู้ใช้
+3) ตั้งค่า Specimen และค่า SLA
+4) ตรวจสอบ Audit Log
+5) ติดตามสถิติการใช้งาน
 
-## Verify PDF page (ตรวจสอบไฟล์ PDF)
+## รายละเอียดฟีเจอร์สำคัญ
 
-หน้า `view/verify_information.html` ใช้สำหรับแสดงไฟล์ PDF เพื่อให้ผู้ใช้ตรวจสอบและกดยืนยัน/ปฏิเสธ
+### การค้นหา
+- ค้นหาผู้ป่วยด้วยรหัสหรือชื่อ (รองรับการพิมพ์บางส่วน)
+- ไม่สนตัวพิมพ์เล็ก/ใหญ่
+- กรองผลแบบเรียลไทม์
 
-- เปิดหน้า: `view/verify_information.html`
-- ค่าเริ่มต้นจะพยายามโหลดไฟล์: `view/mockuppdf.pdf` (อ้างอิงแบบ relative จาก HTML)
-- สามารถระบุไฟล์เองผ่านพารามิเตอร์ `?pdf=` ได้ เช่น:
+### การติดตาม TAT
+- ปกติ: ใช้เวลาน้อยกว่า 80% ของ SLA
+- เตือน: 80–100% ของ SLA
+- เกินกำหนด: มากกว่า 100% ของ SLA
+- คลิกการ์ดสถิติเพื่อกรองตามสถานะ TAT
 
-		- ไฟล์ภายในโปรเจกต์ (relative):
-			`verify_information.html?pdf=mockuppdf.pdf`
+### การจัดการเซสชัน
+- จัดเก็บเซสชันฝั่งไคลเอนต์
+- ออกจากระบบอัตโนมัติเมื่อหมดอายุ
+- ตรวจสอบสิทธิ์ทุกหน้า
 
-	- File URL:
-		`verify_information.html?pdf=file:///C:/Users/<you>/Downloads/mockuppdf.pdf`
+### รายงาน PDF
+- รองรับภาษาไทยด้วยฟอนต์ Sarabun
+- แสดงข้อมูลผู้ป่วย ผลจีโนไทป์/ฟีโนไทป์ ข้อแนะนำ และลายเซ็น
+- บันทึกไฟล์อัตโนมัติในโฟลเดอร์ `reports/`
 
-ปุ่ม “ยืนยัน” จะไปที่ `verify_step1.html` และปุ่ม “ปฏิเสธ” จะกลับไปที่ `information.html` (สามารถปรับเส้นทางได้ใน `view/js/verify_information.js`)
+## ความปลอดภัย
 
+- เปิดใช้งาน Context Isolation
+- ปิด Node Integration ใน Renderer
+- แฮชรหัสผ่านด้วย bcrypt (10 รอบเกลือ)
+- ใช้ Service Role Key สำหรับงานฐานข้อมูลฝั่งเซิร์ฟเวอร์
+- สื่อสารผ่าน IPC ที่ประกาศไว้ใน `preload.js`
 
+## แนวทางพัฒนา
 
-## Getting started
+- ใช้ CommonJS (`require`/`module.exports`)
+- โค้ดมีคอมเมนต์ภาษาไทยได้ตามต้นฉบับ และจัดการข้อผิดพลาดทุกคำสั่งฐานข้อมูล
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### เพิ่มฟีเจอร์ใหม่
+1) สร้าง Model (ถ้าจำเป็น) ใน `src/models/`
+2) เขียนฟังก์ชันใน Controller ที่เกี่ยวข้องใน `src/controllers/`
+3) ลงทะเบียน IPC ใน `main.js`
+4) เปิดใช้ใน `preload.js`
+5) เรียกใช้จากหน้า Renderer ผ่าน `window.electronAPI`
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## เอกสารเพิ่มเติม
 
-## Add your files
+- **[MVC Architecture](docs/MVC_ARCHITECTURE.md)** – รายละเอียดสถาปัตยกรรม
+- **[System Status](docs/SYSTEM_STATUS.md)** – สถานะการตั้งค่าระบบ
+- **[Rulebase Management](docs/RULEBASE_MANAGEMENT.md)** – การจัดการข้อมูล rulebase
+- **[Quick Start](docs/QUICK_START.md)** – เริ่มต้นใช้งาน
+- **[Test Request Manager](docs/TEST_REQUEST_MANAGER.md)** – รายละเอียดเวิร์กโฟลว์คำขอตรวจ
+- **[User Profile](docs/USER_PROFILE.md)** – การจัดการโปรไฟล์ผู้ใช้
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## การแก้ปัญหาเบื้องต้น
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/the-boys-group/pgx-project.git
-git branch -M main
-git push -uf origin main
-```
+### แอปไม่เริ่มทำงาน
+- ตรวจสอบไฟล์ `.env` ว่ากำหนดค่า Supabase ถูกต้อง
+- ใช้ Node.js เวอร์ชัน 16 ขึ้นไป
+- ดูข้อความผิดพลาดในคอนโซล
 
-## Integrate with your tools
+### ค้นหาไม่ขึ้นผลลัพธ์
+- ตรวจสอบการเชื่อมต่อฐานข้อมูล
+- ดูข้อผิดพลาดในคอนโซลของหน้าเว็บ
+- ตรวจรูปแบบคำค้นหา
 
-- [ ] [Set up project integrations](https://gitlab.com/the-boys-group/pgx-project/-/settings/integrations)
+### สร้าง PDF ไม่สำเร็จ
+- ตรวจว่ามีโฟลเดอร์ `reports/`
+- ตรวจว่ามีไฟล์ฟอนต์ไทยในโฟลเดอร์ `fonts/`
+- ตรวจว่าข้อมูลผู้ป่วย/คำขอตรวจครบถ้วน
 
-## Collaborate with your team
+## สัญญาอนุญาต
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+สงวนลิขสิทธิ์ทั้งหมด (Proprietary)
 
-## Test and Deploy
+## ติดต่อทีมพัฒนา
 
-Use the built-in continuous integration in GitLab.
+หากพบปัญหาหรือมีคำถาม โปรดติดต่อทีมพัฒนา
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+## สถานะโครงการ
 
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+กำลังพัฒนาอย่างต่อเนื่อง โดยปรับปรุงฟีเจอร์ตามความต้องการของผู้ใช้งานและหน่วยบริการสุขภาพ

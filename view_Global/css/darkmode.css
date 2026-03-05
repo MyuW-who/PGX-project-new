@@ -96,7 +96,6 @@ html.dark .app-shell {
 }
 
 html.dark .page-header {
-  background: var(--card-bg);
   border-color: var(--border);
   /* Box model properties inherited from light mode - only colors change */
 }

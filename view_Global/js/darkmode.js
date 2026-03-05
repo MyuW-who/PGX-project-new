@@ -33,3 +33,4 @@ themeBtn?.addEventListener('click', () => {
     updateChartsForTheme();
   }
 });
+

@@ -3,6 +3,8 @@
    ============================================ */
 
 let specimenSlaMap = {};
+let allPendingRequests = []; // Store all pending requests for filtering
+let currentFilter = 'all'; // Track current filter: 'all', 'normal', 'warning', 'overdue'
 
 /* ========= Bootstrap ========= */
 window.addEventListener('DOMContentLoaded', async () => {
@@ -16,10 +18,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     // 2. ดึงข้อมูล Test Requests - Filter for pending only
     const testRequests = await window.electronAPI.getTestRequests();
-    const pendingRequests = testRequests.filter(r => r.status?.toLowerCase() === 'pending');
-    console.log('📦 Pending Test Requests:', pendingRequests);
-    renderTestRequests(pendingRequests);
+    allPendingRequests = testRequests.filter(r => r.status?.toLowerCase() === 'pending');
+    console.log('📦 Pending Test Requests:', allPendingRequests);
+    renderTestRequests(allPendingRequests);
     await updateStatsFromAPI();
+    setupStatCardListeners();
   } catch (e) {
     console.error('fetch test requests error', e);
     renderTestRequests([]);
@@ -28,13 +31,92 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 /* ========= Elements & Events ========= */
 
+// Setup click listeners for stat cards
+function setupStatCardListeners() {
+  // Pending Cases - show all
+  document.getElementById('statCardPending')?.addEventListener('click', () => {
+    currentFilter = 'all';
+    applyTATFilter();
+    highlightActiveCard('statCardPending');
+  });
+  
+  // TAT Normal - show <80%
+  document.getElementById('statCardNormal')?.addEventListener('click', () => {
+    currentFilter = 'normal';
+    applyTATFilter();
+    highlightActiveCard('statCardNormal');
+  });
+  
+  // TAT Warning - show 80-100%
+  document.getElementById('statCardWarning')?.addEventListener('click', () => {
+    currentFilter = 'warning';
+    applyTATFilter();
+    highlightActiveCard('statCardWarning');
+  });
+  
+  // TAT Overdue - show >100%
+  document.getElementById('statCardOverdue')?.addEventListener('click', () => {
+    currentFilter = 'overdue';
+    applyTATFilter();
+    highlightActiveCard('statCardOverdue');
+  });
+}
+
+// Apply TAT filter based on current selection
+function applyTATFilter() {
+  if (currentFilter === 'all') {
+    renderTestRequests(allPendingRequests);
+    return;
+  }
+  
+  // Calculate TAT for each request and filter
+  const dataWithTAT = allPendingRequests.map(req => {
+    const specimen = req.specimen || req.Specimen || '-';
+    const requestDate = req.request_date || req.created_at;
+    const tat = calculateTAT(requestDate, specimen, req.status);
+    return { ...req, tat };
+  });
+  
+  let filtered = [];
+  if (currentFilter === 'normal') {
+    filtered = dataWithTAT.filter(r => r.tat.tatClass === 'tat-normal');
+  } else if (currentFilter === 'warning') {
+    filtered = dataWithTAT.filter(r => r.tat.tatClass === 'tat-warning');
+  } else if (currentFilter === 'overdue') {
+    filtered = dataWithTAT.filter(r => r.tat.tatClass === 'tat-overdue');
+  }
+  
+  renderTestRequests(filtered);
+}
+
+// Highlight active stat card
+function highlightActiveCard(activeCardId) {
+  const cards = ['statCardPending', 'statCardNormal', 'statCardWarning', 'statCardOverdue'];
+  cards.forEach(cardId => {
+    const card = document.getElementById(cardId);
+    if (card) {
+      if (cardId === activeCardId) {
+        card.style.transform = 'scale(1.05)';
+        card.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
+      } else {
+        card.style.transform = 'scale(1)';
+        card.style.boxShadow = '';
+      }
+    }
+  });
+}
+
 
 
 document.getElementById('searchInput')?.addEventListener('input', async e => {
   const kw = e.target.value.trim();
   try {
     const data = kw ? await window.electronAPI.searchTestRequests(kw) : await window.electronAPI.getTestRequests();
-    renderTestRequests(data);
+    // Filter to show only pending requests
+    allPendingRequests = data.filter(r => r.status?.toLowerCase() === 'pending');
+    
+    // Apply current TAT filter if any
+    applyTATFilter();
   } catch (err) {
     console.error('search error', err);
     renderTestRequests([]);
@@ -90,25 +172,36 @@ function calculateTAT(requestDate, specimen, status) {
     return { percentage: 0, tatClass: '', tatIcon: '', showTAT: false };
   }
   
-  const specimenKey = (specimen || '').toLowerCase();
-  const slaDays = parseFloat(specimenSlaMap[specimenKey]);
+  const specimenKey = (specimen || '').toLowerCase().trim();
+  let slaHours = parseFloat(specimenSlaMap[specimenKey]);
   
-  if (!slaDays || slaDays <= 0) {
-    return { percentage: 0, tatClass: '', tatIcon: '', showTAT: false };
+  // If no match found, try to use default based on common patterns or use a default value
+  if (!slaHours || slaHours <= 0) {
+    console.log(`⚠️ No SLA found for specimen: "${specimenKey}", using default 72 hours`);
+    slaHours = 72; // Default 3 days
   }
   
+  // Convert SLA from hours to days for display
+  const slaDays = slaHours / 24;
+  
+  console.log(`🔍 TAT Debug - Specimen: "${specimen}" | SLA: ${slaHours}h (${slaDays}d)`);
+  
   const elapsedMs = now - startDate;
+  const elapsedHours = elapsedMs / (1000 * 60 * 60);
   const elapsedDays = elapsedMs / (1000 * 60 * 60 * 24);
-  const percentage = (elapsedDays / slaDays) * 100;
+  const percentage = (elapsedHours / slaHours) * 100;
   
   let tatClass = '';
   let tatIcon = '';
   let priority = 0;
+  let displayPercentage = Math.round(percentage);
   
+  // Cap display at >100% for overdue cases
   if (percentage > 100) {
     tatClass = 'tat-overdue';
     tatIcon = 'fa-exclamation-circle';
     priority = 3;
+    displayPercentage = '>100';
   } else if (percentage >= 80) {
     tatClass = 'tat-warning';
     tatIcon = 'fa-exclamation-triangle';
@@ -120,7 +213,7 @@ function calculateTAT(requestDate, specimen, status) {
   }
   
   return { 
-    percentage: Math.round(percentage), 
+    percentage: displayPercentage, 
     tatClass, 
     tatIcon, 
     showTAT: true,
